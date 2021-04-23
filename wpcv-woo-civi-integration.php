@@ -256,24 +256,24 @@ class Woocommerce_CiviCRM {
 	 */
 	private function include_files() {
 		// Include WooCommerce CiviCRM Helper class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woocommerce-civicrm-helper.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-helper.php';
 		// Include WooCommerce settings tab class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woocommerce-civicrm-settings-tab.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-settings-tab.php';
 		// Include CiviCRM orders tab class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woocommerce-civicrm-orders-contact-tab.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-orders-contact-tab.php';
 		// Include WooCommerce functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woocommerce-civicrm-manager.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-manager.php';
 		// Include Address Sync functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woocommerce-civicrm-sync.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-sync.php';
 		// Include States replacement functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woocommerce-civicrm-states.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-states.php';
 		// Include Products functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woocommerce-civicrm-products.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-products.php';
 		// Include Orders functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woocommerce-civicrm-orders.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-orders.php';
 
 		// Include POS functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woocommerce-civicrm-pos.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-pos.php';
 
 	}
 

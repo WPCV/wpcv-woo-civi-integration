@@ -51,11 +51,11 @@ class Woocommerce_CiviCRM_Sync {
 	 */
 	public function include_files() {
 		// Include Address Sync functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/sync/class-woocommerce-civicrm-sync-address.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/sync/class-woo-civi-sync-address.php';
 		// Include Phone Sync functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/sync/class-woocommerce-civicrm-sync-phone.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/sync/class-woo-civi-sync-phone.php';
 		// Include Email Sync functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/sync/class-woocommerce-civicrm-sync-email.php';
+		include WOOCOMMERCE_CIVICRM_PATH . 'includes/sync/class-woo-civi-sync-email.php';
 	}
 
 	/**
