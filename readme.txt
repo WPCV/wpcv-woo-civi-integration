@@ -1,4 +1,4 @@
-=== Woocommerce CiviCRM ===
+=== Integrate CiviCRM with WooCommerce ===
 Contributors: veda-consulting, mecachisenros, rajeshrhino, JoeMurray, kcristiano, cdhassell, bastho
 Tags: civicrm, woocommerce, integration
 Requires at least: 4.5

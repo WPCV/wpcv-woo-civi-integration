@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Woocommerce CiviCRM
+ * Plugin Name: Integrate CiviCRM with WooCommerce
  * Plugin URI: http://www.vedaconsulting.co.uk
  * Description: Plugin for intergrating WooCommerce with CiviCRM
  * Author: Veda NFP Consulting Ltd

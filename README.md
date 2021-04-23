@@ -1,4 +1,4 @@
-# WooCommerce CiviCRM Integration
+# Integrate CiviCRM with WooCommerce
 
 ## Installation
 
