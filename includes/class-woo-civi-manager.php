@@ -906,7 +906,15 @@ class WPCV_Woo_Civi_Manager {
 		} else {
 			wp_nonce_field( 'woocommerce_civicrm_order_edit', 'woocommerce_civicrm_order_edit' );
 		}
-		wp_enqueue_script( 'wccivi_admin_order', WOOCOMMERCE_CIVICRM_URL . 'js/admin_order.js', 'jquery', '1.0', true );
+
+		wp_enqueue_script(
+			'wccivi_admin_order',
+			WPCV_WOO_CIVI_URL . 'js/admin_order.js',
+			'jquery',
+			WPCV_WOO_CIVI_VERSION,
+			true
+		);
+
 		$order_campaign = get_post_meta( $order->get_id(), '_woocommerce_civicrm_campaign_id', true );
 
 		// If there is no Campaign selected, select the default one as defined on our Settings page.

@@ -104,7 +104,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 */
 	public function register_custom_php_directory( &$config ) {
 		$this->fix_site();
-		$custom_path = WOOCOMMERCE_CIVICRM_PATH . 'custom_php';
+		$custom_path = WPCV_WOO_CIVI_PATH . 'custom_php';
 		$include_path = $custom_path . PATH_SEPARATOR . get_include_path();
 		// phpcs:ignore
 		set_include_path( $include_path );
@@ -120,7 +120,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 */
 	public function register_custom_template_directory( &$config ) {
 		$this->fix_site();
-		$custom_path = WOOCOMMERCE_CIVICRM_PATH . 'custom_tpl';
+		$custom_path = WPCV_WOO_CIVI_PATH . 'custom_tpl';
 		$template = CRM_Core_Smarty::singleton()->addTemplateDir( $custom_path );
 		$include_template_path = $custom_path . PATH_SEPARATOR . get_include_path();
 		// phpcs:ignore
@@ -137,7 +137,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 */
 	public function register_callback( &$files ) {
 		$this->fix_site();
-		$files[] = WOOCOMMERCE_CIVICRM_PATH . 'xml/menu.xml';
+		$files[] = WPCV_WOO_CIVI_PATH . 'xml/menu.xml';
 		$this->unfix_site();
 	}
 

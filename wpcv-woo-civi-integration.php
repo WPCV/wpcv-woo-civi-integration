@@ -1,19 +1,18 @@
 <?php
 /**
  * Plugin Name: Integrate CiviCRM with WooCommerce
- * Plugin URI: http://www.vedaconsulting.co.uk
- * Description: Plugin for intergrating WooCommerce with CiviCRM
- * Author: Veda NFP Consulting Ltd
- * Version: 2.3
- * Author URI: http://www.vedaconsulting.co.uk
+ * Plugin URI: https://github.com/WPCV/wpcv-woo-civi-integration
+ * Description: Provides integration between CiviCRM with WooCommerce.
+ * Author: Andrei Mondoc
+ * Author URI: https://github.com/mecachisenros
+ * Version: 3.0
  * Text Domain: wpcv-woo-civi-integration
- * Domain path: /languages
+ * Domain Path: /languages
+ * Depends: CiviCRM
  */
 
-// If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
-}
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
  * WPCV WooCommerce CiviCRM class.
@@ -203,9 +202,9 @@ class WPCV_Woo_Civi {
 	 * @since 2.0
 	 */
 	private function define_constants() {
-		define( 'WOOCOMMERCE_CIVICRM_VER', '2.1' );
-		define( 'WOOCOMMERCE_CIVICRM_URL', plugin_dir_url( __FILE__ ) );
-		define( 'WOOCOMMERCE_CIVICRM_PATH', plugin_dir_path( __FILE__ ) );
+		define( 'WPCV_WOO_CIVI_VERSION', '3.0' );
+		define( 'WPCV_WOO_CIVI_URL', plugin_dir_url( __FILE__ ) );
+		define( 'WPCV_WOO_CIVI_PATH', plugin_dir_path( __FILE__ ) );
 	}
 
 	/**
@@ -256,24 +255,24 @@ class WPCV_Woo_Civi {
 	 */
 	private function include_files() {
 		// Include Helper class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-helper.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-helper.php';
 		// Include WooCommerce settings tab class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-settings-tab.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-settings-tab.php';
 		// Include CiviCRM orders tab class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-orders-contact-tab.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-orders-contact-tab.php';
 		// Include WooCommerce functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-manager.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-manager.php';
 		// Include Address Sync functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-sync.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-sync.php';
 		// Include States replacement functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-states.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-states.php';
 		// Include Products functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-products.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-products.php';
 		// Include Orders functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-orders.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-orders.php';
 
 		// Include POS functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-pos.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-pos.php';
 
 	}
 

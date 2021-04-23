@@ -81,7 +81,7 @@ class WPCV_Woo_Civi_POS {
 	 */
 	public function wc_pos_campaign_js( $js ) {
 		wp_nonce_field( 'woocommerce_civicrm_order_new', 'woocommerce_civicrm_order_new' );
-		$js['pos-campaign-js'] = WOOCOMMERCE_CIVICRM_URL . 'js/pos_campaign.js';
+		$js['pos-campaign-js'] = WPCV_WOO_CIVI_URL . 'js/pos_campaign.js';
 		return $js;
 	}
 
@@ -94,7 +94,7 @@ class WPCV_Woo_Civi_POS {
 	 * @return $var
 	 */
 	public function wc_pos_campaign_css( $var ) {
-		$var['pos-campaign-css'] = WOOCOMMERCE_CIVICRM_URL . 'css/pos_campaign.css';
+		$var['pos-campaign-css'] = WPCV_WOO_CIVI_URL . 'css/pos_campaign.css';
 		return $var;
 	}
 

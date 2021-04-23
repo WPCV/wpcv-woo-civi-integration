@@ -62,11 +62,11 @@ class WPCV_Woo_Civi_Sync {
 	 */
 	public function include_files() {
 		// Include Address Sync functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/sync/class-woo-civi-sync-address.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/sync/class-woo-civi-sync-address.php';
 		// Include Phone Sync functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/sync/class-woo-civi-sync-phone.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/sync/class-woo-civi-sync-phone.php';
 		// Include Email Sync functionality class.
-		include WOOCOMMERCE_CIVICRM_PATH . 'includes/sync/class-woo-civi-sync-email.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/sync/class-woo-civi-sync-email.php';
 	}
 
 	/**
