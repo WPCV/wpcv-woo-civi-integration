@@ -6,7 +6,7 @@
  * Author: Veda NFP Consulting Ltd
  * Version: 2.3
  * Author URI: http://www.vedaconsulting.co.uk
- * Text Domain: woocommerce-civicrm
+ * Text Domain: wpcv-woo-civi-integration
  * Domain path: /languages
  */
 
@@ -189,8 +189,8 @@ class WPCV_Woo_Civi {
 	public function network_admin_menu() {
 		add_submenu_page(
 			'settings.php',
-			__( 'Integrate CiviCRM with WooCommerce Settings', 'woocommerce-civicrm' ),
-			__( 'Integrate CiviCRM with WooCommerce Settings', 'woocommerce-civicrm' ),
+			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
+			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
 			'manage_network_options',
 			'woocommerce-civicrm-settings',
 			[ $this->settings_tab, 'network_settings' ]
@@ -326,7 +326,7 @@ class WPCV_Woo_Civi {
 		// Load translations if present.
 		// phpcs:ignore WordPress.WP.DeprecatedParameters.Load_plugin_textdomainParam2Found
 		load_plugin_textdomain(
-			'woocommerce-civicrm', // Unique name.
+			'wpcv-woo-civi-integration', // Unique name.
 			'', // Deprecated argument.
 			dirname( plugin_basename( __FILE__ ) ) . '/languages/' // Relative path to translation files.
 		);
@@ -372,7 +372,7 @@ class WPCV_Woo_Civi {
 	 */
 	public function add_action_links( $links, $file ) {
 		if ( plugin_basename( __FILE__ ) === $file ) {
-			$links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=woocommerce_civicrm' ) . '">' . __( 'Settings', 'woocommerce-civicrm' ) . '</a>';
+			$links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=woocommerce_civicrm' ) . '">' . __( 'Settings', 'wpcv-woo-civi-integration' ) . '</a>';
 		}
 		return $links;
 	}

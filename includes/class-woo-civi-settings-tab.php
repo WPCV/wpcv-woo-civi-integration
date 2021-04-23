@@ -61,21 +61,21 @@ class WPCV_Woo_Civi_Settings_Tab {
 
 		add_settings_section(
 			'woocommerce-civicrm-settings-network-general',
-			__( 'General settings', 'woocommerce-civicrm' ),
+			__( 'General settings', 'wpcv-woo-civi-integration' ),
 			[ $this, 'settings_section_callback' ],
 			'woocommerce-civicrm-settings-network'
 		);
 
 		add_settings_field(
 			'woocommerce_civicrm_shop_blog_id',
-			__( 'Main WooCommerce blog ID', 'woocommerce-civicrm' ),
+			__( 'Main WooCommerce blog ID', 'wpcv-woo-civi-integration' ),
 			[ $this, 'settings_field_select' ],
 			'woocommerce-civicrm-settings-network',
 			'woocommerce-civicrm-settings-network-general',
 			[
 				'name' => 'wc_blog_id',
 				'network' => true,
-				'description' => __( 'The shop on a multisite network', 'woocommerce-civicrm' ),
+				'description' => __( 'The shop on a multisite network', 'wpcv-woo-civi-integration' ),
 				'options' => WCI()->helper->get_sites(),
 			]
 		);
@@ -146,7 +146,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 */
 	public function trigger_network_settings() {
 		if ( ! wp_verify_nonce( filter_input( INPUT_POST, 'woocommerce-civicrm-settings', FILTER_SANITIZE_STRING ), 'woocommerce-civicrm-settings' ) ) {
-			wp_die( __( 'Cheating uh?', 'woocommerce-civicrm' ) );
+			wp_die( __( 'Cheating uh?', 'wpcv-woo-civi-integration' ) );
 		}
 		if ( ! empty( $_POST['woocommerce_civicrm_network_settings']['wc_blog_id'] ) ) {
 			$settings = [
@@ -188,7 +188,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @return array $setting_tabs The modified setting tabs array.
 	 */
 	public function add_settings_tab( $setting_tabs ) {
-		$setting_tabs['woocommerce_civicrm'] = __( 'CiviCRM', 'woocommerce-civicrm' );
+		$setting_tabs['woocommerce_civicrm'] = __( 'CiviCRM', 'wpcv-woo-civi-integration' );
 		return $setting_tabs;
 	}
 
@@ -221,81 +221,81 @@ class WPCV_Woo_Civi_Settings_Tab {
 
 		$options = [
 			'section_title' => [
-				'name' => __( 'CiviCRM Settings', 'woocommerce-civicrm' ),
+				'name' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
 				'type' => 'title',
-				'desc' => __( 'Below are the values used when creating contribution/address in CiviCRM.', 'woocommerce-civicrm' ),
+				'desc' => __( 'Below are the values used when creating contribution/address in CiviCRM.', 'wpcv-woo-civi-integration' ),
 				'id' => 'woocommerce_civicrm_section_title',
 			],
 			'woocommerce_civicrm_financial_type_id' => [
-				'name' => __( 'Financial Type', 'woocommerce-civicrm' ),
+				'name' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WCI()->helper->financial_types,
 				'id'   => 'woocommerce_civicrm_financial_type_id',
 			],
 			'woocommerce_civicrm_financial_type_vat_id' => [
-				'name' => __( 'TAX/VAT Financial Type', 'woocommerce-civicrm' ),
+				'name' => __( 'TAX/VAT Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WCI()->helper->financial_types,
 				'id'   => 'woocommerce_civicrm_financial_type_vat_id',
 			],
 			'woocommerce_civicrm_financial_type_shipping_id' => [
-				'name' => __( 'Shipping Financial Type', 'woocommerce-civicrm' ),
+				'name' => __( 'Shipping Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WCI()->helper->financial_types,
 				'id'   => 'woocommerce_civicrm_financial_type_shipping_id',
 			],
 			'woocommerce_civicrm_campaign_id' => [
-				'name' => __( 'Default campaign', 'woocommerce-civicrm' ),
+				'name' => __( 'Default campaign', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WCI()->helper->campaigns,
 				'id'   => 'woocommerce_civicrm_campaign_id',
 			],
 			'woocommerce_civicrm_billing_location_type_id' => [
-				'name' => __( 'Billing Location Type', 'woocommerce-civicrm' ),
+				'name' => __( 'Billing Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WCI()->helper->location_types,
 				'id'   => 'woocommerce_civicrm_billing_location_type_id',
 			],
 			'woocommerce_civicrm_shipping_location_type_id' => [
-				'name' => __( 'Shipping Location Type', 'woocommerce-civicrm' ),
+				'name' => __( 'Shipping Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WCI()->helper->location_types,
 				'id'   => 'woocommerce_civicrm_shipping_location_type_id',
 			],
 			'woocommerce_civicrm_sync_contact_address' => [
-				'name' => __( 'Sync Contact address', 'woocommerce-civicrm' ),
+				'name' => __( 'Sync Contact address', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will synchronize WooCommerce user address with CiviCRM\'s contact address and viceversa.', 'woocommerce-civicrm' ),
+				'desc' => __( 'If enabled, this option will synchronize WooCommerce user address with CiviCRM\'s contact address and viceversa.', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_sync_contact_address',
 			],
 			'woocommerce_civicrm_sync_contact_phone' => [
-				'name' => __( 'Sync Contact billing phone', 'woocommerce-civicrm' ),
+				'name' => __( 'Sync Contact billing phone', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will synchronize WooCommerce user\'s billing phone with CiviCRM\'s contact billing phone and viceversa.', 'woocommerce-civicrm' ),
+				'desc' => __( 'If enabled, this option will synchronize WooCommerce user\'s billing phone with CiviCRM\'s contact billing phone and viceversa.', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_sync_contact_phone',
 			],
 			'woocommerce_civicrm_sync_contact_email' => [
-				'name' => __( 'Sync Contact billing email', 'woocommerce-civicrm' ),
+				'name' => __( 'Sync Contact billing email', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will synchronize WooCommerce user\'s billing email with CiviCRM\'s contact billing email and viceversa.', 'woocommerce-civicrm' ),
+				'desc' => __( 'If enabled, this option will synchronize WooCommerce user\'s billing email with CiviCRM\'s contact billing email and viceversa.', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_sync_contact_email',
 			],
 			'woocommerce_civicrm_replace_woocommerce_states' => [
-				'name' => __( 'Replace WooCommerce States', 'woocommerce-civicrm' ),
+				'name' => __( 'Replace WooCommerce States', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
-				'desc' => __( 'WARNING, DATA LOSS!! If enabled, this option will replace WooCommerce\'s States/Countries with CiviCRM\'s States/Provinces, you WILL lose any existing State/Country data for existing Customers. Any WooCommerce Settings that relay on State/Country will have to be reconfigured.', 'woocommerce-civicrm' ),
+				'desc' => __( 'WARNING, DATA LOSS!! If enabled, this option will replace WooCommerce\'s States/Countries with CiviCRM\'s States/Provinces, you WILL lose any existing State/Country data for existing Customers. Any WooCommerce Settings that relay on State/Country will have to be reconfigured.', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_replace_woocommerce_states',
 			],
 			'woocommerce_civicrm_ignore_0_amount_orders' => [
-				'name' => __( 'Don\'t create 0 amount contributions', 'woocommerce-civicrm' ),
+				'name' => __( 'Don\'t create 0 amount contributions', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will not create contributions for orders with a total of 0, i.e. free products (using a coupon).', 'woocommerce-civicrm' ),
+				'desc' => __( 'If enabled, this option will not create contributions for orders with a total of 0, i.e. free products (using a coupon).', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_ignore_0_amount_orders',
 			],
 			'woocommerce_civicrm_hide_orders_tab_for_non_customers' => [
-				'name' => __( 'Hide orders tab for non customers', 'woocommerce-civicrm' ),
+				'name' => __( 'Hide orders tab for non customers', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will remove the WooCommerce Orders tab in the contact summary page for non customers contacts.', 'woocommerce-civicrm' ),
+				'desc' => __( 'If enabled, this option will remove the WooCommerce Orders tab in the contact summary page for non customers contacts.', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_hide_orders_tab_for_non_customers',
 			],
 			'section_end' => [
@@ -324,7 +324,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	public function network_settings() {
 		?>
 		<div class="wrap">
-		<h2><?php esc_html_e( 'Integrate CiviCRM with WooCommerce Settings', 'woocommerce-civicrm' ); ?></h2>
+		<h2><?php esc_html_e( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ); ?></h2>
 		<?php settings_errors(); ?>
 		<form action="edit.php?action=woocommerce_civicrm_network_settings" method="post">
 			<?php wp_nonce_field( 'woocommerce-civicrm-settings', 'woocommerce-civicrm-settings' ); ?>

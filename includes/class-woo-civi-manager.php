@@ -103,13 +103,13 @@ class WPCV_Woo_Civi_Manager {
 
 		$cid = WCI()->helper->civicrm_get_cid( $order );
 		if ( false === $cid ) {
-			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'woocommerce-civicrm' ) );
+			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'wpcv-woo-civi-integration' ) );
 			return;
 		}
 
 		$cid = $this->add_update_contact( $cid, $order );
 		if ( false === $cid ) {
-			$order->add_order_note( __( 'CiviCRM Contact could not be found or created', 'woocommerce-civicrm' ) );
+			$order->add_order_note( __( 'CiviCRM Contact could not be found or created', 'wpcv-woo-civi-integration' ) );
 			return;
 		}
 
@@ -140,7 +140,7 @@ class WPCV_Woo_Civi_Manager {
 
 		$cid = WCI()->helper->civicrm_get_cid( $order );
 		if ( false === $cid ) {
-			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'woocommerce-civicrm' ) );
+			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'wpcv-woo-civi-integration' ) );
 			return;
 		}
 
@@ -181,7 +181,7 @@ class WPCV_Woo_Civi_Manager {
 			];
 			$result = civicrm_api3( 'Contribution', 'create', $params );
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'wpcv-woo-civi-integration' ) );
 			return;
 		}
 
@@ -210,7 +210,7 @@ class WPCV_Woo_Civi_Manager {
 				$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
 				$campaign_name = isset( $campaigns_result['values'][0]['name'] ) ? $campaigns_result['values'][0]['name'] : '';
 			} catch ( CiviCRM_API3_Exception $e ) {
-				CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'woocommerce-civicrm' ) );
+				CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'wpcv-woo-civi-integration' ) );
 				return false;
 			}
 		}
@@ -248,7 +248,7 @@ class WPCV_Woo_Civi_Manager {
 			];
 			$result = civicrm_api3( 'Contribution', 'create', $params );
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'wpcv-woo-civi-integration' ) );
 			return;
 		}
 
@@ -294,7 +294,7 @@ class WPCV_Woo_Civi_Manager {
 			];
 			$result = civicrm_api3( 'Contribution', 'create', $params );
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'wpcv-woo-civi-integration' ) );
 			return;
 		}
 
@@ -324,7 +324,7 @@ class WPCV_Woo_Civi_Manager {
 				];
 				$contact = civicrm_api3( 'contact', 'getsingle', $params );
 			} catch ( CiviCRM_API3_Exception $e ) {
-				CRM_Core_Error::debug_log_message( __( 'Not able to find contact', 'woocommerce-civicrm' ) );
+				CRM_Core_Error::debug_log_message( __( 'Not able to find contact', 'wpcv-woo-civi-integration' ) );
 				return false;
 			}
 		} else {
@@ -366,7 +366,7 @@ class WPCV_Woo_Civi_Manager {
 		}
 
 		if ( empty( $contact['contact_source'] ) ) {
-			$contact['contact_source'] = __( 'WooCommerce purchase', 'woocommerce-civicrm' );
+			$contact['contact_source'] = __( 'WooCommerce purchase', 'wpcv-woo-civi-integration' );
 		}
 
 		// Create (or update) CiviCRM Contact.
@@ -374,17 +374,17 @@ class WPCV_Woo_Civi_Manager {
 			$result = civicrm_api3( 'Contact', 'create', $contact );
 			$cid = $result['id'];
 
-			$contact_url = '<a href="' . get_admin_url() . 'admin.php?page=CiviCRM&q=civicrm/contact/view&reset=1&cid=' . $cid . '">' . __( 'View', 'woocommerce-civicrm' ) . '</a>';
+			$contact_url = '<a href="' . get_admin_url() . 'admin.php?page=CiviCRM&q=civicrm/contact/view&reset=1&cid=' . $cid . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
 
 			// Add Order note.
 			if ( 'update' === $action ) {
-				$note = __( 'CiviCRM Contact Updated - ', 'woocommerce-civicrm' ) . $contact_url;
+				$note = __( 'CiviCRM Contact Updated - ', 'wpcv-woo-civi-integration' ) . $contact_url;
 			} else {
-				$note = __( 'Created new CiviCRM Contact - ', 'woocommerce-civicrm' ) . $contact_url;
+				$note = __( 'Created new CiviCRM Contact - ', 'wpcv-woo-civi-integration' ) . $contact_url;
 			}
 			$order->add_order_note( $note );
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to create/update contact', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Not able to create/update contact', 'wpcv-woo-civi-integration' ) );
 			return false;
 		}
 
@@ -420,7 +420,7 @@ class WPCV_Woo_Civi_Manager {
 					if ( ! $phone_exists ) {
 						civicrm_api3( 'Phone', 'create', $phone );
 						/* translators: %1$s: Address Type, %2$s: Phone Number */
-						$note = sprintf( __( 'Created new CiviCRM Phone of type %1$s: %2$s', 'woocommerce-civicrm' ), $address_type, $phone['phone'] );
+						$note = sprintf( __( 'Created new CiviCRM Phone of type %1$s: %2$s', 'wpcv-woo-civi-integration' ), $address_type, $phone['phone'] );
 						$order->add_order_note( $note );
 					}
 				}
@@ -445,7 +445,7 @@ class WPCV_Woo_Civi_Manager {
 					if ( ! $email_exists ) {
 						civicrm_api3( 'Email', 'create', $email );
 						/* translators: %1$s: Address Type, %2$s: Email Address */
-						$note = sprintf( __( 'Created new CiviCRM Email of type %1$s: %2$s', 'woocommerce-civicrm' ), $address_type, $email['email'] );
+						$note = sprintf( __( 'Created new CiviCRM Email of type %1$s: %2$s', 'wpcv-woo-civi-integration' ), $address_type, $email['email'] );
 						$order->add_order_note( $note );
 					}
 				}
@@ -487,13 +487,13 @@ class WPCV_Woo_Civi_Manager {
 					if ( ! $address_exists ) {
 						civicrm_api3( 'Address', 'create', $address );
 						/* translators: %1$s: Address Type, %2$s: Street Address */
-						$note = sprintf( __( 'Created new CiviCRM Address of type %1$s: %2$s', 'woocommerce-civicrm' ), $address_type, $address['street_address'] );
+						$note = sprintf( __( 'Created new CiviCRM Address of type %1$s: %2$s', 'wpcv-woo-civi-integration' ), $address_type, $address['street_address'] );
 						$order->add_order_note( $note );
 					}
 				}
 			}
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to add/update address or phone', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Not able to add/update address or phone', 'wpcv-woo-civi-integration' ) );
 		}
 
 		return $cid;
@@ -521,7 +521,7 @@ class WPCV_Woo_Civi_Manager {
 		$order_paid_date = ! empty( $order_date ) ? $order_date->date( 'Y-m-d H:i:s' ) : gmdate( 'Y-m-d H:i:s' );
 
 		$order_id = $order->get_id();
-		$txn_id = __( 'WooCommerce Order - ', 'woocommerce-civicrm' ) . $order_id;
+		$txn_id = __( 'WooCommerce Order - ', 'wpcv-woo-civi-integration' ) . $order_id;
 		$invoice_id = $this->get_invoice_id( $order_id );
 
 		// Ensure number format is CiviCRM-compliant.
@@ -551,7 +551,7 @@ class WPCV_Woo_Civi_Manager {
 				$thousand_separator = $civi_thousand_separator;
 			}
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to fetch monetary settings', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Not able to fetch monetary settings', 'wpcv-woo-civi-integration' ) );
 		}
 
 		$sales_tax_raw = $order->get_total_tax();
@@ -734,7 +734,7 @@ class WPCV_Woo_Civi_Manager {
 				$order->add_order_note(
 					sprintf(
 						/* translators: %s: The Contact Summary Page URL */
-						__( 'Contribution %s has been created in CiviCRM', 'woocommerce-civicrm' ),
+						__( 'Contribution %s has been created in CiviCRM', 'wpcv-woo-civi-integration' ),
 						'<a href="'
 						. add_query_arg(
 							[
@@ -757,7 +757,7 @@ class WPCV_Woo_Civi_Manager {
 			}
 		} catch ( CiviCRM_API3_Exception $e ) {
 			// Log the error, but continue.
-			CRM_Core_Error::debug_log_message( __( 'Not able to add contribution', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Not able to add contribution', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 		}
 
@@ -887,7 +887,7 @@ class WPCV_Woo_Civi_Manager {
 		}
 
 		if ( '' === $source ) {
-			$source = __( 'shop', 'woocommerce-civicrm' );
+			$source = __( 'shop', 'wpcv-woo-civi-integration' );
 		}
 
 		return $source;
@@ -922,8 +922,8 @@ class WPCV_Woo_Civi_Manager {
 		}
 		?>
 		<p class="form-field form-field-wide wc-civicrmcampaign">
-			<label for="order_civicrmcampaign"><?php esc_html_e( 'CiviCRM Campaign', 'woocommerce-civicrm' ); ?></label>
-			<select id="order_civicrmcampaign" name="order_civicrmcampaign" data-placeholder="<?php esc_attr( __( 'CiviCRM Campaign', 'woocommerce-civicrm' ) ); ?>">
+			<label for="order_civicrmcampaign"><?php esc_html_e( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ); ?></label>
+			<select id="order_civicrmcampaign" name="order_civicrmcampaign" data-placeholder="<?php esc_attr( __( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ) ); ?>">
 				<option value=""></option>
 				<?php foreach ( $campaign_list as $campaign_id => $campaign_name ) : ?>
 				<option value="<?php esc_attr( $campaign_id ); ?>" <?php selected( $campaign_id, $order_campaign, true ); ?>><?php echo esc_attr( $campaign_name ); ?></option>
@@ -939,8 +939,8 @@ class WPCV_Woo_Civi_Manager {
 
 		?>
 		<p class="form-field form-field-wide wc-civicrmsource">
-			<label for="order_civicrmsource"><?php esc_html_e( 'CiviCRM Source', 'woocommerce-civicrm' ); ?></label>
-			<input type='text' list="sources" id="order_civicrmsource" name="order_civicrmsource" data-placeholder="<?php esc_attr_e( 'CiviCRM Source', 'woocommerce-civicrm' ); ?>" value="<?php echo esc_attr( $order_source ); ?>">
+			<label for="order_civicrmsource"><?php esc_html_e( 'CiviCRM Source', 'wpcv-woo-civi-integration' ); ?></label>
+			<input type='text' list="sources" id="order_civicrmsource" name="order_civicrmsource" data-placeholder="<?php esc_attr_e( 'CiviCRM Source', 'wpcv-woo-civi-integration' ); ?>" value="<?php echo esc_attr( $order_source ); ?>">
 			<datalist id="sources">
 
 			<?php
@@ -966,7 +966,7 @@ class WPCV_Woo_Civi_Manager {
 				<?php
 				echo sprintf(
 					/* translators: %s: Contact Summary Screen link */
-					__( 'View %s in CiviCRM', 'woocommerce-civicrm' ),
+					__( 'View %s in CiviCRM', 'wpcv-woo-civi-integration' ),
 					'<a href="'
 					. add_query_arg(
 						[
@@ -979,7 +979,7 @@ class WPCV_Woo_Civi_Manager {
 						admin_url( 'admin.php' )
 					)
 					. '" target="_blank"> '
-					. _x( 'Contact', 'in: View Contact in CiviCRM', 'woocommerce-civicrm' )
+					. _x( 'Contact', 'in: View Contact in CiviCRM', 'wpcv-woo-civi-integration' )
 					. '</a>'
 				);
 				?>
@@ -1032,7 +1032,7 @@ class WPCV_Woo_Civi_Manager {
 					setcookie( 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH, ' ', time() - YEAR_IN_SECONDS );
 				}
 			} catch ( CiviCRM_API3_Exception $e ) {
-				CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'woocommerce-civicrm' ) );
+				CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'wpcv-woo-civi-integration' ) );
 				return false;
 			}
 		}

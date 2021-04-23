@@ -181,7 +181,7 @@ class WPCV_Woo_Civi_Helper {
 					return $uf_match['values'][0]['contact_id'];
 				}
 			} catch ( CiviCRM_API3_Exception $e ) {
-				CRM_Core_Error::debug_log_message( __( 'Failed to get contact from UF table', 'woocommerce-civicrm' ) );
+				CRM_Core_Error::debug_log_message( __( 'Failed to get contact from UF table', 'wpcv-woo-civi-integration' ) );
 				CRM_Core_Error::debug_log_message( $e->getMessage() );
 			}
 		} elseif ( $email != '' ) {
@@ -194,14 +194,14 @@ class WPCV_Woo_Civi_Helper {
 			];
 		}
 		if ( ! isset( $params ) ) {
-			CRM_Core_Error::debug_log_message( __( 'Cannot guess contact without an email', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Cannot guess contact without an email', 'wpcv-woo-civi-integration' ) );
 			return false;
 		}
 
 		try {
 			$contact = civicrm_api3( 'Contact', 'get', $params );
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Failed to get contact by email', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Failed to get contact by email', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
@@ -478,7 +478,7 @@ class WPCV_Woo_Civi_Helper {
 		$campaigns_result = civicrm_api3( 'Campaign', 'get', apply_filters( 'woocommerce_civicrm_campaigns_params', $params ) );
 
 		$civicrm_campaigns = [
-			__( 'None', 'woocommerce-civicrm' ),
+			__( 'None', 'wpcv-woo-civi-integration' ),
 		];
 		foreach ( $campaigns_result['values'] as $key => $value ) {
 			$civicrm_campaigns[ $value['id'] ] = $value['name'];
@@ -524,7 +524,7 @@ class WPCV_Woo_Civi_Helper {
 		$all_campaigns_result = civicrm_api3( 'Campaign', 'get', apply_filters( 'woocommerce_civicrm_campaigns_params', $params ) );
 
 		$all_campaigns = [
-			__( 'None', 'woocommerce-civicrm' ),
+			__( 'None', 'wpcv-woo-civi-integration' ),
 		];
 
 		foreach ( $all_campaigns_result['values'] as $key => $value ) {
@@ -791,7 +791,7 @@ class WPCV_Woo_Civi_Helper {
 				]
 			);
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to retrieve default price set', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Not able to retrieve default price set', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return null;
 		}
@@ -822,13 +822,13 @@ class WPCV_Woo_Civi_Helper {
 		$options = [
 			sprintf(
 				/* translators: %s: The Financial Type */
-				'-- ' . __( 'Default (%s)', 'woocommerce-civicrm' ),
-				$this->financial_types[ $default_financial_type_id ] ?? __( 'unset', 'woocommerce-civicrm' )
+				'-- ' . __( 'Default (%s)', 'wpcv-woo-civi-integration' ),
+				$this->financial_types[ $default_financial_type_id ] ?? __( 'Not set', 'wpcv-woo-civi-integration' )
 			),
 		]
 		+ $this->financial_types +
 		[
-			'exclude' => '-- ' . __( 'Exclude', 'woocommerce-civicrm' ),
+			'exclude' => '-- ' . __( 'Exclude', 'wpcv-woo-civi-integration' ),
 		];
 
 		return $options;
@@ -854,7 +854,7 @@ class WPCV_Woo_Civi_Helper {
 				]
 			);
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Membership Types.', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Membership Types.', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return [];
 		}

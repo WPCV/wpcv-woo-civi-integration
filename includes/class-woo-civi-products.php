@@ -66,7 +66,7 @@ class WPCV_Woo_Civi_Products {
 	public function add_civicrm_product_tab( $tabs ) {
 
 		$tabs['woocommerce_civicrm'] = [
-			'label' => __( 'CiviCRM Settings', 'woocommerce-civicrm' ),
+			'label' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
 			'target'   => 'woocommerce_civicrm',
 		];
 
@@ -129,10 +129,10 @@ class WPCV_Woo_Civi_Products {
 					? esc_html( $contributions_types[ $contribution_type ] )
 					: sprintf(
 						/* translators: %s: The default Financial Type */
-						__( '%s (Default)', 'woocommerce-civicrm' ),
+						__( '%s (Default)', 'wpcv-woo-civi-integration' ),
 						isset( $contributions_types[ $default_contribution_type_id ] )
 							? $contributions_types[ $default_contribution_type_id ]
-							: __( 'Not set', 'woocommerce-civicrm' )
+							: __( 'Not set', 'wpcv-woo-civi-integration' )
 					)
 			);
 		}
@@ -149,16 +149,16 @@ class WPCV_Woo_Civi_Products {
 		echo '
 			<div class="inline-edit-group">
 			<label class="alignleft">
-				<span class="title">' . __( 'Contribution Type', 'woocommerce-civicrm' ) . '</span>
+				<span class="title">' . __( 'Contribution Type', 'wpcv-woo-civi-integration' ) . '</span>
 				<span class="input-text-wrap">
 				<select style="" id="_civicrm_contribution_type" name="civicrm_contribution_type" class="select short">';
 		$contributions_types = WCI()->helper->financial_types;
 		$options = [
-			__( '— No change —', 'woocommerce-civicrm' ),
+			__( '— No change —', 'wpcv-woo-civi-integration' ),
 		]
 		+ $contributions_types +
 		[
-			'exclude' => '-- ' . __( 'Exclude', 'woocommerce-civicrm' ),
+			'exclude' => '-- ' . __( 'Exclude', 'wpcv-woo-civi-integration' ),
 		];
 
 		foreach ( $options as $key => $value ) {

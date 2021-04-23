@@ -120,7 +120,7 @@ class WPCV_Woo_Civi_POS {
 		} else {
 			wp_send_json_error(
 				[
-					'error_message' => __( 'Missing "campaign_id" or "source".', 'woocommerce-civicrm' ),
+					'error_message' => __( 'Missing "campaign_id" or "source".', 'wpcv-woo-civi-integration' ),
 					'data' => [
 						'campaign_id' => empty( $_POST['campaign_id'] ) ? '' : $_POST['campaign_id'],
 						'source' => empty( $_POST['source'] ) ? '' : $_POST['source'],
@@ -158,7 +158,7 @@ class WPCV_Woo_Civi_POS {
 			<div class="wc-civicrmcampaign">
 				<div class="list-row">
 					<div>
-						<select id="order_civicrmcampaign" name="order_civicrmcampaign" placeholder="' . __( 'CiviCRM Campaign', 'woocommerce-civicrm' ) . '">';
+						<select id="order_civicrmcampaign" name="order_civicrmcampaign" placeholder="' . __( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ) . '">';
 						foreach ( WCI()->helper->campaigns as $campaign_id => $campaign_name ) {
 							// Select by default the $order_campaign.
 							$render .= '<option value="' . $campaign_id . '" ' . selected( $campaign_id, $order_campaign, false ) . '>' . $campaign_name . '</option>';
@@ -166,12 +166,12 @@ class WPCV_Woo_Civi_POS {
 						$render .= '</select>
 					</div>
 					<div>
-						<label for="order_civicrmcampaign">' . __( 'CiviCRM Campaign', 'woocommerce-civicrm' ) . '</label>
+						<label for="order_civicrmcampaign">' . __( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ) . '</label>
 					</div>
 				</div>
 				<div class="list-row">
 					<div>
-						<input type="text" list="sources" id="order_civicrmsource" name="order_civicrmsource" placeholder="' . __( 'CiviCRM Source', 'woocommerce-civicrm' ) . '" value="' . $order_source . '">
+						<input type="text" list="sources" id="order_civicrmsource" name="order_civicrmsource" placeholder="' . __( 'CiviCRM Source', 'wpcv-woo-civi-integration' ) . '" value="' . $order_source . '">
 						<datalist id="sources">';
 						global $wpdb;
 						$results = $wpdb->get_results( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '_order_source'" );
@@ -183,7 +183,7 @@ class WPCV_Woo_Civi_POS {
 						$render .= '</datalist>
 					</div>
 					<div>
-						<label for="order_civicrmsource">' . __( 'CiviCRM Source', 'woocommerce-civicrm' ) . '</label>
+						<label for="order_civicrmsource">' . __( 'CiviCRM Source', 'wpcv-woo-civi-integration' ) . '</label>
 					</div>
 				</div>
 			</div>

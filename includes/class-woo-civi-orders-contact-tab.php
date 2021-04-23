@@ -174,7 +174,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 		$tabs[] = [
 			'id' => 'woocommerce-orders',
 			'url' => $url,
-			'title' => __( 'WooCommerce Orders', 'woocommerce-civicrm' ),
+			'title' => __( 'WooCommerce Orders', 'wpcv-woo-civi-integration' ),
 			'count' => $this->count_orders( $cid ),
 			'weight' => 99,
 		];
@@ -199,7 +199,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 				];
 				$contact = civicrm_api3( 'Contact', 'getsingle', $params );
 			} catch ( CiviCRM_API3_Exception $e ) {
-				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'woocommerce-civicrm' ) );
+				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
 				$this->unfix_site();
 				return [];
 			}

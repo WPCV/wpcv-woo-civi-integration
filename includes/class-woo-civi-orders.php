@@ -52,8 +52,8 @@ class WPCV_Woo_Civi_Orders {
 	public function columns_head( $defaults ) {
 		$nb_cols = count( $defaults );
 		$new_cols = [
-			'campaign' => __( 'Campaign', 'woocommerce-civicrm' ),
-			'source' => __( 'Source', 'woocommerce-civicrm' ),
+			'campaign' => __( 'Campaign', 'wpcv-woo-civi-integration' ),
+			'source' => __( 'Source', 'wpcv-woo-civi-integration' ),
 		];
 		$columns = array_slice( $defaults, 0, $nb_cols - 2, true )
 			+ $new_cols
@@ -83,7 +83,7 @@ class WPCV_Woo_Civi_Orders {
 					$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
 					echo isset( $campaigns_result['values'][0]['name'] ) ? esc_attr( $campaigns_result['values'][0]['name'] ) : '';
 				} catch ( CiviCRM_API3_Exception $e ) {
-					CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'woocommerce-civicrm' ) );
+					CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'wpcv-woo-civi-integration' ) );
 				}
 			}
 		}
@@ -111,7 +111,7 @@ class WPCV_Woo_Civi_Orders {
 			$selected = filter_input( INPUT_GET, 'shop_order_campaign_id', FILTER_VALIDATE_INT );
 			?>
 			<select name='shop_order_campaign_id' id='dropdown_shop_order_campaign_id'>
-				<option value=""><?php esc_html_e( 'All campaigns', 'woocommerce-civicrm' ); ?></option>
+				<option value=""><?php esc_html_e( 'All campaigns', 'wpcv-woo-civi-integration' ); ?></option>
 				<?php foreach ( $campaign_list as $campaign_id => $campaign_name ) : ?>
 					<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php selected( $selected, $campaign_id ); ?>>
 						<?php echo esc_attr( $campaign_name ); ?>
@@ -127,7 +127,7 @@ class WPCV_Woo_Civi_Orders {
 			$selected = filter_input( INPUT_GET, 'shop_order_source' );
 			?>
 			<select name='shop_order_source' id='dropdown_shop_order_source'>
-				<option value=""><?php esc_html_e( 'All sources', 'woocommerce-civicrm' ); ?></option>
+				<option value=""><?php esc_html_e( 'All sources', 'wpcv-woo-civi-integration' ); ?></option>
 				<?php foreach ( $results as $meta ) : ?>
 					<option value="<?php echo esc_attr( $meta->meta_value ); ?>" <?php selected( $selected, $meta->meta_value ); ?>>
 						<?php echo esc_attr( $meta->meta_value ); ?>
