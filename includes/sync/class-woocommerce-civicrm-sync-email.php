@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Woocommerce CiviCRM Sync Email class.
+ * WooCommerce CiviCRM Sync Email class.
  *
  * @since 2.0
  */
@@ -22,14 +22,14 @@ class Woocommerce_CiviCRM_Sync_Email {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
-		// Sync Woocommerce and Civicrm email for contact/user.
+		// Sync WooCommerce and CiviCRM email for contact/user.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
-		// Sync Woocommerce and Civicrm email for user/contact.
+		// Sync WooCommerce and CiviCRM email for user/contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_email' ], 10, 2 );
 	}
 
 	/**
-	 * Sync Civicrm email for contact->user.
+	 * Sync CiviCRM email for contact->user.
 	 *
 	 * Fires when a Civi contact's email is edited.
 	 *
@@ -80,20 +80,20 @@ class Woocommerce_CiviCRM_Sync_Email {
 		}
 
 		/**
-		 * Broadcast that a Woocommerce email has been updated for a user.
+		 * Broadcast that a WooCommerce email has been updated for a user.
 		 *
 		 * @since 2.0
 		 * @param int $user_id The WordPress user_id.
-		 * @param string $email_type The Woocommerce email type 'billing' || 'shipping'.
+		 * @param string $email_type The WooCommerce email type 'billing' || 'shipping'.
 		 */
 		do_action( 'woocommerce_civicrm_wc_email_updated', $cms_user['uf_id'], $email_type );
 
 	}
 
 	/**
-	 * Sync Woocommerce email for user->contact.
+	 * Sync WooCommerce email for user->contact.
 	 *
-	 * Fires when Woocomerce email is edited.
+	 * Fires when WooCommerce email is edited.
 	 *
 	 * @since 2.0
 	 * @param int $user_id The WP user_id.

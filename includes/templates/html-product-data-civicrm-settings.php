@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 ?>
-<div id="woocommerece_civicrm" class="panel woocommerce_options_panel hidden">
+<div id="woocommerce_civicrm" class="panel woocommerce_options_panel hidden">
 	<div>
 		<?php
 
@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				'name' => 'woocommerce_civicrm_membership_type_id',
 				'label' => __( 'Membership Type', 'woocommerce-civicrm' ),
 				'desc_tip' => 'true',
-				'description' => __( 'Select a Membership Type if you would like this product to create a Membership in CiviCRM, the Memebership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'woocommerce-civicrm' ),
+				'description' => __( 'Select a Membership Type if you would like this product to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'woocommerce-civicrm' ),
 				'options' => WCI()->helper->get_membership_types_options(),
 			]
 		);

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Woocommerce CiviCRM Sync class.
+ * WooCommerce CiviCRM Sync class.
  *
  * @since 2.1
  */

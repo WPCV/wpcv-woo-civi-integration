@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Woocommerce CiviCRM POS class.
+ * WooCommerce CiviCRM POS class.
  *
  * @since 2.0
  */
@@ -31,7 +31,7 @@ class Woocommerce_CiviCRM_POS {
 		add_action( 'wp_ajax_woocommerce_civicrm_set_datas_from_pos', [ $this, 'pos_set_datas' ] );
 		add_action( 'wp_ajax_nopriv_set_campaign', [ $this, 'set_campaign' ] );
 
-		// Get the campaign list from civicrm.
+		// Get the campaign list from CiviCRM.
 		add_action( 'wp_ajax_woocommerce_civicrm_get_datas_for_pos', [ $this, 'pos_get_datas' ] );
 		add_action( 'wp_ajax_nopriv_get_campaign', [ $this, 'get_campaign' ] );
 
@@ -54,8 +54,8 @@ class Woocommerce_CiviCRM_POS {
 	 * @param mixed $request The request.
 	 */
 	public function wc_pos_campaign_prepare_shop_order_object( $response, $order, $request ) {
-		WCI()->manager->update_campaign( $response->data['id'], '', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) ); // Save camapaign to civicrm.
-		update_post_meta( $response->data['id'], '_woocommerce_civicrm_campaign_id', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) ); // Save camapaign to post data for this woocommerce order.
+		WCI()->manager->update_campaign( $response->data['id'], '', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) ); // Save camapaign to CiviCRM.
+		update_post_meta( $response->data['id'], '_woocommerce_civicrm_campaign_id', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) ); // Save camapaign to post data for this WooCommerce order.
 		return $response;
 	}
 

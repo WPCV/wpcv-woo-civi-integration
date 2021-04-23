@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Woocommerce CiviCRM Helper class.
+ * WooCommerce CiviCRM Helper class.
  *
  * @since 2.0
  */
@@ -50,9 +50,9 @@ class Woocommerce_CiviCRM_Helper {
 	public $location_types;
 
 	/**
-	 * Woocommerce/CiviCRM mapped address location types.
+	 * WooCommerce/CiviCRM mapped address location types.
 	 *
-	 * Array of key/value pairs holding the woocommerce/civicrm address location types.
+	 * Array of key/value pairs holding the WooCommerce/CiviCRM address location types.
 	 *
 	 * @since 2.0
 	 * @access public
@@ -236,7 +236,7 @@ class Woocommerce_CiviCRM_Helper {
 	}
 
 	/**
-	 * Function to get CiviCRM country ID for Woocommerce country ISO Code.
+	 * Function to get CiviCRM country ID for WooCommerce country ISO Code.
 	 *
 	 * @since 2.0
 	 * @param string $woocommerce_country WooCommerce country ISO code.
@@ -299,7 +299,7 @@ class Woocommerce_CiviCRM_Helper {
 	 * Function to get CiviCRM state_province_id.
 	 *
 	 * @since 2.0
-	 * @param string $woocommerce_state Woocommerce state.
+	 * @param string $woocommerce_state WooCommerce state.
 	 * @param int $country_id CiviCRM country_id.
 	 * @return int $id CiviCRM state_province_id.
 	 */
@@ -356,10 +356,10 @@ class Woocommerce_CiviCRM_Helper {
 	}
 
 	/**
-	 * Function to get Woocommerece CiviCRM address map.
+	 * Function to get WooCommerce CiviCRM address map.
 	 *
 	 * @since 2.0
-	 * @param  string $address_type Woocommerce address type 'billing' || 'shipping'.
+	 * @param  string $address_type WooCommerce address type 'billing' || 'shipping'.
 	 * @return array $mapped_address The address maps.
 	 */
 	public function get_mapped_address( $address_type ) {
@@ -546,7 +546,7 @@ class Woocommerce_CiviCRM_Helper {
 	}
 
 	/**
-	 * Set Woocommerce CiviCRM mapped location types.
+	 * Set WooCommerce CiviCRM mapped location types.
 	 *
 	 * @since 2.0
 	 * @return array $mapped_location_types The mapped location types
@@ -554,7 +554,7 @@ class Woocommerce_CiviCRM_Helper {
 	private function set_mapped_location_types() {
 
 		/**
-		 * Filter Woocommerce CiviCRM location types
+		 * Filter WooCommerce CiviCRM location types
 		 *
 		 * @since 2.0
 		 * @param array $mapped_location_types

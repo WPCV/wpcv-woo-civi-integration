@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Woocommerce CiviCRM Sync Address class.
+ * WooCommerce CiviCRM Sync Address class.
  *
  * @since 2.0
  */
@@ -22,14 +22,14 @@ class Woocommerce_CiviCRM_Sync_Address {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
-		// Sync Woocommerce and Civicrm address for contact/user.
+		// Sync WooCommerce and CiviCRM address for contact/user.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10, 4 );
-		// Sync Woocommerce and Civicrm address for user/contact.
+		// Sync WooCommerce and CiviCRM address for user/contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_address' ], 10, 2 );
 	}
 
 	/**
-	 * Sync Civicrm address for contact->user.
+	 * Sync CiviCRM address for contact->user.
 	 *
 	 * Fires when a Civi contact's address is edited.
 	 *
@@ -92,20 +92,20 @@ class Woocommerce_CiviCRM_Sync_Address {
 		}
 
 		/**
-		 * Broadcast that a Woocommerce address has been updated for a user.
+		 * Broadcast that a WooCommerce address has been updated for a user.
 		 *
 		 * @since 2.0
 		 * @param int $user_id The WordPress user id
-		 * @param string $address_type The Woocommerce adress type 'billing' || 'shipping'
+		 * @param string $address_type The WooCommerce adress type 'billing' || 'shipping'
 		 */
 		do_action( 'woocommerce_civicrm_wc_address_updated', $cms_user['uf_id'], $address_type );
 
 	}
 
 	/**
-	 * Sync Woocommerce address for user->contact.
+	 * Sync WooCommerce address for user->contact.
 	 *
-	 * Fires when Woocomerce address is edited.
+	 * Fires when WooCommerce address is edited.
 	 *
 	 * @since 2.0
 	 * @param int $user_id The WP user_id.

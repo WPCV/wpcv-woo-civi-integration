@@ -1,6 +1,6 @@
 <?php
 /**
- * Woocommerce CiviCRM Manger class.
+ * WooCommerce CiviCRM Manger class.
  *
  * @since 2.0
  */
@@ -77,7 +77,7 @@ class Woocommerce_CiviCRM_Manager {
 	}
 
 	/**
-	 * Action called when order is created in Woocommerce.
+	 * Action called when order is created in WooCommerce.
 	 *
 	 * @since 2.0
 	 * @param int $order_id The order id.
@@ -349,7 +349,7 @@ class Woocommerce_CiviCRM_Manager {
 		}
 
 		if ( empty( $contact['contact_source'] ) ) {
-			$contact['contact_source'] = __( 'Woocommerce purchase', 'woocommerce-civicrm' );
+			$contact['contact_source'] = __( 'WooCommerce purchase', 'woocommerce-civicrm' );
 		}
 
 		// Create contact or update existing contact.
@@ -384,7 +384,7 @@ class Woocommerce_CiviCRM_Manager {
 
 				// Process Phone.
 				$phone_exists = false;
-				// 'shipping_phone' does not exist as a Woocommerce field.
+				// 'shipping_phone' does not exist as a WooCommerce field.
 				if ( 'shipping' !== $address_type && ! empty( $order->{'get_' . $address_type . '_phone'}() ) ) {
 					$phone = [
 						'phone_type_id' => 1,
@@ -410,7 +410,7 @@ class Woocommerce_CiviCRM_Manager {
 
 				// Process Email.
 				$email_exists = false;
-				// 'shipping_email' does not exist as a Woocommerce field.
+				// 'shipping_email' does not exist as a WooCommerce field.
 				if ( 'shipping' !== $address_type && ! empty( $order->{'get_' . $address_type . '_email'}() ) ) {
 					$email = [
 						'location_type_id' => $location_type_id,
@@ -504,7 +504,7 @@ class Woocommerce_CiviCRM_Manager {
 		$order_paid_date = ! empty( $order_date ) ? $order_date->date( 'Y-m-d H:i:s' ) : gmdate( 'Y-m-d H:i:s' );
 
 		$order_id = $order->get_id();
-		$txn_id = __( 'Woocommerce Order - ', 'woocommerce-civicrm' ) . $order_id;
+		$txn_id = __( 'WooCommerce Order - ', 'woocommerce-civicrm' ) . $order_id;
 		$invoice_id = $this->get_invoice_id( $order_id );
 
 		// Ensure number format is Civi compliant.
@@ -551,7 +551,7 @@ class Woocommerce_CiviCRM_Manager {
 		// with precision greater than 2 digits after the decimal.
 		$rounded_total = round( $order->get_total() * 100 ) / 100;
 
-		// Couldn't figure where Woocommerce stores the subtotal (ie no TAX price)
+		// Couldn't figure where WooCommerce stores the subtotal (ie no TAX price)
 		// So for now...
 		$rounded_subtotal = $rounded_total - $sales_tax_raw;
 
@@ -738,10 +738,10 @@ class Woocommerce_CiviCRM_Manager {
 	}
 
 	/**
-	 * Maps Woocommerce payment method to CiviCRM payment instrument.
+	 * Maps WooCommerce payment method to CiviCRM payment instrument.
 	 *
 	 * @since 2.0
-	 * @param string $payment_method Woocommerce payment method.
+	 * @param string $payment_method WooCommerce payment method.
 	 * @return int $id CiviCRM payment processor ID.
 	 */
 	public function map_payment_instrument( $payment_method ) {
@@ -755,7 +755,7 @@ class Woocommerce_CiviCRM_Manager {
 		if ( array_key_exists( $payment_method, $map ) ) {
 			$id = $map[ $payment_method ];
 		} else {
-			// Another Woocommerce payment method - good chance this is credit.
+			// Another WooCommerce payment method - good chance this is credit.
 			$id = 1;
 		}
 
@@ -865,7 +865,7 @@ class Woocommerce_CiviCRM_Manager {
 	 * Adds a custom field to set a campaign.
 	 *
 	 * @since 2.2
-	 * @param object $order Woocommerce order.
+	 * @param object $order WooCommerce order.
 	 */
 	public function order_data_after_order_details( $order ) {
 		if ( $order->get_status() === 'auto-draft' ) {

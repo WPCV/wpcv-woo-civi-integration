@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 /**
- * Woocommerce CiviCRM Product class.
+ * WooCommerce CiviCRM Product class.
  *
  * @since 2.2
  */
@@ -27,11 +27,11 @@ class Woocommerce_CiviCRM_Products {
 	 */
 	public function register_hooks() {
 
-		// Add civicrm product settings tab.
+		// Add CiviCRM product settings tab.
 		add_filter( 'woocommerce_product_data_tabs', [ $this, 'add_civicrm_product_tab' ] );
-		// Add civicrm product panel template.
+		// Add CiviCRM product panel template.
 		add_action( 'woocommerce_product_data_panels', [ $this, 'add_civicrm_product_panel' ] );
-		// Save civicrm product settings.
+		// Save CiviCRM product settings.
 		add_action( 'woocommerce_admin_process_product_object', [ $this, 'save_civicrm_product_settings' ] );
 
 		add_action( 'bulk_edit_custom_box', [ $this, 'add_contribution_to_quick_edit' ], 10, 2 );
@@ -56,9 +56,9 @@ class Woocommerce_CiviCRM_Products {
 	 */
 	public function add_civicrm_product_tab( $tabs ) {
 
-		$tabs['woocommerece_civicrm'] = [
+		$tabs['woocommerce_civicrm'] = [
 			'label' => __( 'CiviCRM Settings', 'woocommerce-civicrm' ),
-			'target'   => 'woocommerece_civicrm',
+			'target'   => 'woocommerce_civicrm',
 		];
 
 		return $tabs;

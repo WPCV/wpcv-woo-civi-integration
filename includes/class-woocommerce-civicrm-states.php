@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Woocommerce CiviCRM States class.
+ * WooCommerce CiviCRM States class.
  *
  * @since 2.0
  */
 class Woocommerce_CiviCRM_States {
 
 	/**
-	 * Replace Woocommerce States/Counties.
+	 * Replace WooCommerce States/Counties.
 	 *
 	 * @since 2.0
 	 * @access public
@@ -43,7 +43,7 @@ class Woocommerce_CiviCRM_States {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
-		// Add Civicrm settings tab.
+		// Add CiviCRM settings tab.
 		add_filter( 'woocommerce_states', [ $this, 'replace_woocommerce_states' ], 10, 1 );
 		$this->inited();
 	}
@@ -62,11 +62,11 @@ class Woocommerce_CiviCRM_States {
 	}
 
 	/**
-	 * Function to replace Woocommerce state/counties list with CiviCRM's list.
+	 * Function to replace WooCommerce state/counties list with CiviCRM's list.
 	 *
 	 * @since 2.0
 	 * @uses 'woocommerce_states' filter.
-	 * @param array $states The Woocommerce state/counties.
+	 * @param array $states The WooCommerce state/counties.
 	 * @return array $states The modifies states/counties.
 	 */
 	public function replace_woocommerce_states( $states ) {

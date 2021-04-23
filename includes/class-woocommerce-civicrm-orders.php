@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Woocommerce CiviCRM Orders class.
+ * WooCommerce CiviCRM Orders class.
  *
  * @since 2.2
  */

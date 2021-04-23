@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Woocommerce CiviCRM Settings Tab class.
+ * WooCommerce CiviCRM Settings Tab class.
  *
  * @since 2.0
  */
@@ -25,11 +25,11 @@ class Woocommerce_CiviCRM_Settings_Tab {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
-		// Add Civicrm settings tab.
+		// Add CiviCRM settings tab.
 		add_filter( 'woocommerce_settings_tabs_array', [ $this, 'add_settings_tab' ], 50 );
-		// Add Woocommerce Civicrm settings.
+		// Add WooCommerce CiviCRM settings.
 		add_action( 'woocommerce_settings_woocommerce_civicrm', [ $this, 'add_settings_fields' ], 10 );
-		// Update Woocommerce Civicrm settings.
+		// Update WooCommerce CiviCRM settings.
 		add_action( 'woocommerce_update_options_woocommerce_civicrm', [ $this, 'update_settings_fields' ] );
 		// Update network settings.
 		add_action( 'network_admin_edit_woocommerce_civicrm_network_settings', [ $this, 'trigger_network_settings' ] );
@@ -57,7 +57,7 @@ class Woocommerce_CiviCRM_Settings_Tab {
 
 		add_settings_field(
 			'woocommerce_civicrm_shop_blog_id',
-			__( 'Main Woocommerce blog ID', 'woocommerce-civicrm' ),
+			__( 'Main WooCommerce blog ID', 'woocommerce-civicrm' ),
 			[ $this, 'settings_field_select' ],
 			'woocommerce-civicrm-settings-network',
 			'woocommerce-civicrm-settings-network-general',
@@ -175,7 +175,7 @@ class Woocommerce_CiviCRM_Settings_Tab {
 	}
 
 	/**
-	 * Add Woocommerce Civicrm settings to the Settings tab.
+	 * Add WooCommerce CiviCRM settings to the Settings tab.
 	 *
 	 * @since 2.0
 	 */
@@ -184,7 +184,7 @@ class Woocommerce_CiviCRM_Settings_Tab {
 	}
 
 	/**
-	 * Update Woocommerce Civicrm settings.
+	 * Update WooCommerce CiviCRM settings.
 	 *
 	 * @since 2.0
 	 */
@@ -246,25 +246,25 @@ class Woocommerce_CiviCRM_Settings_Tab {
 			'woocommerce_civicrm_sync_contact_address' => [
 				'name' => __( 'Sync Contact address', 'woocommerce-civicrm' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will synchronize Woocommerce user address with CiviCRM\'s contact address and viceversa.', 'woocommerce-civicrm' ),
+				'desc' => __( 'If enabled, this option will synchronize WooCommerce user address with CiviCRM\'s contact address and viceversa.', 'woocommerce-civicrm' ),
 				'id'   => 'woocommerce_civicrm_sync_contact_address',
 			],
 			'woocommerce_civicrm_sync_contact_phone' => [
 				'name' => __( 'Sync Contact billing phone', 'woocommerce-civicrm' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will synchronize Woocommerce user\'s billing phone with CiviCRM\'s contact billing phone and viceversa.', 'woocommerce-civicrm' ),
+				'desc' => __( 'If enabled, this option will synchronize WooCommerce user\'s billing phone with CiviCRM\'s contact billing phone and viceversa.', 'woocommerce-civicrm' ),
 				'id'   => 'woocommerce_civicrm_sync_contact_phone',
 			],
 			'woocommerce_civicrm_sync_contact_email' => [
 				'name' => __( 'Sync Contact billing email', 'woocommerce-civicrm' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will synchronize Woocommerce user\'s billing email with CiviCRM\'s contact billing email and viceversa.', 'woocommerce-civicrm' ),
+				'desc' => __( 'If enabled, this option will synchronize WooCommerce user\'s billing email with CiviCRM\'s contact billing email and viceversa.', 'woocommerce-civicrm' ),
 				'id'   => 'woocommerce_civicrm_sync_contact_email',
 			],
 			'woocommerce_civicrm_replace_woocommerce_states' => [
-				'name' => __( 'Replace Woocommerce States', 'woocommerce-civicrm' ),
+				'name' => __( 'Replace WooCommerce States', 'woocommerce-civicrm' ),
 				'type' => 'checkbox',
-				'desc' => __( 'WARNING, DATA LOSS!! If enabled, this option will replace Woocommerce\'s States/Countries with CiviCRM\'s States/Provinces, you WILL lose any existing State/Country data for existing Customers. Any Woocommerce Settings that relay on State/Country will have to be reconfigured.', 'woocommerce-civicrm' ),
+				'desc' => __( 'WARNING, DATA LOSS!! If enabled, this option will replace WooCommerce\'s States/Countries with CiviCRM\'s States/Provinces, you WILL lose any existing State/Country data for existing Customers. Any WooCommerce Settings that relay on State/Country will have to be reconfigured.', 'woocommerce-civicrm' ),
 				'id'   => 'woocommerce_civicrm_replace_woocommerce_states',
 			],
 			'woocommerce_civicrm_ignore_0_amount_orders' => [
@@ -286,7 +286,7 @@ class Woocommerce_CiviCRM_Settings_Tab {
 		];
 
 		/**
-		 * Filter Woocommerce CiviCRM setting fields
+		 * Filter WooCommerce CiviCRM setting fields
 		 *
 		 * @since 2.0
 		 * @param array $options The fields configuration
@@ -304,7 +304,7 @@ class Woocommerce_CiviCRM_Settings_Tab {
 	public function network_settings() {
 		?>
 		<div class="wrap">
-		<h2><?php esc_html_e( 'Woocommerce CiviCRM settings', 'woocommerce-civicrm' ); ?></h2>
+		<h2><?php esc_html_e( 'WooCommerce CiviCRM settings', 'woocommerce-civicrm' ); ?></h2>
 		<?php settings_errors(); ?>
 		<form action="edit.php?action=woocommerce_civicrm_network_settings" method="post">
 			<?php wp_nonce_field( 'woocommerce-civicrm-settings', 'woocommerce-civicrm-settings' ); ?>

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Woocommerce CiviCRM Orders Contact Tab class.
+ * WooCommerce CiviCRM Orders Contact Tab class.
  *
  * @since 2.0
  */
@@ -17,7 +17,7 @@ class Woocommerce_CiviCRM_Orders_Contact_Tab {
 	}
 
 	/**
-	 * Checks if Woocommerce is activated on another blog.
+	 * Checks if WooCommerce is activated on another blog.
 	 *
 	 * @since 2.2
 	 */
@@ -41,7 +41,7 @@ class Woocommerce_CiviCRM_Orders_Contact_Tab {
 	}
 
 	/**
-	 * Moves to main woocommerce site if multisite installation.
+	 * Moves to main WooCommerce site if multisite installation.
 	 *
 	 * @since 2.2
 	 */
@@ -80,7 +80,7 @@ class Woocommerce_CiviCRM_Orders_Contact_Tab {
 		add_action( 'civicrm_config', [ $this, 'register_custom_template_directory' ], 10, 1 );
 		// Register menu callback.
 		add_filter( 'civicrm_xmlMenu', [ $this, 'register_callback' ], 10, 1 );
-		// Add Civicrm settings tab.
+		// Add CiviCRM settings tab.
 		add_filter( 'civicrm_tabset', [ $this, 'add_orders_contact_tab' ], 10, 3 );
 	}
 
@@ -158,7 +158,7 @@ class Woocommerce_CiviCRM_Orders_Contact_Tab {
 		$tabs[] = [
 			'id' => 'woocommerce-orders',
 			'url' => $url,
-			'title' => __( 'Woocommerce Orders', 'woocommerce-civicrm' ),
+			'title' => __( 'WooCommerce Orders', 'woocommerce-civicrm' ),
 			'count' => $this->count_orders( $cid ),
 			'weight' => 99,
 		];
@@ -244,7 +244,7 @@ class Woocommerce_CiviCRM_Orders_Contact_Tab {
 		$orders = [];
 		$date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
 
-		// If woocommerce is in another blog, ftech the order remotely
+		// If WooCommerce is in another blog, ftech the order remotely
 		// FIXME: for now, Partial datas
 		// TODO: Fetch real datas.
 		if ( $this->is_remote_wc() ) {

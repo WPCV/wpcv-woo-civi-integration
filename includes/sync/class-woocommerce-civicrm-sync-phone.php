@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Woocommerce CiviCRM Sync Phone class.
+ * WooCommerce CiviCRM Sync Phone class.
  *
  * @since 2.0
  */
@@ -22,14 +22,14 @@ class Woocommerce_CiviCRM_Sync_Phone {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
-		// Sync Woocommerce and Civicrm phone for contact/user.
+		// Sync WooCommerce and CiviCRM phone for contact/user.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_phone' ], 10, 4 );
-		// Sync Woocommerce and Civicrm phone for user/contact.
+		// Sync WooCommerce and CiviCRM phone for user/contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_phone' ], 10, 2 );
 	}
 
 	/**
-	 * Sync Civicrm phone for contact/user.
+	 * Sync CiviCRM phone for contact/user.
 	 *
 	 * Fires when a Civi contact's phone is edited.
 	 *
@@ -80,20 +80,20 @@ class Woocommerce_CiviCRM_Sync_Phone {
 		}
 
 		/**
-		 * Broadcast that a Woocommerce phone has been updated for a user.
+		 * Broadcast that a WooCommerce phone has been updated for a user.
 		 *
 		 * @since 2.0
 		 * @param int $user_id The WordPress user id
-		 * @param string $phone_type The Woocommerce phone type 'billing' || 'shipping'
+		 * @param string $phone_type The WooCommerce phone type 'billing' || 'shipping'
 		 */
 		do_action( 'woocommerce_civicrm_wc_phone_updated', $cms_user['uf_id'], $phone_type );
 
 	}
 
 	/**
-	 * Sync Woocommerce phone for user->contact.
+	 * Sync WooCommerce phone for user->contact.
 	 *
-	 * Fires when Woocomerce address is edited.
+	 * Fires when WooCommerce address is edited.
 	 *
 	 * @since 2.0
 	 * @param int $user_id The WP user id.
