@@ -11,7 +11,7 @@ Install this Wordpress plugin as usual. More information about installing plugin
 Configure the integration settings in WooCommerce Menu >> Settings >> CiviCRM (Tab)
 Direct URL: https://example.com/wp-admin/admin.php?page=wc-settings&tab=woocommerce_civicrm
 
-![WooCommerce CiviCRM Settings](./screenshots/settings.jpg)
+![Settings to integrate CiviCRM with WooCommerce](./screenshots/settings.jpg)
 
 ## Functionality
 

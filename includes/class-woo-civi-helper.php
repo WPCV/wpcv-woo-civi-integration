@@ -1,7 +1,18 @@
 <?php
+/**
+ * WPCV WooCommerce CiviCRM Helper Class.
+ *
+ * Miscellaneous utilities.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce CiviCRM Helper class.
+ * WPCV WooCommerce CiviCRM Helper class.
  *
  * @since 2.0
  */
@@ -14,7 +25,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $financial_types The financial types
+	 * @var array $financial_types The financial types.
 	 */
 	public $financial_types;
 
@@ -25,27 +36,27 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $financial_types The Membership types
+	 * @var array $financial_types The active Membership types.
 	 */
 	public $membership_types;
 
 	/**
-	 * Optionvalue_membership_signup.
+	 * The CiviCRM Membership Signup OptionValue.
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $financial_types The Membership types
+	 * @var array $optionvalue_membership_signup The CiviCRM Membership Signup OptionValue.
 	 */
 	public $optionvalue_membership_signup;
 
 	/**
-	 * The Address Location Type.
+	 * The Address Location Types.
 	 *
 	 * Array of key/value pairs holding the address location types.
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $location_types The location types
+	 * @var array $location_types The Address Location Types.
 	 */
 	public $location_types;
 
@@ -56,7 +67,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $mapped_location_types The mapped location types
+	 * @var array $mapped_location_types The WooCommerce/CiviCRM mapped address location types.
 	 */
 	public $mapped_location_types;
 
@@ -65,7 +76,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $states The CiviCRM states
+	 * @var array $states The CiviCRM states.
 	 */
 	public $civicrm_states = [];
 
@@ -74,16 +85,16 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var array $campaigns The CiviCRM campaigns
+	 * @var array $campaigns The CiviCRM campaigns.
 	 */
 	public $campaigns = [];
 
 	/**
-	 * CiviCRM campaigns.
+	 * The complete set of CiviCRM campaigns.
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var array $campaigns The CiviCRM campaigns
+	 * @var array $all_campaigns The complete set of CiviCRM campaigns.
 	 */
 	public $all_campaigns = [];
 
@@ -92,7 +103,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var array $campaigns The CiviCRM campaigns
+	 * @var array $campaigns The CiviCRM campaigns status.
 	 */
 	public $campaigns_status = [];
 
@@ -106,7 +117,7 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * CiviCRM inited.
+	 * Initialise this object.
 	 *
 	 * @since 2.0
 	 */
@@ -127,19 +138,23 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Get CiviCRM contact_id.
+	 * Get a CiviCRM Contact ID for a given WooCommerce Order.
 	 *
 	 * @since 2.0
-	 * @param object $order The order object.
-	 * @return int $cid The contact_id.
+	 *
+	 * @param object $order The WooCommerce Order object.
+	 * @return int $cid The numeric ID of the CiviCRM Contact.
 	 */
 	public function civicrm_get_cid( $order ) {
 		$email = '';
-		if ( is_user_logged_in() && ! is_admin() ) { // If user is logged in but not in the admin (not a manual order).
+
+		// If user is logged in but not in the admin (not a manual order).
+		if ( is_user_logged_in() && ! is_admin() ) {
 			$current_user = wp_get_current_user();
 			$email = $current_user->user_email;
 		} else {
-			if ( filter_input( INPUT_POST, 'customer_user', FILTER_VALIDATE_INT ) ) { // if there was a fiel customer user in form (manual order).
+			// if there was a customer user field in form (manual order).
+			if ( filter_input( INPUT_POST, 'customer_user', FILTER_VALIDATE_INT ) ) {
 				$cu_id = filter_input( INPUT_POST, 'customer_user', FILTER_VALIDATE_INT );
 
 				$user_info = get_userdata( $cu_id );
@@ -170,7 +185,7 @@ class WPCV_Woo_Civi_Helper {
 				CRM_Core_Error::debug_log_message( $e->getMessage() );
 			}
 		} elseif ( $email != '' ) {
-			// The customer is anonymous.  Look in the CiviCRM contacts table for a
+			// The customer is anonymous. Look in the CiviCRM contacts table for a
 			// contact that matches the billing email.
 			$params = [
 				'email' => $email,
@@ -202,17 +217,18 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Get CiviCRM UFMatch.
+	 * Get CiviCRM UFMatch data.
 	 *
 	 * Get UFMatch for contact_id or WP user_id.
 	 *
 	 * @since 2.0
-	 * @param int $id The CiviCRM contact_id or WP user_id.
-	 * @param string $property 'contact_id' | 'uf_id'.
-	 * @return array $uf_match The UFMatch.
+	 * @param int $id The CiviCRM Contact ID or WordPress User ID.
+	 * @param string $property Either 'contact_id' or 'uf_id'.
+	 * @return array $uf_match The UFMatch data.
 	 */
 	public function get_civicrm_ufmatch( $id, $property ) {
 
+		// TODO: Proper return values.
 		if ( ! in_array( $property, [ 'contact_id', 'uf_id' ], true ) ) {
 			return;
 		}
@@ -236,14 +252,16 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Function to get CiviCRM country ID for WooCommerce country ISO Code.
+	 * Get a CiviCRM Country ID for a given WooCommerce Country ISO Code.
 	 *
 	 * @since 2.0
-	 * @param string $woocommerce_country WooCommerce country ISO code.
-	 * @return int $id CiviCRM country_id
+	 *
+	 * @param string $woocommerce_country TheWooCommerce country ISO code.
+	 * @return int $id The CiviCRM Country ID.
 	 */
 	public function get_civi_country_id( $woocommerce_country ) {
 
+		// TODO: Proper return values.
 		if ( empty( $woocommerce_country ) ) {
 			return;
 		}
@@ -266,14 +284,16 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Function to get CiviCRM country ISO Code for country_id.
+	 * Get the CiviCRM Country ISO Code for a given Country ID.
 	 *
 	 * @since 2.0
-	 * @param string $country_id CiviCRM country_id.
-	 * @return int $iso_code CiviCRM country ISO Code.
+	 *
+	 * @param int $country_id The numeric ID of the CiviCRM Country.
+	 * @return string $iso_code The CiviCRM Country ISO Code.
 	 */
 	public function get_civi_country_iso_code( $country_id ) {
 
+		// TODO: Proper return values.
 		if ( empty( $country_id ) ) {
 			return;
 		}
@@ -296,15 +316,17 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Function to get CiviCRM state_province_id.
+	 * Get the ID of a CiviCRM State/Province for a WooCommerce State.
 	 *
 	 * @since 2.0
-	 * @param string $woocommerce_state WooCommerce state.
-	 * @param int $country_id CiviCRM country_id.
-	 * @return int $id CiviCRM state_province_id.
+	 *
+	 * @param string $woocommerce_state The WooCommerce State.
+	 * @param int $country_id The numeric ID of the CiviCRM Country.
+	 * @return int $id The numeric ID of the CiviCRM State/Province.
 	 */
 	public function get_civi_state_province_id( $woocommerce_state, $country_id ) {
 
+		// TODO: Proper return values.
 		if ( empty( $woocommerce_state ) ) {
 			return;
 		}
@@ -325,14 +347,16 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Function to get CiviCRM State/Province name or abbreviation.
+	 * Get a CiviCRM State/Province Name or Abbreviation by its ID.
 	 *
 	 * @since 2.0
-	 * @param int $state_province_id CiviCRM state id.
-	 * @return string $name CiviCRM State/Province name or abbreviation.
+	 *
+	 * @param int $state_province_id The numeric ID of the CiviCRM State.
+	 * @return string $name THe CiviCRM State/Province Name or Abbreviation.
 	 */
 	public function get_civi_state_province_name( $state_province_id ) {
 
+		// TODO: Proper return values.
 		if ( empty( $state_province_id ) ) {
 			return;
 		}
@@ -356,19 +380,21 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Function to get WooCommerce CiviCRM address map.
+	 * Get the Address Field mappings between WooCommerce and CiviCRM.
 	 *
 	 * @since 2.0
-	 * @param  string $address_type WooCommerce address type 'billing' || 'shipping'.
-	 * @return array $mapped_address The address maps.
+	 *
+	 * @param string $address_type The WooCommerce address type. Either 'billing' or 'shipping'.
+	 * @return array $mapped_address The Address Field mappings.
 	 */
 	public function get_mapped_address( $address_type ) {
 
 		/**
-		 * Filter address map.
+		 * Filter the Address Field mappings.
 		 *
 		 * @since 2.0
-		 * @param array $mapped_address
+		 *
+		 * @param array $mapped_address The default Address Field mappings.
 		 */
 		return apply_filters(
 			'woocommerce_civicrm_address_map',
@@ -385,11 +411,14 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Get CiviCRM states.
+	 * Get data for CiviCRM States.
 	 *
-	 * Build multidimentional array of CiviCRM states | array( 'state_id' => array( 'name', 'id', 'abbreviation', 'country_id' ) ).
+	 * Build multi-dimensional array of CiviCRM States, e.g.
+	 * array( 'state_id' => array( 'name', 'id', 'abbreviation', 'country_id' ) )
 	 *
 	 * @since 2.0
+	 *
+	 * @return array $civicrm_states The array of data for CiviCRM States.
 	 */
 	private function get_civicrm_states() {
 
@@ -414,11 +443,14 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Get CiviCRM campaigns.
+	 * Get CiviCRM Campaigns.
 	 *
-	 * Build multidimentional array of CiviCRM campaigns | array( 'campaign_id' => array( 'name', 'id', 'parent_id' ) ).
+	 * Build multidimentional array of CiviCRM Campaigns, e.g.
+	 * array( 'campaign_id' => array( 'name', 'id', 'parent_id' ) )
 	 *
 	 * @since 2.2
+	 *
+	 * @return array $civicrm_campaigns The array of data for CiviCRM Campaigns.
 	 */
 	private function get_campaigns() {
 
@@ -455,11 +487,14 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Get CiviCRM all campaigns with status.
+	 * Get all CiviCRM Campaigns with Status.
 	 *
-	 * Build multidimentional array of CiviCRM campaigns | array( 'campaign_id' => array( 'name', 'id', 'parent_id' ) ).
+	 * Build multidimentional array of all CiviCRM Campaigns, e.g.
+	 * array( 'campaign_id' => array( 'name', 'id', 'parent_id' ) ).
 	 *
 	 * @since 2.2
+	 *
+	 * @return array $all_campaigns The array of data for all CiviCRM Campaigns.
 	 */
 	private function get_all_campaigns() {
 
@@ -483,7 +518,8 @@ class WPCV_Woo_Civi_Helper {
 		 * Filter Campaigns params before calling the Civi's API.
 		 *
 		 * @since 2.2
-		 * @param array $params The params to be passsed to the API
+		 *
+		 * @param array $params The params to be passsed to the API.
 		 */
 		$all_campaigns_result = civicrm_api3( 'Campaign', 'get', apply_filters( 'woocommerce_civicrm_campaigns_params', $params ) );
 
@@ -506,11 +542,14 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Get CiviCRM all campaigns with status.
+	 * Get CiviCRM Campaign Statuses.
 	 *
-	 * Build multidimentional array of CiviCRM campaigns | array( 'status_id' => array( 'name', 'id', 'parent_id' ) ).
+	 * Build multidimentional array of CiviCRM Campaign Statuses, e.g.
+	 * array( 'status_id' => array( 'name', 'id', 'parent_id' ) ).
 	 *
 	 * @since 2.2
+	 *
+	 * @return array $civicrm_campaigns_status The array of CiviCRM Campaign Statuses.
 	 */
 	private function get_campaigns_status() {
 
@@ -546,18 +585,20 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Set WooCommerce CiviCRM mapped location types.
+	 * Set mapping between WooCommerce and CiviCRM Location Types.
 	 *
 	 * @since 2.0
-	 * @return array $mapped_location_types The mapped location types
+	 *
+	 * @return array $mapped_location_types The mapped Location Types.
 	 */
 	private function set_mapped_location_types() {
 
 		/**
-		 * Filter WooCommerce CiviCRM location types
+		 * Filter mapping between WooCommerce and CiviCRM location types.
 		 *
 		 * @since 2.0
-		 * @param array $mapped_location_types
+		 *
+		 * @param array $mapped_location_types The default mapped Location Types.
 		 */
 		return apply_filters(
 			'woocommerce_civicrm_mapped_location_types',
@@ -572,7 +613,8 @@ class WPCV_Woo_Civi_Helper {
 	 * Get CiviCRM Financial Types.
 	 *
 	 * @since 2.0
-	 * @return array $financialTypes The financial types
+	 *
+	 * @return array $financial_types The array of CiviCRM Financial Types.
 	 */
 	private function get_financial_types() {
 
@@ -606,7 +648,8 @@ class WPCV_Woo_Civi_Helper {
 	 * Get CiviCRM Address Location Types.
 	 *
 	 * @since 2.0
-	 * @return array $addressTypes The address location types
+	 *
+	 * @return array $address_types_result The array of CiviCRM Address Location Types.
 	 */
 	private function get_address_location_types() {
 
@@ -623,6 +666,8 @@ class WPCV_Woo_Civi_Helper {
 	 * Get CiviCRM Membership Types.
 	 *
 	 * @since 2.0
+	 *
+	 * @return array $membership_types The array of CiviCRM Membership Types.
 	 */
 	public function get_civicrm_membership_types() {
 
@@ -639,6 +684,7 @@ class WPCV_Woo_Civi_Helper {
 		 * Filter Financial type params before calling the Civi's API.
 		 *
 		 * @since 2.0
+		 *
 		 * @param array $params The params to be passsed to the API
 		 */
 		$membership_types_result = civicrm_api3( 'MembershipType', 'get', apply_filters( 'woocommerce_civicrm_membership_types_params', $params ) );
@@ -649,14 +695,23 @@ class WPCV_Woo_Civi_Helper {
 			$membership_types['by_financial_type_id'][ $value['financial_type_id'] ] = $value;
 		}
 
+		/**
+		 * Filter the CiviCRM Membership Types.
+		 *
+		 * @since 2.0
+		 *
+		 * @param array $membership_types The existing array of CiviCRM Membership Types.
+		 */
 		return apply_filters( 'woocommerce_civicrm_membership_types', $membership_types, $membership_types_result );
 
 	}
 
 	/**
-	 * Get CiviCRM OptionValue Membership Signup.
+	 * Get the CiviCRM Membership Signup OptionValue.
 	 *
 	 * @since 2.0
+	 *
+	 * @return array $result The CiviCRM Membership Signup OptionValue.
 	 */
 	public function get_civicrm_optionvalue_membership_signup() {
 
@@ -669,11 +724,15 @@ class WPCV_Woo_Civi_Helper {
 				'name' => 'Membership Signup',
 			]
 		);
+
+		// TODO: error check and return values.
 		return $result['values'][0]['value'];
 	}
 
 	/**
-	 * Function to check whether a value is (string) 'yes'.
+	 * Check whether a value is (string) 'yes'.
+	 *
+	 * @since 2.0
 	 *
 	 * @param string $value The value to check.
 	 * @return bool true | false
@@ -683,9 +742,11 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Get WordPress sites on a multisite Installation
+	 * Get WordPress sites on a Multisite installation.
 	 *
-	 * @return array $sites [$site_id: $site_name].
+	 * @since 2.0
+	 *
+	 * @return array $sites The array of sites.
 	 */
 	public function get_sites() {
 		$sites = [];
@@ -703,8 +764,9 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Retrieves the default contribution amount data,
-	 * price set, price_field, and price field value.
+	 * Get the default Contribution amount data.
+	 *
+	 * Values retrieved are: price set, price_field, and price field value.
 	 *
 	 * @since 2.4
 	 *
@@ -747,11 +809,11 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Retrieves the formatted financial types options.
+	 * Get the formatted Financial Types options.
 	 *
 	 * @since 2.4
 	 *
-	 * @return array $financial_types The financial types.
+	 * @return array $financial_types The Financial Types.
 	 */
 	public function get_financial_types_options() {
 
@@ -759,7 +821,7 @@ class WPCV_Woo_Civi_Helper {
 
 		$options = [
 			sprintf(
-				/* translators: %s: financial type */
+				/* translators: %s: The Financial Type */
 				'-- ' . __( 'Default (%s)', 'woocommerce-civicrm' ),
 				$this->financial_types[ $default_financial_type_id ] ?? __( 'unset', 'woocommerce-civicrm' )
 			),
@@ -774,11 +836,11 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Retrieves the membership types options array.
+	 * Get the CiviCRM Membership Types options.
 	 *
 	 * @since 2.4
 	 *
-	 * @return array $membership_types_options The membership types options.
+	 * @return array $membership_types_options The CiviCRM Membership Types options.
 	 */
 	public function get_membership_types_options() {
 
@@ -792,7 +854,7 @@ class WPCV_Woo_Civi_Helper {
 				]
 			);
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to retrieve memebrship types.', 'woocommerce-civicrm' ) );
+			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Membership Types.', 'woocommerce-civicrm' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return [];
 		}
@@ -822,12 +884,12 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Retrieves a membership type by its id.
+	 * Get a CiviCRM Membership Type by its ID.
 	 *
 	 * @since 2.4
 	 *
-	 * @param int $id The membership type id.
-	 * @return array|null $membership_type The membership type or null.
+	 * @param int $id The numeric ID of the CiviCRM Membership Type.
+	 * @return array|null $membership_type The CiviCRM Membership Type data, or null on failure.
 	 */
 	public function get_membership_type( int $id ) {
 		try {

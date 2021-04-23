@@ -1,17 +1,25 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+/**
+ * WPCV WooCommerce CiviCRM Orders class.
+ *
+ * Handles the integration of WooCommerce Orders with CiviCRM.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce CiviCRM Orders class.
+ * WPCV WooCommerce CiviCRM Orders class.
  *
  * @since 2.2
  */
 class WPCV_Woo_Civi_Orders {
 
 	/**
-	 * Initialises this object.
+	 * Initialise this object.
 	 *
 	 * @since 2.0
 	 */
@@ -20,9 +28,9 @@ class WPCV_Woo_Civi_Orders {
 	}
 
 	/**
-	 * Registers hooks.
+	 * Register hooks.
 	 *
-	 * @return void
+	 * @since 2.0
 	 */
 	public function register_hooks() {
 
@@ -34,7 +42,9 @@ class WPCV_Woo_Civi_Orders {
 	}
 
 	/**
-	 * Alters columns.
+	 * Alter columns.
+	 *
+	 * @since 2.0
 	 *
 	 * @param array $defaults The defaults.
 	 * @return array $columns
@@ -52,10 +62,12 @@ class WPCV_Woo_Civi_Orders {
 	}
 
 	/**
-	 * Echoes content of a row in a given column.
+	 * Echo the content of a row in a given column.
+	 *
+	 * @since 2.0
 	 *
 	 * @param string $column_name The column name.
-	 * @param int $post_id The post id.
+	 * @param int $post_id The WordPress Post ID.
 	 */
 	public function columns_content( $column_name, $post_id ) {
 		if ( 'campaign' === $column_name ) {
@@ -81,9 +93,13 @@ class WPCV_Woo_Civi_Orders {
 	}
 
 	/**
+	 * Show dropdowns for Campaign and Source.
+	 *
 	 * Fires before the Filter button on the Posts and Pages list tables.
 	 *
-	 * @param string $post_type The post type.
+	 * @since 2.0
+	 *
+	 * @param string $post_type The WordPress Post Type.
 	 */
 	public function restrict_manage_orders( $post_type = '' ) {
 		global $typenow;
@@ -124,10 +140,13 @@ class WPCV_Woo_Civi_Orders {
 	}
 
 	/**
+	 * Filter the Posts Query.
+	 *
 	 * Fires after the query variable object is created, but before the actual query is run.
 	 *
-	 * @param WP_Query $query The WP_Query object.
-	 * @return void
+	 * @since 2.0
+	 *
+	 * @param WP_Query $query The WordPress Query object.
 	 */
 	public function pre_get_posts( $query ) {
 		global $typenow;

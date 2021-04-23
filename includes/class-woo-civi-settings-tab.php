@@ -1,14 +1,25 @@
 <?php
+/**
+ * WPCV WooCommerce CiviCRM Settings Tab class.
+ *
+ * Handles the CiviCRM Settings tab on the WooCommerce Settings screen.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce CiviCRM Settings Tab class.
+ * WPCV WooCommerce CiviCRM Settings Tab class.
  *
  * @since 2.0
  */
 class WPCV_Woo_Civi_Settings_Tab {
 
 	/**
-	 * Initialises this object.
+	 * Initialise this object.
 	 *
 	 * @since 2.0
 	 */
@@ -27,9 +38,9 @@ class WPCV_Woo_Civi_Settings_Tab {
 	public function register_hooks() {
 		// Add CiviCRM settings tab.
 		add_filter( 'woocommerce_settings_tabs_array', [ $this, 'add_settings_tab' ], 50 );
-		// Add WooCommerce CiviCRM settings.
+		// Add settings for this plugin.
 		add_action( 'woocommerce_settings_woocommerce_civicrm', [ $this, 'add_settings_fields' ], 10 );
-		// Update WooCommerce CiviCRM settings.
+		// Update settings for this plugin.
 		add_action( 'woocommerce_update_options_woocommerce_civicrm', [ $this, 'update_settings_fields' ] );
 		// Update network settings.
 		add_action( 'network_admin_edit_woocommerce_civicrm_network_settings', [ $this, 'trigger_network_settings' ] );
@@ -43,7 +54,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	public function register_settings() {
 		register_setting( 'woocommerce_civicrm_network_settings', 'woocommerce_civicrm_network_settings' );
 
-		// Makes sure functions exists.
+		// Makes sure function exists.
 		if ( ! function_exists( 'add_settings_field' ) ) {
 			require_once ABSPATH . '/wp-admin/includes/template.php';
 		}
@@ -71,18 +82,20 @@ class WPCV_Woo_Civi_Settings_Tab {
 	}
 
 	/**
-	 * FIXME
-	 * Why is this empty?
+	 * Settings section callback.
+	 *
+	 * @since 2.0
 	 */
 	public function settings_section_callback() {
-
+		// FIXME: Why is this empty?
 	}
 
 	/**
 	 * Settings field text.
 	 *
 	 * @since 2.0
-	 * @param array $args The field params?.
+	 *
+	 * @param array $args The field params.
 	 */
 	public function settings_field_text( $args ) {
 		$option = 'woocommerce_civicrm_network_settings';
@@ -101,6 +114,8 @@ class WPCV_Woo_Civi_Settings_Tab {
 
 	/**
 	 * Settings field select.
+	 *
+	 * @since 2.0
 	 *
 	 * @param array $args The field params.
 	 */
@@ -152,7 +167,8 @@ class WPCV_Woo_Civi_Settings_Tab {
 				add_query_arg(
 					[
 						'page' => 'woocommerce-civicrm-settings',
-						'confirm' => 'error', // FIXME Not sure this is correct.
+						// FIXME: Not sure this is correct.
+						'confirm' => 'error',
 					],
 					( network_admin_url( 'settings.php' ) )
 				)
@@ -165,9 +181,11 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * Add CiviCRM tab to the settings page.
 	 *
 	 * @since 2.0
+	 *
 	 * @uses 'woocommerce_settings_tabs_array' filter.
-	 * @param array $setting_tabs The setting tabs array.
-	 * @return array $setting_tabs The setting tabs array.
+	 *
+	 * @param array $setting_tabs The existing setting tabs array.
+	 * @return array $setting_tabs The modified setting tabs array.
 	 */
 	public function add_settings_tab( $setting_tabs ) {
 		$setting_tabs['woocommerce_civicrm'] = __( 'CiviCRM', 'woocommerce-civicrm' );
@@ -175,7 +193,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	}
 
 	/**
-	 * Add WooCommerce CiviCRM settings to the Settings tab.
+	 * Add settings to the Settings tab.
 	 *
 	 * @since 2.0
 	 */
@@ -184,7 +202,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	}
 
 	/**
-	 * Update WooCommerce CiviCRM settings.
+	 * Update settings.
 	 *
 	 * @since 2.0
 	 */
@@ -196,7 +214,8 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * Settings options.
 	 *
 	 * @since 2.0
-	 * @return array $options The fields configuraion
+	 *
+	 * @return array $options The fields configuration.
 	 */
 	public function civicrm_settings_fields() {
 
@@ -286,10 +305,11 @@ class WPCV_Woo_Civi_Settings_Tab {
 		];
 
 		/**
-		 * Filter WooCommerce CiviCRM setting fields
+		 * Filter fields configuration.
 		 *
 		 * @since 2.0
-		 * @param array $options The fields configuration
+		 *
+		 * @param array $options The fields configuration.
 		 */
 		return apply_filters( 'woocommerce_civicrm_admin_settings_fields', $options );
 
@@ -304,7 +324,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	public function network_settings() {
 		?>
 		<div class="wrap">
-		<h2><?php esc_html_e( 'WooCommerce CiviCRM settings', 'woocommerce-civicrm' ); ?></h2>
+		<h2><?php esc_html_e( 'Integrate CiviCRM with WooCommerce Settings', 'woocommerce-civicrm' ); ?></h2>
 		<?php settings_errors(); ?>
 		<form action="edit.php?action=woocommerce_civicrm_network_settings" method="post">
 			<?php wp_nonce_field( 'woocommerce-civicrm-settings', 'woocommerce-civicrm-settings' ); ?>

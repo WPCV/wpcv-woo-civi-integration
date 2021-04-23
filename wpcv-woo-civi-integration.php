@@ -16,19 +16,20 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
- * WooCommerce CiviCRM class
- * A class that encapsulates this plugin's functionality
+ * WPCV WooCommerce CiviCRM class.
+ *
+ * A class that encapsulates this plugin's functionality.
  *
  * @since 2.0
  */
 class WPCV_Woo_Civi {
 
 	/**
-	 * Plugin.
+	 * Plugin file reference.
 	 *
 	 * @since 2.0
 	 * @access protected
-	 * @var $plugin
+	 * @var $plugin The file reference for this plugin.
 	 */
 	protected $plugin;
 
@@ -37,7 +38,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 * @access private
-	 * @var object $instance The class instance
+	 * @var object $instance The class instance.
 	 */
 	private static $instance;
 
@@ -46,7 +47,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 * @access private
-	 * @var object $settings_tab The Settings Tab management object
+	 * @var object $settings_tab The Settings Tab management object.
 	 */
 	public $settings_tab;
 
@@ -55,40 +56,36 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 * @access private
-	 * @var object $orders_tab The Orders Tab management object
+	 * @var object $orders_tab The Orders Tab management object.
 	 */
 	public $orders_tab;
 
 	/**
-	 * The Manager management object.
-	 *
-	 * Encapsulates the WooCommerce CiviCRM functionality
+	 * The General management object.
 	 *
 	 * @since 2.0
 	 * @access private
-	 * @var object $manager The plugin functionality management object
+	 * @var object $manager The plugin functionality management object.
 	 */
 	public $manager;
 
 	/**
 	 * The Sync management object.
 	 *
-	 * Encapsulates the WooCommerce and CiviCRM synchrinzation objects.
+	 * Encapsulates synchronisation between WooCommerce and CiviCRM.
 	 *
 	 * @since 2.0
 	 * @access private
-	 * @var object $sync The Sync management object
+	 * @var object $sync The Sync management object.
 	 */
 	public $sync;
 
 	/**
 	 * The Helper management object.
 	 *
-	 * Encapsulates the Helper management object.
-	 *
 	 * @since 2.0
 	 * @access private
-	 * @var object $helper The Helper management object
+	 * @var object $helper The Helper management object.
 	 */
 	public $helper;
 
@@ -97,7 +94,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 * @access private
-	 * @var object $states_replacement The States replacement management object
+	 * @var object $states_replacement The States replacement management object.
 	 */
 	public $states_replacement;
 
@@ -106,16 +103,16 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var object products The Product management object
+	 * @var object products The Product management object.
 	 */
 	public $products;
 
 	/**
-	 * Plugin activated in network context
+	 * Plugin activated in network context.
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var bool $is_network_installed
+	 * @var bool $is_network_installed True if network-installed, false otherwise.
 	 */
 	public $is_network_installed;
 
@@ -147,7 +144,8 @@ class WPCV_Woo_Civi {
 	 * Returns a single instance of this object when called.
 	 *
 	 * @since 2.0
-	 * @return object $instance WooCommerce_CiviCRM instance
+	 *
+	 * @return object $instance The instance.
 	 */
 	public static function instance() {
 
@@ -173,7 +171,7 @@ class WPCV_Woo_Civi {
 	 */
 	public function init() {
 
-		// Only setup objects after Woo has been bootstraped.
+		// Only setup objects after WooCommerce has been bootstraped.
 		add_action( 'woocommerce_init', [ $this, 'setup_objects' ] );
 		$this->register_hooks();
 		$this->enable_translation();
@@ -187,14 +185,12 @@ class WPCV_Woo_Civi {
 	 * Adds the setting page manu.
 	 *
 	 * @since 2.4
-	 *
-	 * @return void
 	 */
 	public function network_admin_menu() {
 		add_submenu_page(
 			'settings.php',
-			__( 'WooCommerce CiviCRM settings', 'woocommerce-civicrm' ),
-			__( 'WooCommerce CiviCRM settings', 'woocommerce-civicrm' ),
+			__( 'Integrate CiviCRM with WooCommerce Settings', 'woocommerce-civicrm' ),
+			__( 'Integrate CiviCRM with WooCommerce Settings', 'woocommerce-civicrm' ),
 			'manage_network_options',
 			'woocommerce-civicrm-settings',
 			[ $this->settings_tab, 'network_settings' ]
@@ -216,9 +212,12 @@ class WPCV_Woo_Civi {
 	 * Bootstrap CiviCRM.
 	 *
 	 * @since 2.1
+	 *
+	 * @return bool True if CiviCRM was initialised, false otherwise.
 	 */
 	public function boot_civi() {
 		if ( ! function_exists( 'civi_wp' ) ) {
+			// TODO: add return value.
 			return;
 		}
 		return civi_wp()->initialize();
@@ -228,7 +227,8 @@ class WPCV_Woo_Civi {
 	 * Check plugin dependencies.
 	 *
 	 * @since 2.0
-	 * @return bool True if dependencies exist, false otherwise
+	 *
+	 * @return bool True if dependencies exist, false otherwise.
 	 */
 	public function check_dependencies() {
 
@@ -255,7 +255,7 @@ class WPCV_Woo_Civi {
 	 * @since 2.0
 	 */
 	private function include_files() {
-		// Include WooCommerce CiviCRM Helper class.
+		// Include Helper class.
 		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-helper.php';
 		// Include WooCommerce settings tab class.
 		include WOOCOMMERCE_CIVICRM_PATH . 'includes/class-woo-civi-settings-tab.php';
@@ -283,23 +283,23 @@ class WPCV_Woo_Civi {
 	 * @since 2.0
 	 */
 	public function setup_objects() {
-		// init orders tab.
+		// Init orders tab.
 		$this->orders_tab = new WPCV_Woo_Civi_Orders_Contact_Tab();
-		// init helper instance.
+		// Init helper instance.
 		$this->helper = new WPCV_Woo_Civi_Helper();
-		// init settings page.
+		// Init settings page.
 		$this->settings_tab = new WPCV_Woo_Civi_Settings_Tab();
-		// init manager.
+		// Init manager.
 		$this->manager = new WPCV_Woo_Civi_Manager();
-		// init states replacement.
+		// Init states replacement.
 		$this->states_replacement = new WPCV_Woo_Civi_States();
-		// init sync manager.
+		// Init sync manager.
 		$this->sync = new WPCV_Woo_Civi_Sync();
-		// init products.
+		// Init products.
 		$this->products = new WPCV_Woo_Civi_Products();
-		// init orders.
+		// Init orders.
 		$this->products = new WPCV_Woo_Civi_Orders();
-		// init POS.
+		// Init POS.
 		$this->pos = new WPCV_Woo_Civi_POS();
 
 	}
@@ -310,7 +310,7 @@ class WPCV_Woo_Civi {
 	 * @since 2.0
 	 */
 	private function register_hooks() {
-		// add settings link to plugin listing page.
+		// Add settings link to plugin listing page.
 		add_filter( 'plugin_action_links', [ $this, 'add_action_links' ], 10, 2 );
 	}
 
@@ -323,12 +323,12 @@ class WPCV_Woo_Civi {
 	 * @since 2.0
 	 */
 	public function enable_translation() {
-		// load translations if present.
+		// Load translations if present.
 		// phpcs:ignore WordPress.WP.DeprecatedParameters.Load_plugin_textdomainParam2Found
 		load_plugin_textdomain(
-			'woocommerce-civicrm', // unique name.
-			'', // deprecated argument.
-			dirname( plugin_basename( __FILE__ ) ) . '/languages/' // relative path to translation files.
+			'woocommerce-civicrm', // Unique name.
+			'', // Deprecated argument.
+			dirname( plugin_basename( __FILE__ ) ) . '/languages/' // Relative path to translation files.
 		);
 	}
 
@@ -342,7 +342,7 @@ class WPCV_Woo_Civi {
 	}
 
 	/**
-	 * Ensure every plugin is loaded before clearing CiviCRM cache
+	 * Ensure every plugin is loaded before clearing CiviCRM cache.
 	 *
 	 * @since 2.1.1
 	 */
@@ -365,9 +365,10 @@ class WPCV_Woo_Civi {
 	 * Add Settings link to plugin listing page.
 	 *
 	 * @since 2.0
+	 *
 	 * @param array  $links The list of plugin links.
 	 * @param string $file The plugin file.
-	 * @return $links
+	 * @return string $links The modified list of plugin links.
 	 */
 	public function add_action_links( $links, $file ) {
 		if ( plugin_basename( __FILE__ ) === $file ) {
@@ -383,7 +384,7 @@ class WPCV_Woo_Civi {
 	 */
 	public function display_woocommerce_required_notice() {
 		deactivate_plugins( $this->plugin );
-		wp_die( '<h1>Ooops</h1><p><strong>WooCommerce CiviCRM integration</strong> requires <strong>WooCommerce</strong> plugin installed and activated.<br/> This plugin has been deactivated! Please activate <strong>WooCommerce</strong> and try again.<br/><br/>Back to the WordPress <a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">plugins page</a>.</p>' );
+		wp_die( '<h1>Ooops</h1><p><strong>Integrate CiviCRM with WooCommerce</strong> requires <strong>WooCommerce</strong> plugin installed and activated.<br/> This plugin has been deactivated! Please activate <strong>WooCommerce</strong> and try again.<br/><br/>Back to the WordPress <a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">plugins page</a>.</p>' );
 	}
 
 	/**
@@ -393,17 +394,17 @@ class WPCV_Woo_Civi {
 	 */
 	public function display_civicrm_required_notice() {
 		deactivate_plugins( $this->plugin );
-		wp_die( '<h1>Ooops</h1><p><strong>WooCommerce CiviCRM Integration</strong> requires <strong>CiviCRM</strong> plugin installed and activated.<br/> This plugin has been deactivated! Please activate <strong>CiviCRM</strong> and try again.<br/><br/>Back to the WordPress <a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">plugins page</a>.</p>' );
+		wp_die( '<h1>Ooops</h1><p><strong>Integrate CiviCRM with WooCommerce</strong> requires <strong>CiviCRM</strong> plugin installed and activated.<br/> This plugin has been deactivated! Please activate <strong>CiviCRM</strong> and try again.<br/><br/>Back to the WordPress <a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">plugins page</a>.</p>' );
 	}
 
 	/**
-	 * Display CiviCRM initilised notice.
+	 * Display CiviCRM not initialised notice.
 	 *
 	 * @since 2.0
 	 */
 	public function display_civicrm_initialised_notice() {
 		deactivate_plugins( $this->plugin );
-		wp_die( '<h1>Ooops</h1><p><strong>CiviCRM</strong> could not be initialized.<br/> <strong>WooCommerce CiviCRM</strong> integration has been deactivated!<br/><br/>Back to the WordPress <a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">plugins page</a>.</p>' );
+		wp_die( '<h1>Ooops</h1><p><strong>CiviCRM</strong> could not be initialized.<br/> <strong>Integrate CiviCRM with WooCommerce</strong> has been deactivated!<br/><br/>Back to the WordPress <a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">plugins page</a>.</p>' );
 	}
 
 }
@@ -412,9 +413,9 @@ class WPCV_Woo_Civi {
  * Instantiate plugin.
  *
  * @since 2.1
- * @return object $instance The plugin instance
+ *
+ * @return WPCV_Woo_Civi The plugin instance.
  */
-// phpcs:ignore
 function WCI() {
 	return WPCV_Woo_Civi::instance();
 }

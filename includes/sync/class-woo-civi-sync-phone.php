@@ -1,14 +1,25 @@
 <?php
+/**
+ * WPCV WooCommerce CiviCRM Sync Phone class.
+ *
+ * Handles syncing Phone Numbers between WooCommerce and CiviCRM.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce CiviCRM Sync Phone class.
+ * WPCV WooCommerce CiviCRM Sync Phone class.
  *
  * @since 2.0
  */
 class WPCV_Woo_Civi_Sync_Phone {
 
 	/**
-	 * Initialises this object.
+	 * Initialise this object.
 	 *
 	 * @since 2.0
 	 */
@@ -22,16 +33,16 @@ class WPCV_Woo_Civi_Sync_Phone {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
-		// Sync WooCommerce and CiviCRM phone for contact/user.
+		// Sync WooCommerce and CiviCRM Phone for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_phone' ], 10, 4 );
-		// Sync WooCommerce and CiviCRM phone for user/contact.
+		// Sync WooCommerce and CiviCRM Phone for User/Contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_phone' ], 10, 2 );
 	}
 
 	/**
-	 * Sync CiviCRM phone for contact/user.
+	 * Sync a CiviCRM Phone from a CiviCRM Contact to a WordPress User.
 	 *
-	 * Fires when a Civi contact's phone is edited.
+	 * Fires when a CiviCRM Contact's Phone is edited.
 	 *
 	 * @since 2.0
 	 * @param string $op The operation being performed.
@@ -41,7 +52,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 	 */
 	public function sync_civi_contact_phone( $op, $object_name, $object_id, $object_ref ) {
 
-		// Abort if sync is not enabled.
+		// Bail if sync is not enabled.
 		if ( ! WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_phone' ) ) ) {
 			return;
 		}
@@ -54,19 +65,19 @@ class WPCV_Woo_Civi_Sync_Phone {
 			return;
 		}
 
-		// Abort if the phone being edited is not one of the mapped ones.
+		// Bail if the Phone being edited is not one of the mapped ones.
 		if ( ! in_array( $object_ref->location_type_id, WCI()->helper->mapped_location_types, true ) ) {
 			return;
 		}
 
-		// Abort if we don't have a contact_id.
+		// Bail if we don't have a Contact ID.
 		if ( ! isset( $object_ref->contact_id ) ) {
 			return;
 		}
 
 		$cms_user = WCI()->helper->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
 
-		// Abort if we don't have a WordPress user.
+		// Bail if we don't have a WordPress User.
 		if ( ! $cms_user ) {
 			return;
 		}
@@ -74,46 +85,48 @@ class WPCV_Woo_Civi_Sync_Phone {
 		// Proceed.
 		$phone_type = array_search( $object_ref->location_type_id, WCI()->helper->mapped_location_types );
 
-		// Only billing_phone, there's no shipping_phone field.
+		// Only Billing Phone, there's no Shipping Phone field.
 		if ( 'billing' === $phone_type ) {
 			update_user_meta( $cms_user['uf_id'], $phone_type . '_phone', $object_ref->phone );
 		}
 
 		/**
-		 * Broadcast that a WooCommerce phone has been updated for a user.
+		 * Broadcast that a WooCommerce Phone has been updated for a User.
 		 *
 		 * @since 2.0
-		 * @param int $user_id The WordPress user id
-		 * @param string $phone_type The WooCommerce phone type 'billing' || 'shipping'
+		 *
+		 * @param int $user_id The WordPress User ID.
+		 * @param string $phone_type The WooCommerce Phone Type. Either 'billing' or 'shipping'.
 		 */
 		do_action( 'woocommerce_civicrm_wc_phone_updated', $cms_user['uf_id'], $phone_type );
 
 	}
 
 	/**
-	 * Sync WooCommerce phone for user->contact.
+	 * Sync a WooCommerce Phone from a User to a CiviCRM Contact.
 	 *
-	 * Fires when WooCommerce address is edited.
+	 * Fires when an WooCommerce Address is edited.
 	 *
 	 * @since 2.0
-	 * @param int $user_id The WP user id.
-	 * @param string $load_address The address type 'shipping' | 'billing'.
+	 *
+	 * @param int $user_id The WordPress User ID.
+	 * @param string $load_address The Address Type. Either 'shipping' or 'billing'.
 	 */
 	public function sync_wp_user_woocommerce_phone( $user_id, $load_address ) {
 
-		// Abort if sync is not enabled.
+		// Bail if sync is not enabled.
 		if ( ! WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_phone' ) ) ) {
 			return;
 		}
 
-		// Abort if phone is not of type 'billing'.
+		// Bail if Phone is not of type 'billing'.
 		if ( 'billing' !== $load_address ) {
 			return;
 		}
 
 		$civi_contact = WCI()->helper->get_civicrm_ufmatch( $user_id, 'uf_id' );
 
-		// Abort if we don't have a CiviCRM contact.
+		// Bail if we don't have a CiviCRM Contact.
 		if ( ! $civi_contact ) {
 			return;
 		}
@@ -150,12 +163,14 @@ class WPCV_Woo_Civi_Sync_Phone {
 		}
 
 		/**
-		 * Broadcast that a CiviCRM phone has been updated.
+		 * Broadcast that a CiviCRM Phone has been updated.
 		 *
 		 * @since 2.0
-		 * @param int $contact_id The CiviCRM contact_id
-		 * @param array $phone The CiviCRM phone edited
+		 *
+		 * @param int $contact_id The CiviCRM Contact ID.
+		 * @param array $phone The CiviCRM Phone that has been edited.
 		 */
 		do_action( 'woocommerce_civicrm_civi_phone_updated', $civi_contact['contact_id'], $create_phone );
 	}
+
 }

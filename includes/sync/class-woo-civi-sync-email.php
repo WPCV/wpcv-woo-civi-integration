@@ -1,14 +1,25 @@
 <?php
+/**
+ * WPCV WooCommerce CiviCRM Sync Email class.
+ *
+ * Handles syncing email addresses between WooCommerce and CiviCRM.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce CiviCRM Sync Email class.
+ * WPCV WooCommerce CiviCRM Sync Email class.
  *
  * @since 2.0
  */
 class WPCV_Woo_Civi_Sync_Email {
 
 	/**
-	 * Initialises this object.
+	 * Initialise this object.
 	 *
 	 * @since 2.0
 	 */
@@ -19,7 +30,7 @@ class WPCV_Woo_Civi_Sync_Email {
 	/**
 	 * Register hooks.
 	 *
-	 * @since 0.2
+	 * @since 2.0
 	 */
 	public function register_hooks() {
 		// Sync WooCommerce and CiviCRM email for contact/user.
@@ -29,11 +40,12 @@ class WPCV_Woo_Civi_Sync_Email {
 	}
 
 	/**
-	 * Sync CiviCRM email for contact->user.
+	 * Sync a CiviCRM Email from a Contact to a WordPress User.
 	 *
-	 * Fires when a Civi contact's email is edited.
+	 * Fires when a Civi Contact's Email is edited.
 	 *
 	 * @since 2.0
+	 *
 	 * @param string $op The operation being performed.
 	 * @param string $object_name The entity name.
 	 * @param int $object_id The entity id.
@@ -41,7 +53,7 @@ class WPCV_Woo_Civi_Sync_Email {
 	 */
 	public function sync_civi_contact_email( $op, $object_name, $object_id, $object_ref ) {
 
-		// Abort if sync is not enabled.
+		// Bail if sync is not enabled.
 		if ( ! WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_email' ) ) ) {
 			return;
 		}
@@ -54,19 +66,19 @@ class WPCV_Woo_Civi_Sync_Email {
 			return;
 		}
 
-		// Abort if the email being edited is not one of the mapped ones.
+		// Bail if the Email being edited is not one of the mapped ones.
 		if ( ! in_array( $object_ref->location_type_id, WCI()->helper->mapped_location_types ) ) {
 			return;
 		}
 
-		// Abort if we don't have a contact_id.
+		// Bail if we don't have a Contact ID.
 		if ( ! isset( $object_ref->contact_id ) ) {
 			return;
 		}
 
 		$cms_user = WCI()->helper->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
 
-		// Abort if we don't have a WordPress user.
+		// Bail if we don't have a WordPress User.
 		if ( ! $cms_user ) {
 			return;
 		}
@@ -74,46 +86,48 @@ class WPCV_Woo_Civi_Sync_Email {
 		// Proceed.
 		$email_type = array_search( $object_ref->location_type_id, WCI()->helper->mapped_location_types );
 
-		// Only billing_email, there's no shipping_email field.
+		// Only for billing Email, there's no shipping Email field.
 		if ( 'billing' === $email_type ) {
 			update_user_meta( $cms_user['uf_id'], $email_type . '_email', $object_ref->email );
 		}
 
 		/**
-		 * Broadcast that a WooCommerce email has been updated for a user.
+		 * Broadcast that a WooCommerce Email has been updated for a User.
 		 *
 		 * @since 2.0
-		 * @param int $user_id The WordPress user_id.
-		 * @param string $email_type The WooCommerce email type 'billing' || 'shipping'.
+		 *
+		 * @param int $user_id The WordPress User ID.
+		 * @param string $email_type The WooCommerce Email Type. Either 'billing' or 'shipping'.
 		 */
 		do_action( 'woocommerce_civicrm_wc_email_updated', $cms_user['uf_id'], $email_type );
 
 	}
 
 	/**
-	 * Sync WooCommerce email for user->contact.
+	 * Sync a WooCommerce Email from a User to a CiviCRM Contact.
 	 *
-	 * Fires when WooCommerce email is edited.
+	 * Fires when WooCommerce Email is edited.
 	 *
 	 * @since 2.0
-	 * @param int $user_id The WP user_id.
-	 * @param string $load_address The address type 'shipping' | 'billing'.
+	 *
+	 * @param int $user_id The WordPress User ID.
+	 * @param string $load_address The Address Type. Either 'shipping' or 'billing'.
 	 */
 	public function sync_wp_user_woocommerce_email( $user_id, $load_address ) {
 
-		// Abort if sync is not enabled.
+		// Bail if sync is not enabled.
 		if ( ! WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_email' ) ) ) {
 			return;
 		}
 
-		// Abort if email is not of type 'billing'.
+		// Bail if Email is not of type 'billing'.
 		if ( 'billing' !== $load_address ) {
 			return;
 		}
 
 		$civi_contact = WCI()->helper->get_civicrm_ufmatch( $user_id, 'uf_id' );
 
-		// Abort if we don't have a CiviCRM contact.
+		// Bail if we don't have a CiviCRM Contact.
 		if ( ! $civi_contact ) {
 			return;
 		}
@@ -150,12 +164,14 @@ class WPCV_Woo_Civi_Sync_Email {
 		}
 
 		/**
-		 * Broadcast that a CiviCRM email has been updated.
+		 * Broadcast that a CiviCRM Email has been updated.
 		 *
 		 * @since 2.0
-		 * @param int $contact_id The CiviCRM contact_id
-		 * @param array $email The CiviCRM email edited
+		 *
+		 * @param int $contact_id The CiviCRM Contact ID.
+		 * @param array $email The CiviCRM Email that has been edited.
 		 */
 		do_action( 'woocommerce_civicrm_civi_email_updated', $civi_contact['contact_id'], $create_email );
 	}
+
 }

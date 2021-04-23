@@ -1,7 +1,26 @@
 <?php
+/**
+ * QuickForm class that renders the Purchases Tab on CiviCRM Contact screens.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
 
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * QuickForm class that renders the Purchases Tab on CiviCRM Contact screens.
+ *
+ * @since 2.0
+ */
 class CRM_Contact_Page_View_Purchases extends CRM_Core_Page {
 
+	/**
+	 * Render the QuickForm page.
+	 *
+	 * @since 2.0
+	 */
 	function run() {
 		CRM_Utils_System::setTitle( ts( 'Purchases' ) );
 
@@ -34,4 +53,5 @@ class CRM_Contact_Page_View_Purchases extends CRM_Core_Page {
 		}
 		parent::run();
 	}
+
 }

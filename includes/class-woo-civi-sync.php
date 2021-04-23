@@ -1,7 +1,18 @@
 <?php
+/**
+ * WPCV WooCommerce CiviCRM Sync class.
+ *
+ * Loads the classes which handle syncing data between WooCommerce and CiviCRM.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.1
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce CiviCRM Sync class.
+ * WPCV WooCommerce CiviCRM Sync class.
  *
  * @since 2.1
  */
@@ -12,7 +23,7 @@ class WPCV_Woo_Civi_Sync {
 	 *
 	 * @since 2.1
 	 * @access public
-	 * @var array $address The address sync object
+	 * @var object $address The Address sync object.
 	 */
 	public $address;
 
@@ -21,7 +32,7 @@ class WPCV_Woo_Civi_Sync {
 	 *
 	 * @since 2.1
 	 * @access public
-	 * @var array $email The email sync object
+	 * @var object $email The Email sync object.
 	 */
 	public $email;
 
@@ -30,7 +41,7 @@ class WPCV_Woo_Civi_Sync {
 	 *
 	 * @since 2.1
 	 * @access public
-	 * @var array $phone The email sync object
+	 * @var object $phone The Phone sync object.
 	 */
 	public $phone;
 
@@ -47,7 +58,7 @@ class WPCV_Woo_Civi_Sync {
 	/**
 	 * Include sync files.
 	 *
-	 * @since 0.1
+	 * @since 2.1
 	 */
 	public function include_files() {
 		// Include Address Sync functionality class.

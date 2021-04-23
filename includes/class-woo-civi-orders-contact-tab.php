@@ -1,14 +1,25 @@
 <?php
+/**
+ * WPCV WooCommerce CiviCRM Orders Contact Tab class.
+ *
+ * Handles the WooCommerce Orders tab on CiviCRM Contact screens.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce CiviCRM Orders Contact Tab class.
+ * WPCV WooCommerce CiviCRM Orders Contact Tab class.
  *
  * @since 2.0
  */
 class WPCV_Woo_Civi_Orders_Contact_Tab {
 
 	/**
-	 * Initialises this object.
+	 * Initialise this object.
 	 *
 	 * @since 2.0
 	 */
@@ -17,7 +28,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	}
 
 	/**
-	 * Checks if WooCommerce is activated on another blog.
+	 * Check if WooCommerce is activated on another blog.
 	 *
 	 * @since 2.2
 	 */
@@ -41,7 +52,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	}
 
 	/**
-	 * Moves to main WooCommerce site if multisite installation.
+	 * Move to main WooCommerce site if multisite installation.
 	 *
 	 * @since 2.2
 	 */
@@ -56,7 +67,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	}
 
 	/**
-	 * Moves to current site if multisite installation.
+	 * Move to current site if multisite installation.
 	 *
 	 * @since 2.2
 	 */
@@ -69,12 +80,12 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	}
 
 	/**
-	 * Register hooks
+	 * Register hooks.
 	 *
 	 * @since 0.2
 	 */
 	public function register_hooks() {
-		// Register custom php directory.
+		// Register custom PHP directory.
 		add_action( 'civicrm_config', [ $this, 'register_custom_php_directory' ], 10, 1 );
 		// Register custom template directory.
 		add_action( 'civicrm_config', [ $this, 'register_custom_template_directory' ], 10, 1 );
@@ -85,9 +96,10 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	}
 
 	/**
-	 * Register php directory.
+	 * Register PHP directory.
 	 *
 	 * @since 2.0
+	 *
 	 * @param object $config The CiviCRM config object.
 	 */
 	public function register_custom_php_directory( &$config ) {
@@ -103,6 +115,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * Register template directory.
 	 *
 	 * @since 2.0
+	 *
 	 * @param object $config The CiviCRM config object.
 	 */
 	public function register_custom_template_directory( &$config ) {
@@ -119,6 +132,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * Register XML file.
 	 *
 	 * @since 2.0
+	 *
 	 * @param array $files The array for files used to build the menu.
 	 */
 	public function register_callback( &$files ) {
@@ -128,24 +142,26 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	}
 
 	/**
-	 * Add CiviCRM tab to the settings page.
+	 * Add Purchases tab to Contact Summary Screen.
 	 *
 	 * @since 2.0
+	 *
 	 * @uses 'woocommerce_settings_tabs_array' filter.
+	 *
 	 * @param string $tabset_name The name of the screen or visual element.
 	 * @param array $tabs The array of tabs.
 	 * @param string|array $context Extra data about the screen.
 	 */
 	public function add_orders_contact_tab( $tabset_name, &$tabs, $context ) {
 
-		// Bail if not on contact summary screen.
+		// Bail if not on Contact Summary Screen.
 		if ( 'civicrm/contact/view' !== $tabset_name ) {
 			return;
 		}
 
 		$cid = $context['contact_id'];
 
-		// Bail if contact has no orders and hide order is enabled.
+		// Bail if Contact has no Orders and "Hide Order" is enabled.
 		if (
 			WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_hide_orders_tab_for_non_customers', false ) )
 			&& ! $this->count_orders( $cid )
@@ -165,11 +181,12 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	}
 
 	/**
-	 * Get Customer raw orders.
+	 * Get Customer raw Orders.
 	 *
 	 * @since 2.2
-	 * @param int $cid The Contact id.
-	 * @return array $orders The raw orders.
+	 *
+	 * @param int $cid The Contact ID.
+	 * @return array $customer_orders The array of raw Order data.
 	 */
 	private function _get_orders( $cid ) {
 		$this->fix_site();
@@ -182,7 +199,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 				];
 				$contact = civicrm_api3( 'Contact', 'getsingle', $params );
 			} catch ( CiviCRM_API3_Exception $e ) {
-				CRM_Core_Error::debug_log_message( __( 'Not able to find contact', 'woocommerce-civicrm' ) );
+				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'woocommerce-civicrm' ) );
 				$this->unfix_site();
 				return [];
 			}
@@ -222,11 +239,12 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	}
 
 	/**
-	 * Get Customer orders count.
+	 * Get count of Orders for a given Customer.
 	 *
 	 * @since 2.2
-	 * @param int $cid The Contact id.
-	 * @return int $orders_count The number of orders.
+	 *
+	 * @param int $cid The Contact ID.
+	 * @return int $orders_count The number of Orders.
 	 */
 	public function count_orders( $cid ) {
 		return count( $this->_get_orders( $cid ) );
@@ -236,17 +254,19 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * Get Customer orders.
 	 *
 	 * @since 2.1
-	 * @param int $cid The Contact id.
-	 * @return array $orders The orders.
+	 *
+	 * @param int $cid The Contact ID.
+	 * @return array|bool $orders The array of Orders, or false on failure.
 	 */
 	public function get_orders( $cid ) {
 		$customer_orders = $this->_get_orders( $cid );
 		$orders = [];
 		$date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
 
-		// If WooCommerce is in another blog, ftech the order remotely
-		// FIXME: for now, Partial datas
-		// TODO: Fetch real datas.
+		// FIXME: For now, get partial data.
+		// TODO: Fetch real data.
+
+		// If WooCommerce is in another blog, fetch the Order remotely.
 		if ( $this->is_remote_wc() ) {
 			$this->fix_site();
 			$site_url = get_site_url();
@@ -262,8 +282,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 				$orders[ $customer_order->ID ]['order_link'] = $site_url . '/wp-admin/post.php?action=edit&post=' . $order->ID;
 			}
 			return $orders;
-			// FIXME
-			// shouldn't this be called before returning orders??
+			// FIXME: Shouldn't this be called before returning Orders?
 			$this->unfix_site();
 		}
 
@@ -288,4 +307,5 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 
 		return false;
 	}
+
 }

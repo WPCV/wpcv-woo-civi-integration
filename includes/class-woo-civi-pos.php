@@ -1,7 +1,18 @@
 <?php
+/**
+ * WPCV WooCommerce CiviCRM POS class.
+ *
+ * TODO: Remove this.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce CiviCRM POS class.
+ * WPCV WooCommerce CiviCRM POS class.
  *
  * @since 2.0
  */
@@ -25,7 +36,7 @@ class WPCV_Woo_Civi_POS {
 	 */
 	public function register_hooks() {
 
-		// Add the filters | Chosen filters are not ideal , but there are the only few you can access when on a POS page.
+		// Add the filters | Chosen filters are not ideal, but there are the only few you can access when on a POS page.
 
 		// Persist the campaign for this user in the data base.
 		add_action( 'wp_ajax_woocommerce_civicrm_set_datas_from_pos', [ $this, 'pos_set_datas' ] );
@@ -54,8 +65,10 @@ class WPCV_Woo_Civi_POS {
 	 * @param mixed $request The request.
 	 */
 	public function wc_pos_campaign_prepare_shop_order_object( $response, $order, $request ) {
-		WCI()->manager->update_campaign( $response->data['id'], '', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) ); // Save camapaign to CiviCRM.
-		update_post_meta( $response->data['id'], '_woocommerce_civicrm_campaign_id', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) ); // Save camapaign to post data for this WooCommerce order.
+		// Save camapaign to CiviCRM.
+		WCI()->manager->update_campaign( $response->data['id'], '', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) );
+		// Save camapaign to post data for this WooCommerce order.
+		update_post_meta( $response->data['id'], '_woocommerce_civicrm_campaign_id', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) );
 		return $response;
 	}
 
@@ -126,12 +139,15 @@ class WPCV_Woo_Civi_POS {
 	 */
 	public function pos_get_datas() {
 		$order_campaign = get_user_meta( get_current_user_id(), 'pos_campaign_id', true );
-		if ( ! $order_campaign ) { // If there is no campaign for this user, try the default from WP.
+		// If there is no campaign for this user, try the default from WP.
+		if ( ! $order_campaign ) {
 			$order_campaign = get_option( 'woocommerce_civicrm_campaign_id', false );
-			if ( ! $order_campaign ) { // If there is no default campaign from WP, set it to none.
+			// If there is no default campaign from WP, set it to none.
+			if ( ! $order_campaign ) {
 				$order_campaign = 0;
 			}
-			add_user_meta( get_current_user_id(), 'pos_campaign_id', $order_campaign ); // There was no meta for the user at this point so create one because we will need it.
+			// There was no meta for the user at this point so create one because we will need it.
+			add_user_meta( get_current_user_id(), 'pos_campaign_id', $order_campaign );
 		}
 		$order_source = get_user_meta( get_current_user_id(), 'pos_source', true );
 		if ( ! $order_source ) {
@@ -144,7 +160,8 @@ class WPCV_Woo_Civi_POS {
 					<div>
 						<select id="order_civicrmcampaign" name="order_civicrmcampaign" placeholder="' . __( 'CiviCRM Campaign', 'woocommerce-civicrm' ) . '">';
 						foreach ( WCI()->helper->campaigns as $campaign_id => $campaign_name ) {
-							$render .= '<option value="' . $campaign_id . '" ' . selected( $campaign_id, $order_campaign, false ) . '>' . $campaign_name . '</option>'; // Select by default the $order_camapaign.
+							// Select by default the $order_campaign.
+							$render .= '<option value="' . $campaign_id . '" ' . selected( $campaign_id, $order_campaign, false ) . '>' . $campaign_name . '</option>';
 						}
 						$render .= '</select>
 					</div>
@@ -173,7 +190,8 @@ class WPCV_Woo_Civi_POS {
 			';
 
 		echo esc_html( $render );
-		exit(); // This is required to terminate immediately and return a proper response.
+		// This is required to terminate immediately and return a proper response.
+		exit();
 	}
 
 }

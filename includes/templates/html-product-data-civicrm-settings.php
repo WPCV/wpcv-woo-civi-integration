@@ -1,13 +1,13 @@
 <?php
 /**
- * The CiviCRM settings tab HTML in the product tabs.
+ * The HTML template for the CiviCRM Settings Tab in the Product Tabs.
  *
+ * @package WPCV_Woo_Civi
  * @since 2.4
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 ?>
 <div id="woocommerce_civicrm" class="panel woocommerce_options_panel hidden">

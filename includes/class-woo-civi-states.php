@@ -1,7 +1,18 @@
 <?php
+/**
+ * WPCV WooCommerce CiviCRM States class.
+ *
+ * Handles the integration of WooCommerce States with CiviCRM States.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce CiviCRM States class.
+ * WPCV WooCommerce CiviCRM States class.
  *
  * @since 2.0
  */
@@ -23,13 +34,13 @@ class WPCV_Woo_Civi_States {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $countries The CiviCRM countries/
+	 * @var array $countries The CiviCRM countries.
 	 */
 	public $civicrm_countries = [];
 
 
 	/**
-	 * Initialises this object.
+	 * Initialise this object.
 	 *
 	 * @since 2.0
 	 */
@@ -38,7 +49,7 @@ class WPCV_Woo_Civi_States {
 	}
 
 	/**
-	 * Register hooks
+	 * Register hooks.
 	 *
 	 * @since 0.2
 	 */
@@ -62,15 +73,17 @@ class WPCV_Woo_Civi_States {
 	}
 
 	/**
-	 * Function to replace WooCommerce state/counties list with CiviCRM's list.
+	 * Function to replace WooCommerce State/Provinces list with CiviCRM's list.
 	 *
 	 * @since 2.0
+	 *
 	 * @uses 'woocommerce_states' filter.
-	 * @param array $states The WooCommerce state/counties.
-	 * @return array $states The modifies states/counties.
+	 *
+	 * @param array $states The WooCommerce State/Provinces.
+	 * @return array $states The modifies State/Provinces.
 	 */
 	public function replace_woocommerce_states( $states ) {
-		// Abort if replace is not enabled.
+		// Bail if replace is not enabled.
 		if ( ! $this->replace ) {
 			return $states;
 		}
@@ -84,10 +97,11 @@ class WPCV_Woo_Civi_States {
 	}
 
 	/**
-	 * Function to get CiviCRM countries.
+	 * Get the CiviCRM Countries.
 	 *
 	 * @since 2.0
-	 * @return array $civicrm_countries The CiviCRM country list
+	 *
+	 * @return array $civicrm_countries The CiviCRM country list.
 	 */
 	public function get_civicrm_countries() {
 		if ( ! empty( $this->civicrm_countries ) ) {

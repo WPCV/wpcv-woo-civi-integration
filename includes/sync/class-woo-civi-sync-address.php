@@ -1,14 +1,25 @@
 <?php
+/**
+ * WPCV WooCommerce CiviCRM Sync Address class.
+ *
+ * Handles syncing addresses between WooCommerce and CiviCRM.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce CiviCRM Sync Address class.
+ * WPCV WooCommerce CiviCRM Sync Address class.
  *
  * @since 2.0
  */
 class WPCV_Woo_Civi_Sync_Address {
 
 	/**
-	 * Initialises this object.
+	 * Initialise this object.
 	 *
 	 * @since 2.0
 	 */
@@ -19,7 +30,7 @@ class WPCV_Woo_Civi_Sync_Address {
 	/**
 	 * Register hooks.
 	 *
-	 * @since 0.2
+	 * @since 2.0
 	 */
 	public function register_hooks() {
 		// Sync WooCommerce and CiviCRM address for contact/user.
@@ -29,19 +40,20 @@ class WPCV_Woo_Civi_Sync_Address {
 	}
 
 	/**
-	 * Sync CiviCRM address for contact->user.
+	 * Sync CiviCRM Address from a CiviCRM Contact to a WordPress User.
 	 *
-	 * Fires when a Civi contact's address is edited.
+	 * Fires when a CiviCRM Contact's Address is edited.
 	 *
 	 * @since 2.0
+	 *
 	 * @param string $op The operation being performed.
 	 * @param string $object_name The entity name.
-	 * @param int $object_id The entity id.
+	 * @param int $object_id The entity ID.
 	 * @param object $object_ref The entity object.
 	 */
 	public function sync_civi_contact_address( $op, $object_name, $object_id, $object_ref ) {
 
-		// Abort if sync is not enabled.
+		// Bail if sync is not enabled.
 		if ( ! WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_address' ) ) ) {
 			return;
 		}
@@ -54,19 +66,19 @@ class WPCV_Woo_Civi_Sync_Address {
 			return;
 		}
 
-		// Abort if the address being edited is not one of the mapped ones.
+		// Bail if the Address being edited is not one of the mapped ones.
 		if ( ! in_array( $object_ref->location_type_id, WCI()->helper->mapped_location_types, true ) ) {
 			return;
 		}
 
-		// Abort if we don't have a contact_id.
+		// Bail if we don't have a Contact ID.
 		if ( ! isset( $object_ref->contact_id ) ) {
 			return;
 		}
 
 		$cms_user = WCI()->helper->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
 
-		// Abort if we don't have a WordPress user_id.
+		// Bail if we don't have a WordPress User ID.
 		if ( ! $cms_user ) {
 			return;
 		}
@@ -92,28 +104,30 @@ class WPCV_Woo_Civi_Sync_Address {
 		}
 
 		/**
-		 * Broadcast that a WooCommerce address has been updated for a user.
+		 * Broadcast that a WooCommerce Address has been updated for a User.
 		 *
 		 * @since 2.0
-		 * @param int $user_id The WordPress user id
-		 * @param string $address_type The WooCommerce adress type 'billing' || 'shipping'
+		 *
+		 * @param int $user_id The WordPress User ID.
+		 * @param string $address_type The WooCommerce Address Type. Either 'billing' or 'shipping'.
 		 */
 		do_action( 'woocommerce_civicrm_wc_address_updated', $cms_user['uf_id'], $address_type );
 
 	}
 
 	/**
-	 * Sync WooCommerce address for user->contact.
+	 * Sync WooCommerce Address from a User to a CiviCRM Contact.
 	 *
-	 * Fires when WooCommerce address is edited.
+	 * Fires when WooCommerce Address is edited.
 	 *
 	 * @since 2.0
-	 * @param int $user_id The WP user_id.
-	 * @param string $load_address The address type 'shipping' | 'billing'.
+	 *
+	 * @param int $user_id The WordPress User ID.
+	 * @param string $load_address The Address Type. Either 'shipping' or 'billing'.
 	 */
 	public function sync_wp_user_woocommerce_address( $user_id, $load_address ) {
 
-		// Abort if sync is not enabled.
+		// Bail if sync is not enabled.
 		if ( ! WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_address' ) ) ) {
 			return;
 		}
@@ -122,7 +136,7 @@ class WPCV_Woo_Civi_Sync_Address {
 
 		$civi_contact = WCI()->helper->get_civicrm_ufmatch( $user_id, 'uf_id' );
 
-		// Abort if we don't have a CiviCRM contact.
+		// Bail if we don't have a CiviCRM Contact.
 		if ( ! $civi_contact ) {
 			return;
 		}
@@ -167,12 +181,14 @@ class WPCV_Woo_Civi_Sync_Address {
 		}
 
 		/**
-		 * Broadcast that a CiviCRM address has been updated.
+		 * Broadcast that a CiviCRM Address has been updated.
 		 *
 		 * @since 2.0
-		 * @param int $contact_id The CiviCRM contact_id
-		 * @param array $address The CiviCRM edited address
+		 *
+		 * @param int $contact_id The CiviCRM Contact ID.
+		 * @param array $address The CiviCRM Address that has been edited.
 		 */
 		do_action( 'woocommerce_civicrm_civi_address_updated', $civi_contact['contact_id'], $create_address );
 	}
+
 }

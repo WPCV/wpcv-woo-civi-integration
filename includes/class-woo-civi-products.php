@@ -1,16 +1,25 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 /**
- * WooCommerce CiviCRM Product class.
+ * WPCV WooCommerce CiviCRM Product class.
+ *
+ * Handles the integration of WooCommerce Products with CiviCRM.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 2.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * WPCV WooCommerce CiviCRM Product class.
  *
  * @since 2.2
  */
 class WPCV_Woo_Civi_Products {
 
 	/**
-	 * Initialises this object.
+	 * Initialise this object.
 	 *
 	 * @since 2.0
 	 */
@@ -19,7 +28,7 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
-	 * Registers hooks.
+	 * Register hooks.
 	 *
 	 * @since 2.2
 	 *
@@ -27,11 +36,11 @@ class WPCV_Woo_Civi_Products {
 	 */
 	public function register_hooks() {
 
-		// Add CiviCRM product settings tab.
+		// Add CiviCRM tab to the Product Settings tabs.
 		add_filter( 'woocommerce_product_data_tabs', [ $this, 'add_civicrm_product_tab' ] );
-		// Add CiviCRM product panel template.
+		// Add CiviCRM Product panel template.
 		add_action( 'woocommerce_product_data_panels', [ $this, 'add_civicrm_product_panel' ] );
-		// Save CiviCRM product settings.
+		// Save CiviCRM Product settings.
 		add_action( 'woocommerce_admin_process_product_object', [ $this, 'save_civicrm_product_settings' ] );
 
 		add_action( 'bulk_edit_custom_box', [ $this, 'add_contribution_to_quick_edit' ], 10, 2 );
@@ -51,8 +60,8 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @uses 'woocommerce_product_data_tabs' filter.
 	 *
-	 * @param array $tabs The product tabs.
-	 * @return array $tabs The modified product tabs.
+	 * @param array $tabs The existing Product tabs.
+	 * @return array $tabs The modified Product tabs.
 	 */
 	public function add_civicrm_product_tab( $tabs ) {
 
@@ -74,20 +83,19 @@ class WPCV_Woo_Civi_Products {
 	 */
 	public function add_civicrm_product_panel() {
 
+		// TODO: fix this path.
 		include dirname( __FILE__ ) . '/templates/html-product-data-civicrm-settings.php';
 
 	}
 
 	/**
-	 * Adds the the CiviCRM product settings
-	 * as meta before product is saved.
+	 * Add the CiviCRM Product settings as meta before Product is saved.
 	 *
 	 * @since 2.4
 	 *
 	 * @uses 'woocommerce_admin_process_product_object' action.
 	 *
-	 * @param WC_Product $product The product object.
-	 * @return void
+	 * @param WC_Product $product The Product object.
 	 */
 	public function save_civicrm_product_settings( $product ) {
 
@@ -104,11 +112,12 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
-	 * Undocumented function
+	 * Append the Financial Type to the Product Category column.
+	 *
+	 * @since 2.4
 	 *
 	 * @param string $column_name The column name.
-	 * @param int $post_id The post id.
-	 * @return void
+	 * @param int $post_id The WordPress Post ID.
 	 */
 	public function columns_content( $column_name, $post_id ) {
 		if ( 'product_cat' === $column_name ) {
@@ -119,11 +128,11 @@ class WPCV_Woo_Civi_Products {
 				( null !== $contribution_type && isset( $contributions_types[ $contribution_type ] ) )
 					? esc_html( $contributions_types[ $contribution_type ] )
 					: sprintf(
-						/* translators: %s: default financial type */
+						/* translators: %s: The default Financial Type */
 						__( '%s (Default)', 'woocommerce-civicrm' ),
 						isset( $contributions_types[ $default_contribution_type_id ] )
 							? $contributions_types[ $default_contribution_type_id ]
-							: __( 'unset', 'woocommerce-civicrm' )
+							: __( 'Not set', 'woocommerce-civicrm' )
 					)
 			);
 		}
@@ -131,16 +140,16 @@ class WPCV_Woo_Civi_Products {
 
 
 	/**
-	 * Contribution fields for products.
+	 * Contribution fields for Products.
 	 *
-	 * @return void
+	 * @since 2.4
 	 */
 	public function contribution_fields_bulk() {
 
 		echo '
 			<div class="inline-edit-group">
 			<label class="alignleft">
-				<span class="title">' . __( 'Contribution type', 'woocommerce-civicrm' ) . '</span>
+				<span class="title">' . __( 'Contribution Type', 'woocommerce-civicrm' ) . '</span>
 				<span class="input-text-wrap">
 				<select style="" id="_civicrm_contribution_type" name="civicrm_contribution_type" class="select short">';
 		$contributions_types = WCI()->helper->financial_types;
@@ -162,11 +171,12 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
-	 * Add contribution to quick edit.
+	 * Add Contribution to Quick Edit.
 	 *
-	 * @param string $column_name Column name.
-	 * @param string $post_type Post type.
-	 * @return void
+	 * @since 2.4
+	 *
+	 * @param string $column_name The column name.
+	 * @param string $post_type The WordPress Post Type.
 	 */
 	public function add_contribution_to_quick_edit( $column_name, $post_type ) {
 		if ( 'product_cat' !== $column_name || 'product' !== $post_type ) {
@@ -179,11 +189,12 @@ class WPCV_Woo_Civi_Products {
 
 	/**
 	 * Offers a way to hook into save post without causing an infinite loop
-	 * when quick/bulk saving product info.
+	 * when quick/bulk saving Product info.
 	 *
-	 * @since 3.0.0
-	 * @param int    $post_id Post ID being saved.
-	 * @param object $post Post object being saved.
+	 * @since 2.3
+	 *
+	 * @param int $post_id The Post ID being saved.
+	 * @param object $post The Post object being saved.
 	 */
 	public function bulk_and_quick_edit_hook( $post_id, $post ) {
 		remove_action( 'save_post', [ $this, 'bulk_and_quick_edit_hook' ] );
@@ -194,9 +205,10 @@ class WPCV_Woo_Civi_Products {
 	/**
 	 * Quick and bulk edit saving.
 	 *
-	 * @param int    $post_id Post ID being saved.
-	 * @param object $post Post object being saved.
-	 * @return void
+	 * @since 2.3
+	 *
+	 * @param int $post_id The Post ID being saved.
+	 * @param object $post The Post object being saved.
 	 */
 	public function bulk_and_quick_edit_save_post( $post_id, $post ) {
 		if ( isset( $_GET['civicrm_contribution_type'] ) ) {
