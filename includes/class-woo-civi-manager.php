@@ -106,7 +106,7 @@ class WPCV_Woo_Civi_Manager {
 	 */
 	public function action_order( $order_id, $posted_data, $order ) {
 
-		$cid = WCI()->helper->civicrm_get_cid( $order );
+		$cid = WPCV_WPCV_WCI()->helper->civicrm_get_cid( $order );
 		if ( false === $cid ) {
 			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'wpcv-woo-civi-integration' ) );
 			return;
@@ -143,7 +143,7 @@ class WPCV_Woo_Civi_Manager {
 
 		$order = new WC_Order( $order_id );
 
-		$cid = WCI()->helper->civicrm_get_cid( $order );
+		$cid = WPCV_WPCV_WCI()->helper->civicrm_get_cid( $order );
 		if ( false === $cid ) {
 			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'wpcv-woo-civi-integration' ) );
 			return;
@@ -408,7 +408,7 @@ class WPCV_Woo_Civi_Manager {
 			$existing_phones = $existing_phones['values'];
 			$existing_emails = civicrm_api3( 'Email', 'get', [ 'contact_id' => $cid ] );
 			$existing_emails = $existing_emails['values'];
-			$address_types = WCI()->helper->mapped_location_types;
+			$address_types = WPCV_WPCV_WCI()->helper->mapped_location_types;
 
 			foreach ( $address_types as $address_type => $location_type_id ) {
 
@@ -470,7 +470,7 @@ class WPCV_Woo_Civi_Manager {
 
 				if ( ! empty( $order->{'get_' . $address_type . '_address_1'}() ) && ! empty( $order->{'get_' . $address_type . '_postcode'}() ) ) {
 
-					$country_id = WCI()->helper->get_civi_country_id( $order->{'get_' . $address_type . '_country'}() );
+					$country_id = WPCV_WPCV_WCI()->helper->get_civi_country_id( $order->{'get_' . $address_type . '_country'}() );
 					$address = [
 						'location_type_id'       => $location_type_id,
 						'city'                   => $order->{'get_' . $address_type . '_city'}(),
@@ -479,7 +479,7 @@ class WPCV_Woo_Civi_Manager {
 						'street_address'         => $order->{'get_' . $address_type . '_address_1'}(),
 						'supplemental_address_1' => $order->{'get_' . $address_type . '_address_2'}(),
 						'country'                => $country_id,
-						'state_province_id'      => WCI()->helper->get_civi_state_province_id( $order->{'get_' . $address_type . '_state'}(), $country_id ),
+						'state_province_id'      => WPCV_WCI()->helper->get_civi_state_province_id( $order->{'get_' . $address_type . '_state'}(), $country_id ),
 						'contact_id'             => $cid,
 					];
 
@@ -528,7 +528,7 @@ class WPCV_Woo_Civi_Manager {
 	public function add_contribution( $cid, $order ) {
 
 		// Bail if Order is 'free' (0 amount) and 0 amount setting is enabled.
-		if ( WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false ) ) && $order->get_total() === 0 ) {
+		if ( WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false ) ) && $order->get_total() === 0 ) {
 			return false;
 		}
 
@@ -637,7 +637,7 @@ class WPCV_Woo_Civi_Manager {
 			$params['financial_type_id'] = $default_financial_type_vat_id;
 		}
 
-		$default_contribution_amount_data = WCI()->helper->get_default_contribution_price_field_data();
+		$default_contribution_amount_data = WPCV_WCI()->helper->get_default_contribution_price_field_data();
 
 		/*
 		 * Add line items to CiviCRM contribution.
@@ -955,9 +955,9 @@ class WPCV_Woo_Civi_Manager {
 		}
 		$campaign_array = apply_filters( 'woocommerce_civicrm_campaign_list', 'campaigns' );
 		if ( 'campaigns' === $campaign_array ) {
-			$campaign_list = WCI()->helper->campaigns;
+			$campaign_list = WPCV_WCI()->helper->campaigns;
 		} else {
-			$campaign_list = WCI()->helper->all_campaigns;
+			$campaign_list = WPCV_WCI()->helper->all_campaigns;
 		}
 
 		?>
@@ -998,7 +998,7 @@ class WPCV_Woo_Civi_Manager {
 
 		</p>
 		<?php
-		$cid = WCI()->helper->civicrm_get_cid( $order );
+		$cid = WPCV_WCI()->helper->civicrm_get_cid( $order );
 		if ( $cid ) {
 			?>
 			<div class="form-field form-field-wide wc-civicrmsource">

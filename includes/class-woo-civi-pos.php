@@ -66,7 +66,7 @@ class WPCV_Woo_Civi_POS {
 	 */
 	public function wc_pos_campaign_prepare_shop_order_object( $response, $order, $request ) {
 		// Save camapaign to CiviCRM.
-		WCI()->manager->update_campaign( $response->data['id'], '', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) );
+		WPCV_WCI()->manager->update_campaign( $response->data['id'], '', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) );
 		// Save camapaign to post data for this WooCommerce order.
 		update_post_meta( $response->data['id'], '_woocommerce_civicrm_campaign_id', get_user_meta( get_current_user_id(), 'pos_campaign_id', true ) );
 		return $response;
@@ -159,7 +159,7 @@ class WPCV_Woo_Civi_POS {
 				<div class="list-row">
 					<div>
 						<select id="order_civicrmcampaign" name="order_civicrmcampaign" placeholder="' . __( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ) . '">';
-						foreach ( WCI()->helper->campaigns as $campaign_id => $campaign_name ) {
+						foreach ( WPCV_WCI()->helper->campaigns as $campaign_id => $campaign_name ) {
 							// Select by default the $order_campaign.
 							$render .= '<option value="' . $campaign_id . '" ' . selected( $campaign_id, $order_campaign, false ) . '>' . $campaign_name . '</option>';
 						}

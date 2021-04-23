@@ -119,7 +119,7 @@ class WPCV_Woo_Civi_Orders {
 			return;
 		}
 
-		$campaign_list = WCI()->helper->all_campaigns;
+		$campaign_list = WPCV_WCI()->helper->all_campaigns;
 		if ( $campaign_list && ! empty( $campaign_list ) && is_array( $campaign_list ) ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_campaign_id', FILTER_VALIDATE_INT );
 			?>

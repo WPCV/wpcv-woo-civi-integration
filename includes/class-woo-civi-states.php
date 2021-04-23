@@ -68,11 +68,11 @@ class WPCV_Woo_Civi_States {
 	 */
 	public function inited() {
 
-		if ( ! WCI()->boot_civi() ) {
+		if ( ! WPCV_WCI()->boot_civi() ) {
 			return;
 		}
 
-		$this->replace = WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_replace_woocommerce_states' ) );
+		$this->replace = WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_replace_woocommerce_states' ) );
 		$this->civicrm_countries = $this->get_civicrm_countries();
 
 	}
@@ -95,7 +95,7 @@ class WPCV_Woo_Civi_States {
 		}
 
 		$new_states = [];
-		foreach ( WCI()->helper->civicrm_states as $state_id => $state ) {
+		foreach ( WPCV_WCI()->helper->civicrm_states as $state_id => $state ) {
 			$new_states[ $this->civicrm_countries[ $state['country_id'] ] ][ $state['abbreviation'] ] = $state['name'];
 		}
 

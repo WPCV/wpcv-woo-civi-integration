@@ -34,7 +34,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 */
 	private function is_remote_wc() {
 
-		if ( false === WCI()->is_network_installed ) {
+		if ( false === WPCV_WCI()->is_network_installed ) {
 			return false;
 		}
 
@@ -177,7 +177,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 
 		// Bail if Contact has no Orders and "Hide Order" is enabled.
 		if (
-			WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_hide_orders_tab_for_non_customers', false ) )
+			WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_hide_orders_tab_for_non_customers', false ) )
 			&& ! $this->count_orders( $cid )
 		) {
 			return;

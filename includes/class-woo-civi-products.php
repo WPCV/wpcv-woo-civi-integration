@@ -124,7 +124,7 @@ class WPCV_Woo_Civi_Products {
 		if ( 'product_cat' === $column_name ) {
 			$contribution_type = get_post_meta( $post_id, '_civicrm_contribution_type', true );
 			$default_contribution_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
-			$contributions_types = WCI()->helper->financial_types;
+			$contributions_types = WPCV_WCI()->helper->financial_types;
 			echo '<br>' . (
 				( null !== $contribution_type && isset( $contributions_types[ $contribution_type ] ) )
 					? esc_html( $contributions_types[ $contribution_type ] )
@@ -154,7 +154,7 @@ class WPCV_Woo_Civi_Products {
 				<span class="title">' . __( 'Contribution Type', 'wpcv-woo-civi-integration' ) . '</span>
 				<span class="input-text-wrap">
 				<select style="" id="_civicrm_contribution_type" name="civicrm_contribution_type" class="select short">';
-		$contributions_types = WCI()->helper->financial_types;
+		$contributions_types = WPCV_WCI()->helper->financial_types;
 		$options = [
 			__( '— No change —', 'wpcv-woo-civi-integration' ),
 		]

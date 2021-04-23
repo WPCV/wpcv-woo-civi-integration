@@ -27,7 +27,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 
 		$this->register_hooks();
 
-		if ( WCI()->is_network_installed ) {
+		if ( WPCV_WCI()->is_network_installed ) {
 			$this->register_settings();
 		}
 
@@ -82,7 +82,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 				'name' => 'wc_blog_id',
 				'network' => true,
 				'description' => __( 'The shop on a multisite network', 'wpcv-woo-civi-integration' ),
-				'options' => WCI()->helper->get_sites(),
+				'options' => WPCV_WCI()->helper->get_sites(),
 			]
 		);
 
@@ -249,37 +249,37 @@ class WPCV_Woo_Civi_Settings_Tab {
 			'woocommerce_civicrm_financial_type_id' => [
 				'name' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WCI()->helper->financial_types,
+				'options' => WPCV_WCI()->helper->financial_types,
 				'id'   => 'woocommerce_civicrm_financial_type_id',
 			],
 			'woocommerce_civicrm_financial_type_vat_id' => [
 				'name' => __( 'TAX/VAT Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WCI()->helper->financial_types,
+				'options' => WPCV_WCI()->helper->financial_types,
 				'id'   => 'woocommerce_civicrm_financial_type_vat_id',
 			],
 			'woocommerce_civicrm_financial_type_shipping_id' => [
 				'name' => __( 'Shipping Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WCI()->helper->financial_types,
+				'options' => WPCV_WCI()->helper->financial_types,
 				'id'   => 'woocommerce_civicrm_financial_type_shipping_id',
 			],
 			'woocommerce_civicrm_campaign_id' => [
 				'name' => __( 'Default campaign', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WCI()->helper->campaigns,
+				'options' => WPCV_WCI()->helper->campaigns,
 				'id'   => 'woocommerce_civicrm_campaign_id',
 			],
 			'woocommerce_civicrm_billing_location_type_id' => [
 				'name' => __( 'Billing Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WCI()->helper->location_types,
+				'options' => WPCV_WCI()->helper->location_types,
 				'id'   => 'woocommerce_civicrm_billing_location_type_id',
 			],
 			'woocommerce_civicrm_shipping_location_type_id' => [
 				'name' => __( 'Shipping Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WCI()->helper->location_types,
+				'options' => WPCV_WCI()->helper->location_types,
 				'id'   => 'woocommerce_civicrm_shipping_location_type_id',
 			],
 			'woocommerce_civicrm_sync_contact_address' => [

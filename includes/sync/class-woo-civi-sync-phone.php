@@ -55,7 +55,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 	public function sync_civi_contact_phone( $op, $object_name, $object_id, $object_ref ) {
 
 		// Bail if sync is not enabled.
-		if ( ! WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_phone' ) ) ) {
+		if ( ! WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_phone' ) ) ) {
 			return;
 		}
 
@@ -68,7 +68,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 		}
 
 		// Bail if the Phone being edited is not one of the mapped ones.
-		if ( ! in_array( $object_ref->location_type_id, WCI()->helper->mapped_location_types, true ) ) {
+		if ( ! in_array( $object_ref->location_type_id, WPCV_WCI()->helper->mapped_location_types, true ) ) {
 			return;
 		}
 
@@ -77,7 +77,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 			return;
 		}
 
-		$cms_user = WCI()->helper->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
+		$cms_user = WPCV_WCI()->helper->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
 
 		// Bail if we don't have a WordPress User.
 		if ( ! $cms_user ) {
@@ -85,7 +85,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 		}
 
 		// Proceed.
-		$phone_type = array_search( $object_ref->location_type_id, WCI()->helper->mapped_location_types );
+		$phone_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->mapped_location_types );
 
 		// Only Billing Phone, there's no Shipping Phone field.
 		if ( 'billing' === $phone_type ) {
@@ -117,7 +117,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 	public function sync_wp_user_woocommerce_phone( $user_id, $load_address ) {
 
 		// Bail if sync is not enabled.
-		if ( ! WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_phone' ) ) ) {
+		if ( ! WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_phone' ) ) ) {
 			return;
 		}
 
@@ -126,14 +126,14 @@ class WPCV_Woo_Civi_Sync_Phone {
 			return;
 		}
 
-		$civi_contact = WCI()->helper->get_civicrm_ufmatch( $user_id, 'uf_id' );
+		$civi_contact = WPCV_WCI()->helper->get_civicrm_ufmatch( $user_id, 'uf_id' );
 
 		// Bail if we don't have a CiviCRM Contact.
 		if ( ! $civi_contact ) {
 			return;
 		}
 
-		$mapped_location_types = WCI()->helper->mapped_location_types;
+		$mapped_location_types = WPCV_WCI()->helper->mapped_location_types;
 		$civi_phone_location_type = $mapped_location_types[ $load_address ];
 
 		$customer = new WC_Customer( $user_id );

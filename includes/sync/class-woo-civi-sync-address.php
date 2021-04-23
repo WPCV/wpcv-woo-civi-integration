@@ -56,7 +56,7 @@ class WPCV_Woo_Civi_Sync_Address {
 	public function sync_civi_contact_address( $op, $object_name, $object_id, $object_ref ) {
 
 		// Bail if sync is not enabled.
-		if ( ! WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_address' ) ) ) {
+		if ( ! WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_address' ) ) ) {
 			return;
 		}
 
@@ -69,7 +69,7 @@ class WPCV_Woo_Civi_Sync_Address {
 		}
 
 		// Bail if the Address being edited is not one of the mapped ones.
-		if ( ! in_array( $object_ref->location_type_id, WCI()->helper->mapped_location_types, true ) ) {
+		if ( ! in_array( $object_ref->location_type_id, WPCV_WCI()->helper->mapped_location_types, true ) ) {
 			return;
 		}
 
@@ -78,7 +78,7 @@ class WPCV_Woo_Civi_Sync_Address {
 			return;
 		}
 
-		$cms_user = WCI()->helper->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
+		$cms_user = WPCV_WCI()->helper->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
 
 		// Bail if we don't have a WordPress User ID.
 		if ( ! $cms_user ) {
@@ -86,17 +86,17 @@ class WPCV_Woo_Civi_Sync_Address {
 		}
 
 		// Proceed.
-		$address_type = array_search( $object_ref->location_type_id, WCI()->helper->mapped_location_types, true );
+		$address_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->mapped_location_types, true );
 
-		foreach ( WCI()->helper->get_mapped_address( $address_type ) as $wc_field => $civi_field ) {
+		foreach ( WPCV_WCI()->helper->get_mapped_address( $address_type ) as $wc_field => $civi_field ) {
 			if ( ! empty( $object_ref->{$civi_field} ) && ! is_null( $object_ref->{$civi_field} ) && 'null' !== $object_ref->{$civi_field} ) {
 
 				switch ( $civi_field ) {
 					case 'country_id':
-						update_user_meta( $cms_user['uf_id'], $wc_field, WCI()->helper->get_civi_country_iso_code( $object_ref->{$civi_field} ) );
+						update_user_meta( $cms_user['uf_id'], $wc_field, WPCV_WCI()->helper->get_civi_country_iso_code( $object_ref->{$civi_field} ) );
 						continue 2;
 					case 'state_province_id':
-						update_user_meta( $cms_user['uf_id'], $wc_field, WCI()->helper->get_civi_state_province_name( $object_ref->{$civi_field} ) );
+						update_user_meta( $cms_user['uf_id'], $wc_field, WPCV_WCI()->helper->get_civi_state_province_name( $object_ref->{$civi_field} ) );
 						continue 2;
 					default:
 						update_user_meta( $cms_user['uf_id'], $wc_field, $object_ref->{$civi_field} );
@@ -130,30 +130,30 @@ class WPCV_Woo_Civi_Sync_Address {
 	public function sync_wp_user_woocommerce_address( $user_id, $load_address ) {
 
 		// Bail if sync is not enabled.
-		if ( ! WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_address' ) ) ) {
+		if ( ! WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_address' ) ) ) {
 			return;
 		}
 
 		$customer = new WC_Customer( $user_id );
 
-		$civi_contact = WCI()->helper->get_civicrm_ufmatch( $user_id, 'uf_id' );
+		$civi_contact = WPCV_WCI()->helper->get_civicrm_ufmatch( $user_id, 'uf_id' );
 
 		// Bail if we don't have a CiviCRM Contact.
 		if ( ! $civi_contact ) {
 			return;
 		}
 
-		$mapped_location_types = WCI()->helper->mapped_location_types;
+		$mapped_location_types = WPCV_WCI()->helper->mapped_location_types;
 		$civi_address_location_type = $mapped_location_types[ $load_address ];
 		$edited_address = [];
 
-		foreach ( WCI()->helper->get_mapped_address( $load_address ) as $wc_field => $civi_field ) {
+		foreach ( WPCV_WCI()->helper->get_mapped_address( $load_address ) as $wc_field => $civi_field ) {
 			switch ( $civi_field ) {
 				case 'country_id':
-					$edited_address[ $civi_field ] = WCI()->helper->get_civi_country_id( $customer->{'get_' . $wc_field}() );
+					$edited_address[ $civi_field ] = WPCV_WCI()->helper->get_civi_country_id( $customer->{'get_' . $wc_field}() );
 					continue 2;
 				case 'state_province_id':
-					$edited_address[ $civi_field ] = WCI()->helper->get_civi_state_province_id( $customer->{'get_' . $wc_field}(), $edited_address['country_id'] );
+					$edited_address[ $civi_field ] = WPCV_WCI()->helper->get_civi_state_province_id( $customer->{'get_' . $wc_field}(), $edited_address['country_id'] );
 					continue 2;
 				default:
 					$edited_address[ $civi_field ] = $customer->{'get_' . $wc_field}();

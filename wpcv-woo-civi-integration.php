@@ -448,10 +448,10 @@ class WPCV_Woo_Civi {
  *
  * @return WPCV_Woo_Civi The plugin instance.
  */
-function WCI() {
+function WPCV_WCI() {
 	return WPCV_Woo_Civi::instance();
 }
 
-WCI();
+WPCV_WCI();
 
-register_activation_hook( __FILE__, [ WCI(), 'activate' ] );
+register_activation_hook( __FILE__, [ WPCV_WCI(), 'activate' ] );
