@@ -5,7 +5,7 @@
  *
  * @since 2.0
  */
-class Woocommerce_CiviCRM_Helper {
+class WPCV_Woo_Civi_Helper {
 
 	/**
 	 * The active Financial Types.

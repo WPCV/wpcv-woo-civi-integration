@@ -5,7 +5,7 @@
  *
  * @since 2.0
  */
-class Woocommerce_CiviCRM_Sync_Address {
+class WPCV_Woo_Civi_Sync_Address {
 
 	/**
 	 * Initialises this object.

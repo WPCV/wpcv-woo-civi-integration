@@ -5,7 +5,7 @@
  *
  * @since 2.0
  */
-class Woocommerce_CiviCRM_POS {
+class WPCV_Woo_Civi_POS {
 
 	/**
 	 * Initialises this object.

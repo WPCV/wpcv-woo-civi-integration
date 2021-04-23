@@ -21,7 +21,7 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 2.0
  */
-class Woocommerce_CiviCRM {
+class WPCV_Woo_Civi {
 
 	/**
 	 * Plugin.
@@ -153,7 +153,7 @@ class Woocommerce_CiviCRM {
 
 		if ( ! isset( self::$instance ) ) {
 			// Instantiate.
-			self::$instance = new Woocommerce_CiviCRM();
+			self::$instance = new WPCV_Woo_Civi();
 
 			/**
 			 * Broadcast to other plugins that this plugin is loaded.
@@ -284,23 +284,23 @@ class Woocommerce_CiviCRM {
 	 */
 	public function setup_objects() {
 		// init orders tab.
-		$this->orders_tab = new Woocommerce_CiviCRM_Orders_Contact_Tab();
+		$this->orders_tab = new WPCV_Woo_Civi_Orders_Contact_Tab();
 		// init helper instance.
-		$this->helper = new Woocommerce_CiviCRM_Helper();
+		$this->helper = new WPCV_Woo_Civi_Helper();
 		// init settings page.
-		$this->settings_tab = new Woocommerce_CiviCRM_Settings_Tab();
+		$this->settings_tab = new WPCV_Woo_Civi_Settings_Tab();
 		// init manager.
-		$this->manager = new Woocommerce_CiviCRM_Manager();
+		$this->manager = new WPCV_Woo_Civi_Manager();
 		// init states replacement.
-		$this->states_replacement = new Woocommerce_CiviCRM_States();
+		$this->states_replacement = new WPCV_Woo_Civi_States();
 		// init sync manager.
-		$this->sync = new Woocommerce_CiviCRM_Sync();
+		$this->sync = new WPCV_Woo_Civi_Sync();
 		// init products.
-		$this->products = new Woocommerce_CiviCRM_Products();
+		$this->products = new WPCV_Woo_Civi_Products();
 		// init orders.
-		$this->products = new Woocommerce_CiviCRM_Orders();
+		$this->products = new WPCV_Woo_Civi_Orders();
 		// init POS.
-		$this->pos = new Woocommerce_CiviCRM_POS();
+		$this->pos = new WPCV_Woo_Civi_POS();
 
 	}
 
@@ -416,7 +416,7 @@ class Woocommerce_CiviCRM {
  */
 // phpcs:ignore
 function WCI() {
-	return Woocommerce_CiviCRM::instance();
+	return WPCV_Woo_Civi::instance();
 }
 
 WCI();

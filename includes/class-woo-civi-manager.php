@@ -4,7 +4,7 @@
  *
  * @since 2.0
  */
-class Woocommerce_CiviCRM_Manager {
+class WPCV_Woo_Civi_Manager {
 
 	/**
 	 * Initialises this object.

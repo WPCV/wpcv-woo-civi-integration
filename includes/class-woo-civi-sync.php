@@ -5,7 +5,7 @@
  *
  * @since 2.1
  */
-class Woocommerce_CiviCRM_Sync {
+class WPCV_Woo_Civi_Sync {
 
 	/**
 	 * The Address sync object.
@@ -65,10 +65,10 @@ class Woocommerce_CiviCRM_Sync {
 	 */
 	public function setup_objects() {
 		// Init address sync.
-		$this->address = new Woocommerce_CiviCRM_Sync_Address();
+		$this->address = new WPCV_Woo_Civi_Sync_Address();
 		// Init phone sync.
-		$this->phone = new Woocommerce_CiviCRM_Sync_Phone();
+		$this->phone = new WPCV_Woo_Civi_Sync_Phone();
 		// Init email sync.
-		$this->email = new Woocommerce_CiviCRM_Sync_Email();
+		$this->email = new WPCV_Woo_Civi_Sync_Email();
 	}
 }

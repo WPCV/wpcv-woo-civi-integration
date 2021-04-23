@@ -5,7 +5,7 @@
  *
  * @since 2.0
  */
-class Woocommerce_CiviCRM_Orders_Contact_Tab {
+class WPCV_Woo_Civi_Orders_Contact_Tab {
 
 	/**
 	 * Initialises this object.

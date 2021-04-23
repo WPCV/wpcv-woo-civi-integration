@@ -5,7 +5,7 @@
  *
  * @since 2.0
  */
-class Woocommerce_CiviCRM_Sync_Phone {
+class WPCV_Woo_Civi_Sync_Phone {
 
 	/**
 	 * Initialises this object.

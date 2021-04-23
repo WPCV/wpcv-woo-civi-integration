@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 2.2
  */
-class Woocommerce_CiviCRM_Orders {
+class WPCV_Woo_Civi_Orders {
 
 	/**
 	 * Initialises this object.

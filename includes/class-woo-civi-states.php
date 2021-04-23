@@ -5,7 +5,7 @@
  *
  * @since 2.0
  */
-class Woocommerce_CiviCRM_States {
+class WPCV_Woo_Civi_States {
 
 	/**
 	 * Replace WooCommerce States/Counties.
