@@ -41,6 +41,7 @@ class WPCV_Woo_Civi_Manager {
 		add_action( 'woocommerce_order_status_changed', [ $this, 'update_order_status' ], 99, 3 );
 		add_action( 'woocommerce_admin_order_data_after_order_details', [ $this, 'order_data_after_order_details' ], 30 );
 		add_action( 'woocommerce_new_order', [ $this, 'save_order' ], 10 );
+
 	}
 
 	/**
@@ -52,9 +53,11 @@ class WPCV_Woo_Civi_Manager {
 	 * @return string $invoice_id The Invoice ID.
 	 */
 	public function get_invoice_id( $post_id ) {
+
 		$invoice_no = get_post_meta( $post_id, '_order_number', true );
 		$invoice_id = ! empty( $invoice_no ) ? $invoice_no : $post_id . '_woocommerce';
 		return $invoice_id;
+
 	}
 
 	/**
@@ -65,6 +68,7 @@ class WPCV_Woo_Civi_Manager {
 	 * @since 2.2
 	 */
 	public function save_order( $order_id ) {
+
 		// Add the Campaign ID to the Order.
 		$current_campaign_id = get_post_meta( $order_id, '_woocommerce_civicrm_campaign_id', true );
 		$new_campaign_id = filter_input( INPUT_POST, 'order_civicrmcampaign', FILTER_VALIDATE_INT );
@@ -80,6 +84,7 @@ class WPCV_Woo_Civi_Manager {
 			$this->update_source( $order_id, $new_civicrmsource );
 			update_post_meta( $order_id, '_order_source', esc_attr( $new_civicrmsource ) );
 		}
+
 		if (
 			wp_verify_nonce( filter_input( INPUT_POST, 'woocommerce_civicrm_order_new', FILTER_SANITIZE_STRING ), 'woocommerce_civicrm_order_new' )
 			|| ( filter_input( INPUT_POST, 'post_ID', FILTER_VALIDATE_INT ) === null && get_post_meta( $order_id, '_pos', true ) )
@@ -288,11 +293,14 @@ class WPCV_Woo_Civi_Manager {
 
 		// Update Contribution.
 		try {
+
 			$params = [
 				'source' => $new_source,
 				'id' => $contribution['id'],
 			];
+
 			$result = civicrm_api3( 'Contribution', 'create', $params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'wpcv-woo-civi-integration' ) );
 			return;
@@ -309,10 +317,12 @@ class WPCV_Woo_Civi_Manager {
 	 * @return int $cid The numeric ID if the CiviCRM Contact.
 	 */
 	public function add_update_contact( $cid, $order ) {
+
 		// Allow Contact update to be bypassed.
 		if ( true === apply_filters( 'woocommerce_civicrm_bypass_add_update_contact', false, $cid, $order ) ) {
 			return $cid;
 		}
+
 		$action = 'create';
 
 		$contact = [];
@@ -371,6 +381,7 @@ class WPCV_Woo_Civi_Manager {
 
 		// Create (or update) CiviCRM Contact.
 		try {
+
 			$result = civicrm_api3( 'Contact', 'create', $contact );
 			$cid = $result['id'];
 
@@ -383,12 +394,14 @@ class WPCV_Woo_Civi_Manager {
 				$note = __( 'Created new CiviCRM Contact - ', 'wpcv-woo-civi-integration' ) . $contact_url;
 			}
 			$order->add_order_note( $note );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Not able to create/update contact', 'wpcv-woo-civi-integration' ) );
 			return false;
 		}
 
 		try {
+
 			$existing_addresses = civicrm_api3( 'Address', 'get', [ 'contact_id' => $cid ] );
 			$existing_addresses = $existing_addresses['values'];
 			$existing_phones = civicrm_api3( 'Phone', 'get', [ 'contact_id' => $cid ] );
@@ -401,6 +414,7 @@ class WPCV_Woo_Civi_Manager {
 
 				// Process Phone.
 				$phone_exists = false;
+
 				// 'shipping_phone' does not exist as a WooCommerce field.
 				if ( 'shipping' !== $address_type && ! empty( $order->{'get_' . $address_type . '_phone'}() ) ) {
 					$phone = [
@@ -427,6 +441,7 @@ class WPCV_Woo_Civi_Manager {
 
 				// Process Email.
 				$email_exists = false;
+
 				// 'shipping_email' does not exist as a WooCommerce field.
 				if ( 'shipping' !== $address_type && ! empty( $order->{'get_' . $address_type . '_email'}() ) ) {
 					$email = [
@@ -452,6 +467,7 @@ class WPCV_Woo_Civi_Manager {
 
 				// Process Address.
 				$address_exists = false;
+
 				if ( ! empty( $order->{'get_' . $address_type . '_address_1'}() ) && ! empty( $order->{'get_' . $address_type . '_postcode'}() ) ) {
 
 					$country_id = WCI()->helper->get_civi_country_id( $order->{'get_' . $address_type . '_country'}() );
@@ -492,6 +508,7 @@ class WPCV_Woo_Civi_Manager {
 					}
 				}
 			}
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Not able to add/update address or phone', 'wpcv-woo-civi-integration' ) );
 		}
@@ -527,7 +544,9 @@ class WPCV_Woo_Civi_Manager {
 		// Ensure number format is CiviCRM-compliant.
 		$decimal_separator = '.';
 		$thousand_separator = '';
+
 		try {
+
 			$civi_decimal_separator = civicrm_api3(
 				'Setting',
 				'getvalue',
@@ -550,6 +569,7 @@ class WPCV_Woo_Civi_Manager {
 			if ( is_string( $civi_thousand_separator ) ) {
 				$thousand_separator = $civi_thousand_separator;
 			}
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Not able to fetch monetary settings', 'wpcv-woo-civi-integration' ) );
 		}
@@ -657,8 +677,8 @@ class WPCV_Woo_Civi_Manager {
 				// Get Membership Type ID from Product meta.
 				$product_membership_type_id = $product->get_meta( 'woocommerce_civicrm_membership_type_id' );
 
+				// FIXME
 				/*
-				 * FIXME
 				 * Decide whether we want to override the financial type with
 				 * the one from the Membership Type instead of Product/default.
 				 */
@@ -721,6 +741,7 @@ class WPCV_Woo_Civi_Manager {
 		// Flush UTM cookies.
 		$this->delete_utm_cookies();
 		try {
+
 			/**
 			 * Filter Contribution params before calling the CiviCRM API.
 			 *
@@ -730,6 +751,7 @@ class WPCV_Woo_Civi_Manager {
 			 */
 			$contribution = civicrm_api3( 'Order', 'create', apply_filters( 'woocommerce_civicrm_contribution_create_params', $params, $order ) );
 			if ( isset( $contribution['id'] ) && $contribution['id'] ) {
+
 				// Adds Order note in reference to the created Contribution.
 				$order->add_order_note(
 					sprintf(
@@ -752,9 +774,13 @@ class WPCV_Woo_Civi_Manager {
 						. '">' . $contribution['id'] . '</a>'
 					)
 				);
-				update_post_meta( $order_id, '_woocommerce_civicrm_contribution_id', $contribution['id'] );
+				update_post_met
+				a( $order_id, '_woocommerce_civicrm_contribution_id', $contribution['id'] );
+
 				return $contribution;
+
 			}
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			// Log the error, but continue.
 			CRM_Core_Error::debug_log_message( __( 'Not able to add contribution', 'wpcv-woo-civi-integration' ) );
@@ -762,6 +788,7 @@ class WPCV_Woo_Civi_Manager {
 		}
 
 		return false;
+
 	}
 
 	/**
@@ -773,6 +800,7 @@ class WPCV_Woo_Civi_Manager {
 	 * @return int $id The CiviCRM payment processor ID.
 	 */
 	public function map_payment_instrument( $payment_method ) {
+
 		$map = [
 			'paypal' => 1,
 			'cod' => 3,
@@ -862,8 +890,9 @@ class WPCV_Woo_Civi_Manager {
 	 * @return string $source The Contribution Source string.
 	 */
 	public function generate_source( $order ) {
-		// Default is the order Type
-		// Until 2.2, contribution source was exactly the same as contribution note.
+
+		// Default is the Order Type.
+		// Until 2.2, Contribution Source was exactly the same as Contribution note.
 		$source = '';
 
 		if ( get_post_meta( $order->get_id(), '_order_source', true ) === 'pos' ) {
@@ -871,7 +900,7 @@ class WPCV_Woo_Civi_Manager {
 		} else {
 
 			$cookie = wp_unslash( $_COOKIE );
-			// Checks if users comes from a campaign.
+			// Checks if users comes from a Campaign.
 			if ( isset( $cookie[ 'woocommerce_civicrm_utm_source_' . COOKIEHASH ] ) && $cookie[ 'woocommerce_civicrm_utm_source_' . COOKIEHASH ] ) {
 				$source = esc_attr( $cookie[ 'woocommerce_civicrm_utm_source_' . COOKIEHASH ] );
 			}
@@ -891,6 +920,7 @@ class WPCV_Woo_Civi_Manager {
 		}
 
 		return $source;
+
 	}
 
 	/**
@@ -901,6 +931,7 @@ class WPCV_Woo_Civi_Manager {
 	 * @param object $order The WooCommerce Order object.
 	 */
 	public function order_data_after_order_details( $order ) {
+
 		if ( $order->get_status() === 'auto-draft' ) {
 			wp_nonce_field( 'woocommerce_civicrm_order_new', 'woocommerce_civicrm_order_new' );
 		} else {
@@ -928,6 +959,7 @@ class WPCV_Woo_Civi_Manager {
 		} else {
 			$campaign_list = WCI()->helper->all_campaigns;
 		}
+
 		?>
 		<p class="form-field form-field-wide wc-civicrmcampaign">
 			<label for="order_civicrmcampaign"><?php esc_html_e( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ); ?></label>
@@ -1004,6 +1036,7 @@ class WPCV_Woo_Civi_Manager {
 	 * @since 2.2
 	 */
 	public function check_utm() {
+
 		if ( is_admin() ) {
 			return;
 		}
@@ -1011,6 +1044,7 @@ class WPCV_Woo_Civi_Manager {
 		if ( isset( $_GET['utm_campaign'] ) || isset( $_GET['utm_source'] ) || isset( $_GET['utm_medium'] ) ) {
 			$this->save_utm_cookies();
 		}
+
 	}
 
 	/**
@@ -1019,14 +1053,19 @@ class WPCV_Woo_Civi_Manager {
 	 * @since 2.2
 	 */
 	private function save_utm_cookies() {
+
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			return;
 		}
+
 		$expire = apply_filters( 'woocommerce_civicrm_utm_cookie_expire', 0 );
 		$secure = ( 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ) );
 		$campaign = filter_input( INPUT_GET, 'utm_campaign' );
+
 		if ( false !== $campaign ) {
+
 			try {
+
 				$params = [
 					'sequential' => 1,
 					'return' => ['id'],
@@ -1039,19 +1078,23 @@ class WPCV_Woo_Civi_Manager {
 					// Remove cookie if Campaign is invalid.
 					setcookie( 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH, ' ', time() - YEAR_IN_SECONDS );
 				}
+
 			} catch ( CiviCRM_API3_Exception $e ) {
 				CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'wpcv-woo-civi-integration' ) );
 				return false;
 			}
 		}
+
 		$source = filter_input( INPUT_GET, 'utm_source' );
 		if ( false !== $source ) {
 			setcookie( 'woocommerce_civicrm_utm_source_' . COOKIEHASH, esc_attr( $source ), $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
 		}
+
 		$medium = filter_input( INPUT_GET, 'utm_medium' );
 		if ( false !== $medium ) {
 			setcookie( 'woocommerce_civicrm_utm_medium_' . COOKIEHASH, esc_attr( $medium ), $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
 		}
+
 	}
 
 	/**
@@ -1062,9 +1105,11 @@ class WPCV_Woo_Civi_Manager {
 	 * @param int $order_id The Order ID.
 	 */
 	private function utm_to_order( $order_id ) {
+
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			return;
 		}
+
 		$cookie = wp_unslash( $_COOKIE );
 		if ( isset( $cookie[ 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH ] ) && $cookie[ 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH ] ) {
 			update_post_meta( $order_id, '_woocommerce_civicrm_campaign_id', esc_attr( $cookie[ 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH ] ) );
@@ -1074,6 +1119,7 @@ class WPCV_Woo_Civi_Manager {
 			$order_campaign = get_option( 'woocommerce_civicrm_campaign_id' );
 			update_post_meta( $order_id, '_woocommerce_civicrm_campaign_id', $order_campaign );
 		}
+
 	}
 
 	/**
@@ -1082,14 +1128,17 @@ class WPCV_Woo_Civi_Manager {
 	 * @since 2.2
 	 */
 	private function delete_utm_cookies() {
+
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			return;
 		}
+
 		// Remove any existing cookies.
 		$past = time() - YEAR_IN_SECONDS;
 		setcookie( 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH, ' ', $past, COOKIEPATH, COOKIE_DOMAIN );
 		setcookie( 'woocommerce_civicrm_utm_source_' . COOKIEHASH, ' ', $past, COOKIEPATH, COOKIE_DOMAIN );
 		setcookie( 'woocommerce_civicrm_utm_medium_' . COOKIEHASH, ' ', $past, COOKIEPATH, COOKIE_DOMAIN );
+
 	}
 
 }

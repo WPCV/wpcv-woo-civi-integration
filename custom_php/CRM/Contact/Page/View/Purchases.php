@@ -22,6 +22,7 @@ class CRM_Contact_Page_View_Purchases extends CRM_Core_Page {
 	 * @since 2.0
 	 */
 	function run() {
+
 		CRM_Utils_System::setTitle( ts( 'Purchases' ) );
 
 		$cid = CRM_Utils_Request::retrieve( 'cid', 'Positive', $this );
@@ -30,17 +31,19 @@ class CRM_Contact_Page_View_Purchases extends CRM_Core_Page {
 
 		$this->assign( 'i18n', array(
 			'orderNumber' 	=> __('Order Number', 'wpcv-woo-civi-integration'),
-		    'date' 			=> __('Date', 'wpcv-woo-civi-integration'),
-		    'billingName' 	=> __('Billing Name', 'wpcv-woo-civi-integration'),
-		    'shippingName' 	=> __('Shipping Name', 'wpcv-woo-civi-integration'),
-		    'itemCount' 	=> __('Item count', 'wpcv-woo-civi-integration'),
-		    'amount'		=> __('Amount', 'wpcv-woo-civi-integration'),
-		    'actions' 		=> __('Actions', 'wpcv-woo-civi-integration'),
-		    'emptyUid' 		=> __('This contact is not linked to any WordPress user or WooCommerce Customer', 'wpcv-woo-civi-integration'),
-				'orders' 		=> __('Orders', 'wpcv-woo-civi-integration'),
-				'addOrder' 		=> __('Add Order', 'wpcv-woo-civi-integration'),
+			'date' 			=> __('Date', 'wpcv-woo-civi-integration'),
+			'billingName' 	=> __('Billing Name', 'wpcv-woo-civi-integration'),
+			'shippingName' 	=> __('Shipping Name', 'wpcv-woo-civi-integration'),
+			'itemCount' 	=> __('Item count', 'wpcv-woo-civi-integration'),
+			'amount'		=> __('Amount', 'wpcv-woo-civi-integration'),
+			'actions' 		=> __('Actions', 'wpcv-woo-civi-integration'),
+			'emptyUid' 		=> __('This contact is not linked to any WordPress user or WooCommerce Customer', 'wpcv-woo-civi-integration'),
+			'orders' 		=> __('Orders', 'wpcv-woo-civi-integration'),
+			'addOrder' 		=> __('Add Order', 'wpcv-woo-civi-integration'),
 		) );
+
 		$this->assign( 'orders', $orders );
+
 		$uid = abs(CRM_Core_BAO_UFMatch::getUFId( $cid ));
 		if ( $uid ) {
 			$this->assign(
@@ -51,7 +54,9 @@ class CRM_Contact_Page_View_Purchases extends CRM_Core_Page {
 				)
 			);
 		}
+
 		parent::run();
+
 	}
 
 }

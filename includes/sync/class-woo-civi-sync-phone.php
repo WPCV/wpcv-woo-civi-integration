@@ -33,10 +33,12 @@ class WPCV_Woo_Civi_Sync_Phone {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
+
 		// Sync WooCommerce and CiviCRM Phone for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_phone' ], 10, 4 );
 		// Sync WooCommerce and CiviCRM Phone for User/Contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_phone' ], 10, 2 );
+
 	}
 
 	/**
@@ -152,12 +154,15 @@ class WPCV_Woo_Civi_Sync_Phone {
 		}
 
 		try {
+
 			if ( isset( $civi_phone ) && ! $civi_phone['is_error'] ) {
 				$new_params = array_merge( $civi_phone, $edited_phone );
 			} else {
 				$new_params = array_merge( $params, $edited_phone );
 			}
+
 			$create_phone = civicrm_api3( 'Phone', 'create', $new_params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 		}
@@ -171,6 +176,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 		 * @param array $phone The CiviCRM Phone that has been edited.
 		 */
 		do_action( 'woocommerce_civicrm_civi_phone_updated', $civi_contact['contact_id'], $create_phone );
+
 	}
 
 }

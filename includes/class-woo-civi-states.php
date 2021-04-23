@@ -54,9 +54,11 @@ class WPCV_Woo_Civi_States {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
+
 		// Add CiviCRM settings tab.
 		add_filter( 'woocommerce_states', [ $this, 'replace_woocommerce_states' ], 10, 1 );
 		$this->inited();
+
 	}
 
 	/**
@@ -65,11 +67,14 @@ class WPCV_Woo_Civi_States {
 	 * @since 2.0
 	 */
 	public function inited() {
+
 		if ( ! WCI()->boot_civi() ) {
 			return;
 		}
+
 		$this->replace = WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_replace_woocommerce_states' ) );
 		$this->civicrm_countries = $this->get_civicrm_countries();
+
 	}
 
 	/**
@@ -83,6 +88,7 @@ class WPCV_Woo_Civi_States {
 	 * @return array $states The modifies State/Provinces.
 	 */
 	public function replace_woocommerce_states( $states ) {
+
 		// Bail if replace is not enabled.
 		if ( ! $this->replace ) {
 			return $states;
@@ -94,6 +100,7 @@ class WPCV_Woo_Civi_States {
 		}
 
 		return $new_states;
+
 	}
 
 	/**
@@ -104,6 +111,7 @@ class WPCV_Woo_Civi_States {
 	 * @return array $civicrm_countries The CiviCRM country list.
 	 */
 	public function get_civicrm_countries() {
+
 		if ( ! empty( $this->civicrm_countries ) ) {
 			return $this->civicrm_countries;
 		}
@@ -123,5 +131,7 @@ class WPCV_Woo_Civi_States {
 		}
 
 		return $civicrm_countries;
+
 	}
+
 }

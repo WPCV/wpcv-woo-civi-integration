@@ -120,6 +120,7 @@ class WPCV_Woo_Civi_Products {
 	 * @param int $post_id The WordPress Post ID.
 	 */
 	public function columns_content( $column_name, $post_id ) {
+
 		if ( 'product_cat' === $column_name ) {
 			$contribution_type = get_post_meta( $post_id, '_civicrm_contribution_type', true );
 			$default_contribution_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
@@ -136,6 +137,7 @@ class WPCV_Woo_Civi_Products {
 					)
 			);
 		}
+
 	}
 
 
@@ -168,6 +170,7 @@ class WPCV_Woo_Civi_Products {
 				</span>
 			</label>
 		</div>';
+
 	}
 
 	/**
@@ -179,12 +182,15 @@ class WPCV_Woo_Civi_Products {
 	 * @param string $post_type The WordPress Post Type.
 	 */
 	public function add_contribution_to_quick_edit( $column_name, $post_type ) {
+
 		if ( 'product_cat' !== $column_name || 'product' !== $post_type ) {
 			return;
 		}
+
 		echo '<div class="inline-edit-col-right" style="float:right;">';
 		$this->contribution_fields_bulk();
 		echo '</div>';
+
 	}
 
 	/**
@@ -197,9 +203,11 @@ class WPCV_Woo_Civi_Products {
 	 * @param object $post The Post object being saved.
 	 */
 	public function bulk_and_quick_edit_hook( $post_id, $post ) {
+
 		remove_action( 'save_post', [ $this, 'bulk_and_quick_edit_hook' ] );
 		do_action( 'contributions_product_bulk_and_quick_edit', $post_id, $post );
 		add_action( 'save_post', [ $this, 'bulk_and_quick_edit_hook' ], 10, 2 );
+
 	}
 
 	/**
@@ -211,10 +219,12 @@ class WPCV_Woo_Civi_Products {
 	 * @param object $post The Post object being saved.
 	 */
 	public function bulk_and_quick_edit_save_post( $post_id, $post ) {
+
 		if ( isset( $_GET['civicrm_contribution_type'] ) ) {
 			$civicrm_contribution_type = sanitize_text_field( $_GET['civicrm_contribution_type'] );
 			update_post_meta( $post_id, '_civicrm_contribution_type', $civicrm_contribution_type );
 		}
+
 	}
 
 }

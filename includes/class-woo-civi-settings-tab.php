@@ -24,10 +24,13 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @since 2.0
 	 */
 	public function __construct() {
+
 		$this->register_hooks();
+
 		if ( WCI()->is_network_installed ) {
 			$this->register_settings();
 		}
+
 	}
 
 	/**
@@ -36,6 +39,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
+
 		// Add CiviCRM settings tab.
 		add_filter( 'woocommerce_settings_tabs_array', [ $this, 'add_settings_tab' ], 50 );
 		// Add settings for this plugin.
@@ -44,6 +48,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 		add_action( 'woocommerce_update_options_woocommerce_civicrm', [ $this, 'update_settings_fields' ] );
 		// Update network settings.
 		add_action( 'network_admin_edit_woocommerce_civicrm_network_settings', [ $this, 'trigger_network_settings' ] );
+
 	}
 
 	/**
@@ -52,6 +57,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @since 2.0
 	 */
 	public function register_settings() {
+
 		register_setting( 'woocommerce_civicrm_network_settings', 'woocommerce_civicrm_network_settings' );
 
 		// Makes sure function exists.
@@ -79,6 +85,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 				'options' => WCI()->helper->get_sites(),
 			]
 		);
+
 	}
 
 	/**
@@ -98,8 +105,10 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @param array $args The field params.
 	 */
 	public function settings_field_text( $args ) {
+
 		$option = 'woocommerce_civicrm_network_settings';
 		$options = get_site_option( $option );
+
 		?>
 		<input
 			name="<?php echo esc_attr( $option ); ?>[<?php echo esc_attr( $args['name'] ); ?>]"
@@ -110,6 +119,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 			<div class="description"><?php echo esc_html( $args['description'] ); ?></div>
 		<?php endif; ?>
 		<?php
+
 	}
 
 	/**
@@ -120,8 +130,10 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @param array $args The field params.
 	 */
 	public function settings_field_select( $args ) {
+
 		$option = 'woocommerce_civicrm_network_settings';
 		$options = get_site_option( $option );
+
 		?>
 		<select
 			name="<?php echo esc_attr( $option ); ?>[<?php echo esc_attr( $args['name'] ); ?>]"
@@ -137,6 +149,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 		<div class="description"><?php echo esc_html( $args['description'] ); ?></div>
 		<?php endif; ?>
 		<?php
+
 	}
 
 	/**
@@ -145,9 +158,11 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @since 2.0
 	 */
 	public function trigger_network_settings() {
+
 		if ( ! wp_verify_nonce( filter_input( INPUT_POST, 'woocommerce-civicrm-settings', FILTER_SANITIZE_STRING ), 'woocommerce-civicrm-settings' ) ) {
 			wp_die( __( 'Cheating uh?', 'wpcv-woo-civi-integration' ) );
 		}
+
 		if ( ! empty( $_POST['woocommerce_civicrm_network_settings']['wc_blog_id'] ) ) {
 			$settings = [
 				'wc_blog_id' => sanitize_text_field( $_POST['woocommerce_civicrm_network_settings']['wc_blog_id'] ),
@@ -174,7 +189,9 @@ class WPCV_Woo_Civi_Settings_Tab {
 				)
 			);
 		}
+
 		exit;
+
 	}
 
 	/**
@@ -188,8 +205,11 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @return array $setting_tabs The modified setting tabs array.
 	 */
 	public function add_settings_tab( $setting_tabs ) {
+
 		$setting_tabs['woocommerce_civicrm'] = __( 'CiviCRM', 'wpcv-woo-civi-integration' );
+
 		return $setting_tabs;
+
 	}
 
 	/**
@@ -322,6 +342,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @since 2.0
 	 */
 	public function network_settings() {
+
 		?>
 		<div class="wrap">
 		<h2><?php esc_html_e( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ); ?></h2>
@@ -334,6 +355,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 		</form>
 		</div>
 		<?php
+
 	}
 
 }

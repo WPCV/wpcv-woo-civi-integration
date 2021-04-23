@@ -33,10 +33,12 @@ class WPCV_Woo_Civi_Sync_Email {
 	 * @since 2.0
 	 */
 	public function register_hooks() {
+
 		// Sync WooCommerce and CiviCRM email for contact/user.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
 		// Sync WooCommerce and CiviCRM email for user/contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_email' ], 10, 2 );
+
 	}
 
 	/**
@@ -153,12 +155,15 @@ class WPCV_Woo_Civi_Sync_Email {
 		}
 
 		try {
+
 			if ( isset( $civi_email ) && ! $civi_email['is_error'] ) {
 				$new_params = array_merge( $civi_email, $edited_email );
 			} else {
 				$new_params = array_merge( $params, $edited_email );
 			}
+
 			$create_email = civicrm_api3( 'Email', 'create', $new_params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 		}
@@ -172,6 +177,7 @@ class WPCV_Woo_Civi_Sync_Email {
 		 * @param array $email The CiviCRM Email that has been edited.
 		 */
 		do_action( 'woocommerce_civicrm_civi_email_updated', $civi_contact['contact_id'], $create_email );
+
 	}
 
 }

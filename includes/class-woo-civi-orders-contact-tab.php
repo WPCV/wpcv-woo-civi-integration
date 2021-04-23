@@ -33,6 +33,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * @since 2.2
 	 */
 	private function is_remote_wc() {
+
 		if ( false === WCI()->is_network_installed ) {
 			return false;
 		}
@@ -49,6 +50,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 		}
 
 		return $wc_site_id;
+
 	}
 
 	/**
@@ -57,6 +59,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * @since 2.2
 	 */
 	private function fix_site() {
+
 		$wc_site_id = $this->is_remote_wc();
 
 		if ( false === $wc_site_id ) {
@@ -64,6 +67,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 		}
 
 		switch_to_blog( $wc_site_id );
+
 	}
 
 	/**
@@ -72,11 +76,13 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * @since 2.2
 	 */
 	private function unfix_site() {
+
 		if ( ! is_multisite() ) {
 			return;
 		}
 
 		restore_current_blog();
+
 	}
 
 	/**
@@ -85,6 +91,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * @since 0.2
 	 */
 	public function register_hooks() {
+
 		// Register custom PHP directory.
 		add_action( 'civicrm_config', [ $this, 'register_custom_php_directory' ], 10, 1 );
 		// Register custom template directory.
@@ -93,6 +100,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 		add_filter( 'civicrm_xmlMenu', [ $this, 'register_callback' ], 10, 1 );
 		// Add CiviCRM settings tab.
 		add_filter( 'civicrm_tabset', [ $this, 'add_orders_contact_tab' ], 10, 3 );
+
 	}
 
 	/**
@@ -103,12 +111,14 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * @param object $config The CiviCRM config object.
 	 */
 	public function register_custom_php_directory( &$config ) {
+
 		$this->fix_site();
 		$custom_path = WPCV_WOO_CIVI_PATH . 'custom_php';
 		$include_path = $custom_path . PATH_SEPARATOR . get_include_path();
 		// phpcs:ignore
 		set_include_path( $include_path );
 		$this->unfix_site();
+
 	}
 
 	/**
@@ -119,6 +129,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * @param object $config The CiviCRM config object.
 	 */
 	public function register_custom_template_directory( &$config ) {
+
 		$this->fix_site();
 		$custom_path = WPCV_WOO_CIVI_PATH . 'custom_tpl';
 		$template = CRM_Core_Smarty::singleton()->addTemplateDir( $custom_path );
@@ -126,6 +137,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 		// phpcs:ignore
 		set_include_path( $include_template_path );
 		$this->unfix_site();
+
 	}
 
 	/**
@@ -136,9 +148,11 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * @param array $files The array for files used to build the menu.
 	 */
 	public function register_callback( &$files ) {
+
 		$this->fix_site();
 		$files[] = WPCV_WOO_CIVI_PATH . 'xml/menu.xml';
 		$this->unfix_site();
+
 	}
 
 	/**
@@ -178,6 +192,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 			'count' => $this->count_orders( $cid ),
 			'weight' => 99,
 		];
+
 	}
 
 	/**
@@ -189,6 +204,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * @return array $customer_orders The array of raw Order data.
 	 */
 	private function _get_orders( $cid ) {
+
 		$this->fix_site();
 		$uid = abs( CRM_Core_BAO_UFMatch::getUFId( $cid ) );
 		if ( ! $uid ) {
@@ -204,6 +220,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 				return [];
 			}
 		}
+
 		$order_statuses = apply_filters(
 			'wc_order_statuses',
 			[
@@ -233,9 +250,11 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 				]
 			)
 		);
+
 		$this->unfix_site();
 
 		return $customer_orders;
+
 	}
 
 	/**
@@ -259,6 +278,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 * @return array|bool $orders The array of Orders, or false on failure.
 	 */
 	public function get_orders( $cid ) {
+
 		$customer_orders = $this->_get_orders( $cid );
 		$orders = [];
 		$date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
@@ -306,6 +326,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 		}
 
 		return false;
+
 	}
 
 }

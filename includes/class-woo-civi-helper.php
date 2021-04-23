@@ -135,6 +135,7 @@ class WPCV_Woo_Civi_Helper {
 		$this->all_campaigns = $this->get_all_campaigns();
 		$this->mapped_location_types = $this->set_mapped_location_types();
 		$this->optionvalue_membership_signup = $this->get_civicrm_optionvalue_membership_signup();
+
 	}
 
 	/**
@@ -146,6 +147,7 @@ class WPCV_Woo_Civi_Helper {
 	 * @return int $cid The numeric ID of the CiviCRM Contact.
 	 */
 	public function civicrm_get_cid( $order ) {
+
 		$email = '';
 
 		// If user is logged in but not in the admin (not a manual order).
@@ -166,6 +168,7 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		$wp_user_id = $order->get_user_id();
+
 		// Backend order should not use the logged in user's contact.
 		if ( ! is_admin() && 0 !== $wp_user_id ) {
 			try {
@@ -193,6 +196,7 @@ class WPCV_Woo_Civi_Helper {
 				'sequential' => 1,
 			];
 		}
+
 		if ( ! isset( $params ) ) {
 			CRM_Core_Error::debug_log_message( __( 'Cannot guess contact without an email', 'wpcv-woo-civi-integration' ) );
 			return false;
@@ -206,10 +210,11 @@ class WPCV_Woo_Civi_Helper {
 			return false;
 		}
 
-		// No matches found, so we will need to create a contact.
+		// No matches found, so we will need to create a Contact.
 		if ( count( $contact ) == 0 ) {
 			return 0;
 		}
+
 		$cid = isset( $contact['values'][0]['id'] ) ? $contact['values'][0]['id'] : 0;
 
 		return $cid;
@@ -222,6 +227,7 @@ class WPCV_Woo_Civi_Helper {
 	 * Get UFMatch for contact_id or WP user_id.
 	 *
 	 * @since 2.0
+	 *
 	 * @param int $id The CiviCRM Contact ID or WordPress User ID.
 	 * @param string $property Either 'contact_id' or 'uf_id'.
 	 * @return array $uf_match The UFMatch data.
@@ -249,6 +255,7 @@ class WPCV_Woo_Civi_Helper {
 		if ( ! empty( $uf_match['is_error'] ) ) {
 			return $uf_match;
 		}
+
 	}
 
 	/**
@@ -344,6 +351,7 @@ class WPCV_Woo_Civi_Helper {
 				return $state['id'];
 			}
 		}
+
 	}
 
 	/**
@@ -377,6 +385,7 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		return $civi_state['name'];
+
 	}
 
 	/**
@@ -408,6 +417,7 @@ class WPCV_Woo_Civi_Helper {
 				$address_type . '_company' => 'name',
 			]
 		);
+
 	}
 
 	/**
@@ -440,6 +450,7 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		return $civicrm_states;
+
 	}
 
 	/**
@@ -484,6 +495,7 @@ class WPCV_Woo_Civi_Helper {
 			$civicrm_campaigns[ $value['id'] ] = $value['name'];
 		}
 		return $civicrm_campaigns;
+
 	}
 
 	/**
@@ -505,6 +517,7 @@ class WPCV_Woo_Civi_Helper {
 		if ( ! empty( $this->campaigns_status ) ) {
 			$this->campaigns_status = $this->get_campaigns_status();
 		}
+
 		$params = [
 			'sequential' => 1,
 			'return' => [ 'id', 'name', 'status_id' ],
@@ -528,12 +541,10 @@ class WPCV_Woo_Civi_Helper {
 		];
 
 		foreach ( $all_campaigns_result['values'] as $key => $value ) {
-
 			$status = '';
 			if ( isset( $value['status_id'] ) && isset( $this->campaigns_status[ $value['status_id'] ] ) ) {
 				$status = ' - ' . $this->campaigns_status[ $value['status_id'] ];
 			}
-
 			$all_campaigns[ $value['id'] ] = $value['name'] . $status;
 		}
 
@@ -582,6 +593,7 @@ class WPCV_Woo_Civi_Helper {
 		} else {
 			return false;
 		}
+
 	}
 
 	/**
@@ -607,6 +619,7 @@ class WPCV_Woo_Civi_Helper {
 				'shipping' => get_option( 'woocommerce_civicrm_shipping_location_type_id' ),
 			]
 		);
+
 	}
 
 	/**
@@ -658,6 +671,7 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		$address_types_result = civicrm_api3( 'Address', 'getoptions', [ 'field' => 'location_type_id' ] );
+
 		return $address_types_result['values'];
 
 	}
@@ -727,6 +741,7 @@ class WPCV_Woo_Civi_Helper {
 
 		// TODO: error check and return values.
 		return $result['values'][0]['value'];
+
 	}
 
 	/**
@@ -749,7 +764,9 @@ class WPCV_Woo_Civi_Helper {
 	 * @return array $sites The array of sites.
 	 */
 	public function get_sites() {
+
 		$sites = [];
+
 		if ( is_multisite() ) {
 			$wp_sites = get_sites(
 				[
@@ -760,7 +777,9 @@ class WPCV_Woo_Civi_Helper {
 				$sites[ $site->blog_id ] = $site->domain;
 			}
 		}
+
 		return $sites;
+
 	}
 
 	/**
@@ -805,6 +824,7 @@ class WPCV_Woo_Civi_Helper {
 		];
 
 		return $default_contribution_amount_data;
+
 
 	}
 
@@ -892,6 +912,7 @@ class WPCV_Woo_Civi_Helper {
 	 * @return array|null $membership_type The CiviCRM Membership Type data, or null on failure.
 	 */
 	public function get_membership_type( int $id ) {
+
 		try {
 			return civicrm_api3(
 				'MembershipType',
@@ -903,6 +924,7 @@ class WPCV_Woo_Civi_Helper {
 		} catch ( CiviCRM_API3_Exception $e ) {
 			return null;
 		}
+
 	}
 
 }

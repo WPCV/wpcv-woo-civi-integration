@@ -33,10 +33,12 @@ class WPCV_Woo_Civi_Sync_Address {
 	 * @since 2.0
 	 */
 	public function register_hooks() {
+
 		// Sync WooCommerce and CiviCRM address for contact/user.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10, 4 );
 		// Sync WooCommerce and CiviCRM address for user/contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_address' ], 10, 2 );
+
 	}
 
 	/**
@@ -144,6 +146,7 @@ class WPCV_Woo_Civi_Sync_Address {
 		$mapped_location_types = WCI()->helper->mapped_location_types;
 		$civi_address_location_type = $mapped_location_types[ $load_address ];
 		$edited_address = [];
+
 		foreach ( WCI()->helper->get_mapped_address( $load_address ) as $wc_field => $civi_field ) {
 			switch ( $civi_field ) {
 				case 'country_id':
@@ -170,12 +173,15 @@ class WPCV_Woo_Civi_Sync_Address {
 		}
 
 		try {
+
 			if ( isset( $civi_address ) && ! $civi_address['is_error'] ) {
 				$new_params = array_merge( $civi_address, $edited_address );
 			} else {
 				$new_params = array_merge( $params, $edited_address );
 			}
+
 			$create_address = civicrm_api3( 'Address', 'create', $new_params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 		}
@@ -189,6 +195,7 @@ class WPCV_Woo_Civi_Sync_Address {
 		 * @param array $address The CiviCRM Address that has been edited.
 		 */
 		do_action( 'woocommerce_civicrm_civi_address_updated', $civi_contact['contact_id'], $create_address );
+
 	}
 
 }

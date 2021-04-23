@@ -50,6 +50,7 @@ class WPCV_Woo_Civi_Orders {
 	 * @return array $columns
 	 */
 	public function columns_head( $defaults ) {
+
 		$nb_cols = count( $defaults );
 		$new_cols = [
 			'campaign' => __( 'Campaign', 'wpcv-woo-civi-integration' ),
@@ -58,7 +59,9 @@ class WPCV_Woo_Civi_Orders {
 		$columns = array_slice( $defaults, 0, $nb_cols - 2, true )
 			+ $new_cols
 			+ array_slice( $defaults, $nb_cols - 2, $nb_cols, true );
+
 		return $columns;
+
 	}
 
 	/**
@@ -70,26 +73,33 @@ class WPCV_Woo_Civi_Orders {
 	 * @param int $post_id The WordPress Post ID.
 	 */
 	public function columns_content( $column_name, $post_id ) {
+
 		if ( 'campaign' === $column_name ) {
+
 			$campaign_id = get_post_meta( $post_id, '_woocommerce_civicrm_campaign_id', true );
 			if ( $campaign_id ) {
+
 				$params = [
 					'sequential' => 1,
 					'return' => [ 'name' ],
 					'id' => $campaign_id,
 					'options' => [ 'limit' => 1 ],
 				];
+
 				try {
 					$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
 					echo isset( $campaigns_result['values'][0]['name'] ) ? esc_attr( $campaigns_result['values'][0]['name'] ) : '';
 				} catch ( CiviCRM_API3_Exception $e ) {
 					CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'wpcv-woo-civi-integration' ) );
 				}
+
 			}
 		}
+
 		if ( 'source' === $column_name ) {
 			echo esc_html( get_post_meta( $post_id, '_order_source', true ) );
 		}
+
 	}
 
 	/**
@@ -102,10 +112,13 @@ class WPCV_Woo_Civi_Orders {
 	 * @param string $post_type The WordPress Post Type.
 	 */
 	public function restrict_manage_orders( $post_type = '' ) {
+
 		global $typenow;
+
 		if ( 'shop_order' !== $typenow ) {
 			return;
 		}
+
 		$campaign_list = WCI()->helper->all_campaigns;
 		if ( $campaign_list && ! empty( $campaign_list ) && is_array( $campaign_list ) ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_campaign_id', FILTER_VALIDATE_INT );
@@ -149,9 +162,12 @@ class WPCV_Woo_Civi_Orders {
 	 * @param WP_Query $query The WordPress Query object.
 	 */
 	public function pre_get_posts( $query ) {
+
 		global $typenow;
+
 		$campaign_id = filter_input( INPUT_GET, 'shop_order_campaign_id', FILTER_VALIDATE_INT );
 		$source = filter_input( INPUT_GET, 'shop_order_source' );
+
 		if ( 'shop_order' === $typenow && ( $campaign_id || $source ) ) {
 			$mq = $query->get( 'meta_query' );
 			$meta_query = false !== $mq ?
@@ -177,6 +193,7 @@ class WPCV_Woo_Civi_Orders {
 			}
 			$query->set( 'meta_query', $meta_query );
 		}
+
 	}
 
 }

@@ -61,12 +61,14 @@ class WPCV_Woo_Civi_Sync {
 	 * @since 2.1
 	 */
 	public function include_files() {
+
 		// Include Address Sync functionality class.
 		include WPCV_WOO_CIVI_PATH . 'includes/sync/class-woo-civi-sync-address.php';
 		// Include Phone Sync functionality class.
 		include WPCV_WOO_CIVI_PATH . 'includes/sync/class-woo-civi-sync-phone.php';
 		// Include Email Sync functionality class.
 		include WPCV_WOO_CIVI_PATH . 'includes/sync/class-woo-civi-sync-email.php';
+
 	}
 
 	/**
@@ -75,11 +77,14 @@ class WPCV_Woo_Civi_Sync {
 	 * @since 2.1
 	 */
 	public function setup_objects() {
+
 		// Init address sync.
 		$this->address = new WPCV_Woo_Civi_Sync_Address();
 		// Init phone sync.
 		$this->phone = new WPCV_Woo_Civi_Sync_Phone();
 		// Init email sync.
 		$this->email = new WPCV_Woo_Civi_Sync_Email();
+
 	}
+
 }
