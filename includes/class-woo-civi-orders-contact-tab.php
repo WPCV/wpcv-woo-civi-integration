@@ -229,7 +229,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 			'wc-cancelled'  => _x( 'Cancelled', 'Order status', 'woocommerce' ),
 			'wc-refunded'   => _x( 'Refunded', 'Order status', 'woocommerce' ),
 			'wc-failed'     => _x( 'Failed', 'Order status', 'woocommerce' ),
-		]
+		];
 
 		/**
 		 * Filter the list of Order statuses.

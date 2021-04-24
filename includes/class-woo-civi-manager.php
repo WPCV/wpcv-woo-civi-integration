@@ -801,8 +801,7 @@ class WPCV_Woo_Civi_Manager {
 						. '">' . $contribution['id'] . '</a>'
 					)
 				);
-				update_post_met
-				a( $order_id, '_woocommerce_civicrm_contribution_id', $contribution['id'] );
+				update_post_meta( $order_id, '_woocommerce_civicrm_contribution_id', $contribution['id'] );
 
 				return $contribution;
 
