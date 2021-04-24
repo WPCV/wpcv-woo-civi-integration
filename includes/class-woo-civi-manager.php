@@ -788,8 +788,8 @@ class WPCV_Woo_Civi_Manager {
 		/*
 		 * Line item for shipping.
 		 *
-		 * Shouldn't it be added to it's corresponding product/line_item?
-		 * i.e. an order can have both shippable and downloadable products?
+		 * Shouldn't it be added to it's corresponding Product/Line Item?
+		 * i.e. an order can have both shippable and downloadable Products?
 		 */
 		if ( floatval( $shipping_cost ) > 0 ) {
 			$params['line_items'][0] = [

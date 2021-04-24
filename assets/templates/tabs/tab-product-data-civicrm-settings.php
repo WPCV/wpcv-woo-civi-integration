@@ -17,9 +17,9 @@ defined( 'ABSPATH' ) || exit;
 		woocommerce_wp_select( [
 			'id' => 'woocommerce_civicrm_financial_type_id',
 			'name' => 'woocommerce_civicrm_financial_type_id',
-			'label' => __( 'Financial type', 'wpcv-woo-civi-integration' ),
+			'label' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
 			'desc_tip' => 'true',
-			'description' => __( 'The CiviCRM Financial Type for this product.', 'wpcv-woo-civi-integration' ),
+			'description' => __( 'The CiviCRM Financial Type for this Product.', 'wpcv-woo-civi-integration' ),
 			'options' => WPCV_WCI()->helper->get_financial_types_options(),
 		] );
 
@@ -28,7 +28,7 @@ defined( 'ABSPATH' ) || exit;
 			'name' => 'woocommerce_civicrm_membership_type_id',
 			'label' => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
 			'desc_tip' => 'true',
-			'description' => __( 'Select a Membership Type if you would like this product to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
+			'description' => __( 'Select a Membership Type if you would like this Product to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
 			'options' => WPCV_WCI()->helper->get_membership_types_options(),
 		] );
 
