@@ -966,7 +966,7 @@ class WPCV_Woo_Civi_Manager {
 
 		wp_enqueue_script(
 			'wccivi_admin_order',
-			WPCV_WOO_CIVI_URL . 'js/admin_order.js',
+			WPCV_WOO_CIVI_URL . 'assets/js/admin_order.js',
 			'jquery',
 			WPCV_WOO_CIVI_VERSION,
 			true
