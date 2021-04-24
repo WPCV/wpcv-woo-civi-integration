@@ -37,9 +37,10 @@ class CRM_Contact_Page_View_Purchases extends CRM_Core_Page {
       'itemCount'    => __('Item count', 'wpcv-woo-civi-integration'),
       'amount'       => __('Amount', 'wpcv-woo-civi-integration'),
       'actions'      => __('Actions', 'wpcv-woo-civi-integration'),
-      'emptyUid'     => __('This contact is not linked to any WordPress user or WooCommerce Customer', 'wpcv-woo-civi-integration'),
+      'emptyUid'     => __('This Contact is not linked to any WordPress User or WooCommerce Customer', 'wpcv-woo-civi-integration'),
       'orders'       => __('Orders', 'wpcv-woo-civi-integration'),
       'addOrder'     => __('Add Order', 'wpcv-woo-civi-integration'),
+      'edit'         => __('Edit', 'wpcv-woo-civi-integration'),
     ]);
 
     $this->assign('orders', $orders);
