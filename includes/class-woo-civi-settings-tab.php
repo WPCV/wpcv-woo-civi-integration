@@ -331,7 +331,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 		 *
 		 * @param array $options The fields configuration.
 		 */
-		return apply_filters( 'woocommerce_civicrm_admin_settings_fields', $options );
+		return apply_filters( 'wpcv_woo_civi/admin_settings/fields', $options );
 
 	}
 

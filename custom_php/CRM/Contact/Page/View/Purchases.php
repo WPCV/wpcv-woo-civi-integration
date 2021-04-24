@@ -46,13 +46,21 @@ class CRM_Contact_Page_View_Purchases extends CRM_Core_Page {
 
 		$uid = abs(CRM_Core_BAO_UFMatch::getUFId( $cid ));
 		if ( $uid ) {
-			$this->assign(
-				'newOrderUrl',
-				apply_filters('woocommerce_civicrm_add_order_url', add_query_arg(
-					array( 'post_type' => 'shop_order', 'user_id' => $uid ),
-					admin_url('post-new.php')) ,$uid
-				)
-			);
+
+			$url = add_query_arg(['post_type' => 'shop_order', 'user_id' => $uid], admin_url('post-new.php'));
+
+			/**
+			 * Filter the URL for the new Order.
+			 *
+			 * @since 2.0
+			 *
+			 * @param str $url The URL for the new Order.
+			 * @param int $uid The numeric ID of the WordPress User.
+			 */
+			$new_order_url = apply_filters('wpcv_woo_civi/add_order/url', $url, $uid);
+
+			$this->assign( 'newOrderUrl', $new_order_url );
+
 		}
 
 		parent::run();

@@ -100,7 +100,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 		 * @param int $user_id The WordPress User ID.
 		 * @param string $phone_type The WooCommerce Phone Type. Either 'billing' or 'shipping'.
 		 */
-		do_action( 'woocommerce_civicrm_wc_phone_updated', $cms_user['uf_id'], $phone_type );
+		do_action( 'wpcv_woo_civi/wc_phone/updated', $cms_user['uf_id'], $phone_type );
 
 	}
 
@@ -175,7 +175,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 		 * @param int $contact_id The CiviCRM Contact ID.
 		 * @param array $phone The CiviCRM Phone that has been edited.
 		 */
-		do_action( 'woocommerce_civicrm_civi_phone_updated', $civi_contact['contact_id'], $create_phone );
+		do_action( 'wpcv_woo_civi/civi_phone/updated', $civi_contact['contact_id'], $create_phone );
 
 	}
 

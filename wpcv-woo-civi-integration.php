@@ -148,11 +148,11 @@ class WPCV_Woo_Civi {
 		$this->register_hooks();
 
 		/**
-		 * Broadcast to other plugins that this plugin is loaded.
+		 * Broadcast that this plugin is loaded.
 		 *
 		 * @since 2.0
 		 */
-		do_action( 'woocommerce_civicrm_loaded' );
+		do_action( 'wpcv_woo_civi/loaded' );
 
 	}
 
@@ -256,7 +256,7 @@ class WPCV_Woo_Civi {
 		 *
 		 * @since 2.0
 		 */
-		do_action( 'woocommerce_civicrm_activated' );
+		do_action( 'wpcv_woo_civi/activated' );
 
 	}
 

@@ -221,35 +221,51 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 			}
 		}
 
-		$order_statuses = apply_filters(
-			'wc_order_statuses',
-			[
-				'wc-pending'    => _x( 'Pending payment', 'Order status', 'woocommerce' ),
-				'wc-processing' => _x( 'Processing', 'Order status', 'woocommerce' ),
-				'wc-on-hold'    => _x( 'On hold', 'Order status', 'woocommerce' ),
-				'wc-completed'  => _x( 'Completed', 'Order status', 'woocommerce' ),
-				'wc-cancelled'  => _x( 'Cancelled', 'Order status', 'woocommerce' ),
-				'wc-refunded'   => _x( 'Refunded', 'Order status', 'woocommerce' ),
-				'wc-failed'     => _x( 'Failed', 'Order status', 'woocommerce' ),
-			]
-		);
+		$order_statuses = [
+			'wc-pending'    => _x( 'Pending payment', 'Order status', 'woocommerce' ),
+			'wc-processing' => _x( 'Processing', 'Order status', 'woocommerce' ),
+			'wc-on-hold'    => _x( 'On hold', 'Order status', 'woocommerce' ),
+			'wc-completed'  => _x( 'Completed', 'Order status', 'woocommerce' ),
+			'wc-cancelled'  => _x( 'Cancelled', 'Order status', 'woocommerce' ),
+			'wc-refunded'   => _x( 'Refunded', 'Order status', 'woocommerce' ),
+			'wc-failed'     => _x( 'Failed', 'Order status', 'woocommerce' ),
+		]
+
+		/**
+		 * Filter the list of Order statuses.
+		 *
+		 * @see https://woocommerce.github.io/code-reference/files/woocommerce-includes-wc-order-functions.html
+		 *
+		 * @since 2.2
+		 *
+		 * @param array $order_statuses The default list of Order statuses.
+		 */
+		$order_statuses = apply_filters( 'wc_order_statuses', $order_statuses );
 
 		if ( ! $uid && empty( $contact['email'] ) ) {
 			return [];
 		}
 
-		$customer_orders = get_posts(
-			apply_filters(
-				'woocommerce_my_account_my_orders_query',
-				[
-					'numberposts' => -1,
-					'meta_key'    => $uid ? '_customer_user' : '_billing_email', // phpcs:ignore
-					'meta_value'  => $uid ? $uid : $contact['email'], // phpcs:ignore
-					'post_type'   => 'shop_order',
-					'post_status' => array_keys( $order_statuses ),
-				]
-			)
-		);
+		$order_query = [
+			'numberposts' => -1,
+			'meta_key'    => $uid ? '_customer_user' : '_billing_email', // phpcs:ignore
+			'meta_value'  => $uid ? $uid : $contact['email'], // phpcs:ignore
+			'post_type'   => 'shop_order',
+			'post_status' => array_keys( $order_statuses ),
+		];
+
+		/**
+		 * Filter the Order query.
+		 *
+		 * @see https://woocommerce.github.io/code-reference/files/woocommerce-templates-myaccount-my-orders.html
+		 *
+		 * @since 2.2
+		 *
+		 * @param array $order_query The default Order query.
+		 */
+		$order_query = apply_filters( 'woocommerce_my_account_my_orders_query', $order_query );
+
+		$customer_orders = get_posts( $order_query );
 
 		$this->unfix_site();
 

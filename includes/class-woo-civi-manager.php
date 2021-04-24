@@ -123,9 +123,19 @@ class WPCV_Woo_Civi_Manager {
 		update_post_meta( $order_id, '_order_source', $source );
 
 		$this->utm_to_order( $order->get_id() );
+
 		// Add the Contribution record.
 		$this->add_contribution( $cid, $order );
-		do_action( 'woocommerce_civicrm_action_order', $order, $cid );
+
+		/**
+		 * Broadcast that a Contribution record has been added for a new WooCommerce Order.
+		 *
+		 * @since 2.0
+		 *
+		 * @param object $order The Order object.
+		 * @param int $cid The numeric ID of the CiviCRM Contact.
+		 */
+		do_action( 'wpcv_woo_civi/action_order', $order, $cid );
 
 		return $order_id;
 
@@ -157,17 +167,16 @@ class WPCV_Woo_Civi_Manager {
 		try {
 
 			/**
-			 * Filter Contribution params before calling the CiviCRM API.
+			 * Filter the Contribution params before calling the CiviCRM API.
 			 *
 			 * @since 2.0
 			 *
 			 * @param array $params The params to be passed to the CiviCRM API.
 			 */
-			$contribution = civicrm_api3(
-				'Contribution',
-				'getsingle',
-				apply_filters( 'woocommerce_civicrm_contribution_update_params', $params )
-			);
+			$params = apply_filters( 'wpcv_woo_civi/contribution/get/params', $params );
+
+			$contribution = civicrm_api3( 'Contribution', 'getsingle', $params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( 'Not able to find contribution' );
 			return;
@@ -185,6 +194,7 @@ class WPCV_Woo_Civi_Manager {
 				// 'contact_id' => $contribution['contact_id'],
 			];
 			$result = civicrm_api3( 'Contribution', 'create', $params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'wpcv-woo-civi-integration' ) );
 			return;
@@ -228,17 +238,15 @@ class WPCV_Woo_Civi_Manager {
 		try {
 
 			/**
-			 * Filter Contribution params before calling the CiviCRM API.
+			 * Filter the Contribution params before calling the CiviCRM API.
 			 *
 			 * @since 2.0
 			 *
 			 * @param array $params The params to be passed to the CiviCRM API.
 			 */
-			$contribution = civicrm_api3(
-				'Contribution',
-				'getsingle',
-				apply_filters( 'woocommerce_civicrm_contribution_update_params', $params )
-			);
+			$params = apply_filters( 'wpcv_woo_civi/contribution/get/params', $params );
+
+			$contribution = civicrm_api3( 'Contribution', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( 'Not able to find contribution' );
@@ -247,11 +255,14 @@ class WPCV_Woo_Civi_Manager {
 
 		// Update Contribution.
 		try {
+
 			$params = [
 				'campaign_id' => $campaign_name,
 				'id' => $contribution['id'],
 			];
+
 			$result = civicrm_api3( 'Contribution', 'create', $params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'wpcv-woo-civi-integration' ) );
 			return;
@@ -278,13 +289,15 @@ class WPCV_Woo_Civi_Manager {
 		try {
 
 			/**
-			 * Filter Contribution params before calling the CiviCRM API.
+			 * Filter the Contribution params before calling the CiviCRM API.
 			 *
 			 * @since 2.0
 			 *
 			 * @param array $params The params to be passed to the CiviCRM API.
 			 */
-			$contribution = civicrm_api3( 'Contribution', 'getsingle', apply_filters( 'woocommerce_civicrm_contribution_update_params', $params ) );
+			$params = apply_filters( 'wpcv_woo_civi/contribution/get/params', $params );
+
+			$contribution = civicrm_api3( 'Contribution', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( 'Not able to find contribution' );
@@ -318,8 +331,18 @@ class WPCV_Woo_Civi_Manager {
 	 */
 	public function add_update_contact( $cid, $order ) {
 
-		// Allow Contact update to be bypassed.
-		if ( true === apply_filters( 'woocommerce_civicrm_bypass_add_update_contact', false, $cid, $order ) ) {
+		/**
+		 * Allow Contact update to be bypassed.
+		 *
+		 * Return boolean "true" to bypass the update process.
+		 *
+		 * @since 2.0
+		 *
+		 * @param bool False by default: do not bypass update.
+		 * @param int $cid The numeric ID of the Contact.
+		 * @param object $order The WooCommerce Order object.
+		 */
+		if ( true === apply_filters( 'wpcv_woo_civi/contact/add_update/bypass', false, $cid, $order ) ) {
 			return $cid;
 		}
 
@@ -743,13 +766,17 @@ class WPCV_Woo_Civi_Manager {
 		try {
 
 			/**
-			 * Filter Contribution params before calling the CiviCRM API.
+			 * Filter the Contribution params before calling the CiviCRM API.
 			 *
 			 * @since 2.0
 			 *
-			 * @param array $params The params to be passsed to the CiviCRM API.
+			 * @param array $params The params to be passed to the CiviCRM API.
+			 * @param object $order The WooCommerce Order object.
 			 */
-			$contribution = civicrm_api3( 'Order', 'create', apply_filters( 'woocommerce_civicrm_contribution_create_params', $params, $order ) );
+			$params = apply_filters( 'wpcv_woo_civi/order/create/params', $params, $order );
+
+			$contribution = civicrm_api3( 'Order', 'create', $params );
+
 			if ( isset( $contribution['id'] ) && $contribution['id'] ) {
 
 				// Adds Order note in reference to the created Contribution.
@@ -953,7 +980,18 @@ class WPCV_Woo_Civi_Manager {
 			// Get the global CiviCRM Campaign ID.
 			$order_campaign = get_option( 'woocommerce_civicrm_campaign_id' );
 		}
-		$campaign_array = apply_filters( 'woocommerce_civicrm_campaign_list', 'campaigns' );
+
+		/**
+		 * Filter the choice of Campaign List array to fetch.
+		 *
+		 * To fetch all Campaigns, return something other than 'campaigns'.
+		 *
+		 * @since 2.2
+		 *
+		 * @param str The array of Campaigns to fetch. Default 'campaigns'.
+		 */
+		$campaign_array = apply_filters( 'wpcv_woo_civi/campaign_list/get', 'campaigns' );
+
 		if ( 'campaigns' === $campaign_array ) {
 			$campaign_list = WPCV_WCI()->helper->campaigns;
 		} else {
@@ -1058,7 +1096,14 @@ class WPCV_Woo_Civi_Manager {
 			return;
 		}
 
-		$expire = apply_filters( 'woocommerce_civicrm_utm_cookie_expire', 0 );
+		/**
+		 * Filter the cookie expiry time.
+		 *
+		 * @since 2.2
+		 *
+		 * @param int The duration of the cookie. Default 0.
+		 */
+		$expire = apply_filters( 'wpcv_woo_civi/utm_cookie/expire', 0 );
 		$secure = ( 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ) );
 		$campaign = filter_input( INPUT_GET, 'utm_campaign' );
 

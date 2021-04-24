@@ -28,7 +28,7 @@ This plugin requires a minimum of *CiviCRM 4.6* and *WooCommerce 3.0+*.
 ### Configuration
 
 Configure the integration settings in WooCommerce Menu >> Settings >> CiviCRM (Tab)
-Direct URL: https://example.com/wp-admin/admin.php?page=wc-settings&tab=woocommerce_civicrm
+Direct URL: `https://example.com/wp-admin/admin.php?page=wc-settings&tab=woocommerce_civicrm`
 
 
 
@@ -41,45 +41,10 @@ Install this Wordpress plugin as usual. More information about installing plugin
 
 == Changelog ==
 
-= 2.3 =
-* Added Campaign support for membership
+= 3.0 =
 
-= 2.2 =
-* Added Campaign support for contributions
-* UTM support (utm_campaign, utm_source and utm_medium)
-* Added Multisite support
-* Updated contribution source: default to order type. Contribution source was the same as contrinution note
-* Fixed number format for contribution amount must match CiviCRM Settings
-* Fixed i18n
-* Added French L10n
+* Plugin refactored and renamed.
 
-= 2.1 =
-* More refactoring
-* Minor fixes
-* The Order tab is rendered from this plugin, there's no need for the CiviCRM extension
+= Prior to 3.0 =
 
-= 2.0 =
-* Plugin refactored
-* Moved Settings page to WooCommerce -> Settings -> CiviCRM (Tab)
-* Added translation support
-* Added option to sync Customer/Contact address
-* Added option to sync Customer/Contact billing phone
-* Added option to sync Customer/Contact billing email
-* Added option to replace WooCommerce State/County list with CiviCRM State/Province list
-* Added 'woocommerce_civicrm_contribution_create_params' filter
-* Added 'woocommerce_civicrm_contribution_update_params' filter
-* Added 'woocommerce_civicrm_financial_types_params' filter
-* Added 'woocommerce_civicrm_admin_settings_fields' filter
-* Added 'woocommerce_civicrm_address_map' filter
-* Added 'woocommerce_civicrm_mapped_location_types' filter
-* Added 'woocommerce_civicrm_wc_address_updated' action
-* Added 'woocommerce_civicrm_civi_address_updated' action
-* Added ‘woocommerce_civicrm_wc_phone_updated’ action
-* Added ‘woocommerce_civicrm_civi_phone_updated’ action
-* Added ‘woocommerce_civicrm_wc_email_updated’ action
-* Added ‘woocommerce_civicrm_civi_email_updated’ action
-
-
-= 1.0 =
-
-* Initial release
+* Please refer to [the changelog](https://github.com/WPCV/wpcv-woo-civi-integration/commits/main) at this plugin's [GitHub repo](https://github.com/WPCV/wpcv-woo-civi-integration).

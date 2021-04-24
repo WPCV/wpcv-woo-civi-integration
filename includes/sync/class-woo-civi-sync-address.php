@@ -113,7 +113,7 @@ class WPCV_Woo_Civi_Sync_Address {
 		 * @param int $user_id The WordPress User ID.
 		 * @param string $address_type The WooCommerce Address Type. Either 'billing' or 'shipping'.
 		 */
-		do_action( 'woocommerce_civicrm_wc_address_updated', $cms_user['uf_id'], $address_type );
+		do_action( 'wpcv_woo_civi/wc_address/updated', $cms_user['uf_id'], $address_type );
 
 	}
 
@@ -194,7 +194,7 @@ class WPCV_Woo_Civi_Sync_Address {
 		 * @param int $contact_id The CiviCRM Contact ID.
 		 * @param array $address The CiviCRM Address that has been edited.
 		 */
-		do_action( 'woocommerce_civicrm_civi_address_updated', $civi_contact['contact_id'], $create_address );
+		do_action( 'wpcv_woo_civi/civi_address/updated', $civi_contact['contact_id'], $create_address );
 
 	}
 

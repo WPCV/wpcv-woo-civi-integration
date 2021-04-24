@@ -101,7 +101,7 @@ class WPCV_Woo_Civi_Sync_Email {
 		 * @param int $user_id The WordPress User ID.
 		 * @param string $email_type The WooCommerce Email Type. Either 'billing' or 'shipping'.
 		 */
-		do_action( 'woocommerce_civicrm_wc_email_updated', $cms_user['uf_id'], $email_type );
+		do_action( 'wpcv_woo_civi/wc_email/updated', $cms_user['uf_id'], $email_type );
 
 	}
 
@@ -176,7 +176,7 @@ class WPCV_Woo_Civi_Sync_Email {
 		 * @param int $contact_id The CiviCRM Contact ID.
 		 * @param array $email The CiviCRM Email that has been edited.
 		 */
-		do_action( 'woocommerce_civicrm_civi_email_updated', $civi_contact['contact_id'], $create_email );
+		do_action( 'wpcv_woo_civi/civi_email/updated', $civi_contact['contact_id'], $create_email );
 
 	}
 

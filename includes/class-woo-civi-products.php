@@ -48,8 +48,7 @@ class WPCV_Woo_Civi_Products {
 		add_action( 'manage_product_posts_custom_column', [ $this, 'columns_content' ], 90, 2 );
 
 		// Bulk / quick edit.
-		add_action( 'save_post', [ $this, 'bulk_and_quick_edit_hook' ], 10, 2 );
-		add_action( 'contributions_product_bulk_and_quick_edit', [ $this, 'bulk_and_quick_edit_save_post' ], 10, 2 );
+		add_action( 'save_post', [ $this, 'bulk_and_quick_edit_save_post' ], 10, 2 );
 
 	}
 
@@ -194,24 +193,10 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
-	 * Offers a way to hook into save post without causing an infinite loop
-	 * when quick/bulk saving Product info.
-	 *
-	 * @since 2.3
-	 *
-	 * @param int $post_id The Post ID being saved.
-	 * @param object $post The Post object being saved.
-	 */
-	public function bulk_and_quick_edit_hook( $post_id, $post ) {
-
-		remove_action( 'save_post', [ $this, 'bulk_and_quick_edit_hook' ] );
-		do_action( 'contributions_product_bulk_and_quick_edit', $post_id, $post );
-		add_action( 'save_post', [ $this, 'bulk_and_quick_edit_hook' ], 10, 2 );
-
-	}
-
-	/**
 	 * Quick and bulk edit saving.
+	 *
+	 * TODO: "update_post_meta" doesn't cause "save_post" to fire again, so the
+	 * protection against recursion is likely to be redundant.
 	 *
 	 * @since 2.3
 	 *
@@ -220,10 +205,14 @@ class WPCV_Woo_Civi_Products {
 	 */
 	public function bulk_and_quick_edit_save_post( $post_id, $post ) {
 
+		remove_action( 'save_post', [ $this, 'bulk_and_quick_edit_save_post' ] );
+
 		if ( isset( $_GET['civicrm_contribution_type'] ) ) {
 			$civicrm_contribution_type = sanitize_text_field( $_GET['civicrm_contribution_type'] );
 			update_post_meta( $post_id, '_civicrm_contribution_type', $civicrm_contribution_type );
 		}
+
+		add_action( 'save_post', [ $this, 'bulk_and_quick_edit_save_post' ], 10, 2 );
 
 	}
 

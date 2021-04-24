@@ -133,7 +133,7 @@ class WPCV_Woo_Civi_Helper {
 		$this->campaigns_status = $this->get_campaigns_status();
 		$this->campaigns = $this->get_campaigns();
 		$this->all_campaigns = $this->get_all_campaigns();
-		$this->mapped_location_types = $this->set_mapped_location_types();
+		$this->mapped_location_types = $this->get_mapped_location_types();
 		$this->optionvalue_membership_signup = $this->get_civicrm_optionvalue_membership_signup();
 
 	}
@@ -398,6 +398,16 @@ class WPCV_Woo_Civi_Helper {
 	 */
 	public function get_mapped_address( $address_type ) {
 
+		$mapped_address = [
+			$address_type . '_address_1' => 'street_address',
+			$address_type . '_address_2' => 'supplemental_address_1',
+			$address_type . '_city' => 'city',
+			$address_type . '_postcode' => 'postal_code',
+			$address_type . '_country' => 'country_id',
+			$address_type . '_state' => 'state_province_id',
+			$address_type . '_company' => 'name',
+		];
+
 		/**
 		 * Filter the Address Field mappings.
 		 *
@@ -405,18 +415,7 @@ class WPCV_Woo_Civi_Helper {
 		 *
 		 * @param array $mapped_address The default Address Field mappings.
 		 */
-		return apply_filters(
-			'woocommerce_civicrm_address_map',
-			[
-				$address_type . '_address_1' => 'street_address',
-				$address_type . '_address_2' => 'supplemental_address_1',
-				$address_type . '_city' => 'city',
-				$address_type . '_postcode' => 'postal_code',
-				$address_type . '_country' => 'country_id',
-				$address_type . '_state' => 'state_province_id',
-				$address_type . '_company' => 'name',
-			]
-		);
+		return apply_filters( 'wpcv_woo_civi/address_fields/mappings', $mapped_address );
 
 	}
 
@@ -484,9 +483,12 @@ class WPCV_Woo_Civi_Helper {
 		 * Filter Campaigns params before calling the Civi's API.
 		 *
 		 * @since 2.2
-		 * @param array $params The params to be passsed to the API.
+		 *
+		 * @param array $params The params to be passed to the CiviCRM API.
 		 */
-		$campaigns_result = civicrm_api3( 'Campaign', 'get', apply_filters( 'woocommerce_civicrm_campaigns_params', $params ) );
+		$params = apply_filters( 'wpcv_woo_civi/campaigns/get/params', $params );
+
+		$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
 
 		$civicrm_campaigns = [
 			__( 'None', 'wpcv-woo-civi-integration' ),
@@ -528,13 +530,15 @@ class WPCV_Woo_Civi_Helper {
 		];
 
 		/**
-		 * Filter Campaigns params before calling the Civi's API.
+		 * Filter all Campaigns params before calling the CiviCRM API.
 		 *
 		 * @since 2.2
 		 *
-		 * @param array $params The params to be passsed to the API.
+		 * @param array $params The params to be passed to the CiviCRM API.
 		 */
-		$all_campaigns_result = civicrm_api3( 'Campaign', 'get', apply_filters( 'woocommerce_civicrm_campaigns_params', $params ) );
+		$params = apply_filters( 'wpcv_woo_civi/campaigns/get_all/params', $params );
+
+		$all_campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
 
 		$all_campaigns = [
 			__( 'None', 'wpcv-woo-civi-integration' ),
@@ -574,22 +578,25 @@ class WPCV_Woo_Civi_Helper {
 		];
 
 		/**
-		 * Filter Campaigns params before calling the Civi's API.
+		 * Filter Campaign Statuses params before calling the CiviCRM API.
 		 *
 		 * @since 2.2
-		 * @param array $params The params to be passsed to the API
+		 *
+		 * @param array $params The params to be passed to the CiviCRM API.
 		 */
+		$params = apply_filters( 'wpcv_woo_civi/campaign_statuses/get/params', $params );
 
-		$civicrm_campaigns_status = [];
-		$status_result = civicrm_api3( 'OptionValue', 'get', apply_filters( 'woocommerce_civicrm_status_params', $params ) );
+		$status_result = civicrm_api3( 'OptionValue', 'get', $params );
 
 		if ( 0 === $status_result['is_error'] && $status_result['count'] > 0 ) {
 
+			$civicrm_campaigns_status = [];
 			foreach ( $status_result['values'] as $key => $value ) {
 				$civicrm_campaigns_status[ $value['value'] ] = $value['label'];
 			}
 
 			return $civicrm_campaigns_status;
+
 		} else {
 			return false;
 		}
@@ -597,13 +604,18 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Set mapping between WooCommerce and CiviCRM Location Types.
+	 * Get mapping between WooCommerce and CiviCRM Location Types.
 	 *
 	 * @since 2.0
 	 *
 	 * @return array $mapped_location_types The mapped Location Types.
 	 */
-	private function set_mapped_location_types() {
+	private function get_mapped_location_types() {
+
+		$mapped_location_types = [
+			'billing' => get_option( 'woocommerce_civicrm_billing_location_type_id' ),
+			'shipping' => get_option( 'woocommerce_civicrm_shipping_location_type_id' ),
+		];
 
 		/**
 		 * Filter mapping between WooCommerce and CiviCRM location types.
@@ -612,13 +624,7 @@ class WPCV_Woo_Civi_Helper {
 		 *
 		 * @param array $mapped_location_types The default mapped Location Types.
 		 */
-		return apply_filters(
-			'woocommerce_civicrm_mapped_location_types',
-			[
-				'billing' => get_option( 'woocommerce_civicrm_billing_location_type_id' ),
-				'shipping' => get_option( 'woocommerce_civicrm_shipping_location_type_id' ),
-			]
-		);
+		return apply_filters( 'wpcv_woo_civi/location_types/mappings', $mapped_location_types );
 
 	}
 
@@ -641,12 +647,15 @@ class WPCV_Woo_Civi_Helper {
 		];
 
 		/**
-		 * Filter Financial type params before calling the Civi's API.
+		 * Filter Financial Type params before calling the CiviCRM API.
 		 *
 		 * @since 2.0
-		 * @param array $params The params to be passsed to the API
+		 *
+		 * @param array $params The params to be passed to the CiviCRM API.
 		 */
-		$financial_types_result = civicrm_api3( 'FinancialType', 'get', apply_filters( 'woocommerce_civicrm_financial_types_params', $params ) );
+		$params = apply_filters( 'wpcv_woo_civi/financial_types/get/params', $params );
+
+		$financial_types_result = civicrm_api3( 'FinancialType', 'get', $params );
 
 		$financial_types = [];
 		foreach ( $financial_types_result['values'] as $key => $value ) {
@@ -695,13 +704,15 @@ class WPCV_Woo_Civi_Helper {
 		];
 
 		/**
-		 * Filter Financial type params before calling the Civi's API.
+		 * Filter the Financial Type params before calling the CiviCRM API.
 		 *
 		 * @since 2.0
 		 *
-		 * @param array $params The params to be passsed to the API
+		 * @param array $params The params to be passed to the CiviCRM API.
 		 */
-		$membership_types_result = civicrm_api3( 'MembershipType', 'get', apply_filters( 'woocommerce_civicrm_membership_types_params', $params ) );
+		$params = apply_filters( 'wpcv_woo_civi/membership_types/get/params', $params );
+
+		$membership_types_result = civicrm_api3( 'MembershipType', 'get', $params );
 
 		$membership_types = [];
 		foreach ( $membership_types_result['values'] as $key => $value ) {
@@ -716,7 +727,7 @@ class WPCV_Woo_Civi_Helper {
 		 *
 		 * @param array $membership_types The existing array of CiviCRM Membership Types.
 		 */
-		return apply_filters( 'woocommerce_civicrm_membership_types', $membership_types, $membership_types_result );
+		return apply_filters( 'wpcv_woo_civi/membership_types', $membership_types, $membership_types_result );
 
 	}
 
