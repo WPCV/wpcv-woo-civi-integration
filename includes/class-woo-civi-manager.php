@@ -747,7 +747,7 @@ class WPCV_Woo_Civi_Manager {
 
 				// FIXME
 				/*
-				 * Decide whether we want to override the financial type with
+				 * Decide whether we want to override the Financial Type with
 				 * the one from the Membership Type instead of Product/default.
 				 */
 

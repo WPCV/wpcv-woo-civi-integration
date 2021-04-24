@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 			'name' => 'woocommerce_civicrm_financial_type_id',
 			'label' => __( 'Financial type', 'wpcv-woo-civi-integration' ),
 			'desc_tip' => 'true',
-			'description' => __( 'The CiviCRM financial type for this product.', 'wpcv-woo-civi-integration' ),
+			'description' => __( 'The CiviCRM Financial Type for this product.', 'wpcv-woo-civi-integration' ),
 			'options' => WPCV_WCI()->helper->get_financial_types_options(),
 		] );
 
