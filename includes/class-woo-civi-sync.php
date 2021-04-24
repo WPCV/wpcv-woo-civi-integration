@@ -46,13 +46,34 @@ class WPCV_Woo_Civi_Sync {
 	public $phone;
 
 	/**
-	 * Initialises this object.
+	 * Class constructor.
 	 *
 	 * @since 2.1
 	 */
 	public function __construct() {
+
+		// Init when this plugin is fully loaded.
+		add_action( 'wpcv_woo_civi/loaded', [ $this, 'initialise' ] );
+
+	}
+
+	/**
+	 * Initialise this object.
+	 *
+	 * @since 3.0
+	 */
+	public function initialise() {
+
 		$this->include_files();
 		$this->setup_objects();
+
+		/**
+		 * Broadcast that this class is loaded.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/sync/loaded' );
+
 	}
 
 	/**

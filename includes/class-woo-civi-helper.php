@@ -108,12 +108,15 @@ class WPCV_Woo_Civi_Helper {
 	public $campaigns_status = [];
 
 	/**
-	 * Initialises this object.
+	 * Class constructor.
 	 *
 	 * @since 2.0
 	 */
 	public function __construct() {
-		$this->inited();
+
+		// Init when this plugin is fully loaded.
+		add_action( 'wpcv_woo_civi/loaded', [ $this, 'initialise' ] );
+
 	}
 
 	/**
@@ -121,11 +124,14 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 */
-	public function inited() {
+	public function initialise() {
 
+		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
 			return;
 		}
+
+		// Populate class properties.
 		$this->financial_types = $this->get_financial_types();
 		$this->membership_types = $this->get_civicrm_membership_types();
 		$this->location_types = $this->get_address_location_types();

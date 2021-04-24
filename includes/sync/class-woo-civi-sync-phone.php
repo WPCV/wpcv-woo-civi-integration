@@ -19,11 +19,23 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Sync_Phone {
 
 	/**
-	 * Initialise this object.
+	 * Class constructor.
 	 *
 	 * @since 2.0
 	 */
 	public function __construct() {
+
+		// Init when the sync loader class is fully loaded.
+		add_action( 'wpcv_woo_civi/sync/loaded', [ $this, 'initialise' ] );
+
+	}
+
+	/**
+	 * Initialise this object.
+	 *
+	 * @since 3.0
+	 */
+	public function initialise() {
 		$this->register_hooks();
 	}
 
