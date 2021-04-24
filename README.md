@@ -1,31 +1,54 @@
 # Integrate CiviCRM with WooCommerce
 
-## Installation
+A WordPress plugin that integrates CiviCRM with WooCommerce.
 
-Step 1: Install Wordpress plugin
 
-Install this Wordpress plugin as usual. More information about installing plugins in Wordpress - https://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 
-## Configuration
+## Description
 
-Configure the integration settings in WooCommerce Menu >> Settings >> CiviCRM (Tab)
-Direct URL: https://example.com/wp-admin/admin.php?page=wc-settings&tab=woocommerce_civicrm
+1. WooCommerce Orders are created as Contributions in CiviCRM. Each Product in the Order is a Line Item in the Contribution.
+2. Sales Tax/VAT & Shipping Costs are configurable/mappable as CiviCRM Financial Types.
+3. A default Campaign can be defined for each Contribution, but Campaigns can be customized per Order.
+4. Logged in Users are recognised and the Contribution is created against the related CiviCRM Contact record.
+5. If not logged in, the plugin tries to find the CiviCRM Contact record using Dedupe Rules and the Contribution is created against the CiviCRM Contact record if one is found.
+6. If the CiviCRM Contact does not exist, a new Contact record is created in CiviCRM and the Contribution is created against the newly-created Contact record.
+7. The related Contact record link is added to the WooCommerce Order as a note.
+8. This plugin enables two-way syncing of Address, Billing Phone, and Billing Email between CiviCRM and WooCommerce. When a User edits their Address, Billing Phone, or Billing Email through their WooCommerce Account >> Edit Address page, their CiviCRM Profile, or through CiviCRM's admin interface, the data will be updated in both CiviCRM and WooCommerce.
+9. This plugin can replace WooCommerce's States/Counties list with CiviCRM's State/Province list. (**WARNING!!!** Enabling this option in an existing WooCommerce instance will cause **States/Counties data loss** for **existing Customers** and the **WooCommerce settings** that rely on those.)
+10. Basic Membership implementation: select the Membership Type in the CiviCRM Settings panel in the Product screen. If selected, a CiviCRM Membership will be created at checkout.
+
+### Requirements
+
+This plugin requires a minimum of *CiviCRM 4.6* and *WooCommerce 3.0+*.
+
+### Configuration
+
+Configure the integration settings in WooCommerce >> Settings >> CiviCRM (Tab)
+
+Example URL: `https://example.com/wp-admin/admin.php?page=wc-settings&tab=woocommerce_civicrm`
 
 ![Settings to integrate CiviCRM with WooCommerce](./screenshots/settings.jpg)
 
-## Functionality
 
-1. WooCommerce orders are created as contributions in CiviCRM, each product in the order is a line item in the Contribution.
-2. Sales TAX/VAt & Shipping cost are configurable/mappable as CiviCRM Financial Types.
-3. A global campaign can be defined for each contribution, but campaigns can be customized per order.
-4. Logged in users are recognised and the contribution is created against the related contact record.
-5. If not logged in, the plugin tries to find the contact record in CiviCRM using Dedupe rules and the contribution is created against the found contact record.
-6. If the contact does not exist, a new contact record is created in CiviCRM and the contribution is created against the newly created contact record.
-7. Related contact record link is added to the WooCommerce order as notes.
-8. Option to sync CiviCRM and WooCommerce address, billing phone, and billing email. If a user edits his/hers address, billing phone, or billing email through the WooCommerce Account >> Edit Address page, CiviCRM profile, or through CiviCRM's backoffice, the data will be updated in both CiviCRM and WooCommerce.
-9. Option to replace WooCommerce's States/Counties list with CiviCRM's State/Province list. (**WARNING!!!** Enabling this option in an exiting WooCommerce instance will cause **State/County data loss** for **exiting Customers** and **WooCommerce settings** that relay on those.)
-10. Basic Membership implementation: select the Membership type in CiviCRM Settings panel in the Product screen, if set, a membership will be created at checkout.
 
 ## Developers
 
 Documentation in progress.
+
+
+
+## Installation
+
+There are two ways to install from GitHub:
+
+### ZIP Download
+
+If you have downloaded CiviCRM Profile Sync as a ZIP file from the GitHub repository, do the following to install the plugin:
+
+1. Unzip the .zip file and, if needed, rename the enclosing folder so that the plugin's files are located directly inside `/wp-content/plugins/https://github.com/WPCV/wpcv-woo-civi-integration`
+2. CiviCRM Profile Sync is installed. Read on for activation
+
+### git clone
+
+If you have cloned the code from GitHub, it is assumed that you know what you're doing.
+
