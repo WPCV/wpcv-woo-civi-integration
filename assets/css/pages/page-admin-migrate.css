@@ -9,19 +9,19 @@
 
 /* Admin Screen setup
 ----------------------------------*/
-#cwps_info h4 {
+#wpcv_woocivi_info h4 {
     font-size: 1.1em;
 }
 
-#cwps_info p, #cwps_info ul li {
+#wpcv_woocivi_info p, #wpcv_woo_civi_info ul li {
     font-size: 14px;
 }
 
-#cwps_info code {
+#wpcv_woocivi_info code {
     font-size: 13px;
 }
 
-#cwps_info ul {
+#wpcv_woocivi_info ul {
 	list-style: disc;
 	padding-left: 20px;
 }

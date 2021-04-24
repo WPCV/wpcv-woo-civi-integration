@@ -315,7 +315,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Create "Migrate Info" metabox.
 		add_meta_box(
-			'cwps_info',
+			'wpcv_woocivi_info',
 			$title,
 			[ $this, 'meta_box_migrate_render' ], // Callback.
 			$screen_id, // Screen ID.

@@ -13,7 +13,7 @@
 
 	<h1><?php _e( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ); ?></h1>
 
-	<form method="post" id="cwps_acf_migrate_form" action="<?php echo $this->page_submit_url_get(); ?>">
+	<form method="post" id="wpcv_woocivi_migrate_form" action="<?php echo $this->page_submit_url_get(); ?>">
 
 		<?php wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false ); ?>
 		<?php wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false ); ?>
