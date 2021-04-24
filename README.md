@@ -45,7 +45,7 @@ There are two ways to install from GitHub:
 
 If you have downloaded Integrate CiviCRM with WooCommerce as a ZIP file from the GitHub repository, do the following to install the plugin:
 
-1. Unzip the .zip file and, if needed, rename the enclosing folder so that the plugin's files are located directly inside `/wp-content/plugins/https://github.com/WPCV/wpcv-woo-civi-integration`
+1. Unzip the .zip file and, if needed, rename the enclosing folder so that the plugin's files are located directly inside `/wp-content/plugins/wpcv-woo-civi-integration`
 2. CiviCRM Profile Sync is installed. Read on for activation
 
 ### git clone
