@@ -123,7 +123,7 @@ class WPCV_Woo_Civi_Helper {
 	 */
 	public function inited() {
 
-		if ( ! WPCV_WPCV_WCI()->boot_civi() ) {
+		if ( ! WPCV_WCI()->boot_civi() ) {
 			return;
 		}
 		$this->financial_types = $this->get_financial_types();

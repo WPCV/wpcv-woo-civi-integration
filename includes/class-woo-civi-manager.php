@@ -106,7 +106,7 @@ class WPCV_Woo_Civi_Manager {
 	 */
 	public function action_order( $order_id, $posted_data, $order ) {
 
-		$cid = WPCV_WPCV_WCI()->helper->civicrm_get_cid( $order );
+		$cid = WPCV_WCI()->helper->civicrm_get_cid( $order );
 		if ( false === $cid ) {
 			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'wpcv-woo-civi-integration' ) );
 			return;
@@ -153,7 +153,7 @@ class WPCV_Woo_Civi_Manager {
 
 		$order = new WC_Order( $order_id );
 
-		$cid = WPCV_WPCV_WCI()->helper->civicrm_get_cid( $order );
+		$cid = WPCV_WCI()->helper->civicrm_get_cid( $order );
 		if ( false === $cid ) {
 			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'wpcv-woo-civi-integration' ) );
 			return;
@@ -431,7 +431,7 @@ class WPCV_Woo_Civi_Manager {
 			$existing_phones = $existing_phones['values'];
 			$existing_emails = civicrm_api3( 'Email', 'get', [ 'contact_id' => $cid ] );
 			$existing_emails = $existing_emails['values'];
-			$address_types = WPCV_WPCV_WCI()->helper->mapped_location_types;
+			$address_types = WPCV_WCI()->helper->mapped_location_types;
 
 			foreach ( $address_types as $address_type => $location_type_id ) {
 
@@ -493,7 +493,7 @@ class WPCV_Woo_Civi_Manager {
 
 				if ( ! empty( $order->{'get_' . $address_type . '_address_1'}() ) && ! empty( $order->{'get_' . $address_type . '_postcode'}() ) ) {
 
-					$country_id = WPCV_WPCV_WCI()->helper->get_civi_country_id( $order->{'get_' . $address_type . '_country'}() );
+					$country_id = WPCV_WCI()->helper->get_civi_country_id( $order->{'get_' . $address_type . '_country'}() );
 					$address = [
 						'location_type_id'       => $location_type_id,
 						'city'                   => $order->{'get_' . $address_type . '_city'}(),
