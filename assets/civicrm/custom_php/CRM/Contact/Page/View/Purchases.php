@@ -23,7 +23,7 @@ class CRM_Contact_Page_View_Purchases extends CRM_Core_Page {
    */
   public function run() {
 
-    CRM_Utils_System::setTitle(ts('Purchases'));
+    CRM_Utils_System::setTitle(__('Purchases', 'wpcv-woo-civi-integration'));
 
     $cid = CRM_Utils_Request::retrieve('cid', 'Positive', $this);
 
