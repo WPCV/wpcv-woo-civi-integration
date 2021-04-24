@@ -24,15 +24,6 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi {
 
 	/**
-	 * Plugin file reference.
-	 *
-	 * @since 2.0
-	 * @access protected
-	 * @var $plugin The file reference for this plugin.
-	 */
-	protected $plugin;
-
-	/**
 	 * The class instance.
 	 *
 	 * @since 2.0
@@ -107,43 +98,11 @@ class WPCV_Woo_Civi {
 	public $products;
 
 	/**
-	 * Plugin activated in network context.
+	 * Dummy instance constructor.
 	 *
-	 * @since 2.2
-	 * @access public
-	 * @var bool $is_network_installed True if network-installed, false otherwise.
+	 * @since 3.0
 	 */
-	public $is_network_installed;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 2.1
-	 */
-	public function __construct() {
-
-		// Makes sure the plugin is defined before trying to use it.
-		if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
-			require_once ABSPATH . '/wp-admin/includes/plugin.php';
-		}
-
-		$plugin_name = basename( __DIR__ ) . '/' . basename( __FILE__ );
-		$this->is_network_installed = is_plugin_active_for_network( $plugin_name );
-
-		add_action( 'admin_init', [ $this, 'check_dependencies' ], 10 );
-
-		$this->define_constants();
-		$this->include_files();
-		$this->plugin = plugin_basename( __FILE__ );
-
-		// Init plugin.
-		add_action( 'plugins_loaded', [ $this, 'init' ], 10 );
-
-		// Clear cache on activation.
-		add_action( 'woocommerce_civicrm_activated', [ $this, 'schedule_clear_civi_cache' ] );
-
-	}
-
+	public function __construct() {}
 
 	/**
 	 * Returns a single instance of this object when called.
@@ -155,15 +114,19 @@ class WPCV_Woo_Civi {
 	public static function instance() {
 
 		if ( ! isset( self::$instance ) ) {
+
 			// Instantiate.
 			self::$instance = new WPCV_Woo_Civi();
 
-			/**
-			 * Broadcast to other plugins that this plugin is loaded.
-			 *
-			 * @since 2.0
-			 */
-			do_action( 'woocommerce_civicrm_loaded' );
+			// Enable translation first.
+			add_action( 'plugins_loaded', [ $this, 'enable_translation' ] );
+
+			// Check dependencies once all plugins are loaded.
+			add_action( 'plugins_loaded', [ $this, 'check_dependencies' ] );
+
+			// Setup plugin when WooCommerce has been bootstrapped.
+			add_action( 'woocommerce_init', [ $this, 'initialise' ] );
+
 		}
 
 		// Always return instance.
@@ -172,96 +135,38 @@ class WPCV_Woo_Civi {
 	}
 
 	/**
-	 * Initialize.
+	 * Initialise this plugin once WooCommerce has been bootstrapped.
 	 *
-	 * @since 2.1
+	 * @since 3.0
 	 */
-	public function init() {
+	public function initialise() {
 
-		// Only setup objects after WooCommerce has been bootstraped.
-		add_action( 'woocommerce_init', [ $this, 'setup_objects' ] );
-
+		// Bootstrap this plugin.
+		$this->define_constants();
+		$this->include_files();
+		$this->setup_objects();
 		$this->register_hooks();
-		$this->enable_translation();
 
-		if ( $this->is_network_installed ) {
-			add_action( 'network_admin_menu', [ $this, 'network_admin_menu' ] );
-		}
-
-	}
-
-	/**
-	 * Adds the setting page manu.
-	 *
-	 * @since 2.4
-	 */
-	public function network_admin_menu() {
-
-		add_submenu_page(
-			'settings.php',
-			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
-			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
-			'manage_network_options',
-			'woocommerce-civicrm-settings',
-			[ $this->settings_tab, 'network_settings' ]
-		);
+		/**
+		 * Broadcast to other plugins that this plugin is loaded.
+		 *
+		 * @since 2.0
+		 */
+		do_action( 'woocommerce_civicrm_loaded' );
 
 	}
 
 	/**
-	 * Define constants.
+	 * Define plugin constants.
 	 *
 	 * @since 2.0
 	 */
 	private function define_constants() {
 
 		define( 'WPCV_WOO_CIVI_VERSION', '3.0' );
-		define( 'WPCV_WOO_CIVI_URL', plugin_dir_url( __FILE__ ) );
-		define( 'WPCV_WOO_CIVI_PATH', plugin_dir_path( __FILE__ ) );
-
-	}
-
-	/**
-	 * Bootstrap CiviCRM.
-	 *
-	 * @since 2.1
-	 *
-	 * @return bool True if CiviCRM was initialised, false otherwise.
-	 */
-	public function boot_civi() {
-
-		if ( ! function_exists( 'civi_wp' ) ) {
-			// TODO: add return value.
-			return;
-		}
-
-		return civi_wp()->initialize();
-
-	}
-
-	/**
-	 * Check plugin dependencies.
-	 *
-	 * @since 2.0
-	 *
-	 * @return bool True if dependencies exist, false otherwise.
-	 */
-	public function check_dependencies() {
-
-		// Bail if WooCommerce is not available.
-		if ( ! is_multisite() && ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true ) ) {
-			$this->display_woocommerce_required_notice();
-		}
-		// Bail if CiviCRM is not available.
-		if ( ! function_exists( 'civi_wp' ) ) {
-			$this->display_civicrm_required_notice();
-		}
-		// Bail if CiviCRM is not installed.
-		if ( ! defined( 'CIVICRM_INSTALLED' ) ) {
-			$this->display_civicrm_initialised_notice();
-		}
-
-		return true;
+		define( 'WPCV_WOO_CIVI_FILE', __FILE__ );
+		define( 'WPCV_WOO_CIVI_URL', plugin_dir_url( WPCV_WOO_CIVI_FILE ) );
+		define( 'WPCV_WOO_CIVI_PATH', plugin_dir_path( WPCV_WOO_CIVI_FILE ) );
 
 	}
 
@@ -331,6 +236,149 @@ class WPCV_Woo_Civi {
 		// Add settings link to plugin listing page.
 		add_filter( 'plugin_action_links', [ $this, 'add_action_links' ], 10, 2 );
 
+		if ( $this->is_network_activated() ) {
+			add_action( 'network_admin_menu', [ $this, 'network_admin_menu' ] );
+		}
+
+	}
+
+	/**
+	 * Plugin activation.
+	 *
+	 * @since 2.1
+	 */
+	public function activate() {
+
+		$this->clear_civi_cache();
+
+		/**
+		 * Broadcast that this plugin has been activated.
+		 *
+		 * @since 2.0
+		 */
+		do_action( 'woocommerce_civicrm_activated' );
+
+	}
+
+	/**
+	 * Bootstrap CiviCRM.
+	 *
+	 * @since 2.1
+	 *
+	 * @return bool True if CiviCRM was initialised, false otherwise.
+	 */
+	public function boot_civi() {
+
+		// Init only when CiviCRM is fully installed.
+		if ( ! defined( 'CIVICRM_INSTALLED' ) ) {
+			return false;
+		}
+		if ( ! CIVICRM_INSTALLED ) {
+			return false;
+		}
+
+		// Bail if no CiviCRM init function.
+		if ( ! function_exists( 'civi_wp' ) ) {
+			return false;
+		}
+
+		// Try and initialise CiviCRM.
+		return civi_wp()->initialize();
+
+	}
+
+	/**
+	 * Clear CiviCRM cache.
+	 *
+	 * @since 2.1
+	 */
+	public function clear_civi_cache() {
+
+		// Bail if no CiviCRM.
+		if ( ! $this->boot_civi() ) {
+			return;
+		}
+
+		CRM_Core_Config::singleton()->cleanup( 1, false );
+		CRM_Core_Config::clearDBCache();
+		CRM_Utils_System::flushCache();
+
+	}
+
+	/**
+	 * Add Settings link to plugin listing page.
+	 *
+	 * @since 2.0
+	 *
+	 * @param array $links The list of plugin links.
+	 * @param string $file The plugin file.
+	 * @return string $links The modified list of plugin links.
+	 */
+	public function add_action_links( $links, $file ) {
+
+		if ( plugin_basename( WPCV_WOO_CIVI_FILE ) === $file ) {
+			$links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=woocommerce_civicrm' ) . '">' . __( 'Settings', 'wpcv-woo-civi-integration' ) . '</a>';
+		}
+
+		return $links;
+
+	}
+
+	/**
+	 * Add the Settings Page menu item.
+	 *
+	 * @since 2.4
+	 */
+	public function network_admin_menu() {
+
+		add_submenu_page(
+			'settings.php',
+			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
+			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
+			'manage_network_options',
+			'woocommerce-civicrm-settings',
+			[ $this->settings_tab, 'network_settings' ]
+		);
+
+	}
+
+	/**
+	 * Check if this plugin is network activated.
+	 *
+	 * @since 3.0
+	 *
+	 * @return bool $is_network_active True if network activated, false otherwise.
+	 */
+	public function is_network_activated() {
+
+		// Only need to test once.
+		static $is_network_active;
+
+		// Have we done this already?
+		if ( isset( $is_network_active ) ) {
+			return $is_network_active;
+		}
+
+		// If not multisite, it cannot be.
+		if ( ! is_multisite() ) {
+			$is_network_active = false;
+			return $is_network_active;
+		}
+
+		// Make sure plugin file is included when outside admin.
+		if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
+			require_once ABSPATH . '/wp-admin/includes/plugin.php';
+		}
+
+		// Get path from 'plugins' directory to this plugin.
+		$this_plugin = plugin_basename( WPCV_WOO_CIVI_FILE );
+
+		// Test if network active.
+		$is_network_active = is_plugin_active_for_network( $this_plugin );
+
+		// --<
+		return $is_network_active;
+
 	}
 
 	/**
@@ -346,60 +394,41 @@ class WPCV_Woo_Civi {
 		// Load translations if present.
 		// phpcs:ignore WordPress.WP.DeprecatedParameters.Load_plugin_textdomainParam2Found
 		load_plugin_textdomain(
-			'wpcv-woo-civi-integration', // Unique name.
-			'', // Deprecated argument.
-			dirname( plugin_basename( __FILE__ ) ) . '/languages/' // Relative path to translation files.
+			// Unique name.
+			'wpcv-woo-civi-integration',
+			// Deprecated argument.
+			'',
+			// Relative path to translation files.
+			dirname( plugin_basename( WPCV_WOO_CIVI_FILE ) ) . '/languages/'
 		);
 
 	}
 
 	/**
-	 * Plugin activation.
+	 * Check plugin dependencies.
 	 *
-	 * @since 2.1
-	 */
-	public function activate() {
-		do_action( 'woocommerce_civicrm_activated' );
-	}
-
-	/**
-	 * Ensure every plugin is loaded before clearing CiviCRM cache.
-	 *
-	 * @since 2.1.1
-	 */
-	public function schedule_clear_civi_cache() {
-		add_action( 'plugins_loaded', [ $this, 'clear_civi_cache' ], 10 );
-	}
-
-	/**
-	 * Clear CiviCRM cache after plugin activation.
-	 *
-	 * @since 2.1
-	 */
-	public function clear_civi_cache() {
-
-		CRM_Core_Config::singleton()->cleanup( 1, false );
-		CRM_Core_Config::clearDBCache();
-		CRM_Utils_System::flushCache();
-
-	}
-
-	/**
-	 * Add Settings link to plugin listing page.
+	 * If any of these checks fail, this plugin will self-deactivate and exit.
+	 * This check takes place on "plugins_loaded" which happens prior to the
+	 * "woocommerce_init" action.
 	 *
 	 * @since 2.0
-	 *
-	 * @param array  $links The list of plugin links.
-	 * @param string $file The plugin file.
-	 * @return string $links The modified list of plugin links.
 	 */
-	public function add_action_links( $links, $file ) {
+	public function check_dependencies() {
 
-		if ( plugin_basename( __FILE__ ) === $file ) {
-			$links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=woocommerce_civicrm' ) . '">' . __( 'Settings', 'wpcv-woo-civi-integration' ) . '</a>';
+		// Bail if WooCommerce is not available.
+		if ( ! function_exists( 'WC' ) ) {
+			$this->display_woocommerce_required_notice();
 		}
 
-		return $links;
+		// Bail if CiviCRM is not available.
+		if ( ! function_exists( 'civi_wp' ) ) {
+			$this->display_civicrm_required_notice();
+		}
+
+		// Bail if CiviCRM is not installed.
+		if ( ! defined( 'CIVICRM_INSTALLED' ) ) {
+			$this->display_civicrm_initialised_notice();
+		}
 
 	}
 
@@ -410,8 +439,25 @@ class WPCV_Woo_Civi {
 	 */
 	public function display_woocommerce_required_notice() {
 
-		deactivate_plugins( $this->plugin );
-		wp_die( '<h1>Ooops</h1><p><strong>Integrate CiviCRM with WooCommerce</strong> requires <strong>WooCommerce</strong> plugin installed and activated.<br/> This plugin has been deactivated! Please activate <strong>WooCommerce</strong> and try again.<br/><br/>Back to the WordPress <a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">plugins page</a>.</p>' );
+		$heading = '<h1>' . __( 'Activation failed', 'wpcv-woo-civi-integration' ) . '</h1>';
+
+		$plugin = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
+		$woo = '<strong>' . __( 'WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
+
+		$requires = sprintf( __( '%1$s requires %2$s to be installed and activated.', 'wpcv-woo-civi-integration' ), $plugin, $woo );
+		$deactivated = sprintf( __( 'This plugin has been deactivated! Please activate %s and try again.', 'wpcv-woo-civi-integration' ), $woo );
+		$back = sprintf(
+			__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
+			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">', '</a>'
+		);
+
+		$message = '<p>' . $requires . '</p>';
+		$message .= '<p>' . $deactivated . '</p>';
+		$message .= '<p>' . $back . '</p>';
+
+		deactivate_plugins( plugin_basename( WPCV_WOO_CIVI_FILE ) );
+
+		wp_die( $message );
 
 	}
 
@@ -422,8 +468,25 @@ class WPCV_Woo_Civi {
 	 */
 	public function display_civicrm_required_notice() {
 
-		deactivate_plugins( $this->plugin );
-		wp_die( '<h1>Ooops</h1><p><strong>Integrate CiviCRM with WooCommerce</strong> requires <strong>CiviCRM</strong> plugin installed and activated.<br/> This plugin has been deactivated! Please activate <strong>CiviCRM</strong> and try again.<br/><br/>Back to the WordPress <a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">plugins page</a>.</p>' );
+		$heading = '<h1>' . __( 'Activation failed', 'wpcv-woo-civi-integration' ) . '</h1>';
+
+		$plugin = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
+		$civicrm = '<strong>' . __( 'CiviCRM', 'wpcv-woo-civi-integration' ) . '</strong>';
+
+		$requires = sprintf( __( '%1$s requires %2$s to be installed and activated.', 'wpcv-woo-civi-integration' ), $plugin, $civicrm );
+		$deactivated = sprintf( __( 'This plugin has been deactivated! Please activate %s and try again.', 'wpcv-woo-civi-integration' ), $civicrm );
+		$back = sprintf(
+			__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
+			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">', '</a>'
+		);
+
+		$message = '<p>' . $requires . '</p>';
+		$message .= '<p>' . $deactivated . '</p>';
+		$message .= '<p>' . $back . '</p>';
+
+		deactivate_plugins( plugin_basename( WPCV_WOO_CIVI_FILE ) );
+
+		wp_die( $message );
 
 	}
 
@@ -434,8 +497,25 @@ class WPCV_Woo_Civi {
 	 */
 	public function display_civicrm_initialised_notice() {
 
-		deactivate_plugins( $this->plugin );
-		wp_die( '<h1>Ooops</h1><p><strong>CiviCRM</strong> could not be initialized.<br/> <strong>Integrate CiviCRM with WooCommerce</strong> has been deactivated!<br/><br/>Back to the WordPress <a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">plugins page</a>.</p>' );
+		$heading = '<h1>' . __( 'Activation failed', 'wpcv-woo-civi-integration' ) . '</h1>';
+
+		$plugin = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
+		$civicrm = '<strong>' . __( 'CiviCRM', 'wpcv-woo-civi-integration' ) . '</strong>';
+
+		$requires = sprintf( __( '%1$s requires %2$s to be fully installed and configured.', 'wpcv-woo-civi-integration' ), $plugin, $civicrm );
+		$deactivated = sprintf( __( 'This plugin has been deactivated! Please configure %s and try again.', 'wpcv-woo-civi-integration' ), $civicrm );
+		$back = sprintf(
+			__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
+			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">', '</a>'
+		);
+
+		$message = '<p>' . $requires . '</p>';
+		$message .= '<p>' . $deactivated . '</p>';
+		$message .= '<p>' . $back . '</p>';
+
+		deactivate_plugins( plugin_basename( WPCV_WOO_CIVI_FILE ) );
+
+		wp_die( $message );
 
 	}
 

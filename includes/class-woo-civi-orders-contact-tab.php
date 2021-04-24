@@ -34,7 +34,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 */
 	private function is_remote_wc() {
 
-		if ( false === WPCV_WCI()->is_network_installed ) {
+		if ( false === WPCV_WCI()->is_network_activated() ) {
 			return false;
 		}
 

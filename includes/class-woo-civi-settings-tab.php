@@ -27,7 +27,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 
 		$this->register_hooks();
 
-		if ( WPCV_WCI()->is_network_installed ) {
+		if ( WPCV_WCI()->is_network_activated() ) {
 			$this->register_settings();
 		}
 
