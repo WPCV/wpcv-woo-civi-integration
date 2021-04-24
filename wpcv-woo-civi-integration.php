@@ -193,8 +193,6 @@ class WPCV_Woo_Civi {
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-products.php';
 		// Include Orders functionality class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-orders.php';
-		// Include POS functionality class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-pos.php';
 
 	}
 
@@ -221,8 +219,6 @@ class WPCV_Woo_Civi {
 		$this->products = new WPCV_Woo_Civi_Products();
 		// Init orders.
 		$this->products = new WPCV_Woo_Civi_Orders();
-		// Init POS.
-		$this->pos = new WPCV_Woo_Civi_POS();
 
 	}
 
