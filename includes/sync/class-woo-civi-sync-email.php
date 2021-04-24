@@ -2,7 +2,7 @@
 /**
  * WPCV WooCommerce CiviCRM Sync Email class.
  *
- * Handles syncing email addresses between WooCommerce and CiviCRM.
+ * Handles syncing Email Addresses between WooCommerce and CiviCRM.
  *
  * @package WPCV_Woo_Civi
  * @since 2.0
@@ -46,9 +46,9 @@ class WPCV_Woo_Civi_Sync_Email {
 	 */
 	public function register_hooks() {
 
-		// Sync WooCommerce and CiviCRM email for contact/user.
+		// Sync WooCommerce and CiviCRM email for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
-		// Sync WooCommerce and CiviCRM email for user/contact.
+		// Sync WooCommerce and CiviCRM email for User/Contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_email' ], 10, 2 );
 
 	}

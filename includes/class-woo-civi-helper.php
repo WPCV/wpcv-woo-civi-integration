@@ -21,22 +21,22 @@ class WPCV_Woo_Civi_Helper {
 	/**
 	 * The active Financial Types.
 	 *
-	 * Array of key/value pairs holding the active financial types.
+	 * Array of key/value pairs holding the active Financial Types.
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $financial_types The financial types.
+	 * @var array $financial_types The Financial Types.
 	 */
 	public $financial_types;
 
 	/**
 	 * The active Membership Types.
 	 *
-	 * Array of key/value pairs holding the active Membership types.
+	 * Array of key/value pairs holding the active Membership Types.
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $financial_types The active Membership types.
+	 * @var array $financial_types The active Membership Types.
 	 */
 	public $membership_types;
 
@@ -52,7 +52,7 @@ class WPCV_Woo_Civi_Helper {
 	/**
 	 * The Address Location Types.
 	 *
-	 * Array of key/value pairs holding the address location types.
+	 * Array of key/value pairs holding the Address Location Types.
 	 *
 	 * @since 2.0
 	 * @access public
@@ -61,13 +61,13 @@ class WPCV_Woo_Civi_Helper {
 	public $location_types;
 
 	/**
-	 * WooCommerce/CiviCRM mapped address location types.
+	 * WooCommerce/CiviCRM mapped Address Location Types.
 	 *
-	 * Array of key/value pairs holding the WooCommerce/CiviCRM address location types.
+	 * Array of key/value pairs holding the WooCommerce/CiviCRM Address Location Types.
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $mapped_location_types The WooCommerce/CiviCRM mapped address location types.
+	 * @var array $mapped_location_types The WooCommerce/CiviCRM mapped Address Location Types.
 	 */
 	public $mapped_location_types;
 
@@ -81,29 +81,29 @@ class WPCV_Woo_Civi_Helper {
 	public $civicrm_states = [];
 
 	/**
-	 * CiviCRM campaigns.
+	 * CiviCRM Campaigns.
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var array $campaigns The CiviCRM campaigns.
+	 * @var array $campaigns The CiviCRM Campaigns.
 	 */
 	public $campaigns = [];
 
 	/**
-	 * The complete set of CiviCRM campaigns.
+	 * The complete set of CiviCRM Campaigns.
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var array $all_campaigns The complete set of CiviCRM campaigns.
+	 * @var array $all_campaigns The complete set of CiviCRM Campaigns.
 	 */
 	public $all_campaigns = [];
 
 	/**
-	 * CiviCRM campaigns status.
+	 * CiviCRM Campaign Statuses.
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var array $campaigns The CiviCRM campaigns status.
+	 * @var array $campaigns The CiviCRM Campaign Statuses.
 	 */
 	public $campaigns_status = [];
 
@@ -176,7 +176,7 @@ class WPCV_Woo_Civi_Helper {
 
 		$wp_user_id = $order->get_user_id();
 
-		// Backend order should not use the logged in user's contact.
+		// Backend Order should not use the logged in User's Contact.
 		if ( ! is_admin() && 0 !== $wp_user_id ) {
 
 			try {
@@ -418,7 +418,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 *
-	 * @param string $address_type The WooCommerce address type. Either 'billing' or 'shipping'.
+	 * @param string $address_type The WooCommerce Address Type. Either 'billing' or 'shipping'.
 	 * @return array $mapped_address The Address Field mappings.
 	 */
 	public function get_mapped_address( $address_type ) {
@@ -556,7 +556,7 @@ class WPCV_Woo_Civi_Helper {
 			'sequential' => 1,
 			'return' => [ 'id', 'name', 'status_id' ],
 			'options' => [
-				'sort' => 'status_id ASC , created_date DESC , name ASC',
+				'sort' => 'status_id ASC, created_date DESC, name ASC',
 				'limit' => 0,
 			],
 		];
@@ -655,7 +655,7 @@ class WPCV_Woo_Civi_Helper {
 		];
 
 		/**
-		 * Filter mapping between WooCommerce and CiviCRM location types.
+		 * Filter mapping between WooCommerce and CiviCRM Location Types.
 		 *
 		 * @since 2.0
 		 *
@@ -870,7 +870,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.4
 	 *
-	 * @return array $default_contribution_amount_data The default contribution amount data.
+	 * @return array $default_contribution_amount_data The default Contribution amount data.
 	 */
 	public function get_default_contribution_price_field_data() {
 

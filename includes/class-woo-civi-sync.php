@@ -99,11 +99,11 @@ class WPCV_Woo_Civi_Sync {
 	 */
 	public function setup_objects() {
 
-		// Init address sync.
+		// Init Address sync.
 		$this->address = new WPCV_Woo_Civi_Sync_Address();
-		// Init phone sync.
+		// Init Phone sync.
 		$this->phone = new WPCV_Woo_Civi_Sync_Phone();
-		// Init email sync.
+		// Init Email sync.
 		$this->email = new WPCV_Woo_Civi_Sync_Email();
 
 	}

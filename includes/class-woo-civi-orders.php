@@ -105,7 +105,7 @@ class WPCV_Woo_Civi_Orders {
 					echo isset( $campaigns_result['values'][0]['name'] ) ? esc_attr( $campaigns_result['values'][0]['name'] ) : '';
 
 				} catch ( CiviCRM_API3_Exception $e ) {
-					CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'wpcv-woo-civi-integration' ) );
+					CRM_Core_Error::debug_log_message( __( 'Unable to fetch Campaign', 'wpcv-woo-civi-integration' ) );
 				}
 
 			}
@@ -139,7 +139,7 @@ class WPCV_Woo_Civi_Orders {
 			$selected = filter_input( INPUT_GET, 'shop_order_campaign_id', FILTER_VALIDATE_INT );
 			?>
 			<select name='shop_order_campaign_id' id='dropdown_shop_order_campaign_id'>
-				<option value=""><?php esc_html_e( 'All campaigns', 'wpcv-woo-civi-integration' ); ?></option>
+				<option value=""><?php esc_html_e( 'All Campaigns', 'wpcv-woo-civi-integration' ); ?></option>
 				<?php foreach ( $campaign_list as $campaign_id => $campaign_name ) : ?>
 					<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php selected( $selected, $campaign_id ); ?>>
 						<?php echo esc_attr( $campaign_name ); ?>

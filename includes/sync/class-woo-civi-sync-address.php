@@ -2,7 +2,7 @@
 /**
  * WPCV WooCommerce CiviCRM Sync Address class.
  *
- * Handles syncing addresses between WooCommerce and CiviCRM.
+ * Handles syncing Addresses between WooCommerce and CiviCRM.
  *
  * @package WPCV_Woo_Civi
  * @since 2.0
@@ -46,9 +46,9 @@ class WPCV_Woo_Civi_Sync_Address {
 	 */
 	public function register_hooks() {
 
-		// Sync WooCommerce and CiviCRM address for contact/user.
+		// Sync WooCommerce and CiviCRM Address for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10, 4 );
-		// Sync WooCommerce and CiviCRM address for user/contact.
+		// Sync WooCommerce and CiviCRM Address for User/Contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_address' ], 10, 2 );
 
 	}
