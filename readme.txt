@@ -1,6 +1,7 @@
 === Integrate CiviCRM with WooCommerce ===
 Contributors: veda-consulting, mecachisenros, rajeshrhino, JoeMurray, kcristiano, cdhassell, bastho
 Tags: civicrm, woocommerce, integration
+Requires PHP: 7.1
 Requires at least: 4.9
 Tested up to: 5.7
 Stable tag: 2.0

@@ -6,6 +6,8 @@
  * Author: Andrei Mondoc
  * Author URI: https://github.com/mecachisenros
  * Version: 3.0
+ * Requires at least: 4.9
+ * Requires PHP: 7.1
  * Text Domain: wpcv-woo-civi-integration
  * Domain Path: /languages
  * Depends: CiviCRM
