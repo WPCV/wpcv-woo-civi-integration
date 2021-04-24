@@ -436,7 +436,7 @@ class WPCV_Woo_Civi {
 	 */
 	public function display_woocommerce_required_notice() {
 
-		$heading = '<h1>' . __( 'Activation failed', 'wpcv-woo-civi-integration' ) . '</h1>';
+		$heading = __( 'Activation failed', 'wpcv-woo-civi-integration' );
 
 		$plugin = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
 		$woo = '<strong>' . __( 'WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
@@ -458,7 +458,8 @@ class WPCV_Woo_Civi {
 			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">', '</a>'
 		);
 
-		$message = '<p>' . $requires . '</p>';
+		$message = '<h1>' . $heading . '</h1>';
+		$message .= '<p>' . $requires . '</p>';
 		$message .= '<p>' . $deactivated . '</p>';
 		$message .= '<p>' . $back . '</p>';
 
@@ -475,7 +476,7 @@ class WPCV_Woo_Civi {
 	 */
 	public function display_civicrm_required_notice() {
 
-		$heading = '<h1>' . __( 'Activation failed', 'wpcv-woo-civi-integration' ) . '</h1>';
+		$heading = __( 'Activation failed', 'wpcv-woo-civi-integration' );
 
 		$plugin = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
 		$civicrm = '<strong>' . __( 'CiviCRM', 'wpcv-woo-civi-integration' ) . '</strong>';
@@ -497,7 +498,8 @@ class WPCV_Woo_Civi {
 			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">', '</a>'
 		);
 
-		$message = '<p>' . $requires . '</p>';
+		$message = '<h1>' . $heading . '</h1>';
+		$message .= '<p>' . $requires . '</p>';
 		$message .= '<p>' . $deactivated . '</p>';
 		$message .= '<p>' . $back . '</p>';
 
@@ -514,7 +516,7 @@ class WPCV_Woo_Civi {
 	 */
 	public function display_civicrm_initialised_notice() {
 
-		$heading = '<h1>' . __( 'Activation failed', 'wpcv-woo-civi-integration' ) . '</h1>';
+		$heading = __( 'Activation failed', 'wpcv-woo-civi-integration' );
 
 		$plugin = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
 		$civicrm = '<strong>' . __( 'CiviCRM', 'wpcv-woo-civi-integration' ) . '</strong>';
@@ -536,7 +538,8 @@ class WPCV_Woo_Civi {
 			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">', '</a>'
 		);
 
-		$message = '<p>' . $requires . '</p>';
+		$message = '<h1>' . $heading . '</h1>';
+		$message .= '<p>' . $requires . '</p>';
 		$message .= '<p>' . $deactivated . '</p>';
 		$message .= '<p>' . $back . '</p>';
 
