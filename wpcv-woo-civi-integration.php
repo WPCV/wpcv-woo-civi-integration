@@ -232,10 +232,6 @@ class WPCV_Woo_Civi {
 		// Add settings link to plugin listing page.
 		add_filter( 'plugin_action_links', [ $this, 'add_action_links' ], 10, 2 );
 
-		if ( $this->is_network_activated() ) {
-			add_action( 'network_admin_menu', [ $this, 'network_admin_menu' ] );
-		}
-
 	}
 
 	/**
@@ -317,24 +313,6 @@ class WPCV_Woo_Civi {
 		}
 
 		return $links;
-
-	}
-
-	/**
-	 * Add the Settings Page menu item.
-	 *
-	 * @since 2.4
-	 */
-	public function network_admin_menu() {
-
-		add_submenu_page(
-			'settings.php',
-			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
-			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
-			'manage_network_options',
-			'woocommerce-civicrm-settings',
-			[ $this->settings_tab, 'network_settings' ]
-		);
 
 	}
 

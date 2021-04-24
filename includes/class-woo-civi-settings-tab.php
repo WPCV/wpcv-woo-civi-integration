@@ -26,17 +26,14 @@ class WPCV_Woo_Civi_Settings_Tab {
 	public function __construct() {
 
 		$this->register_hooks();
-
-		if ( WPCV_WCI()->is_network_activated() ) {
-			$this->register_settings();
-		}
+		$this->register_settings();
 
 	}
 
 	/**
 	 * Register hooks
 	 *
-	 * @since 0.2
+	 * @since 2.0
 	 */
 	public function register_hooks() {
 
@@ -49,6 +46,10 @@ class WPCV_Woo_Civi_Settings_Tab {
 		// Update network settings.
 		add_action( 'network_admin_edit_woocommerce_civicrm_network_settings', [ $this, 'trigger_network_settings' ] );
 
+		if ( WPCV_WCI()->is_network_activated() ) {
+			add_action( 'network_admin_menu', [ $this, 'network_admin_menu' ] );
+		}
+
 	}
 
 	/**
@@ -57,6 +58,11 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @since 2.0
 	 */
 	public function register_settings() {
+
+		// Bail if not network-activated.
+		if ( ! WPCV_WCI()->is_network_activated() ) {
+			return;
+		}
 
 		register_setting( 'woocommerce_civicrm_network_settings', 'woocommerce_civicrm_network_settings' );
 
@@ -337,6 +343,30 @@ class WPCV_Woo_Civi_Settings_Tab {
 
 
 	/**
+	 * Add the Settings Page menu item.
+	 *
+	 * @since 2.4
+	 * @since 3.0 Moved to this class.
+	 */
+	public function network_admin_menu() {
+
+		// We must be network admin in Multisite.
+		if ( ! is_super_admin() ) {
+			return;
+		}
+
+		add_submenu_page(
+			'settings.php',
+			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
+			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
+			'manage_network_options',
+			'woocommerce-civicrm-settings',
+			[ $this, 'network_settings' ]
+		);
+
+	}
+
+	/**
 	 * Network settings.
 	 *
 	 * @since 2.0
@@ -345,14 +375,14 @@ class WPCV_Woo_Civi_Settings_Tab {
 
 		?>
 		<div class="wrap">
-		<h2><?php esc_html_e( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ); ?></h2>
-		<?php settings_errors(); ?>
-		<form action="edit.php?action=woocommerce_civicrm_network_settings" method="post">
-			<?php wp_nonce_field( 'woocommerce-civicrm-settings', 'woocommerce-civicrm-settings' ); ?>
-			<?php settings_fields( 'woocommerce-civicrm-settings-network' ); ?>
-			<?php do_settings_sections( 'woocommerce-civicrm-settings-network' ); ?>
-			<?php submit_button(); ?>
-		</form>
+			<h2><?php esc_html_e( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ); ?></h2>
+			<?php settings_errors(); ?>
+			<form action="edit.php?action=woocommerce_civicrm_network_settings" method="post">
+				<?php wp_nonce_field( 'woocommerce-civicrm-settings', 'woocommerce-civicrm-settings' ); ?>
+				<?php settings_fields( 'woocommerce-civicrm-settings-network' ); ?>
+				<?php do_settings_sections( 'woocommerce-civicrm-settings-network' ); ?>
+				<?php submit_button(); ?>
+			</form>
 		</div>
 		<?php
 
