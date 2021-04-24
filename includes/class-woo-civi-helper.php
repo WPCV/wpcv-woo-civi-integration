@@ -144,7 +144,8 @@ class WPCV_Woo_Civi_Helper {
 	 * @since 2.0
 	 *
 	 * @param object $order The WooCommerce Order object.
-	 * @return int $cid The numeric ID of the CiviCRM Contact.
+	 * @return int|bool $cid The numeric ID of the CiviCRM Contact if found. Returns
+	 *                       0 if a Contact needs to be created, or false on failure.
 	 */
 	public function civicrm_get_cid( $order ) {
 
@@ -171,41 +172,50 @@ class WPCV_Woo_Civi_Helper {
 
 		// Backend order should not use the logged in user's contact.
 		if ( ! is_admin() && 0 !== $wp_user_id ) {
+
 			try {
-				$uf_match = civicrm_api3(
-					'UFMatch',
-					'get',
-					[
-						'sequential' => 1,
-						'uf_id' => $wp_user_id,
-					]
-				);
-				if ( 1 === $uf_match['count'] ) {
-					return $uf_match['values'][0]['contact_id'];
+
+				$params = [
+					'sequential' => 1,
+					'uf_id' => $wp_user_id,
+				];
+
+				$uf_match = civicrm_api3( 'UFMatch', 'get', $params );
+
+				if ( 1 === $uf_match['count'] && ! empty( $uf_match['values'][0]['contact_id'] ) ) {
+					return (int) $uf_match['values'][0]['contact_id'];
 				}
+
 			} catch ( CiviCRM_API3_Exception $e ) {
-				CRM_Core_Error::debug_log_message( __( 'Failed to get contact from UF table', 'wpcv-woo-civi-integration' ) );
+				CRM_Core_Error::debug_log_message( __( 'Failed to get a Contact from UFMatch table', 'wpcv-woo-civi-integration' ) );
 				CRM_Core_Error::debug_log_message( $e->getMessage() );
+				return false;
 			}
+
 		} elseif ( $email != '' ) {
-			// The customer is anonymous. Look in the CiviCRM contacts table for a
-			// contact that matches the billing email.
+
+			/*
+			 * The customer is anonymous. Look in the CiviCRM Contacts table for a
+			 * Contact that matches the Billing Email.
+			 */
 			$params = [
 				'email' => $email,
 				'return.contact_id' => true,
 				'sequential' => 1,
 			];
+
 		}
 
+		// Return early if something went wrong.
 		if ( ! isset( $params ) ) {
-			CRM_Core_Error::debug_log_message( __( 'Cannot guess contact without an email', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Cannot guess the Contact without an Email', 'wpcv-woo-civi-integration' ) );
 			return false;
 		}
 
 		try {
 			$contact = civicrm_api3( 'Contact', 'get', $params );
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Failed to get contact by email', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Failed to get Contact by Email', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
@@ -230,31 +240,36 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @param int $id The CiviCRM Contact ID or WordPress User ID.
 	 * @param string $property Either 'contact_id' or 'uf_id'.
-	 * @return array $uf_match The UFMatch data.
+	 * @return array $uf_match The UFMatch data, or false on failure.
 	 */
 	public function get_civicrm_ufmatch( $id, $property ) {
 
-		// TODO: Proper return values.
+		// Bail if there's a problem with the param.
 		if ( ! in_array( $property, [ 'contact_id', 'uf_id' ], true ) ) {
-			return;
+			return false;
 		}
 
 		try {
-			$uf_match = civicrm_api3(
-				'UFMatch',
-				'getsingle',
-				[
-					'sequential' => 1,
-					$property => $id,
-				]
-			);
+
+			$params = [
+				'sequential' => 1,
+				$property => $id,
+			]
+
+			$uf_match = civicrm_api3( 'UFMatch', 'getsingle', $params );
+
 		} catch ( Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			return false;
 		}
 
-		if ( ! empty( $uf_match['is_error'] ) ) {
+		// Return the UFMatch data if there's no error.
+		if ( empty( $uf_match['is_error'] ) ) {
 			return $uf_match;
 		}
+
+		// Fallback.
+		return false;
 
 	}
 
@@ -263,30 +278,29 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 *
-	 * @param string $woocommerce_country TheWooCommerce country ISO code.
-	 * @return int $id The CiviCRM Country ID.
+	 * @param string $woocommerce_country The WooCommerce Country ISO code.
+	 * @return int|bool $id The CiviCRM Country ID, or false on failure.
 	 */
 	public function get_civi_country_id( $woocommerce_country ) {
 
-		// TODO: Proper return values.
+		// Bail if no Country ISO code is supplied.
 		if ( empty( $woocommerce_country ) ) {
-			return;
+			return false;
 		}
 
-		$result = civicrm_api3(
-			'Country',
-			'getsingle',
-			[
-				'sequential' => 1,
-				'iso_code' => $woocommerce_country,
-			]
-		);
+		$params = [
+			'sequential' => 1,
+			'iso_code' => $woocommerce_country,
+		]
 
-		if ( ! $result['id'] ) {
-			return;
+		$result = civicrm_api3( 'Country', 'getsingle', $params );
+
+		// Bail if something went wrong.
+		if ( ! empty( $result['error'] ) ) {
+			return false;
 		}
 
-		return $result['id'];
+		return (int) $result['id'];
 
 	}
 
@@ -296,26 +310,25 @@ class WPCV_Woo_Civi_Helper {
 	 * @since 2.0
 	 *
 	 * @param int $country_id The numeric ID of the CiviCRM Country.
-	 * @return string $iso_code The CiviCRM Country ISO Code.
+	 * @return str|bool $iso_code The CiviCRM Country ISO Code, or false on failure.
 	 */
 	public function get_civi_country_iso_code( $country_id ) {
 
-		// TODO: Proper return values.
+		// Bail if no Country ID is supplied.
 		if ( empty( $country_id ) ) {
-			return;
+			return false;
 		}
 
-		$result = civicrm_api3(
-			'Country',
-			'getsingle',
-			[
-				'sequential' => 1,
-				'id' => $country_id,
-			]
-		);
+		$params = [
+			'sequential' => 1,
+			'id' => $country_id,
+		];
 
-		if ( ! $result['iso_code'] ) {
-			return;
+		$result = civicrm_api3( 'Country', 'getsingle', $params );
+
+		// Bail if something went wrong.
+		if ( ! empty( $result['error'] ) ) {
+			return false;
 		}
 
 		return $result['iso_code'];
@@ -329,28 +342,32 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @param string $woocommerce_state The WooCommerce State.
 	 * @param int $country_id The numeric ID of the CiviCRM Country.
-	 * @return int $id The numeric ID of the CiviCRM State/Province.
+	 * @return int|bool $id The numeric ID of the CiviCRM State/Province, or false on failure.
 	 */
 	public function get_civi_state_province_id( $woocommerce_state, $country_id ) {
 
-		// TODO: Proper return values.
+		// Bail if no WooCommerce State is supplied.
 		if ( empty( $woocommerce_state ) ) {
-			return;
+			return false;
 		}
 
+		// Init CiviCRM States if not yet done.
 		if ( empty( $this->civicrm_states ) ) {
 			$this->civicrm_states = $this->get_civicrm_states();
 		}
 
 		foreach ( $this->civicrm_states as $state_id => $state ) {
 			if ( $state['country_id'] === $country_id && $state['abbreviation'] === $woocommerce_state ) {
-				return $state['id'];
+				return (int) $state['id'];
 			}
 
 			if ( $state['country_id'] === $country_id && $state['name'] === $woocommerce_state ) {
-				return $state['id'];
+				return (int) $state['id'];
 			}
 		}
+
+		// Fallback.
+		return false;
 
 	}
 
@@ -360,15 +377,16 @@ class WPCV_Woo_Civi_Helper {
 	 * @since 2.0
 	 *
 	 * @param int $state_province_id The numeric ID of the CiviCRM State.
-	 * @return string $name THe CiviCRM State/Province Name or Abbreviation.
+	 * @return string|bool $name The CiviCRM State/Province Name or Abbreviation, or false on failure.
 	 */
 	public function get_civi_state_province_name( $state_province_id ) {
 
-		// TODO: Proper return values.
+		// Bail if no State/Province ID is supplied.
 		if ( empty( $state_province_id ) ) {
-			return;
+			return false;
 		}
 
+		// Init CiviCRM States if not yet done.
 		if ( empty( $this->civicrm_states ) ) {
 			$this->civicrm_states = $this->get_civicrm_states();
 		}
@@ -378,12 +396,13 @@ class WPCV_Woo_Civi_Helper {
 		$woocommerce_countries = new WC_Countries();
 
 		foreach ( $woocommerce_countries->get_states() as $country => $states ) {
-			$found = array_search( $civi_state['name'], $states, true );
-			if ( ! empty( $states ) && $found ) {
-				return $found;
+			$name = array_search( $civi_state['name'], $states, true );
+			if ( ! empty( $states ) && $name ) {
+				return $name;
 			}
 		}
 
+		// Fallback.
 		return $civi_state['name'];
 
 	}
@@ -493,9 +512,16 @@ class WPCV_Woo_Civi_Helper {
 		$civicrm_campaigns = [
 			__( 'None', 'wpcv-woo-civi-integration' ),
 		];
+
+		// Return early if something went wrong.
+		if ( ! empty( $campaigns_result['error'] ) ) {
+			return $civicrm_campaigns;
+		}
+
 		foreach ( $campaigns_result['values'] as $key => $value ) {
 			$civicrm_campaigns[ $value['id'] ] = $value['name'];
 		}
+
 		return $civicrm_campaigns;
 
 	}
@@ -544,6 +570,11 @@ class WPCV_Woo_Civi_Helper {
 			__( 'None', 'wpcv-woo-civi-integration' ),
 		];
 
+		// Return early if something went wrong.
+		if ( ! empty( $all_campaigns_result['error'] ) ) {
+			return $all_campaigns;
+		}
+
 		foreach ( $all_campaigns_result['values'] as $key => $value ) {
 			$status = '';
 			if ( isset( $value['status_id'] ) && isset( $this->campaigns_status[ $value['status_id'] ] ) ) {
@@ -588,18 +619,18 @@ class WPCV_Woo_Civi_Helper {
 
 		$status_result = civicrm_api3( 'OptionValue', 'get', $params );
 
-		if ( 0 === $status_result['is_error'] && $status_result['count'] > 0 ) {
+		$civicrm_campaigns_status = [];
 
-			$civicrm_campaigns_status = [];
-			foreach ( $status_result['values'] as $key => $value ) {
-				$civicrm_campaigns_status[ $value['value'] ] = $value['label'];
-			}
-
+		// Return early if something went wrong.
+		if ( ! empty( $status_result['error'] ) ) {
 			return $civicrm_campaigns_status;
-
-		} else {
-			return false;
 		}
+
+		foreach ( $status_result['values'] as $key => $value ) {
+			$civicrm_campaigns_status[ $value['value'] ] = $value['label'];
+		}
+
+		return $civicrm_campaigns_status;
 
 	}
 
@@ -658,6 +689,12 @@ class WPCV_Woo_Civi_Helper {
 		$financial_types_result = civicrm_api3( 'FinancialType', 'get', $params );
 
 		$financial_types = [];
+
+		// Return early if something went wrong.
+		if ( ! empty( $financial_types_result['error'] ) ) {
+			return $financial_types;
+		}
+
 		foreach ( $financial_types_result['values'] as $key => $value ) {
 			$financial_types[ $value['id'] ] = $value['name'];
 		}
@@ -679,7 +716,16 @@ class WPCV_Woo_Civi_Helper {
 			return $this->location_types;
 		}
 
-		$address_types_result = civicrm_api3( 'Address', 'getoptions', [ 'field' => 'location_type_id' ] );
+		$params = [
+			'field' => 'location_type_id',
+		];
+
+		$address_types_result = civicrm_api3( 'Address', 'getoptions', $params );
+
+		// Return early if something went wrong.
+		if ( ! empty( $address_types_result['error'] ) ) {
+			return [];
+		}
 
 		return $address_types_result['values'];
 
@@ -715,6 +761,12 @@ class WPCV_Woo_Civi_Helper {
 		$membership_types_result = civicrm_api3( 'MembershipType', 'get', $params );
 
 		$membership_types = [];
+
+		// Return early if something went wrong.
+		if ( ! empty( $membership_types_result['error'] ) ) {
+			return $membership_types;
+		}
+
 		foreach ( $membership_types_result['values'] as $key => $value ) {
 			$membership_types['by_membership_type_id'][ $value['id'] ] = $value;
 			$membership_types['by_financial_type_id'][ $value['financial_type_id'] ] = $value;
@@ -726,6 +778,7 @@ class WPCV_Woo_Civi_Helper {
 		 * @since 2.0
 		 *
 		 * @param array $membership_types The existing array of CiviCRM Membership Types.
+		 * @param array $membership_types_result The CiviCRM API data.
 		 */
 		return apply_filters( 'wpcv_woo_civi/membership_types', $membership_types, $membership_types_result );
 
@@ -736,22 +789,30 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 *
-	 * @return array $result The CiviCRM Membership Signup OptionValue.
+	 * @return array|bool $result The CiviCRM Membership Signup OptionValue, or false on failure.
 	 */
 	public function get_civicrm_optionvalue_membership_signup() {
 
-		$result = civicrm_api3(
-			'OptionValue',
-			'get',
-			[
-				'sequential' => 1,
-				'return' => [ 'value' ],
-				'name' => 'Membership Signup',
-			]
-		);
+		$params = [
+			'sequential' => 1,
+			'return' => [ 'value' ],
+			'name' => 'Membership Signup',
+		]
 
-		// TODO: error check and return values.
-		return $result['values'][0]['value'];
+		$result = civicrm_api3( 'OptionValue', 'get', $params );
+
+		// Return early if something went wrong.
+		if ( ! empty( $result['error'] ) ) {
+			return false;
+		}
+
+		// Sanity check.
+		if ( ! empty( $result['values'][0]['value'] ) ) {
+			return $result['values'][0]['value'];
+		}
+
+		// Fallback.
+		return false;
 
 	}
 
@@ -772,21 +833,24 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 *
-	 * @return array $sites The array of sites.
+	 * @return array $sites The array of sites keyed by ID.
 	 */
 	public function get_sites() {
 
 		$sites = [];
 
 		if ( is_multisite() ) {
-			$wp_sites = get_sites(
-				[
-					'orderby' => 'domain',
-				]
-			);
+
+			$query = [
+				'orderby' => 'domain',
+			];
+
+			$wp_sites = get_sites( $query );
+
 			foreach ( $wp_sites as $site ) {
 				$sites[ $site->blog_id ] = $site->domain;
 			}
+
 		}
 
 		return $sites;
@@ -805,23 +869,23 @@ class WPCV_Woo_Civi_Helper {
 	public function get_default_contribution_price_field_data() {
 
 		try {
-			$price_set = civicrm_api3(
-				'PriceSet',
-				'getsingle',
-				[
-					'name' => 'default_contribution_amount',
-					'is_reserved' => true,
-					'api.PriceField.getsingle' => [
-						'price_set_id' => "\$value.id",
-						'options' => [
-							'limit' => 1,
-							'sort' => 'id ASC',
-						],
+
+			$params = [
+				'name' => 'default_contribution_amount',
+				'is_reserved' => true,
+				'api.PriceField.getsingle' => [
+					'price_set_id' => "\$value.id",
+					'options' => [
+						'limit' => 1,
+						'sort' => 'id ASC',
 					],
-				]
-			);
+				],
+			];
+
+			$price_set = civicrm_api3( 'PriceSet', 'getsingle', $params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to retrieve default price set', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Price Set', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return null;
 		}
@@ -836,7 +900,6 @@ class WPCV_Woo_Civi_Helper {
 
 		return $default_contribution_amount_data;
 
-
 	}
 
 	/**
@@ -844,7 +907,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.4
 	 *
-	 * @return array $financial_types The Financial Types.
+	 * @return array $financial_types The formatted Financial Types options.
 	 */
 	public function get_financial_types_options() {
 
@@ -876,14 +939,14 @@ class WPCV_Woo_Civi_Helper {
 	public function get_membership_types_options() {
 
 		try {
-			$membership_types = civicrm_api3(
-				'MembershipType',
-				'get',
-				[
-					'is_active' => true,
-					'options.limit' => 0,
-				]
-			);
+
+			$params = [
+				'is_active' => true,
+				'options.limit' => 0,
+			]
+
+			$membership_types = civicrm_api3( 'MembershipType', 'get', $params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Membership Types.', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
@@ -901,11 +964,8 @@ class WPCV_Woo_Civi_Helper {
 		$membership_types_options = array_reduce(
 			$membership_types['values'],
 			function( $list, $membership_type ) {
-
 				$list[ $membership_type['id'] ] = $membership_type['name'];
-
 				return $list;
-
 			},
 			$membership_types_options
 		);
@@ -925,13 +985,13 @@ class WPCV_Woo_Civi_Helper {
 	public function get_membership_type( int $id ) {
 
 		try {
-			return civicrm_api3(
-				'MembershipType',
-				'gesingle',
-				[
-					'id' => $id,
-				]
-			);
+
+			$params = [
+				'id' => $id,
+			]
+
+			return civicrm_api3( 'MembershipType', 'gesingle', $params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			return null;
 		}

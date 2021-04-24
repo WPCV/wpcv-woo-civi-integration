@@ -107,30 +107,31 @@ class WPCV_Woo_Civi_Sync_Phone {
 	/**
 	 * Sync a WooCommerce Phone from a User to a CiviCRM Contact.
 	 *
-	 * Fires when an WooCommerce Address is edited.
+	 * Fires when an WooCommerce Phone is edited.
 	 *
 	 * @since 2.0
 	 *
 	 * @param int $user_id The WordPress User ID.
 	 * @param string $load_address The Address Type. Either 'shipping' or 'billing'.
+	 * @return bool True on success, false on failure.
 	 */
 	public function sync_wp_user_woocommerce_phone( $user_id, $load_address ) {
 
 		// Bail if sync is not enabled.
 		if ( ! WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_phone' ) ) ) {
-			return;
+			return false;
 		}
 
 		// Bail if Phone is not of type 'billing'.
 		if ( 'billing' !== $load_address ) {
-			return;
+			return false;
 		}
 
 		$civi_contact = WPCV_WCI()->helper->get_civicrm_ufmatch( $user_id, 'uf_id' );
 
 		// Bail if we don't have a CiviCRM Contact.
 		if ( ! $civi_contact ) {
-			return;
+			return false;
 		}
 
 		$mapped_location_types = WPCV_WCI()->helper->mapped_location_types;
@@ -151,6 +152,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 			$civi_phone = civicrm_api3( 'Phone', 'getsingle', $params );
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			return false;
 		}
 
 		try {
@@ -165,6 +167,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			return false;
 		}
 
 		/**
@@ -176,6 +179,9 @@ class WPCV_Woo_Civi_Sync_Phone {
 		 * @param array $phone The CiviCRM Phone that has been edited.
 		 */
 		do_action( 'wpcv_woo_civi/civi_phone/updated', $civi_contact['contact_id'], $create_phone );
+
+		// Success.
+		return true;
 
 	}
 

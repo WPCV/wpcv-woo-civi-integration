@@ -209,11 +209,14 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 		$uid = abs( CRM_Core_BAO_UFMatch::getUFId( $cid ) );
 		if ( ! $uid ) {
 			try {
+
 				$params = [
 					'contact_id' => $cid,
 					'return' => [ 'email' ],
 				];
+
 				$contact = civicrm_api3( 'Contact', 'getsingle', $params );
+
 			} catch ( CiviCRM_API3_Exception $e ) {
 				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
 				$this->unfix_site();

@@ -178,7 +178,7 @@ class WPCV_Woo_Civi_Manager {
 			$contribution = civicrm_api3( 'Contribution', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( 'Not able to find contribution' );
+			CRM_Core_Error::debug_log_message( 'Unable to find Contribution' );
 			return;
 		}
 
@@ -193,11 +193,11 @@ class WPCV_Woo_Civi_Manager {
 				// 'total_amount' => $contribution['total_amount'],
 				// 'contact_id' => $contribution['contact_id'],
 			];
+
 			$result = civicrm_api3( 'Contribution', 'create', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'wpcv-woo-civi-integration' ) );
-			return;
+			CRM_Core_Error::debug_log_message( __( 'Unable to update Contribution', 'wpcv-woo-civi-integration' ) );
 		}
 
 	}
@@ -210,32 +210,39 @@ class WPCV_Woo_Civi_Manager {
 	 * @param int $order_id The Order ID.
 	 * @param string $old_campaign_id The old Campaign.
 	 * @param string $new_campaign_id The new Campaign.
+	 * @return bool True if successful, or false on failure.
 	 */
 	public function update_campaign( $order_id, $old_campaign_id, $new_campaign_id ) {
 
 		$campaign_name = '';
 		if ( false !== $new_campaign_id ) {
-			$params = [
-				'sequential' => 1,
-				'return' => [ 'name' ],
-				'id' => $new_campaign_id,
-				'options' => [ 'limit' => 1 ],
-			];
+
 			try {
+
+				$params = [
+					'sequential' => 1,
+					'return' => [ 'name' ],
+					'id' => $new_campaign_id,
+					'options' => [ 'limit' => 1 ],
+				];
+
 				$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
+
 				$campaign_name = isset( $campaigns_result['values'][0]['name'] ) ? $campaigns_result['values'][0]['name'] : '';
+
 			} catch ( CiviCRM_API3_Exception $e ) {
 				CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'wpcv-woo-civi-integration' ) );
 				return false;
 			}
+
 		}
 
-		$params = [
-			'invoice_id' => $this->get_invoice_id( $order_id ),
-			'return' => 'id',
-		];
-
 		try {
+
+			$params = [
+				'invoice_id' => $this->get_invoice_id( $order_id ),
+				'return' => 'id',
+			];
 
 			/**
 			 * Filter the Contribution params before calling the CiviCRM API.
@@ -250,7 +257,7 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( 'Not able to find contribution' );
-			return;
+			return false;
 		}
 
 		// Update Contribution.
@@ -265,8 +272,11 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'wpcv-woo-civi-integration' ) );
-			return;
+			return false;
 		}
+
+		// Success.
+		return true;
 
 	}
 
@@ -274,19 +284,19 @@ class WPCV_Woo_Civi_Manager {
 	 * Update Source.
 	 *
 	 * @since 2.0
+	 *
 	 * @param int $order_id The Order ID.
 	 * @param string $new_source The new Source.
+	 * @return bool True if successful, or false on failure.
 	 */
 	public function update_source( $order_id, $new_source ) {
 
-		$order = new WC_Order( $order_id );
-
-		$params = [
-			'invoice_id' => $this->get_invoice_id( $order_id ),
-			'return' => 'id',
-		];
-
 		try {
+
+			$params = [
+				'invoice_id' => $this->get_invoice_id( $order_id ),
+				'return' => 'id',
+			];
 
 			/**
 			 * Filter the Contribution params before calling the CiviCRM API.
@@ -301,7 +311,7 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( 'Not able to find contribution' );
-			return;
+			return false;
 		}
 
 		// Update Contribution.
@@ -316,10 +326,14 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Not able to update contribution', 'wpcv-woo-civi-integration' ) );
-			return;
+			return false;
 		}
 
+		// Success.
+		return true;
+
 	}
+
 	/**
 	 * Create or update a CiviCRM Contact.
 	 *
@@ -327,7 +341,7 @@ class WPCV_Woo_Civi_Manager {
 	 *
 	 * @param int $cid The numeric ID if the CiviCRM Contact.
 	 * @param object $order The Order object.
-	 * @return int $cid The numeric ID if the CiviCRM Contact.
+	 * @return int|bool $cid The numeric ID if the CiviCRM Contact, or false on failure.
 	 */
 	public function add_update_contact( $cid, $order ) {
 
@@ -350,16 +364,21 @@ class WPCV_Woo_Civi_Manager {
 
 		$contact = [];
 		if ( 0 !== $cid ) {
+
 			try {
+
 				$params = [
 					'contact_id' => $cid,
 					'return' => [ 'id', 'contact_source', 'first_name', 'last_name', 'contact_type' ],
 				];
+
 				$contact = civicrm_api3( 'contact', 'getsingle', $params );
+
 			} catch ( CiviCRM_API3_Exception $e ) {
-				CRM_Core_Error::debug_log_message( __( 'Not able to find contact', 'wpcv-woo-civi-integration' ) );
+				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
 				return false;
 			}
+
 		} else {
 			$contact['contact_type'] = 'Individual';
 		}
@@ -406,33 +425,38 @@ class WPCV_Woo_Civi_Manager {
 		try {
 
 			$result = civicrm_api3( 'Contact', 'create', $contact );
+
 			$cid = $result['id'];
 
+			// FIXME: Use CiviCRM to build URL.
 			$contact_url = '<a href="' . get_admin_url() . 'admin.php?page=CiviCRM&q=civicrm/contact/view&reset=1&cid=' . $cid . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
 
 			// Add Order note.
+			// FIXME: Use sprintf.
 			if ( 'update' === $action ) {
 				$note = __( 'CiviCRM Contact Updated - ', 'wpcv-woo-civi-integration' ) . $contact_url;
 			} else {
 				$note = __( 'Created new CiviCRM Contact - ', 'wpcv-woo-civi-integration' ) . $contact_url;
 			}
+
 			$order->add_order_note( $note );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Not able to create/update contact', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Unable to create/update Contact', 'wpcv-woo-civi-integration' ) );
 			return false;
 		}
 
 		try {
 
+			// FIXME: Error checking.
 			$existing_addresses = civicrm_api3( 'Address', 'get', [ 'contact_id' => $cid ] );
 			$existing_addresses = $existing_addresses['values'];
 			$existing_phones = civicrm_api3( 'Phone', 'get', [ 'contact_id' => $cid ] );
 			$existing_phones = $existing_phones['values'];
 			$existing_emails = civicrm_api3( 'Email', 'get', [ 'contact_id' => $cid ] );
 			$existing_emails = $existing_emails['values'];
-			$address_types = WPCV_WCI()->helper->mapped_location_types;
 
+			$address_types = WPCV_WCI()->helper->mapped_location_types;
 			foreach ( $address_types as $address_type => $location_type_id ) {
 
 				// Process Phone.
@@ -455,7 +479,10 @@ class WPCV_Woo_Civi_Manager {
 						}
 					}
 					if ( ! $phone_exists ) {
+
+						// FIXME: Error checking.
 						civicrm_api3( 'Phone', 'create', $phone );
+
 						/* translators: %1$s: Address Type, %2$s: Phone Number */
 						$note = sprintf( __( 'Created new CiviCRM Phone of type %1$s: %2$s', 'wpcv-woo-civi-integration' ), $address_type, $phone['phone'] );
 						$order->add_order_note( $note );
@@ -481,7 +508,10 @@ class WPCV_Woo_Civi_Manager {
 						}
 					}
 					if ( ! $email_exists ) {
+
+						// FIXME: Error checking.
 						civicrm_api3( 'Email', 'create', $email );
+
 						/* translators: %1$s: Address Type, %2$s: Email Address */
 						$note = sprintf( __( 'Created new CiviCRM Email of type %1$s: %2$s', 'wpcv-woo-civi-integration' ), $address_type, $email['email'] );
 						$order->add_order_note( $note );
@@ -524,7 +554,10 @@ class WPCV_Woo_Civi_Manager {
 						}
 					}
 					if ( ! $address_exists ) {
+
+						// FIXME: Error checking.
 						civicrm_api3( 'Address', 'create', $address );
+
 						/* translators: %1$s: Address Type, %2$s: Street Address */
 						$note = sprintf( __( 'Created new CiviCRM Address of type %1$s: %2$s', 'wpcv-woo-civi-integration' ), $address_type, $address['street_address'] );
 						$order->add_order_note( $note );
@@ -547,6 +580,7 @@ class WPCV_Woo_Civi_Manager {
 	 *
 	 * @param int $cid The numeric ID of the CiviCRM Contact.
 	 * @param WC_Order $order The Order object.
+	 * @return bool True on success, otherwise false.
 	 */
 	public function add_contribution( $cid, $order ) {
 
@@ -570,22 +604,20 @@ class WPCV_Woo_Civi_Manager {
 
 		try {
 
-			$civi_decimal_separator = civicrm_api3(
-				'Setting',
-				'getvalue',
-				[
-					'sequential' => 1,
-					'name' => 'monetaryDecimalPoint',
-				]
-			);
-			$civi_thousand_separator = civicrm_api3(
-				'Setting',
-				'getvalue',
-				[
-					'sequential' => 1,
-					'name' => 'monetaryThousandSeparator',
-				]
-			);
+			$params = [
+				'sequential' => 1,
+				'name' => 'monetaryDecimalPoint',
+			];
+
+			$civi_decimal_separator = civicrm_api3( 'Setting', 'getvalue', $params );
+
+			$params = [
+				'sequential' => 1,
+				'name' => 'monetaryThousandSeparator',
+			];
+
+			$civi_thousand_separator = civicrm_api3( 'Setting', 'getvalue', $params );
+
 			if ( is_string( $civi_decimal_separator ) ) {
 				$decimal_separator = $civi_decimal_separator;
 			}
@@ -595,6 +627,7 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Not able to fetch monetary settings', 'wpcv-woo-civi-integration' ) );
+			return false;
 		}
 
 		$sales_tax_raw = $order->get_total_tax();
@@ -637,6 +670,7 @@ class WPCV_Woo_Civi_Manager {
 
 		$payment_instrument = $this->map_payment_instrument( $order->get_payment_method() );
 		$source = $this->generate_source( $order );
+
 		$params = [
 			'contact_id' => $cid,
 			'financial_type_id' => $default_financial_type_id,
@@ -660,6 +694,7 @@ class WPCV_Woo_Civi_Manager {
 			$params['financial_type_id'] = $default_financial_type_vat_id;
 		}
 
+		// TODO: Error checking.
 		$default_contribution_amount_data = WPCV_WCI()->helper->get_default_contribution_price_field_data();
 
 		/*
@@ -1115,7 +1150,10 @@ class WPCV_Woo_Civi_Manager {
 					'return' => ['id'],
 					'name' => esc_attr( $campaign ),
 				];
+
 				$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
+
+				// FIXME: Error checking.
 				if ( $campaigns_result && isset( $campaigns_result['values'][0]['id'] ) ) {
 					setcookie( 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH, $campaigns_result['values'][0]['id'], $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
 				} else {
@@ -1138,6 +1176,9 @@ class WPCV_Woo_Civi_Manager {
 		if ( false !== $medium ) {
 			setcookie( 'woocommerce_civicrm_utm_medium_' . COOKIEHASH, esc_attr( $medium ), $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
 		}
+
+		// Success.
+		return true;
 
 	}
 

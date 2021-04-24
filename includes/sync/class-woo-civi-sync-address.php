@@ -80,7 +80,7 @@ class WPCV_Woo_Civi_Sync_Address {
 
 		$cms_user = WPCV_WCI()->helper->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
 
-		// Bail if we don't have a WordPress User ID.
+		// Bail if we don't have a WordPress User.
 		if ( ! $cms_user ) {
 			return;
 		}
@@ -120,18 +120,19 @@ class WPCV_Woo_Civi_Sync_Address {
 	/**
 	 * Sync WooCommerce Address from a User to a CiviCRM Contact.
 	 *
-	 * Fires when WooCommerce Address is edited.
+	 * Fires when a WooCommerce Address is edited.
 	 *
 	 * @since 2.0
 	 *
 	 * @param int $user_id The WordPress User ID.
 	 * @param string $load_address The Address Type. Either 'shipping' or 'billing'.
+	 * @return bool True on success, false on failure.
 	 */
 	public function sync_wp_user_woocommerce_address( $user_id, $load_address ) {
 
 		// Bail if sync is not enabled.
 		if ( ! WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_address' ) ) ) {
-			return;
+			return false;
 		}
 
 		$customer = new WC_Customer( $user_id );
@@ -140,7 +141,7 @@ class WPCV_Woo_Civi_Sync_Address {
 
 		// Bail if we don't have a CiviCRM Contact.
 		if ( ! $civi_contact ) {
-			return;
+			return false;
 		}
 
 		$mapped_location_types = WPCV_WCI()->helper->mapped_location_types;
@@ -161,15 +162,18 @@ class WPCV_Woo_Civi_Sync_Address {
 			}
 		}
 
-		$params = [
-			'contact_id' => $civi_contact['contact_id'],
-			'location_type_id' => $civi_address_location_type,
-		];
-
 		try {
+
+			$params = [
+				'contact_id' => $civi_contact['contact_id'],
+				'location_type_id' => $civi_address_location_type,
+			];
+
 			$civi_address = civicrm_api3( 'Address', 'getsingle', $params );
+
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			return false;
 		}
 
 		try {
@@ -184,6 +188,7 @@ class WPCV_Woo_Civi_Sync_Address {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			return false;
 		}
 
 		/**
@@ -195,6 +200,9 @@ class WPCV_Woo_Civi_Sync_Address {
 		 * @param array $address The CiviCRM Address that has been edited.
 		 */
 		do_action( 'wpcv_woo_civi/civi_address/updated', $civi_contact['contact_id'], $create_address );
+
+		// Success.
+		return true;
 
 	}
 

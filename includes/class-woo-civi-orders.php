@@ -79,16 +79,19 @@ class WPCV_Woo_Civi_Orders {
 			$campaign_id = get_post_meta( $post_id, '_woocommerce_civicrm_campaign_id', true );
 			if ( $campaign_id ) {
 
-				$params = [
-					'sequential' => 1,
-					'return' => [ 'name' ],
-					'id' => $campaign_id,
-					'options' => [ 'limit' => 1 ],
-				];
-
 				try {
+
+					$params = [
+						'sequential' => 1,
+						'return' => [ 'name' ],
+						'id' => $campaign_id,
+						'options' => [ 'limit' => 1 ],
+					];
+
 					$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
+
 					echo isset( $campaigns_result['values'][0]['name'] ) ? esc_attr( $campaigns_result['values'][0]['name'] ) : '';
+
 				} catch ( CiviCRM_API3_Exception $e ) {
 					CRM_Core_Error::debug_log_message( __( 'Not able to fetch campaign', 'wpcv-woo-civi-integration' ) );
 				}

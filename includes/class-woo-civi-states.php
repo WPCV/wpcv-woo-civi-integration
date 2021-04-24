@@ -116,16 +116,20 @@ class WPCV_Woo_Civi_States {
 			return $this->civicrm_countries;
 		}
 
-		$countries = civicrm_api3(
-			'Country',
-			'get',
-			[
-				'sequential' => 1,
-				'options' => [ 'limit' => 0 ],
-			]
-		);
+		$params = [
+			'sequential' => 1,
+			'options' => [ 'limit' => 0 ],
+		]
+
+		$countries = civicrm_api3( 'Country', 'get', $params );
 
 		$civicrm_countries = [];
+
+		// Return early if something went wrong.
+		if ( ! empty( $countries['error'] ) ) {
+			return $civicrm_countries;
+		}
+
 		foreach ( $countries['values'] as $key => $country ) {
 			$civicrm_countries[ $country['id'] ] = $country['iso_code'];
 		}
