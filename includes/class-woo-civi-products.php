@@ -93,7 +93,7 @@ class WPCV_Woo_Civi_Products {
 	 * @uses 'woocommerce_product_data_panels' action.
 	 */
 	public function add_civicrm_product_panel() {
-		include WPCV_WOO_CIVI_PATH . 'assets/templates/html-product-data-civicrm-settings.php';
+		include WPCV_WOO_CIVI_PATH . 'assets/templates/tabs/tab-product-data-civicrm-settings.php';
 	}
 
 	/**

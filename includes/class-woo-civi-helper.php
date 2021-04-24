@@ -260,7 +260,7 @@ class WPCV_Woo_Civi_Helper {
 			$params = [
 				'sequential' => 1,
 				$property => $id,
-			]
+			];
 
 			$uf_match = civicrm_api3( 'UFMatch', 'getsingle', $params );
 
@@ -297,7 +297,7 @@ class WPCV_Woo_Civi_Helper {
 		$params = [
 			'sequential' => 1,
 			'iso_code' => $woocommerce_country,
-		]
+		];
 
 		$result = civicrm_api3( 'Country', 'getsingle', $params );
 
@@ -803,7 +803,7 @@ class WPCV_Woo_Civi_Helper {
 			'sequential' => 1,
 			'return' => [ 'value' ],
 			'name' => 'Membership Signup',
-		]
+		];
 
 		$result = civicrm_api3( 'OptionValue', 'get', $params );
 
@@ -949,7 +949,7 @@ class WPCV_Woo_Civi_Helper {
 			$params = [
 				'is_active' => true,
 				'options.limit' => 0,
-			]
+			];
 
 			$membership_types = civicrm_api3( 'MembershipType', 'get', $params );
 
@@ -994,7 +994,7 @@ class WPCV_Woo_Civi_Helper {
 
 			$params = [
 				'id' => $id,
-			]
+			];
 
 			return civicrm_api3( 'MembershipType', 'gesingle', $params );
 

@@ -95,9 +95,18 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var object products The Product management object.
+	 * @var object $products The Product management object.
 	 */
 	public $products;
+
+	/**
+	 * WooCommerce Order management object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $orders The Order management object.
+	 */
+	public $orders;
 
 	/**
 	 * Dummy instance constructor.
@@ -120,14 +129,17 @@ class WPCV_Woo_Civi {
 			// Instantiate.
 			self::$instance = new WPCV_Woo_Civi();
 
+			// Always define constants.
+			self::define_constants();
+
 			// Enable translation first.
-			add_action( 'plugins_loaded', [ $this, 'enable_translation' ] );
+			add_action( 'plugins_loaded', [ self::$instance, 'enable_translation' ] );
 
 			// Check dependencies once all plugins are loaded.
-			add_action( 'plugins_loaded', [ $this, 'check_dependencies' ] );
+			add_action( 'plugins_loaded', [ self::$instance, 'check_dependencies' ] );
 
 			// Setup plugin when WooCommerce has been bootstrapped.
-			add_action( 'woocommerce_init', [ $this, 'initialise' ] );
+			add_action( 'woocommerce_init', [ self::$instance, 'initialise' ] );
 
 		}
 
@@ -143,8 +155,17 @@ class WPCV_Woo_Civi {
 	 */
 	public function initialise() {
 
+		// Defer to "WooCommerce CiviCRM" if present.
+		if ( function_exists( 'WCI' ) ) {
+
+			// Include Admin Migrate class and init.
+			include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-admin-migrate.php';
+			$this->migrate = new WPCV_Woo_Civi_Admin_Migrate();
+			return;
+
+		}
+
 		// Bootstrap this plugin.
-		$this->define_constants();
 		$this->include_files();
 		$this->setup_objects();
 		$this->register_hooks();
@@ -163,7 +184,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 */
-	private function define_constants() {
+	private static function define_constants() {
 
 		define( 'WPCV_WOO_CIVI_VERSION', '3.0' );
 		define( 'WPCV_WOO_CIVI_FILE', __FILE__ );
@@ -205,22 +226,22 @@ class WPCV_Woo_Civi {
 	 */
 	public function setup_objects() {
 
-		// Init orders tab.
+		// Init Orders tab.
 		$this->orders_tab = new WPCV_Woo_Civi_Orders_Contact_Tab();
 		// Init helper instance.
 		$this->helper = new WPCV_Woo_Civi_Helper();
-		// Init settings page.
+		// Init Settings page.
 		$this->settings_tab = new WPCV_Woo_Civi_Settings_Tab();
-		// Init manager.
+		// Init General manager.
 		$this->manager = new WPCV_Woo_Civi_Manager();
-		// Init states replacement.
+		// Init States replacement.
 		$this->states_replacement = new WPCV_Woo_Civi_States();
-		// Init sync manager.
+		// Init Sync manager.
 		$this->sync = new WPCV_Woo_Civi_Sync();
-		// Init products.
+		// Init Products manager.
 		$this->products = new WPCV_Woo_Civi_Products();
-		// Init orders.
-		$this->products = new WPCV_Woo_Civi_Orders();
+		// Init Orders manager.
+		$this->orders = new WPCV_Woo_Civi_Orders();
 
 	}
 
