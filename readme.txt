@@ -1,8 +1,8 @@
 === Integrate CiviCRM with WooCommerce ===
 Contributors: veda-consulting, mecachisenros, rajeshrhino, JoeMurray, kcristiano, cdhassell, bastho
 Tags: civicrm, woocommerce, integration
-Requires at least: 4.5
-Tested up to: 4.8
+Requires at least: 4.9
+Tested up to: 5.7
 Stable tag: 2.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
