@@ -100,7 +100,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	/**
 	 * Register hooks.
 	 *
-	 * @since 0.2
+	 * @since 2.0
 	 */
 	public function register_hooks() {
 

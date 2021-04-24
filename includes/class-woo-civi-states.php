@@ -63,7 +63,7 @@ class WPCV_Woo_Civi_States {
 	/**
 	 * Register hooks.
 	 *
-	 * @since 0.2
+	 * @since 2.0
 	 */
 	public function register_hooks() {
 

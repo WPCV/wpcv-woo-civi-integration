@@ -42,7 +42,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 	/**
 	 * Register hooks.
 	 *
-	 * @since 0.2
+	 * @since 2.0
 	 */
 	public function register_hooks() {
 
@@ -59,6 +59,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 	 * Fires when a CiviCRM Contact's Phone is edited.
 	 *
 	 * @since 2.0
+	 *
 	 * @param string $op The operation being performed.
 	 * @param string $object_name The entity name.
 	 * @param int $object_id The entity id.
