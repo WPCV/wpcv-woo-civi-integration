@@ -332,9 +332,9 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 				$orders[ $customer_order->ID ]['order_status'] = $order->post_status;
 				$orders[ $customer_order->ID ]['order_link'] = $site_url . '/wp-admin/post.php?action=edit&post=' . $order->ID;
 			}
+			$this->unfix_site();
 			return $orders;
 			// FIXME: Shouldn't this be called before returning Orders?
-			$this->unfix_site();
 		}
 
 		// Else continue the main way.
