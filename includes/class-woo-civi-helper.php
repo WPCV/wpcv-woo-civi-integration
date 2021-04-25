@@ -612,6 +612,9 @@ class WPCV_Woo_Civi_Helper {
 		$params = [
 			'sequential' => 1,
 			'option_group_id' => 'campaign_status',
+			'options' => [
+				'limit' => 0,
+			],
 		];
 
 		/**
@@ -681,6 +684,9 @@ class WPCV_Woo_Civi_Helper {
 		$params = [
 			'sequential' => 1,
 			'is_active' => 1,
+			'options' => [
+				'limit' => 0,
+			],
 		];
 
 		/**
@@ -724,6 +730,9 @@ class WPCV_Woo_Civi_Helper {
 
 		$params = [
 			'field' => 'location_type_id',
+			'options' => [
+				'limit' => 0,
+			],
 		];
 
 		$address_types_result = civicrm_api3( 'Address', 'getoptions', $params );
@@ -753,6 +762,9 @@ class WPCV_Woo_Civi_Helper {
 		$params = [
 			'sequential' => 1,
 			'is_active' => 1,
+			'options' => [
+				'limit' => 0,
+			],
 		];
 
 		/**
@@ -948,7 +960,9 @@ class WPCV_Woo_Civi_Helper {
 
 			$params = [
 				'is_active' => true,
-				'options.limit' => 0,
+				'options' => [
+					'limit' => 0,
+				],
 			];
 
 			$membership_types = civicrm_api3( 'MembershipType', 'get', $params );

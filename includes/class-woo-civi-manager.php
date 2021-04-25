@@ -233,7 +233,9 @@ class WPCV_Woo_Civi_Manager {
 					'sequential' => 1,
 					'return' => [ 'name' ],
 					'id' => $new_campaign_id,
-					'options' => [ 'limit' => 1 ],
+					'options' => [
+						'limit' => 1,
+					],
 				];
 
 				$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
@@ -1158,6 +1160,7 @@ class WPCV_Woo_Civi_Manager {
 				$params = [
 					'sequential' => 1,
 					'return' => ['id'],
+					// FIXME: Should this be "esc_sql"?
 					'name' => esc_attr( $campaign ),
 				];
 

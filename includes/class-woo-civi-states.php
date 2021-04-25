@@ -130,7 +130,9 @@ class WPCV_Woo_Civi_States {
 
 		$params = [
 			'sequential' => 1,
-			'options' => [ 'limit' => 0 ],
+			'options' => [
+				'limit' => 0,
+			],
 		];
 
 		$countries = civicrm_api3( 'Country', 'get', $params );

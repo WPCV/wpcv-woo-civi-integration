@@ -97,7 +97,9 @@ class WPCV_Woo_Civi_Orders {
 						'sequential' => 1,
 						'return' => [ 'name' ],
 						'id' => $campaign_id,
-						'options' => [ 'limit' => 1 ],
+						'options' => [
+							'limit' => 1,
+						],
 					];
 
 					$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
