@@ -1065,7 +1065,7 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		$membership_types_options = [
-			0 => '',
+			0 => __( 'None', 'wpcv-woo-civi-integration' ),
 		];
 
 		$membership_types_options = array_reduce(
