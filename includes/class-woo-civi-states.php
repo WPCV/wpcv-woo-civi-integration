@@ -107,7 +107,7 @@ class WPCV_Woo_Civi_States {
 		}
 
 		$new_states = [];
-		foreach ( WPCV_WCI()->helper->civicrm_states as $state_id => $state ) {
+		foreach ( WPCV_WCI()->helper->get_civicrm_states() as $state_id => $state ) {
 			$new_states[ $this->civicrm_countries[ $state['country_id'] ] ][ $state['abbreviation'] ] = $state['name'];
 		}
 
@@ -135,16 +135,16 @@ class WPCV_Woo_Civi_States {
 			],
 		];
 
-		$countries = civicrm_api3( 'Country', 'get', $params );
+		$result = civicrm_api3( 'Country', 'get', $params );
 
 		$civicrm_countries = [];
 
 		// Return early if something went wrong.
-		if ( ! empty( $countries['error'] ) ) {
+		if ( ! empty( $result['error'] ) ) {
 			return $civicrm_countries;
 		}
 
-		foreach ( $countries['values'] as $key => $country ) {
+		foreach ( $result['values'] as $key => $country ) {
 			$civicrm_countries[ $country['id'] ] = $country['iso_code'];
 		}
 

@@ -102,9 +102,9 @@ class WPCV_Woo_Civi_Orders {
 						],
 					];
 
-					$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
+					$result = civicrm_api3( 'Campaign', 'get', $params );
 
-					echo isset( $campaigns_result['values'][0]['name'] ) ? esc_attr( $campaigns_result['values'][0]['name'] ) : '';
+					echo isset( $result['values'][0]['name'] ) ? esc_attr( $result['values'][0]['name'] ) : '';
 
 				} catch ( CiviCRM_API3_Exception $e ) {
 					CRM_Core_Error::debug_log_message( __( 'Unable to fetch Campaign', 'wpcv-woo-civi-integration' ) );
@@ -136,7 +136,7 @@ class WPCV_Woo_Civi_Orders {
 			return;
 		}
 
-		$campaign_list = WPCV_WCI()->helper->all_campaigns;
+		$campaign_list = WPCV_WCI()->helper->get_all_campaigns();
 		if ( $campaign_list && ! empty( $campaign_list ) && is_array( $campaign_list ) ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_campaign_id', FILTER_VALIDATE_INT );
 			?>

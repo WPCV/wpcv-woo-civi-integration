@@ -126,21 +126,7 @@ class WPCV_Woo_Civi_Helper {
 	 */
 	public function initialise() {
 
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return;
-		}
-
-		// Populate class properties.
-		$this->financial_types = $this->get_financial_types();
-		$this->membership_types = $this->get_civicrm_membership_types();
-		$this->location_types = $this->get_address_location_types();
-		$this->civicrm_states = $this->get_civicrm_states();
-		$this->campaigns_status = $this->get_campaigns_status();
-		$this->campaigns = $this->get_campaigns();
-		$this->all_campaigns = $this->get_all_campaigns();
-		$this->mapped_location_types = $this->get_mapped_location_types();
-		$this->optionvalue_membership_signup = $this->get_civicrm_optionvalue_membership_signup();
+		// Empty since class properties are now populated on demand.
 
 	}
 
@@ -154,6 +140,11 @@ class WPCV_Woo_Civi_Helper {
 	 *                       0 if a Contact needs to be created, or false on failure.
 	 */
 	public function civicrm_get_cid( $order ) {
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
 
 		$email = '';
 
@@ -186,10 +177,10 @@ class WPCV_Woo_Civi_Helper {
 					'uf_id' => $wp_user_id,
 				];
 
-				$uf_match = civicrm_api3( 'UFMatch', 'get', $params );
+				$result = civicrm_api3( 'UFMatch', 'get', $params );
 
-				if ( 1 === $uf_match['count'] && ! empty( $uf_match['values'][0]['contact_id'] ) ) {
-					return (int) $uf_match['values'][0]['contact_id'];
+				if ( 1 === $result['count'] && ! empty( $result['values'][0]['contact_id'] ) ) {
+					return (int) $result['values'][0]['contact_id'];
 				}
 
 			} catch ( CiviCRM_API3_Exception $e ) {
@@ -246,9 +237,14 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @param int $id The CiviCRM Contact ID or WordPress User ID.
 	 * @param string $property Either 'contact_id' or 'uf_id'.
-	 * @return array $uf_match The UFMatch data, or false on failure.
+	 * @return array|bool $result The UFMatch data, or false on failure.
 	 */
 	public function get_civicrm_ufmatch( $id, $property ) {
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
 
 		// Bail if there's a problem with the param.
 		if ( ! in_array( $property, [ 'contact_id', 'uf_id' ], true ) ) {
@@ -262,7 +258,7 @@ class WPCV_Woo_Civi_Helper {
 				$property => $id,
 			];
 
-			$uf_match = civicrm_api3( 'UFMatch', 'getsingle', $params );
+			$result = civicrm_api3( 'UFMatch', 'getsingle', $params );
 
 		} catch ( Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
@@ -270,8 +266,8 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		// Return the UFMatch data if there's no error.
-		if ( empty( $uf_match['is_error'] ) ) {
-			return $uf_match;
+		if ( empty( $result['is_error'] ) ) {
+			return $result;
 		}
 
 		// Fallback.
@@ -288,6 +284,11 @@ class WPCV_Woo_Civi_Helper {
 	 * @return int|bool $id The CiviCRM Country ID, or false on failure.
 	 */
 	public function get_civi_country_id( $woocommerce_country ) {
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
 
 		// Bail if no Country ISO code is supplied.
 		if ( empty( $woocommerce_country ) ) {
@@ -319,6 +320,11 @@ class WPCV_Woo_Civi_Helper {
 	 * @return str|bool $iso_code The CiviCRM Country ISO Code, or false on failure.
 	 */
 	public function get_civi_country_iso_code( $country_id ) {
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
 
 		// Bail if no Country ID is supplied.
 		if ( empty( $country_id ) ) {
@@ -357,12 +363,10 @@ class WPCV_Woo_Civi_Helper {
 			return false;
 		}
 
-		// Init CiviCRM States if not yet done.
-		if ( empty( $this->civicrm_states ) ) {
-			$this->civicrm_states = $this->get_civicrm_states();
-		}
+		// Get CiviCRM States.
+		$civicrm_states = $this->get_civicrm_states();
 
-		foreach ( $this->civicrm_states as $state_id => $state ) {
+		foreach ( $civicrm_states as $state_id => $state ) {
 			if ( $state['country_id'] === $country_id && $state['abbreviation'] === $woocommerce_state ) {
 				return (int) $state['id'];
 			}
@@ -392,13 +396,10 @@ class WPCV_Woo_Civi_Helper {
 			return false;
 		}
 
-		// Init CiviCRM States if not yet done.
-		if ( empty( $this->civicrm_states ) ) {
-			$this->civicrm_states = $this->get_civicrm_states();
-		}
+		// Get CiviCRM States.
+		$civicrm_states = $this->get_civicrm_states();
 
-		$civi_state = $this->civicrm_states[ $state_province_id ];
-
+		$civi_state = $civicrm_states[ $state_province_id ];
 		$woocommerce_countries = new WC_Countries();
 
 		foreach ( $woocommerce_countries->get_states() as $country => $states ) {
@@ -454,18 +455,26 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @return array $civicrm_states The array of data for CiviCRM States.
 	 */
-	private function get_civicrm_states() {
+	public function get_civicrm_states() {
 
+		// Return early if already calculated.
 		if ( ! empty( $this->civicrm_states ) ) {
 			return $this->civicrm_states;
 		}
 
-		$query = 'SELECT name,id,country_id,abbreviation FROM civicrm_state_province';
+		$this->civicrm_states = [];
 
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $this->civicrm_states;
+		}
+
+		// Perform direct query.
+		$query = 'SELECT name,id,country_id,abbreviation FROM civicrm_state_province';
 		$dao = CRM_Core_DAO::executeQuery( $query );
-		$civicrm_states = [];
+
 		while ( $dao->fetch() ) {
-			$civicrm_states[ $dao->id ] = [
+			$this->civicrm_states[ $dao->id ] = [
 				'id' => $dao->id,
 				'name' => $dao->name,
 				'abbreviation' => $dao->abbreviation,
@@ -473,7 +482,7 @@ class WPCV_Woo_Civi_Helper {
 			];
 		}
 
-		return $civicrm_states;
+		return $this->civicrm_states;
 
 	}
 
@@ -485,12 +494,22 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.2
 	 *
-	 * @return array $civicrm_campaigns The array of data for CiviCRM Campaigns.
+	 * @return array $campaigns The array of data for CiviCRM Campaigns.
 	 */
-	private function get_campaigns() {
+	public function get_campaigns() {
 
-		if ( ! empty( $this->civicrm_campaigns ) ) {
-			return $this->civicrm_campaigns;
+		// Return early if already calculated.
+		if ( isset( $this->campaigns ) ) {
+			return $this->campaigns;
+		}
+
+		$this->campaigns = [
+			__( 'None', 'wpcv-woo-civi-integration' ),
+		];
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $this->campaigns;
 		}
 
 		$params = [
@@ -505,7 +524,7 @@ class WPCV_Woo_Civi_Helper {
 		];
 
 		/**
-		 * Filter Campaigns params before calling the Civi's API.
+		 * Filter Campaigns params before calling the CiviCRM API.
 		 *
 		 * @since 2.2
 		 *
@@ -513,22 +532,18 @@ class WPCV_Woo_Civi_Helper {
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/campaigns/get/params', $params );
 
-		$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
-
-		$civicrm_campaigns = [
-			__( 'None', 'wpcv-woo-civi-integration' ),
-		];
+		$result = civicrm_api3( 'Campaign', 'get', $params );
 
 		// Return early if something went wrong.
-		if ( ! empty( $campaigns_result['error'] ) ) {
-			return $civicrm_campaigns;
+		if ( ! empty( $result['error'] ) ) {
+			return $this->campaigns;
 		}
 
-		foreach ( $campaigns_result['values'] as $key => $value ) {
-			$civicrm_campaigns[ $value['id'] ] = $value['name'];
+		foreach ( $result['values'] as $key => $value ) {
+			$this->campaigns[ $value['id'] ] = $value['name'];
 		}
 
-		return $civicrm_campaigns;
+		return $this->campaigns;
 
 	}
 
@@ -542,14 +557,20 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @return array $all_campaigns The array of data for all CiviCRM Campaigns.
 	 */
-	private function get_all_campaigns() {
+	public function get_all_campaigns() {
 
+		// Return early if already calculated.
 		if ( ! empty( $this->all_campaigns ) ) {
 			return $this->all_campaigns;
 		}
 
-		if ( ! empty( $this->campaigns_status ) ) {
-			$this->campaigns_status = $this->get_campaigns_status();
+		$this->all_campaigns = [
+			__( 'None', 'wpcv-woo-civi-integration' ),
+		];
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $this->all_campaigns;
 		}
 
 		$params = [
@@ -570,26 +591,24 @@ class WPCV_Woo_Civi_Helper {
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/campaigns/get_all/params', $params );
 
-		$all_campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
-
-		$all_campaigns = [
-			__( 'None', 'wpcv-woo-civi-integration' ),
-		];
+		$result = civicrm_api3( 'Campaign', 'get', $params );
 
 		// Return early if something went wrong.
-		if ( ! empty( $all_campaigns_result['error'] ) ) {
-			return $all_campaigns;
+		if ( ! empty( $result['error'] ) ) {
+			return $this->all_campaigns;
 		}
 
-		foreach ( $all_campaigns_result['values'] as $key => $value ) {
+		$campaign_statuses = $this->get_campaigns_status();
+
+		foreach ( $result['values'] as $key => $value ) {
 			$status = '';
-			if ( isset( $value['status_id'] ) && isset( $this->campaigns_status[ $value['status_id'] ] ) ) {
-				$status = ' - ' . $this->campaigns_status[ $value['status_id'] ];
+			if ( isset( $value['status_id'] ) && isset( $campaign_statuses[ $value['status_id'] ] ) ) {
+				$status = ' - ' . $campaign_statuses[ $value['status_id'] ];
 			}
-			$all_campaigns[ $value['id'] ] = $value['name'] . $status;
+			$this->all_campaigns[ $value['id'] ] = $value['name'] . $status;
 		}
 
-		return $all_campaigns;
+		return $this->all_campaigns;
 
 	}
 
@@ -601,11 +620,19 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.2
 	 *
-	 * @return array $civicrm_campaigns_status The array of CiviCRM Campaign Statuses.
+	 * @return array $campaigns_status The array of CiviCRM Campaign Statuses.
 	 */
-	private function get_campaigns_status() {
+	public function get_campaigns_status() {
 
+		// Return early if already calculated.
 		if ( ! empty( $this->campaigns_status ) ) {
+			return $this->campaigns_status;
+		}
+
+		$this->campaigns_status = [];
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
 			return $this->campaigns_status;
 		}
 
@@ -626,20 +653,18 @@ class WPCV_Woo_Civi_Helper {
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/campaign_statuses/get/params', $params );
 
-		$status_result = civicrm_api3( 'OptionValue', 'get', $params );
-
-		$civicrm_campaigns_status = [];
+		$result = civicrm_api3( 'OptionValue', 'get', $params );
 
 		// Return early if something went wrong.
-		if ( ! empty( $status_result['error'] ) ) {
-			return $civicrm_campaigns_status;
+		if ( ! empty( $result['error'] ) ) {
+			return $this->campaigns_status;
 		}
 
-		foreach ( $status_result['values'] as $key => $value ) {
-			$civicrm_campaigns_status[ $value['value'] ] = $value['label'];
+		foreach ( $result['values'] as $key => $value ) {
+			$this->campaigns_status[ $value['value'] ] = $value['label'];
 		}
 
-		return $civicrm_campaigns_status;
+		return $this->campaigns_status;
 
 	}
 
@@ -650,9 +675,14 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @return array $mapped_location_types The mapped Location Types.
 	 */
-	private function get_mapped_location_types() {
+	public function get_mapped_location_types() {
 
-		$mapped_location_types = [
+		// Return early if already calculated.
+		if ( ! empty( $this->mapped_location_types ) ) {
+			return $this->mapped_location_types;
+		}
+
+		$this->mapped_location_types = [
 			'billing' => get_option( 'woocommerce_civicrm_billing_location_type_id' ),
 			'shipping' => get_option( 'woocommerce_civicrm_shipping_location_type_id' ),
 		];
@@ -664,7 +694,9 @@ class WPCV_Woo_Civi_Helper {
 		 *
 		 * @param array $mapped_location_types The default mapped Location Types.
 		 */
-		return apply_filters( 'wpcv_woo_civi/location_types/mappings', $mapped_location_types );
+		$this->mapped_location_types = apply_filters( 'wpcv_woo_civi/location_types/mappings', $this->mapped_location_types );
+
+		return $this->mapped_location_types;
 
 	}
 
@@ -675,9 +707,17 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @return array $financial_types The array of CiviCRM Financial Types.
 	 */
-	private function get_financial_types() {
+	public function get_financial_types() {
 
+		// Return early if already calculated.
 		if ( isset( $this->financial_types ) ) {
+			return $this->financial_types;
+		}
+
+		$this->financial_types = [];
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
 			return $this->financial_types;
 		}
 
@@ -698,20 +738,18 @@ class WPCV_Woo_Civi_Helper {
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/financial_types/get/params', $params );
 
-		$financial_types_result = civicrm_api3( 'FinancialType', 'get', $params );
-
-		$financial_types = [];
+		$result = civicrm_api3( 'FinancialType', 'get', $params );
 
 		// Return early if something went wrong.
-		if ( ! empty( $financial_types_result['error'] ) ) {
-			return $financial_types;
+		if ( ! empty( $result['error'] ) ) {
+			return $this->financial_types;
 		}
 
-		foreach ( $financial_types_result['values'] as $key => $value ) {
-			$financial_types[ $value['id'] ] = $value['name'];
+		foreach ( $result['values'] as $key => $value ) {
+			$this->financial_types[ $value['id'] ] = $value['name'];
 		}
 
-		return $financial_types;
+		return $this->financial_types;
 
 	}
 
@@ -720,11 +758,19 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 *
-	 * @return array $address_types_result The array of CiviCRM Address Location Types.
+	 * @return array $location_types The array of CiviCRM Address Location Types.
 	 */
-	private function get_address_location_types() {
+	public function get_address_location_types() {
 
+		// Return early if already calculated.
 		if ( isset( $this->location_types ) ) {
+			return $this->location_types;
+		}
+
+		$this->location_types = [];
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
 			return $this->location_types;
 		}
 
@@ -735,14 +781,19 @@ class WPCV_Woo_Civi_Helper {
 			],
 		];
 
-		$address_types_result = civicrm_api3( 'Address', 'getoptions', $params );
+		$result = civicrm_api3( 'Address', 'getoptions', $params );
 
 		// Return early if something went wrong.
-		if ( ! empty( $address_types_result['error'] ) ) {
-			return [];
+		if ( ! empty( $result['error'] ) ) {
+			return $this->location_types;
 		}
 
-		return $address_types_result['values'];
+		// Store values in property.
+		if ( ! empty( $result['values'] ) ) {
+			$this->location_types = $result['values'];
+		}
+
+		return $this->location_types;
 
 	}
 
@@ -755,7 +806,15 @@ class WPCV_Woo_Civi_Helper {
 	 */
 	public function get_civicrm_membership_types() {
 
+		// Return early if already calculated.
 		if ( isset( $this->membership_types ) ) {
+			return $this->membership_types;
+		}
+
+		$this->membership_types = [];
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
 			return $this->membership_types;
 		}
 
@@ -776,18 +835,16 @@ class WPCV_Woo_Civi_Helper {
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/membership_types/get/params', $params );
 
-		$membership_types_result = civicrm_api3( 'MembershipType', 'get', $params );
-
-		$membership_types = [];
+		$result = civicrm_api3( 'MembershipType', 'get', $params );
 
 		// Return early if something went wrong.
-		if ( ! empty( $membership_types_result['error'] ) ) {
-			return $membership_types;
+		if ( ! empty( $result['error'] ) ) {
+			return $this->membership_types;
 		}
 
-		foreach ( $membership_types_result['values'] as $key => $value ) {
-			$membership_types['by_membership_type_id'][ $value['id'] ] = $value;
-			$membership_types['by_financial_type_id'][ $value['financial_type_id'] ] = $value;
+		foreach ( $result['values'] as $key => $value ) {
+			$this->membership_types['by_membership_type_id'][ $value['id'] ] = $value;
+			$this->membership_types['by_financial_type_id'][ $value['financial_type_id'] ] = $value;
 		}
 
 		/**
@@ -796,9 +853,11 @@ class WPCV_Woo_Civi_Helper {
 		 * @since 2.0
 		 *
 		 * @param array $membership_types The existing array of CiviCRM Membership Types.
-		 * @param array $membership_types_result The CiviCRM API data.
+		 * @param array $result The CiviCRM API data array.
 		 */
-		return apply_filters( 'wpcv_woo_civi/membership_types', $membership_types, $membership_types_result );
+		$this->membership_types = apply_filters( 'wpcv_woo_civi/membership_types', $this->membership_types, $result );
+
+		return $this->membership_types;
 
 	}
 
@@ -811,6 +870,18 @@ class WPCV_Woo_Civi_Helper {
 	 */
 	public function get_civicrm_optionvalue_membership_signup() {
 
+		// Return early if already calculated.
+		if ( isset( $this->optionvalue_membership_signup ) ) {
+			return $this->optionvalue_membership_signup;
+		}
+
+		$this->optionvalue_membership_signup = false;
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $this->optionvalue_membership_signup;
+		}
+
 		$params = [
 			'sequential' => 1,
 			'return' => [ 'value' ],
@@ -821,16 +892,15 @@ class WPCV_Woo_Civi_Helper {
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {
-			return false;
+			return $this->optionvalue_membership_signup;
 		}
 
 		// Sanity check.
 		if ( ! empty( $result['values'][0]['value'] ) ) {
-			return $result['values'][0]['value'];
+			$this->optionvalue_membership_signup = $result['values'][0]['value'];
 		}
 
-		// Fallback.
-		return false;
+		return $this->optionvalue_membership_signup;
 
 	}
 
@@ -886,6 +956,16 @@ class WPCV_Woo_Civi_Helper {
 	 */
 	public function get_default_contribution_price_field_data() {
 
+		static $default_contribution_amount_data;
+		if ( isset( $default_contribution_amount_data ) ) {
+			return $default_contribution_amount_data;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return null;
+		}
+
 		try {
 
 			$params = [
@@ -931,14 +1011,16 @@ class WPCV_Woo_Civi_Helper {
 
 		$default_financial_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
 
+		$financial_types = $this->get_financial_types();
+
 		$options = [
 			sprintf(
 				/* translators: %s: The Financial Type */
 				'-- ' . __( 'Default (%s)', 'wpcv-woo-civi-integration' ),
-				$this->financial_types[ $default_financial_type_id ] ?? __( 'Not set', 'wpcv-woo-civi-integration' )
+				$financial_types[ $default_financial_type_id ] ?? __( 'Not set', 'wpcv-woo-civi-integration' )
 			),
 		]
-		+ $this->financial_types +
+		+ $financial_types +
 		[
 			'exclude' => '-- ' . __( 'Exclude', 'wpcv-woo-civi-integration' ),
 		];
@@ -956,6 +1038,11 @@ class WPCV_Woo_Civi_Helper {
 	 */
 	public function get_membership_types_options() {
 
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
+
 		try {
 
 			$params = [
@@ -965,7 +1052,7 @@ class WPCV_Woo_Civi_Helper {
 				],
 			];
 
-			$membership_types = civicrm_api3( 'MembershipType', 'get', $params );
+			$result = civicrm_api3( 'MembershipType', 'get', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Membership Types.', 'wpcv-woo-civi-integration' ) );
@@ -973,7 +1060,7 @@ class WPCV_Woo_Civi_Helper {
 			return [];
 		}
 
-		if ( empty( $membership_types['count'] ) ) {
+		if ( empty( $result['count'] ) ) {
 			return [];
 		}
 
@@ -982,7 +1069,7 @@ class WPCV_Woo_Civi_Helper {
 		];
 
 		$membership_types_options = array_reduce(
-			$membership_types['values'],
+			$result['values'],
 			function( $list, $membership_type ) {
 				$list[ $membership_type['id'] ] = $membership_type['name'];
 				return $list;
@@ -1003,6 +1090,11 @@ class WPCV_Woo_Civi_Helper {
 	 * @return array|null $membership_type The CiviCRM Membership Type data, or null on failure.
 	 */
 	public function get_membership_type( int $id ) {
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return null;
+		}
 
 		try {
 

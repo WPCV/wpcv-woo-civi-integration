@@ -238,9 +238,9 @@ class WPCV_Woo_Civi_Manager {
 					],
 				];
 
-				$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
+				$result = civicrm_api3( 'Campaign', 'get', $params );
 
-				$campaign_name = isset( $campaigns_result['values'][0]['name'] ) ? $campaigns_result['values'][0]['name'] : '';
+				$campaign_name = isset( $result['values'][0]['name'] ) ? $result['values'][0]['name'] : '';
 
 			} catch ( CiviCRM_API3_Exception $e ) {
 				CRM_Core_Error::debug_log_message( __( 'Unable to fetch Campaign', 'wpcv-woo-civi-integration' ) );
@@ -468,7 +468,7 @@ class WPCV_Woo_Civi_Manager {
 			$existing_emails = civicrm_api3( 'Email', 'get', [ 'contact_id' => $cid ] );
 			$existing_emails = $existing_emails['values'];
 
-			$address_types = WPCV_WCI()->helper->mapped_location_types;
+			$address_types = WPCV_WCI()->helper->get_mapped_location_types();
 			foreach ( $address_types as $address_type => $location_type_id ) {
 
 				// Process Phone.
@@ -1039,9 +1039,9 @@ class WPCV_Woo_Civi_Manager {
 		$campaign_array = apply_filters( 'wpcv_woo_civi/campaign_list/get', 'campaigns' );
 
 		if ( 'campaigns' === $campaign_array ) {
-			$campaign_list = WPCV_WCI()->helper->campaigns;
+			$campaign_list = WPCV_WCI()->helper->get_campaigns();
 		} else {
-			$campaign_list = WPCV_WCI()->helper->all_campaigns;
+			$campaign_list = WPCV_WCI()->helper->get_all_campaigns();
 		}
 
 		?>
@@ -1164,11 +1164,11 @@ class WPCV_Woo_Civi_Manager {
 					'name' => esc_attr( $campaign ),
 				];
 
-				$campaigns_result = civicrm_api3( 'Campaign', 'get', $params );
+				$result = civicrm_api3( 'Campaign', 'get', $params );
 
 				// FIXME: Error checking.
-				if ( $campaigns_result && isset( $campaigns_result['values'][0]['id'] ) ) {
-					setcookie( 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH, $campaigns_result['values'][0]['id'], $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
+				if ( $result && isset( $result['values'][0]['id'] ) ) {
+					setcookie( 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH, $result['values'][0]['id'], $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
 				} else {
 					// Remove cookie if Campaign is invalid.
 					setcookie( 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH, ' ', time() - YEAR_IN_SECONDS );

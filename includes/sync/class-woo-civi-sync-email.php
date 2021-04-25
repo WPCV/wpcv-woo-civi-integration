@@ -81,7 +81,7 @@ class WPCV_Woo_Civi_Sync_Email {
 		}
 
 		// Bail if the Email being edited is not one of the mapped ones.
-		if ( ! in_array( $object_ref->location_type_id, WPCV_WCI()->helper->mapped_location_types ) ) {
+		if ( ! in_array( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() ) ) {
 			return;
 		}
 
@@ -98,7 +98,7 @@ class WPCV_Woo_Civi_Sync_Email {
 		}
 
 		// Proceed.
-		$email_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->mapped_location_types );
+		$email_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
 
 		// Only for billing Email, there's no shipping Email field.
 		if ( 'billing' === $email_type ) {
@@ -147,7 +147,7 @@ class WPCV_Woo_Civi_Sync_Email {
 			return false;
 		}
 
-		$mapped_location_types = WPCV_WCI()->helper->mapped_location_types;
+		$mapped_location_types = WPCV_WCI()->helper->get_mapped_location_types();
 		$civi_email_location_type = $mapped_location_types[ $load_address ];
 
 		$customer = new WC_Customer( $user_id );

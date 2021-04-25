@@ -81,7 +81,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 		}
 
 		// Bail if the Phone being edited is not one of the mapped ones.
-		if ( ! in_array( $object_ref->location_type_id, WPCV_WCI()->helper->mapped_location_types, true ) ) {
+		if ( ! in_array( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types(), true ) ) {
 			return;
 		}
 
@@ -98,7 +98,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 		}
 
 		// Proceed.
-		$phone_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->mapped_location_types );
+		$phone_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
 
 		// Only Billing Phone, there's no Shipping Phone field.
 		if ( 'billing' === $phone_type ) {
@@ -147,7 +147,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 			return false;
 		}
 
-		$mapped_location_types = WPCV_WCI()->helper->mapped_location_types;
+		$mapped_location_types = WPCV_WCI()->helper->get_mapped_location_types();
 		$civi_phone_location_type = $mapped_location_types[ $load_address ];
 
 		$customer = new WC_Customer( $user_id );

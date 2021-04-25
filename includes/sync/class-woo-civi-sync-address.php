@@ -81,7 +81,7 @@ class WPCV_Woo_Civi_Sync_Address {
 		}
 
 		// Bail if the Address being edited is not one of the mapped ones.
-		if ( ! in_array( $object_ref->location_type_id, WPCV_WCI()->helper->mapped_location_types, true ) ) {
+		if ( ! in_array( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types(), true ) ) {
 			return;
 		}
 
@@ -98,7 +98,7 @@ class WPCV_Woo_Civi_Sync_Address {
 		}
 
 		// Proceed.
-		$address_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->mapped_location_types, true );
+		$address_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types(), true );
 
 		foreach ( WPCV_WCI()->helper->get_mapped_address( $address_type ) as $wc_field => $civi_field ) {
 			if ( ! empty( $object_ref->{$civi_field} ) && ! is_null( $object_ref->{$civi_field} ) && 'null' !== $object_ref->{$civi_field} ) {
@@ -156,7 +156,7 @@ class WPCV_Woo_Civi_Sync_Address {
 			return false;
 		}
 
-		$mapped_location_types = WPCV_WCI()->helper->mapped_location_types;
+		$mapped_location_types = WPCV_WCI()->helper->get_mapped_location_types();
 		$civi_address_location_type = $mapped_location_types[ $load_address ];
 		$edited_address = [];
 

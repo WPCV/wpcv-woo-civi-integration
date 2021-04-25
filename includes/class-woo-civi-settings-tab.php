@@ -267,37 +267,37 @@ class WPCV_Woo_Civi_Settings_Tab {
 			'woocommerce_civicrm_financial_type_id' => [
 				'name' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WPCV_WCI()->helper->financial_types,
+				'options' => WPCV_WCI()->helper->get_financial_types(),
 				'id'   => 'woocommerce_civicrm_financial_type_id',
 			],
 			'woocommerce_civicrm_financial_type_vat_id' => [
 				'name' => __( 'Tax/VAT Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WPCV_WCI()->helper->financial_types,
+				'options' => WPCV_WCI()->helper->get_financial_types(),
 				'id'   => 'woocommerce_civicrm_financial_type_vat_id',
 			],
 			'woocommerce_civicrm_financial_type_shipping_id' => [
 				'name' => __( 'Shipping Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WPCV_WCI()->helper->financial_types,
+				'options' => WPCV_WCI()->helper->get_financial_types(),
 				'id'   => 'woocommerce_civicrm_financial_type_shipping_id',
 			],
 			'woocommerce_civicrm_campaign_id' => [
 				'name' => __( 'Default Campaign', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WPCV_WCI()->helper->campaigns,
+				'options' => WPCV_WCI()->helper->get_campaigns(),
 				'id'   => 'woocommerce_civicrm_campaign_id',
 			],
 			'woocommerce_civicrm_billing_location_type_id' => [
 				'name' => __( 'Billing Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WPCV_WCI()->helper->location_types,
+				'options' => WPCV_WCI()->helper->get_address_location_types(),
 				'id'   => 'woocommerce_civicrm_billing_location_type_id',
 			],
 			'woocommerce_civicrm_shipping_location_type_id' => [
 				'name' => __( 'Shipping Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WPCV_WCI()->helper->location_types,
+				'options' => WPCV_WCI()->helper->get_address_location_types(),
 				'id'   => 'woocommerce_civicrm_shipping_location_type_id',
 			],
 			'woocommerce_civicrm_sync_contact_address' => [
