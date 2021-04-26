@@ -124,6 +124,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 */
 	public function settings_field_text( $args ) {
 
+		// FIXME: This method does not seem to be used.
 		$option = 'woocommerce_civicrm_network_settings';
 		$options = get_site_option( $option );
 

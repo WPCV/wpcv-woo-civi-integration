@@ -46,6 +46,8 @@ class WPCV_Woo_Civi_Sync_Email {
 	 */
 	public function register_hooks() {
 
+		// FIXME: remove reverse sync.
+
 		// Sync WooCommerce and CiviCRM email for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
 		// Sync WooCommerce and CiviCRM email for User/Contact.

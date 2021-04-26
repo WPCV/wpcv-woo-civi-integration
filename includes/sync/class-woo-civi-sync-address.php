@@ -46,6 +46,8 @@ class WPCV_Woo_Civi_Sync_Address {
 	 */
 	public function register_hooks() {
 
+		// FIXME: remove reverse sync.
+
 		// Sync WooCommerce and CiviCRM Address for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10, 4 );
 		// Sync WooCommerce and CiviCRM Address for User/Contact.
