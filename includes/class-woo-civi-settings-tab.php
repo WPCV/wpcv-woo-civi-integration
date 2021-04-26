@@ -116,32 +116,6 @@ class WPCV_Woo_Civi_Settings_Tab {
 	}
 
 	/**
-	 * Settings field text.
-	 *
-	 * @since 2.0
-	 *
-	 * @param array $args The field params.
-	 */
-	public function settings_field_text( $args ) {
-
-		// FIXME: This method does not seem to be used.
-		$option = 'woocommerce_civicrm_network_settings';
-		$options = get_site_option( $option );
-
-		?>
-		<input
-			name="<?php echo esc_attr( $option ); ?>[<?php echo esc_attr( $args['name'] ); ?>]"
-			id="<?php echo esc_attr( $args['name'] ); ?>"
-			value="<?php echo ( isset( $options[ $args['name'] ] ) ? esc_attr( $options[ $args['name'] ] ) : '' ); ?>"
-			class="regular-text"/>
-		<?php if ( isset( $args['description'] ) && $args['description'] ) : ?>
-			<div class="description"><?php echo esc_html( $args['description'] ); ?></div>
-		<?php endif; ?>
-		<?php
-
-	}
-
-	/**
 	 * Settings field select.
 	 *
 	 * @since 2.0
