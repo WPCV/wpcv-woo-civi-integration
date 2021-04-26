@@ -38,6 +38,15 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	public $migrate_page_slug = 'wpcv_woocivi_migrate';
 
 	/**
+	 * The number of Products to process per AJAX request.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var int $step_count The number of Products to process per AJAX request.
+	 */
+	public $step_count = 10;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 3.0
@@ -81,6 +90,9 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Add our meta boxes.
 		add_action( 'add_meta_boxes', [ $this, 'meta_boxes_add' ], 11, 1 );
+
+		// Add AJAX handler.
+		add_action( 'wp_ajax_wpcv_process_products', [ $this, 'products_process' ] );
 
 	}
 
@@ -159,7 +171,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		// @see wp-admin/admin-header.php
 		add_action( 'admin_head-' . $this->migrate_page, [ $this, 'admin_head' ] );
 		add_action( 'admin_print_styles-' . $this->migrate_page, [ $this, 'admin_styles' ] );
-		//add_action( 'admin_print_scripts-' . $this->migrate_page, [ $this, 'admin_scripts' ] );
+		add_action( 'admin_print_scripts-' . $this->migrate_page, [ $this, 'admin_scripts' ] );
 
 	}
 
@@ -174,6 +186,46 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		wp_enqueue_script( 'common' );
 		wp_enqueue_script( 'jquery-ui-sortable' );
 		wp_enqueue_script( 'dashboard' );
+
+	}
+
+	/**
+	 * Enqueue required scripts.
+	 *
+	 * @since 3.0
+	 */
+	public function admin_scripts() {
+
+		$handle = 'wpcv_woocivi_js';
+
+		// Enqueue Javascript.
+		wp_enqueue_script(
+			$handle,
+			plugins_url( 'assets/js/pages/page-admin-migrate.js', WPCV_WOO_CIVI_FILE ),
+			[ 'jquery', 'jquery-ui-core', 'jquery-ui-progressbar' ],
+			WPCV_WOO_CIVI_VERSION // Version.
+		);
+
+		$localisation = [
+			'total' => esc_html__( '{{total}} Products to clean up...', 'wpcv-woo-civi-integration' ),
+			'current' => esc_html__( 'Processing Products {{from}} to {{to}}', 'wpcv-woo-civi-integration' ),
+			'complete' => esc_html__( 'Processing Products {{from}} to {{to}} complete', 'wpcv-woo-civi-integration' ),
+			'done' => esc_html__( 'All done!', 'wpcv-woo-civi-integration' ),
+		];
+
+		$settings = [
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'total_products' => $this->products_get_count(),
+			'batch_count' => $this->step_count,
+		];
+
+		$vars = [
+			'localisation' => $localisation,
+			'settings' => $settings,
+		];
+
+		// Localise the WordPress way.
+		wp_localize_script( $handle, 'WPCV_Woo_Civi_Migrate_Settings', $vars );
 
 	}
 
@@ -313,6 +365,21 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			$title = __( 'Migration Complete', 'wpcv-woo-civi-integration' );
 		}
 
+		// Have we already resolved duplicate metadata?
+		$data['metadata'] = false;
+		if ( 'metadata' === get_site_option( 'wpcv_woo_civi_migration', 'not resolved' ) ) {
+			$data['metadata'] = true;
+		}
+
+		// Get the current state of the stepper.
+		$data['offset'] = $this->stepped_offset_get( 'products' );
+
+		// Set the button title.
+		$data['button_title'] = esc_html__( 'Process Products', 'wpcv-woo-civi-integration' );
+		if ( $data['offset'] !== false ) {
+			$data['button_title'] = esc_html__( 'Continue Processing', 'wpcv-woo-civi-integration' );
+		}
+
 		// Create "Migrate Info" metabox.
 		add_meta_box(
 			'wpcv_woocivi_info',
@@ -363,15 +430,26 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 */
 	public function form_submitted() {
 
-		// Bail if our submit button wasn't clicked.
-		if ( empty( $_POST['wpcv_woocivi_save'] ) ) {
-			return;
+		// If our "Submit" button was clicked.
+		if ( ! empty( $_POST['wpcv_woocivi_save'] ) ) {
+			$this->form_nonce_check();
+			$this->form_migration_accept();
+			$this->form_redirect( 'updated' );
 		}
 
-		// Let's go.
-		$this->form_nonce_check();
-		$this->form_migration_accept();
-		$this->form_redirect();
+		// If our "Process Products" button was clicked.
+		if ( ! empty( $_POST['wpcv_woocivi_process'] ) ) {
+			$this->form_nonce_check();
+			$this->products_process();
+			$this->form_redirect();
+		}
+
+		// If our "Stop" button was clicked.
+		if ( ! empty( $_POST['wpcv_woocivi_process_stop'] ) ) {
+			$this->form_nonce_check();
+			$this->stepped_offset_delete( 'products' );
+			$this->form_redirect();
+		}
 
 	}
 
@@ -382,7 +460,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 */
 	private function form_migration_accept() {
 
-		// Do this by storing an option.
+		// Do this by setting the option to a unique string.
 		update_site_option( 'wpcv_woo_civi_migration', 'accepted' );
 
 	}
@@ -400,21 +478,231 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	}
 
 	/**
-	 * Redirect to the Settings page with an extra param.
+	 * Redirect to the Settings page with an optional extra param.
 	 *
 	 * @since 3.0
+	 *
+	 * @param str $mode Pass 'updated' to append the extra param.
 	 */
-	private function form_redirect() {
+	private function form_redirect( $mode = '' ) {
 
-		// Our array of arguments.
+		// Our default array of arguments.
 		$args = [
 			'page' => $this->migrate_page_slug,
-			'settings-updated' => 'true',
 		];
+
+		// Maybe append param.
+		if ( $mode === 'updated' ) {
+			$args['settings-updated'] = 'true';
+		}
 
 		// Redirect to our admin page.
 		wp_safe_redirect( add_query_arg( $args, admin_url( 'admin.php' ) ) );
 		exit;
+
+	}
+
+	/**
+	 * Gets the total number of Products to process.
+	 *
+	 * @since 3.0
+	 */
+	public function products_get_count() {
+
+		$query = new WP_Query( [
+			'post_type' => 'product',
+		] );
+
+		return $query->found_posts;
+
+	}
+
+	/**
+	 * The "Process Products" AJAX callback.
+	 *
+	 * @since 3.0
+	 */
+	public function products_process() {
+
+		// Set a stepper key.
+		$key = 'products';
+
+		// If this is an AJAX request, check security.
+		$result = true;
+		if ( wp_doing_ajax() ) {
+			$result = check_ajax_referer( 'wpcv_migrate_products', false, false );
+		}
+
+		// If we get an error.
+		if ( $result === false ) {
+
+			// Set finished flag.
+			$data['finished'] = 'true';
+
+			// Send data to browser.
+			wp_send_json( $data );
+			return;
+
+		}
+
+		// Get the current offset.
+		$offset = $this->stepped_offset_init( $key );
+
+		// Construct args.
+		$query_args = [
+			'post_type' => 'product',
+			'no_found_rows' => true,
+			'numberposts' => $this->step_count,
+			'offset' => $offset,
+		];
+
+		// The query.
+		$query = new WP_Query( $query_args );
+
+		// If we get results.
+		if ( $query->have_posts() ) {
+
+			// Set finished flag.
+			$data['finished'] = 'false';
+
+			// Are there fewer items than the step count?
+			if ( $query->post_count < $this->step_count ) {
+				$diff = $query->post_count;
+			} else {
+				$diff = $this->step_count;
+			}
+
+			// Set from and to flags.
+			$data['from'] = (int) $offset;
+			$data['to'] = $data['from'] + $diff;
+
+			// Loop and set up post.
+			while ( $query->have_posts() ) { $query->the_post();
+
+				// Does the Product have the duplicate meta?
+				$duplicate = get_post_meta( get_the_ID(), '_civicrm_contribution_type', true );
+
+				// When it does, update the proper meta and remove duplicate.
+				if ( ! empty( $duplicate ) ) {
+					update_post_meta( get_the_ID(), 'woocommerce_civicrm_financial_type_id', $duplicate );
+					delete_post_meta( get_the_ID(), '_civicrm_contribution_type' );
+				}
+
+			}
+
+			// Reset Post data just in case.
+			wp_reset_postdata();
+
+			// Increment offset option.
+			$this->stepped_offset_update( $key, $data['to'] );
+
+		} else {
+
+			// Set finished flag.
+			$data['finished'] = 'true';
+
+			// Delete the option to start from the beginning.
+			$this->stepped_offset_delete( $key );
+
+			// Set the migration option to a unique string.
+			update_site_option( 'wpcv_woo_civi_migration', 'metadata' );
+
+		}
+
+		// Send data to browser.
+		if ( wp_doing_ajax() ) {
+			wp_send_json( $data );
+		}
+
+	}
+
+	/**
+	 * Initialise the stepper.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $key The unique identifier for the stepper.
+	 * @param int $offset The unique identifier for the stepper.
+	 */
+	public function stepped_offset_init( $key ) {
+
+		// Construct option name.
+		$option = '_wpcv_woo_civi_migrate_' . $key . '_offset';
+
+		// If the offset value doesn't exist.
+		if ( 'fgffgs' == get_option( $option, 'fgffgs' ) ) {
+
+			// Start at the beginning.
+			$offset = 0;
+			add_option( $option, '0' );
+
+		} else {
+
+			// Use the existing value.
+			$offset = (int) get_option( $option, '0' );
+
+		}
+
+		// --<
+		return $offset;
+
+	}
+
+	/**
+	 * Get the current state of the stepper.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $key The unique identifier for the stepper.
+	 * @return int|bool $offset The numeric value of the stepper, or false otherwise.
+	 */
+	public function stepped_offset_get( $key ) {
+
+		// Construct option name.
+		$option = '_wpcv_woo_civi_migrate_' . $key . '_offset';
+
+		// If the offset value doesn't exist.
+		if ( 'fgffgs' == get_option( $option, 'fgffgs' ) ) {
+			return false;
+		}
+
+		// Return the existing value.
+		return (int) get_option( $option, '0' );
+
+	}
+
+	/**
+	 * Update the stepper.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $key The unique identifier for the stepper.
+	 * @param string $to The value for the stepper.
+	 */
+	public function stepped_offset_update( $key, $to ) {
+
+		// Construct option name.
+		$option = '_wpcv_woo_civi_migrate_' . $key . '_offset';
+
+		// Increment offset option.
+		update_option( $option, (string) $to );
+
+	}
+
+	/**
+	 * Delete the stepper.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $key The unique identifier for the stepper.
+	 */
+	public function stepped_offset_delete( $key ) {
+
+		// Construct option name.
+		$option = '_wpcv_woo_civi_migrate_' . $key . '_offset';
+
+		// Delete the option to start from the beginning.
+		delete_option( $option );
 
 	}
 

@@ -3,11 +3,33 @@
 
 	<h3><?php _e( 'Why migrate?', 'wpcv-woo-civi-integration' ) ?></h3>
 
-	<p><?php _e( 'The WooCommerce CiviCRM plugin is no longer being developed as a standalone plugin, so the functionality that it provides has been transferred to this plugin. New features and bug fixes will only be added to this plugin from now on. Plus you get the convenience of updating this plugin via your WordPress Updates page.', 'wpcv-woo-civi-integration' ); ?></p>
+	<p><?php _e( 'The WooCommerce CiviCRM plugin is no longer being developed and the functionality that it provides has been transferred to this plugin. New features and bug fixes will only be added to this plugin from now on. Plus you get the convenience of updating this plugin via your WordPress Updates page.', 'wpcv-woo-civi-integration' ); ?></p>
 
 	<h3><?php _e( 'What needs to be done?', 'wpcv-woo-civi-integration' ) ?></h3>
 
-	<p><?php _e( 'Before you go ahead and deactivate and delete the WooCommerce CiviCRM plugin, there are few things that need to be checked to make sure your site continues to work as normal.', 'wpcv-woo-civi-integration' ); ?> <em><?php _e( 'Integrate CiviCRM with WooCommerce will not affect your site until you have deactivated WooCommerce CiviCRM.', 'wpcv-woo-civi-integration' ); ?></em></p>
+	<p><?php _e( 'Before you go ahead and deactivate and delete the WooCommerce CiviCRM plugin, there are few things that need to be checked to make sure your site continues to work as normal.', 'wpcv-woo-civi-integration' ); ?> <em><?php _e( 'Integrate CiviCRM with WooCommerce will not affect your site until you have clicked "Submit" and deactivated WooCommerce CiviCRM.', 'wpcv-woo-civi-integration' ); ?></em></p>
+
+	<?php if ( $metabox['args']['metadata'] === false ) : ?>
+
+		<div id="wpcv_woocivi_products">
+
+			<h4><?php _e( 'Product Metadata', 'wpcv-woo-civi-integration' ) ?></h3>
+
+			<p><?php _e( 'The WooCommerce CiviCRM plugin duplicated some Product metadata in certain circumstances. Click the "Process Products" button below to resolve this issue now.', 'wpcv-woo-civi-integration' ); ?></p>
+
+			<?php if ( $metabox['args']['offset'] !== false ) : ?>
+				<?php submit_button( esc_html__( 'Stop', 'wpcv-woo-civi-integration' ), 'secondary', 'wpcv_woocivi_process_stop', false ); ?>
+			<?php endif; ?>
+
+			<?php submit_button( $metabox['args']['button_title'], 'primary', 'wpcv_woocivi_process', false, [
+				'data-security' => esc_attr( wp_create_nonce( 'wpcv_migrate_products' ) ),
+			] ); ?>
+
+			<div id="progress-bar"><div class="progress-label"></div></div>
+
+		</div>
+
+	<?php endif; ?>
 
 	<h4><?php _e( 'Filters and Actions', 'wpcv-woo-civi-integration' ) ?></h3>
 
@@ -19,7 +41,7 @@
 
 	<h4><?php _e( 'Settings', 'wpcv-woo-civi-integration' ) ?></h3>
 
-	<p><?php _e( 'Luckily there is no uninstall routine in the WooCommerce CiviCRM plugin at present. This means that WooCommerce CiviCRM will not auto-delete its settings when it is deleted. This plugin can therefore use those settings unchanged and you should not notice any difference once you have deactivated WooCommerce CiviCRM. Nevertheless, you should only deactivate and delete WooCommerce CiviCRM when you are sure everything mentioned here has been attended to.', 'wpcv-woo-civi-integration' ); ?></p>
+	<p><?php _e( 'Luckily there is no uninstall routine in the WooCommerce CiviCRM plugin at present. This means that WooCommerce CiviCRM will not auto-delete its settings when it is deleted. This plugin can therefore use those settings unchanged and you should not notice any difference once you have deactivated WooCommerce CiviCRM. Nevertheless, you should only deactivate and delete WooCommerce CiviCRM when you are sure everything mentioned here has been attended to and you have clicked "Submit".', 'wpcv-woo-civi-integration' ); ?></p>
 
 <?php else : ?>
 
