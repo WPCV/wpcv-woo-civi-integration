@@ -1110,4 +1110,39 @@ class WPCV_Woo_Civi_Helper {
 
 	}
 
+	/**
+	 * Get a CiviCRM admin link.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $path The CiviCRM path.
+	 * @param string $params The CiviCRM parameters.
+	 * @return string $link The URL of the CiviCRM page.
+	 */
+	public function get_civi_admin_link( $path = '', $params = null ) {
+
+		// Init link.
+		$link = '';
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $link;
+		}
+
+		// Use CiviCRM to construct link.
+		$link = CRM_Utils_System::url(
+			$path, // Path to the resource.
+			$params, // Params to pass to resource.
+			true, // Force an absolute link.
+			null, // Fragment (#anchor) to append.
+			true, // Encode special HTML characters.
+			false, // CMS front end.
+			true // CMS back end.
+		);
+
+		// --<
+		return $link;
+
+	}
+
 }

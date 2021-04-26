@@ -435,15 +435,18 @@ class WPCV_Woo_Civi_Manager {
 
 			$cid = $result['id'];
 
-			// FIXME: Use CiviCRM to build URL.
-			$contact_url = '<a href="' . get_admin_url() . 'admin.php?page=CiviCRM&q=civicrm/contact/view&reset=1&cid=' . $cid . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
+			// Get the link to the Contact in CiviCRM.
+			$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $cid );
+			$contact_url = '<a href="' . $link . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
 
 			// Add Order note.
-			// FIXME: Use sprintf.
+			// FIXME: Always records "CiviCRM Contact Updated".
 			if ( 'update' === $action ) {
-				$note = __( 'CiviCRM Contact Updated - ', 'wpcv-woo-civi-integration' ) . $contact_url;
+				/* translators: %s: The link to the Contact in CiviCRM */
+				$note = sprintf( __( 'CiviCRM Contact Updated - %s', 'wpcv-woo-civi-integration' ), $contact_url );
 			} else {
-				$note = __( 'Created new CiviCRM Contact - ', 'wpcv-woo-civi-integration' ) . $contact_url;
+				/* translators: %s: The link to the Contact in CiviCRM */
+				$note = sprintf( __( 'Created new CiviCRM Contact - %s', 'wpcv-woo-civi-integration' ), $contact_url );
 			}
 
 			$order->add_order_note( $note );
