@@ -595,7 +595,8 @@ class WPCV_Woo_Civi_Manager {
 	public function add_contribution( $cid, $order ) {
 
 		// Bail if Order is 'free' (0 amount) and 0 amount setting is enabled.
-		if ( WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false ) ) && $order->get_total() === 0 ) {
+		$ignore_zero_orders = WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false ) );
+		if ( $ignore_zero_orders && $order->get_total() === 0 ) {
 			return false;
 		}
 
@@ -605,52 +606,27 @@ class WPCV_Woo_Civi_Manager {
 		$order_paid_date = ! empty( $order_date ) ? $order_date->date( 'Y-m-d H:i:s' ) : gmdate( 'Y-m-d H:i:s' );
 
 		$order_id = $order->get_id();
-		$txn_id = __( 'WooCommerce Order - ', 'wpcv-woo-civi-integration' ) . $order_id;
+		/* translators: %d: The numeric ID of the WooCommerce Order */
+		$txn_id = sprintf( __( 'WooCommerce Order - %d', 'wpcv-woo-civi-integration' ), (int) $order_id );
 		$invoice_id = $this->get_invoice_id( $order_id );
 
 		// Ensure number format is CiviCRM-compliant.
-		$decimal_separator = '.';
-		$thousand_separator = '';
-
-		try {
-
-			$params = [
-				'sequential' => 1,
-				'name' => 'monetaryDecimalPoint',
-			];
-
-			$civi_decimal_separator = civicrm_api3( 'Setting', 'getvalue', $params );
-
-			$params = [
-				'sequential' => 1,
-				'name' => 'monetaryThousandSeparator',
-			];
-
-			$civi_thousand_separator = civicrm_api3( 'Setting', 'getvalue', $params );
-
-			if ( is_string( $civi_decimal_separator ) ) {
-				$decimal_separator = $civi_decimal_separator;
-			}
-			if ( is_string( $civi_thousand_separator ) ) {
-				$thousand_separator = $civi_thousand_separator;
-			}
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Monetary Settings', 'wpcv-woo-civi-integration' ) );
-			return false;
+		$decimal_separator = WPCV_WCI()->helper->get_decimal_separator();
+		$thousand_separator = WPCV_WCI()->helper->get_thousand_separator();
+		if ( $decimal_separator === false || $thousand_separator === false ) {
+			return;
 		}
 
 		$sales_tax_raw = $order->get_total_tax();
 		$sales_tax = number_format( $sales_tax_raw, 2, $decimal_separator, $thousand_separator );
 
 		$shipping_cost = $order->get_total_shipping();
-
 		if ( ! $shipping_cost ) {
 			$shipping_cost = 0;
 		}
 		$shipping_cost = number_format( $shipping_cost, 2, $decimal_separator, $thousand_separator );
 
-		// FIXME: Landmine. CiviCRM doesn't seem to accept financial values with precision greater than 2 digits after the decimal.
+		// FIXME: CiviCRM doesn't seem to accept financial values with precision greater than 2 digits after the decimal.
 		$rounded_total = round( $order->get_total() * 100 ) / 100;
 
 		/*
@@ -658,7 +634,6 @@ class WPCV_Woo_Civi_Manager {
 		 * So for now...
 		 */
 		$rounded_subtotal = $rounded_total - $sales_tax_raw;
-
 		$rounded_subtotal = number_format( $rounded_subtotal, 2, $decimal_separator, $thousand_separator );
 
 		// Get the default Financial Type.
@@ -669,11 +644,11 @@ class WPCV_Woo_Civi_Manager {
 		$default_financial_type_shipping_id = get_option( 'woocommerce_civicrm_financial_type_shipping_id' );
 
 		// Get the global CiviCRM Campaign ID.
-		$woocommerce_civicrm_campaign_id = get_option( 'woocommerce_civicrm_campaign_id', false );
-		$local_campaign_id = get_post_meta( $order->get_id(), '_woocommerce_civicrm_campaign_id', true );
+		$default_campaign_id = get_option( 'woocommerce_civicrm_campaign_id', false );
 		// Use the local CiviCRM Campaign ID if possible.
+		$local_campaign_id = get_post_meta( $order->get_id(), '_woocommerce_civicrm_campaign_id', true );
 		if ( ! empty( $local_campaign_id ) ) {
-			$woocommerce_civicrm_campaign_id = $local_campaign_id;
+			$default_campaign_id = $local_campaign_id;
 		}
 
 		$items = $order->get_items();
@@ -694,8 +669,8 @@ class WPCV_Woo_Civi_Manager {
 			'line_items' => [],
 		];
 
-		if ( ! empty( $woocommerce_civicrm_campaign_id ) ) {
-			$params['campaign_id'] = $woocommerce_civicrm_campaign_id;
+		if ( ! empty( $default_campaign_id ) ) {
+			$params['campaign_id'] = $default_campaign_id;
 		}
 
 		// If the order has VAT (Tax) use VAT Financial Type.
@@ -713,6 +688,7 @@ class WPCV_Woo_Civi_Manager {
 		 * @since 2.2
 		 */
 		if ( count( $items ) ) {
+
 			$financial_types = [];
 			foreach ( $items as $item ) {
 
@@ -782,6 +758,7 @@ class WPCV_Woo_Civi_Manager {
 			if ( 1 === count( $financial_types ) ) {
 				$params['financial_type_id'] = $product_financial_type_id;
 			}
+
 		}
 
 		/*
@@ -807,6 +784,7 @@ class WPCV_Woo_Civi_Manager {
 
 		// Flush UTM cookies.
 		$this->delete_utm_cookies();
+
 		try {
 
 			/**
