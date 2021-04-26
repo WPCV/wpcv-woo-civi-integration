@@ -1111,6 +1111,82 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
+	 * Gets the CiviCRM Decimal Separator.
+	 *
+	 * @since 3.0
+	 *
+	 * @return str|bool $decimal_separator The CiviCRM Decimal Separator, or false on failure.
+	 */
+	public function get_decimal_separator() {
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		$decimal_separator = '.';
+
+		try {
+
+			$params = [
+				'sequential' => 1,
+				'name' => 'monetaryDecimalPoint',
+			];
+
+			$result = civicrm_api3( 'Setting', 'getvalue', $params );
+
+			if ( is_string( $result ) ) {
+				$decimal_separator = $result;
+			}
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Decimal Separator', 'wpcv-woo-civi-integration' ) );
+			return false;
+		}
+
+		return $decimal_separator;
+
+	}
+
+	/**
+	 * Gets the CiviCRM Thousand Separator.
+	 *
+	 * @since 3.0
+	 *
+	 * @return str|bool $thousand_separator The CiviCRM Thousand Separator, or false on failure.
+	 */
+	public function get_thousand_separator() {
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		$thousand_separator = '';
+
+		try {
+
+			$params = [
+				'sequential' => 1,
+				'name' => 'monetaryThousandSeparator',
+			];
+
+			$civi_thousand_separator = civicrm_api3( 'Setting', 'getvalue', $params );
+
+			if ( is_string( $civi_thousand_separator ) ) {
+				$thousand_separator = $civi_thousand_separator;
+			}
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Thousand Separator', 'wpcv-woo-civi-integration' ) );
+			return false;
+		}
+
+		return $thousand_separator;
+
+	}
+
+	/**
 	 * Get a CiviCRM admin link.
 	 *
 	 * @since 3.0
