@@ -424,11 +424,6 @@ class WPCV_Woo_Civi_Manager {
 			$action = 'update';
 		}
 
-		// FIXME: Why are we setting display_name?
-		if ( '' !== trim( "{$fname} {$lname}" ) ) {
-			$contact['display_name'] = "{$fname} {$lname}";
-		}
-
 		if ( empty( $contact['contact_source'] ) ) {
 			$contact['contact_source'] = __( 'WooCommerce purchase', 'wpcv-woo-civi-integration' );
 		}
