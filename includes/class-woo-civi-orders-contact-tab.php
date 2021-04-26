@@ -334,7 +334,6 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 			}
 			$this->unfix_site();
 			return $orders;
-			// FIXME: Shouldn't this be called before returning Orders?
 		}
 
 		// Else continue the main way.
