@@ -108,9 +108,6 @@ class WPCV_Woo_Civi_Products {
 		if ( isset( $_POST['woocommerce_civicrm_financial_type_id'] ) ) {
 			$financial_type_id = sanitize_key( $_POST['woocommerce_civicrm_financial_type_id'] );
 			$product->add_meta_data( 'woocommerce_civicrm_financial_type_id', $financial_type_id, true );
-
-			// FIXME: Should "_civicrm_contribution_type" also be saved here?
-
 		}
 
 		if ( isset( $_POST['woocommerce_civicrm_membership_type_id'] ) ) {
@@ -134,21 +131,25 @@ class WPCV_Woo_Civi_Products {
 			return;
 		}
 
-		$contribution_type = get_post_meta( $post_id, '_civicrm_contribution_type', true );
 		$default_contribution_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
+		$product_contribution_type_id = get_post_meta( $post_id, 'woocommerce_civicrm_financial_type_id', true );
 		$financial_types = WPCV_WCI()->helper->get_financial_types();
 
-		echo '<br>' . (
-			( null !== $contribution_type && isset( $financial_types[ $contribution_type ] ) )
-				? esc_html( $financial_types[ $contribution_type ] )
-				: sprintf(
-					/* translators: %s: The default Financial Type */
-					__( '%s (Default)', 'wpcv-woo-civi-integration' ),
-					isset( $financial_types[ $default_contribution_type_id ] )
-						? $financial_types[ $default_contribution_type_id ]
-						: __( 'Not set', 'wpcv-woo-civi-integration' )
-				)
-		);
+		echo '<br>';
+
+		// If there's a specific Financial Type for this Product, use it.
+		if ( null !== $product_contribution_type_id && isset( $financial_types[ $product_contribution_type_id ] ) ) {
+			echo esc_html( $financial_types[ $product_contribution_type_id ] );
+			return;
+		}
+
+		// Fall back to the default Financial Type.
+		$default = isset( $financial_types[ $default_contribution_type_id ] )
+			? $financial_types[ $default_contribution_type_id ]
+			: __( 'Not set', 'wpcv-woo-civi-integration' );
+
+		/* translators: %s: The default Financial Type */
+		echo sprintf( __( '%s (Default)', 'wpcv-woo-civi-integration' ), $default );
 
 	}
 
@@ -173,7 +174,7 @@ class WPCV_Woo_Civi_Products {
 		<label>
 			<span class="title"><?php esc_html_e( 'Contribution Type', 'wpcv-woo-civi-integration' ); ?></span>
 			<span class="input-text-wrap">
-				<select class="civicrm_contribution_type" name="_civicrm_contribution_type">
+				<select class="civicrm_financial_type_id" name="_civicrm_financial_type_id">
 					<?php
 					foreach ( $options as $key => $value ) {
 						echo '<option value="' . esc_attr( $key ) . '">' . esc_html( $value ) . '</option>';
@@ -207,7 +208,7 @@ class WPCV_Woo_Civi_Products {
 		<div class="inline-edit-group">
 			<span class="title"><?php esc_html_e( 'Contribution Type', 'wpcv-woo-civi-integration' ); ?></span>
 			<span class="input-text-wrap">
-				<select class="civicrm_contribution_type" name="_civicrm_contribution_type">
+				<select class="civicrm_financial_type_id" name="_civicrm_financial_type_id">
 					<?php
 					foreach ( $options as $key => $value ) {
 						echo '<option value="' . esc_attr( $key ) . '">' . esc_html( $value ) . '</option>';
@@ -230,16 +231,16 @@ class WPCV_Woo_Civi_Products {
 	public function product_edit_save( $product ) {
 
 		// Bail if there's none of our data present.
-		if ( empty( $_REQUEST['_civicrm_contribution_type'] ) ) {
+		if ( empty( $_REQUEST['_civicrm_financial_type_id'] ) ) {
 			return;
 		}
 
 		// Extract Post ID.
 		$post_id = $product->get_id();
 
-		// Save Contribution Type to Post meta.
-		$contribution_type = sanitize_text_field( $_REQUEST['_civicrm_contribution_type'] );
-		update_post_meta( $post_id, '_civicrm_contribution_type', $contribution_type );
+		// Save Contribution Type directly to Post meta.
+		$financial_type_id = sanitize_text_field( $_REQUEST['_civicrm_financial_type_id'] );
+		update_post_meta( $post_id, 'woocommerce_civicrm_financial_type_id', $financial_type_id );
 
 	}
 
