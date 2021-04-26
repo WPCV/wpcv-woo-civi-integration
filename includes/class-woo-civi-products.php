@@ -55,12 +55,12 @@ class WPCV_Woo_Civi_Products {
 		// Save CiviCRM Product settings.
 		add_action( 'woocommerce_admin_process_product_object', [ $this, 'save_civicrm_product_settings' ] );
 
-		add_action( 'bulk_edit_custom_box', [ $this, 'add_contribution_to_quick_edit' ], 10, 2 );
-
 		add_action( 'manage_product_posts_custom_column', [ $this, 'columns_content' ], 90, 2 );
 
-		// Bulk / quick edit.
-		add_action( 'save_post', [ $this, 'bulk_and_quick_edit_save_post' ], 10, 2 );
+		// Product Bulk Edit and Quick Edit operations.
+		add_action( 'woocommerce_product_bulk_edit_end', [ $this, 'bulk_edit_markup' ] );
+		add_action( 'woocommerce_product_quick_edit_end', [ $this, 'quick_edit_markup' ] );
+		add_action( 'woocommerce_product_bulk_edit_save', [ $this, 'product_edit_save' ] );
 
 	}
 
@@ -132,15 +132,15 @@ class WPCV_Woo_Civi_Products {
 		if ( 'product_cat' === $column_name ) {
 			$contribution_type = get_post_meta( $post_id, '_civicrm_contribution_type', true );
 			$default_contribution_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
-			$contributions_types = WPCV_WCI()->helper->get_financial_types();
+			$financial_types = WPCV_WCI()->helper->get_financial_types();
 			echo '<br>' . (
-				( null !== $contribution_type && isset( $contributions_types[ $contribution_type ] ) )
-					? esc_html( $contributions_types[ $contribution_type ] )
+				( null !== $contribution_type && isset( $financial_types[ $contribution_type ] ) )
+					? esc_html( $financial_types[ $contribution_type ] )
 					: sprintf(
 						/* translators: %s: The default Financial Type */
 						__( '%s (Default)', 'wpcv-woo-civi-integration' ),
-						isset( $contributions_types[ $default_contribution_type_id ] )
-							? $contributions_types[ $default_contribution_type_id ]
+						isset( $financial_types[ $default_contribution_type_id ] )
+							? $financial_types[ $default_contribution_type_id ]
 							: __( 'Not set', 'wpcv-woo-civi-integration' )
 					)
 			);
@@ -148,80 +148,94 @@ class WPCV_Woo_Civi_Products {
 
 	}
 
-
 	/**
-	 * Contribution fields for Products.
+	 * Adds a Contribution Type selector to WooCommerce "Product data" on Bulk Edit screen.
 	 *
-	 * @since 2.4
+	 * @since 3.0
 	 */
-	public function contribution_fields_bulk() {
+	public function bulk_edit_markup() {
 
-		echo '
-			<div class="inline-edit-group">
-			<label class="alignleft">
-				<span class="title">' . __( 'Contribution Type', 'wpcv-woo-civi-integration' ) . '</span>
-				<span class="input-text-wrap">
-				<select style="" id="_civicrm_contribution_type" name="civicrm_contribution_type" class="select short">';
-		$contributions_types = WPCV_WCI()->helper->get_financial_types();
+		// Construct select options array.
+		$financial_types = WPCV_WCI()->helper->get_financial_types();
 		$options = [
-			__( '— No change —', 'wpcv-woo-civi-integration' ),
+			'' => __( '— No change —', 'wpcv-woo-civi-integration' ),
 		]
-		+ $contributions_types +
+		+ $financial_types +
 		[
 			'exclude' => '-- ' . __( 'Exclude', 'wpcv-woo-civi-integration' ),
 		];
 
-		foreach ( $options as $key => $value ) {
-			echo '<option value="' . esc_attr( $key ) . '">' . $value . '</option>';
-		}
-		echo '</select>
-				</span>
-			</label>
-		</div>';
+		?>
+		<label>
+			<span class="title"><?php esc_html_e( 'Contribution Type', 'wpcv-woo-civi-integration' ); ?></span>
+			<span class="input-text-wrap">
+				<select class="civicrm_contribution_type" name="_civicrm_contribution_type">
+					<?php
+					foreach ( $options as $key => $value ) {
+						echo '<option value="' . esc_attr( $key ) . '">' . esc_html( $value ) . '</option>';
+					}
+					?>
+				</select>
+			</span>
+		</label>
+		<?php
 
 	}
 
 	/**
-	 * Add Contribution to Quick Edit.
+	 * Adds a Contribution Type selector to WooCommerce "Product data" on Quick Edit screen.
 	 *
-	 * @since 2.4
-	 *
-	 * @param string $column_name The column name.
-	 * @param string $post_type The WordPress Post Type.
+	 * @since 3.0
 	 */
-	public function add_contribution_to_quick_edit( $column_name, $post_type ) {
+	public function quick_edit_markup() {
 
-		if ( 'product_cat' !== $column_name || 'product' !== $post_type ) {
+		// Construct select options array.
+		$financial_types = WPCV_WCI()->helper->get_financial_types();
+		$options = [
+			'' => __( '— No change —', 'wpcv-woo-civi-integration' ),
+		]
+		+ $financial_types +
+		[
+			'exclude' => '-- ' . __( 'Exclude', 'wpcv-woo-civi-integration' ),
+		];
+
+		?>
+		<div class="inline-edit-group">
+			<span class="title"><?php esc_html_e( 'Contribution Type', 'wpcv-woo-civi-integration' ); ?></span>
+			<span class="input-text-wrap">
+				<select class="civicrm_contribution_type" name="_civicrm_contribution_type">
+					<?php
+					foreach ( $options as $key => $value ) {
+						echo '<option value="' . esc_attr( $key ) . '">' . esc_html( $value ) . '</option>';
+					}
+					?>
+				</select>
+			</span>
+		</div>
+		<?php
+
+	}
+
+	/**
+	 * Saves the Contribution Type when Bulk Edit or Quick Edit is submitted.
+	 *
+	 * @since 3.0
+	 *
+	 * @param object $product The WooCommerce Product object being saved.
+	 */
+	public function product_edit_save( $product ) {
+
+		// Bail if there's none of our data present.
+		if ( empty( $_REQUEST['_civicrm_contribution_type'] ) ) {
 			return;
 		}
 
-		echo '<div class="inline-edit-col-right" style="float:right;">';
-		$this->contribution_fields_bulk();
-		echo '</div>';
+		// Extract Post ID.
+		$post_id = $product->get_id();
 
-	}
-
-	/**
-	 * Quick and bulk edit saving.
-	 *
-	 * TODO: "update_post_meta" doesn't cause "save_post" to fire again, so the
-	 * protection against recursion is likely to be redundant.
-	 *
-	 * @since 2.3
-	 *
-	 * @param int $post_id The Post ID being saved.
-	 * @param object $post The Post object being saved.
-	 */
-	public function bulk_and_quick_edit_save_post( $post_id, $post ) {
-
-		remove_action( 'save_post', [ $this, 'bulk_and_quick_edit_save_post' ] );
-
-		if ( isset( $_GET['civicrm_contribution_type'] ) ) {
-			$civicrm_contribution_type = sanitize_text_field( $_GET['civicrm_contribution_type'] );
-			update_post_meta( $post_id, '_civicrm_contribution_type', $civicrm_contribution_type );
-		}
-
-		add_action( 'save_post', [ $this, 'bulk_and_quick_edit_save_post' ], 10, 2 );
+		// Save Contribution Type to Post meta.
+		$contribution_type = sanitize_text_field( $_REQUEST['_civicrm_contribution_type'] );
+		update_post_meta( $post_id, '_civicrm_contribution_type', $contribution_type );
 
 	}
 
