@@ -69,54 +69,41 @@ class WPCV_Woo_Civi_States {
 
 		// Add CiviCRM settings tab.
 		add_filter( 'woocommerce_states', [ $this, 'replace_woocommerce_states' ], 10, 1 );
-		$this->inited();
 
 	}
 
 	/**
-	 * CiviCRM inited.
-	 *
-	 * @since 2.0
-	 */
-	public function inited() {
-
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return;
-		}
-
-		$this->replace = WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_replace_woocommerce_states' ) );
-		$this->civicrm_countries = $this->get_civicrm_countries();
-
-	}
-
-	/**
-	 * Function to replace WooCommerce State/Provinces list with CiviCRM's list.
+	 * Replaces the WooCommerce State/Provinces list with CiviCRM's list.
 	 *
 	 * @since 2.0
 	 *
-	 * @uses 'woocommerce_states' filter.
-	 *
-	 * @param array $states The WooCommerce State/Provinces.
-	 * @return array $states The modifies State/Provinces.
+	 * @param array $states The existing WooCommerce State/Provinces.
+	 * @return array $states The WooCommerce State/Provinces overwritten with CiviCRM data.
 	 */
 	public function replace_woocommerce_states( $states ) {
 
-		// Bail if replace is not enabled.
-		if ( ! $this->replace ) {
+		// Bail early if replace is not enabled.
+		$setting = get_option( 'woocommerce_civicrm_replace_woocommerce_states' );
+		$replace = WPCV_WCI()->helper->check_yes_no_value( $setting );
+		if ( ! $replace ) {
 			return $states;
 		}
 
-		$new_states = [];
-		foreach ( WPCV_WCI()->helper->get_civicrm_states() as $state_id => $state ) {
-			$new_states[ $this->civicrm_countries[ $state['country_id'] ] ][ $state['abbreviation'] ] = $state['name'];
+		// Start from scratch.
+		$states = [];
+		$civicrm_states = WPCV_WCI()->helper->get_civicrm_states();
+		$civicrm_countries = $this->get_civicrm_countries();
+
+		foreach ( $civicrm_states as $state_id => $state ) {
+			$states[ $civicrm_countries[ $state['country_id'] ] ][ $state['abbreviation'] ] = $state['name'];
 		}
 
-		return $new_states;
+		return $states;
 
 	}
 
 	/**
-	 * Get the CiviCRM Countries.
+	 * Gets a formatted array of CiviCRM Countries.
 	 *
 	 * @since 2.0
 	 *
@@ -124,7 +111,15 @@ class WPCV_Woo_Civi_States {
 	 */
 	public function get_civicrm_countries() {
 
+		// Return early if already calculated.
 		if ( ! empty( $this->civicrm_countries ) ) {
+			return $this->civicrm_countries;
+		}
+
+		$this->civicrm_countries = [];
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
 			return $this->civicrm_countries;
 		}
 
@@ -137,18 +132,16 @@ class WPCV_Woo_Civi_States {
 
 		$result = civicrm_api3( 'Country', 'get', $params );
 
-		$civicrm_countries = [];
-
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {
-			return $civicrm_countries;
+			return $this->civicrm_countries;
 		}
 
 		foreach ( $result['values'] as $key => $country ) {
-			$civicrm_countries[ $country['id'] ] = $country['iso_code'];
+			$this->civicrm_countries[ $country['id'] ] = $country['iso_code'];
 		}
 
-		return $civicrm_countries;
+		return $this->civicrm_countries;
 
 	}
 
