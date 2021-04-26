@@ -50,26 +50,28 @@ class WPCV_Woo_Civi_Products {
 
 		// Add CiviCRM tab to the Product Settings tabs.
 		add_filter( 'woocommerce_product_data_tabs', [ $this, 'add_civicrm_product_tab' ] );
+
 		// Add CiviCRM Product panel template.
 		add_action( 'woocommerce_product_data_panels', [ $this, 'add_civicrm_product_panel' ] );
+
 		// Save CiviCRM Product settings.
 		add_action( 'woocommerce_admin_process_product_object', [ $this, 'save_civicrm_product_settings' ] );
 
+		// Append Contribution Type to Product Cat.
 		add_action( 'manage_product_posts_custom_column', [ $this, 'columns_content' ], 90, 2 );
 
 		// Product Bulk Edit and Quick Edit operations.
 		add_action( 'woocommerce_product_bulk_edit_end', [ $this, 'bulk_edit_markup' ] );
-		add_action( 'woocommerce_product_quick_edit_end', [ $this, 'quick_edit_markup' ] );
 		add_action( 'woocommerce_product_bulk_edit_save', [ $this, 'product_edit_save' ] );
+		add_action( 'woocommerce_product_quick_edit_end', [ $this, 'quick_edit_markup' ] );
+		add_action( 'woocommerce_product_quick_edit_save', [ $this, 'product_edit_save' ] );
 
 	}
 
 	/**
-	 * Adds a CiviCRM settings tab to the new/edit Product screen.
+	 * Adds a "CiviCRM Settings" tab to the New & Edit Product screens.
 	 *
 	 * @since 2.4
-	 *
-	 * @uses 'woocommerce_product_data_tabs' filter.
 	 *
 	 * @param array $tabs The existing Product tabs.
 	 * @return array $tabs The modified Product tabs.
@@ -86,11 +88,9 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
-	 * Includes the CiviCRM settings panel to the new/edit Product screen.
+	 * Includes the CiviCRM settings panel on the New & Edit Product screens.
 	 *
 	 * @since 2.4
-	 *
-	 * @uses 'woocommerce_product_data_panels' action.
 	 */
 	public function add_civicrm_product_panel() {
 		include WPCV_WOO_CIVI_PATH . 'assets/templates/tabs/tab-product-data-civicrm-settings.php';
@@ -101,8 +101,6 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 2.4
 	 *
-	 * @uses 'woocommerce_admin_process_product_object' action.
-	 *
 	 * @param WC_Product $product The Product object.
 	 */
 	public function save_civicrm_product_settings( $product ) {
@@ -110,6 +108,9 @@ class WPCV_Woo_Civi_Products {
 		if ( isset( $_POST['woocommerce_civicrm_financial_type_id'] ) ) {
 			$financial_type_id = sanitize_key( $_POST['woocommerce_civicrm_financial_type_id'] );
 			$product->add_meta_data( 'woocommerce_civicrm_financial_type_id', $financial_type_id, true );
+
+			// FIXME: Should "_civicrm_contribution_type" also be saved here?
+
 		}
 
 		if ( isset( $_POST['woocommerce_civicrm_membership_type_id'] ) ) {
@@ -120,7 +121,7 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
-	 * Append the Financial Type to the Product Category column.
+	 * Appends the Financial Type to the Product Category column.
 	 *
 	 * @since 2.4
 	 *
@@ -129,22 +130,25 @@ class WPCV_Woo_Civi_Products {
 	 */
 	public function columns_content( $column_name, $post_id ) {
 
-		if ( 'product_cat' === $column_name ) {
-			$contribution_type = get_post_meta( $post_id, '_civicrm_contribution_type', true );
-			$default_contribution_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
-			$financial_types = WPCV_WCI()->helper->get_financial_types();
-			echo '<br>' . (
-				( null !== $contribution_type && isset( $financial_types[ $contribution_type ] ) )
-					? esc_html( $financial_types[ $contribution_type ] )
-					: sprintf(
-						/* translators: %s: The default Financial Type */
-						__( '%s (Default)', 'wpcv-woo-civi-integration' ),
-						isset( $financial_types[ $default_contribution_type_id ] )
-							? $financial_types[ $default_contribution_type_id ]
-							: __( 'Not set', 'wpcv-woo-civi-integration' )
-					)
-			);
+		if ( 'product_cat' !== $column_name ) {
+			return;
 		}
+
+		$contribution_type = get_post_meta( $post_id, '_civicrm_contribution_type', true );
+		$default_contribution_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
+		$financial_types = WPCV_WCI()->helper->get_financial_types();
+
+		echo '<br>' . (
+			( null !== $contribution_type && isset( $financial_types[ $contribution_type ] ) )
+				? esc_html( $financial_types[ $contribution_type ] )
+				: sprintf(
+					/* translators: %s: The default Financial Type */
+					__( '%s (Default)', 'wpcv-woo-civi-integration' ),
+					isset( $financial_types[ $default_contribution_type_id ] )
+						? $financial_types[ $default_contribution_type_id ]
+						: __( 'Not set', 'wpcv-woo-civi-integration' )
+				)
+		);
 
 	}
 
