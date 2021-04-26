@@ -1,5 +1,5 @@
 /**
-* WPCV WooCommerce CiviCRM "Migrate Page" Javascript.
+ * "Migrate Page" Javascript.
  *
  * Implements progress bar functionality on the plugin's "Migration Page".
  *

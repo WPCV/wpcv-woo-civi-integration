@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Orders Contact Tab class.
+ * Orders Contact Tab class.
  *
  * Handles the WooCommerce Orders tab on CiviCRM Contact screens.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Orders Contact Tab class.
+ * Orders Contact Tab class.
  *
  * @since 2.0
  */

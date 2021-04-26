@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Settings Tab class.
+ * Settings Tab class.
  *
  * Handles the CiviCRM Settings tab on the WooCommerce Settings screen.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Settings Tab class.
+ * Settings Tab class.
  *
  * @since 2.0
  */

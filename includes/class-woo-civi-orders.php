@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Orders class.
+ * Orders class.
  *
  * Handles the integration of WooCommerce Orders with CiviCRM.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Orders class.
+ * Orders class.
  *
  * @since 2.2
  */

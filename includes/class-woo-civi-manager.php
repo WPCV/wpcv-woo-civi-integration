@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Manager class.
+ * Manager class.
  *
  * Manages general integration between WooCommerce and CiviCRM.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Manager class.
+ * Manager class.
  *
  * @since 2.0
  */

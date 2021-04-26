@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM States class.
+ * States class.
  *
  * Handles the integration of WooCommerce States with CiviCRM States.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM States class.
+ * States class.
  *
  * @since 2.0
  */

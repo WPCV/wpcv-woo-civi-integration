@@ -1,5 +1,5 @@
 /**
- * WPCV WooCommerce CiviCRM Javascript.
+ * Admin Order Javascript.
  *
  * @package WPCV_Woo_Civi
  * @since 2.0

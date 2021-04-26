@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Sync class.
+ * Sync loader class.
  *
  * Loads the classes which handle syncing data between WooCommerce and CiviCRM.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Sync class.
+ * Sync class.
  *
  * @since 2.1
  */

@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Helper Class.
+ * Helper Class.
  *
  * Miscellaneous utilities.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Helper class.
+ * Helper class.
  *
  * @since 2.0
  */

@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Migration Page template.
+ * Migration Page template.
  *
  * Handles markup for the Migration Page.
  *

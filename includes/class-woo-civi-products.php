@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Product class.
+ * Product class.
  *
  * Handles the integration of WooCommerce Products with CiviCRM.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Product class.
+ * Product class.
  *
  * @since 2.2
  */

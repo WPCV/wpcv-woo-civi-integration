@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Sync Phone class.
+ * Sync Phone class.
  *
  * Handles syncing Phone Numbers between WooCommerce and CiviCRM.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Sync Phone class.
+ * Sync Phone class.
  *
  * @since 2.0
  */

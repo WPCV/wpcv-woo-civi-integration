@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Sync Address class.
+ * Sync Address class.
  *
  * Handles syncing Addresses between WooCommerce and CiviCRM.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Sync Address class.
+ * Sync Address class.
  *
  * @since 2.0
  */

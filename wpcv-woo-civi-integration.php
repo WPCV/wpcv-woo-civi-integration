@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM class.
+ * Plugin bootstrap class.
  *
  * A class that encapsulates this plugin's functionality.
  *

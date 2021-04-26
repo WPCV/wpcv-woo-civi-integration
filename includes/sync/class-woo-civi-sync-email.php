@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Sync Email class.
+ * Sync Email class.
  *
  * Handles syncing Email Addresses between WooCommerce and CiviCRM.
  *
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Sync Email class.
+ * Sync Email class.
  *
  * @since 2.0
  */

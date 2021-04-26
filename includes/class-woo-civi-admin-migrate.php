@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCV WooCommerce CiviCRM Admin Migrate class.
+ * Admin Migrate class.
  *
  * Handles admin tasks for this plugin. particularly migrating from the old plugin
  * to the current one.
@@ -13,7 +13,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WPCV WooCommerce CiviCRM Admin Migrate class.
+ * Admin Migrate class.
  *
  * @since 3.0
  */
