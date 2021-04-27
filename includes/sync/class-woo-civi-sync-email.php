@@ -46,8 +46,6 @@ class WPCV_Woo_Civi_Sync_Email {
 	 */
 	public function register_hooks() {
 
-		// FIXME: remove reverse sync.
-
 		// Sync WooCommerce and CiviCRM email for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
 		// Sync WooCommerce and CiviCRM email for User/Contact.
@@ -172,8 +170,12 @@ class WPCV_Woo_Civi_Sync_Email {
 			return false;
 		}
 
+		// Prevent reverse sync.
+		remove_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10 );
+
 		try {
 
+			// FIXME: Undefined index: is_error
 			if ( isset( $civi_email ) && ! $civi_email['is_error'] ) {
 				$new_params = array_merge( $civi_email, $edited_email );
 			} else {
@@ -184,8 +186,12 @@ class WPCV_Woo_Civi_Sync_Email {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
 			return false;
 		}
+
+		// Rehook callback.
+		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
 
 		/**
 		 * Broadcast that a CiviCRM Email has been updated.

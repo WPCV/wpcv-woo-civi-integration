@@ -46,8 +46,6 @@ class WPCV_Woo_Civi_Sync_Address {
 	 */
 	public function register_hooks() {
 
-		// FIXME: remove reverse sync.
-
 		// Sync WooCommerce and CiviCRM Address for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10, 4 );
 		// Sync WooCommerce and CiviCRM Address for User/Contact.
@@ -190,8 +188,12 @@ class WPCV_Woo_Civi_Sync_Address {
 			return false;
 		}
 
+		// Prevent reverse sync.
+		remove_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10 );
+
 		try {
 
+			// FIXME: Undefined index: is_error
 			if ( isset( $civi_address ) && ! $civi_address['is_error'] ) {
 				$new_params = array_merge( $civi_address, $edited_address );
 			} else {
@@ -202,8 +204,12 @@ class WPCV_Woo_Civi_Sync_Address {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			add_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10, 4 );
 			return false;
 		}
+
+		// Rehook callback.
+		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10, 4 );
 
 		/**
 		 * Broadcast that a CiviCRM Address has been updated.

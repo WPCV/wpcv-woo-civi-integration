@@ -46,8 +46,6 @@ class WPCV_Woo_Civi_Sync_Phone {
 	 */
 	public function register_hooks() {
 
-		// FIXME: remove reverse sync.
-
 		// Sync WooCommerce and CiviCRM Phone for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_phone' ], 10, 4 );
 		// Sync WooCommerce and CiviCRM Phone for User/Contact.
@@ -170,8 +168,12 @@ class WPCV_Woo_Civi_Sync_Phone {
 			return false;
 		}
 
+		// Prevent reverse sync.
+		remove_action( 'civicrm_post', [ $this, 'sync_civi_contact_phone' ], 10 );
+
 		try {
 
+			// FIXME: Undefined index: is_error
 			if ( isset( $civi_phone ) && ! $civi_phone['is_error'] ) {
 				$new_params = array_merge( $civi_phone, $edited_phone );
 			} else {
@@ -182,8 +184,12 @@ class WPCV_Woo_Civi_Sync_Phone {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			add_action( 'civicrm_post', [ $this, 'sync_civi_contact_phone' ], 10, 4 );
 			return false;
 		}
+
+		// Rehook callback.
+		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_phone' ], 10, 4 );
 
 		/**
 		 * Broadcast that a CiviCRM Phone has been updated.
