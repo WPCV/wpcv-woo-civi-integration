@@ -188,10 +188,10 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 		$cid = $context['contact_id'];
 
 		// Bail if Contact has no Orders and "Hide Order" is enabled.
-		if (
-			WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_hide_orders_tab_for_non_customers', false ) )
-			&& ! $this->count_orders( $cid )
-		) {
+		$order_count = $this->count_orders( $cid );
+		$option = get_option( 'woocommerce_civicrm_hide_orders_tab_for_non_customers', false );
+		$hide_orders_tab = WPCV_WCI()->helper->check_yes_no_value( $option );
+		if ( $hide_orders_tab && ! $order_count ) {
 			return;
 		}
 
@@ -201,7 +201,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 			'id' => 'woocommerce-orders',
 			'url' => $url,
 			'title' => __( 'WooCommerce Orders', 'wpcv-woo-civi-integration' ),
-			'count' => $this->count_orders( $cid ),
+			'count' => $order_count,
 			'weight' => 99,
 		];
 
@@ -258,6 +258,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 		$order_statuses = apply_filters( 'wc_order_statuses', $order_statuses );
 
 		if ( ! $uid && empty( $contact['email'] ) ) {
+			$this->unfix_site();
 			return [];
 		}
 
@@ -320,37 +321,48 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 		// If WooCommerce is in another blog, fetch the Order remotely.
 		if ( $this->is_remote_wc() ) {
 			$this->fix_site();
-			$site_url = get_site_url();
+
 			foreach ( $customer_orders as $customer_order ) {
+
+				$order_id = $customer_order->ID;
 				$order = $customer_order;
-				$orders[ $customer_order->ID ]['order_number'] = $order->ID;
-				$orders[ $customer_order->ID ]['order_date'] = date_i18n( $date_format, strtotime( $order->post_date ) );
-				$orders[ $customer_order->ID ]['order_billing_name'] = get_post_meta( $order->ID, '_billing_first_name', true ) . ' ' . get_post_meta( $order->ID, '_billing_last_name', true );
-				$orders[ $customer_order->ID ]['order_shipping_name'] = get_post_meta( $order->ID, '_shipping_first_name', true ) . ' ' . get_post_meta( $order->ID, '_shipping_last_name', true );
-				$orders[ $customer_order->ID ]['item_count'] = '--';
-				$orders[ $customer_order->ID ]['order_total'] = get_post_meta( $order->ID, '_order_total', true );
-				$orders[ $customer_order->ID ]['order_status'] = $order->post_status;
-				$orders[ $customer_order->ID ]['order_link'] = $site_url . '/wp-admin/post.php?action=edit&post=' . $order->ID;
+
+				$orders[ $order_id ]['order_number'] = $order_id;
+				$orders[ $order_id ]['order_date'] = date_i18n( $date_format, strtotime( $order->post_date ) );
+				//$orders[ $order_id ]['order_date'] = $order->get_date_created()->date_i18n($date_format);
+				$orders[ $order_id ]['order_billing_name'] = get_post_meta( $order_id, '_billing_first_name', true ) . ' ' . get_post_meta( $order_id, '_billing_last_name', true );
+				$orders[ $order_id ]['order_shipping_name'] = get_post_meta( $order_id, '_shipping_first_name', true ) . ' ' . get_post_meta( $order_id, '_shipping_last_name', true );
+				$orders[ $order_id ]['item_count'] = '--';
+				$orders[ $order_id ]['order_total'] = get_post_meta( $order_id, '_order_total', true );
+				$orders[ $order_id ]['order_status'] = $order->post_status;
+				$orders[ $order_id ]['order_link'] = admin_url( 'post.php?action=edit&post=' . $order_id );
+
 			}
+
 			$this->unfix_site();
 			return $orders;
 		}
 
 		// Else continue the main way.
-		$site_url = get_site_url();
 		foreach ( $customer_orders as $customer_order ) {
+
+			$order_id = $customer_order->ID;
 			$order = new WC_Order( $customer_order );
 			$item_count = $order->get_item_count();
 			$total = $order->get_total();
-			$orders[ $customer_order->ID ]['order_number'] = $order->get_order_number();
-			$orders[ $customer_order->ID ]['order_date'] = date_i18n( $date_format, strtotime( $order->get_date_created() ) );
-			$orders[ $customer_order->ID ]['order_billing_name'] = $order->get_formatted_billing_full_name();
-			$orders[ $customer_order->ID ]['order_shipping_name'] = $order->get_formatted_shipping_full_name();
-			$orders[ $customer_order->ID ]['item_count'] = $item_count;
-			$orders[ $customer_order->ID ]['order_total'] = $total;
-			$orders[ $customer_order->ID ]['order_status'] = $order->get_status();
-			$orders[ $customer_order->ID ]['order_link'] = $site_url . '/wp-admin/post.php?action=edit&post=' . $order->get_order_number();
+
+			$orders[ $order_id ]['order_number'] = $order->get_order_number();
+			$orders[ $order_id ]['order_date'] = date_i18n( $date_format, strtotime( $order->get_date_created() ) );
+			//$orders[ $order_id ]['order_date'] = $order->get_date_created()->date_i18n( $date_format );
+			$orders[ $order_id ]['order_billing_name'] = $order->get_formatted_billing_full_name();
+			$orders[ $order_id ]['order_shipping_name'] = $order->get_formatted_shipping_full_name();
+			$orders[ $order_id ]['item_count'] = $item_count;
+			$orders[ $order_id ]['order_total'] = $total;
+			$orders[ $order_id ]['order_status'] = $order->get_status();
+			$orders[ $order_id ]['order_link'] = admin_url( 'post.php?action=edit&post=' . $order->get_order_number() );
+
 		}
+
 		if ( ! empty( $orders ) ) {
 			return $orders;
 		}

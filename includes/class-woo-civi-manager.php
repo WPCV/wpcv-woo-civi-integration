@@ -797,32 +797,24 @@ class WPCV_Woo_Civi_Manager {
 			 */
 			$params = apply_filters( 'wpcv_woo_civi/order/create/params', $params, $order );
 
+			// FIXME: Error checking.
 			$contribution = civicrm_api3( 'Order', 'create', $params );
 
-			if ( isset( $contribution['id'] ) && $contribution['id'] ) {
+			if ( ! empty( $contribution['id'] ) && is_numeric( $contribution['id'] ) ) {
+
+				$link = WPCV_WCI()->helper->get_civi_admin_link(
+					'civicrm/contact/view/contribution',
+					'reset=1&id=' . $contribution['id'] . '&cid=' . $cid . '&action=view'
+				);
+
+				$note = sprintf(
+					/* translators: %s: The View Contribution link */
+					__( 'Contribution %s has been created in CiviCRM', 'wpcv-woo-civi-integration' ),
+					'<a href="' . $link . '">' . $contribution['id'] . '</a>'
+				);
 
 				// Adds Order note in reference to the created Contribution.
-				$order->add_order_note(
-					sprintf(
-						/* translators: %s: The Contact Summary Page URL */
-						__( 'Contribution %s has been created in CiviCRM', 'wpcv-woo-civi-integration' ),
-						'<a href="'
-						. add_query_arg(
-							[
-								'page' => 'CiviCRM',
-								'q' => 'civicrm/contact/view/contribution',
-								'reset' => '1',
-								'id' => $contribution['id'],
-								'cid' => $cid,
-								'action' => 'view',
-								'context' => 'dashboard',
-								'selectedChild' => 'contribute',
-							],
-							admin_url( 'admin.php' )
-						)
-						. '">' . $contribution['id'] . '</a>'
-					)
-				);
+				$order->add_order_note( $note );
 				update_post_meta( $order_id, '_woocommerce_civicrm_contribution_id', $contribution['id'] );
 
 				return $contribution;
@@ -943,28 +935,20 @@ class WPCV_Woo_Civi_Manager {
 		// Until 2.2, Contribution Source was exactly the same as Contribution note.
 		$source = '';
 
-		if ( get_post_meta( $order->get_id(), '_order_source', true ) === 'pos' ) {
-			$source = 'pos';
-		} else {
+		$cookie = wp_unslash( $_COOKIE );
 
-			$cookie = wp_unslash( $_COOKIE );
-			// Checks if users comes from a Campaign.
-			if ( isset( $cookie[ 'woocommerce_civicrm_utm_source_' . COOKIEHASH ] ) && $cookie[ 'woocommerce_civicrm_utm_source_' . COOKIEHASH ] ) {
-				$source = esc_attr( $cookie[ 'woocommerce_civicrm_utm_source_' . COOKIEHASH ] );
-			}
-			// Append medium UTM if present.
-			if ( isset( $cookie[ 'woocommerce_civicrm_utm_medium_' . COOKIEHASH ] ) && $cookie[ 'woocommerce_civicrm_utm_medium_' . COOKIEHASH ] ) {
-				$source .= ' / ' . esc_attr( $cookie[ 'woocommerce_civicrm_utm_medium_' . COOKIEHASH ] );
-			}
+		// Check if users come from a Campaign.
+		if ( ! empty( $cookie[ 'woocommerce_civicrm_utm_source_' . COOKIEHASH ] ) ) {
+			$source = esc_attr( $cookie[ 'woocommerce_civicrm_utm_source_' . COOKIEHASH ] );
 		}
 
-		$order_source = get_post_meta( $order->get_id(), '_order_source', true );
-		if ( false === $order_source ) {
-			$order_source = '';
+		// Append UTM medium if present.
+		if ( ! empty( $cookie[ 'woocommerce_civicrm_utm_medium_' . COOKIEHASH ] ) ) {
+			$source .= ' / ' . esc_attr( $cookie[ 'woocommerce_civicrm_utm_medium_' . COOKIEHASH ] );
 		}
 
 		if ( '' === $source ) {
-			$source = __( 'shop', 'wpcv-woo-civi-integration' );
+			$source = __( 'WooCommerce', 'wpcv-woo-civi-integration' );
 		}
 
 		return $source;
@@ -1057,34 +1041,22 @@ class WPCV_Woo_Civi_Manager {
 
 		</p>
 		<?php
+
 		$cid = WPCV_WCI()->helper->civicrm_get_cid( $order );
 		if ( $cid ) {
+
+			$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $cid );
+
 			?>
 			<div class="form-field form-field-wide wc-civicrmsource">
-				<h3>
-				<?php
-				echo sprintf(
-					/* translators: %s: Contact Summary Screen link */
-					__( 'View %s in CiviCRM', 'wpcv-woo-civi-integration' ),
-					'<a href="'
-					. add_query_arg(
-						[
-							'page' => 'CiviCRM',
-							'q' => 'civicrm/contact/view/',
-							'cid' => $cid,
-							'action' => 'view',
-							'context' => 'dashboard',
-						],
-						admin_url( 'admin.php' )
-					)
-					. '" target="_blank"> '
-					. _x( 'Contact', 'in: View Contact in CiviCRM', 'wpcv-woo-civi-integration' )
-					. '</a>'
-				);
-				?>
-				</h3>
+				<h3><?php echo sprintf(
+					/* translators: %1$s: Opening link tag %2$s: Closing link tag */
+					__( 'View %1$sContact%2$s in CiviCRM', 'wpcv-woo-civi-integration' ),
+					'<a href="' . $link . '" target="_blank"> ', '</a>'
+				); ?></h3>
 			</div>
 			<?php
+
 		}
 
 	}
