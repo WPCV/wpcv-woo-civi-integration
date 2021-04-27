@@ -951,6 +951,16 @@ class WPCV_Woo_Civi_Manager {
 			$source = __( 'WooCommerce', 'wpcv-woo-civi-integration' );
 		}
 
+		/**
+		 * Filter the Contribution Source string.
+		 *
+		 * @since 3.0
+		 *
+		 * @param str $source The Contribution Source string.
+		 * @param object $order The Order object.
+		 */
+		$source = apply_filters( 'wpcv_woo_civi/order/generate_source', $source, $order );
+
 		return $source;
 
 	}
