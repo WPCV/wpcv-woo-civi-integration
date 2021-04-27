@@ -169,12 +169,11 @@ class WPCV_Woo_Civi_Manager {
 			return;
 		}
 
-		$params = [
-			'invoice_id' => $this->get_invoice_id( $order_id ),
-			'return' => [ 'id', 'financial_type_id', 'receive_date', 'total_amount', 'contact_id' ],
-		];
-
 		try {
+
+			$params = [
+				'invoice_id' => $this->get_invoice_id( $order_id ),
+			];
 
 			/**
 			 * Filter the Contribution params before calling the CiviCRM API.
@@ -195,16 +194,14 @@ class WPCV_Woo_Civi_Manager {
 		// Update Contribution.
 		try {
 
-			$params = [
-				'contribution_status_id' => $order->is_paid() ? 'Completed' : $this->map_contribution_status( $order->get_status() ),
-				'id' => $contribution['id'],
-				// 'financial_type_id' => $contribution['financial_type_id'],
-				// 'receive_date' => $contribution['receive_date'],
-				// 'total_amount' => $contribution['total_amount'],
-				// 'contact_id' => $contribution['contact_id'],
-			];
+			// Overwrite a Contribution Status.
+			if ( $order->is_paid() ) {
+				$contribution['contribution_status_id'] = 'Completed';
+			} else {
+				$contribution['contribution_status_id'] = $this->map_contribution_status( $order->get_status() );
+			}
 
-			$result = civicrm_api3( 'Contribution', 'create', $params );
+			$result = civicrm_api3( 'Contribution', 'create', $contribution );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Contribution', 'wpcv-woo-civi-integration' ) );
@@ -653,13 +650,13 @@ class WPCV_Woo_Civi_Manager {
 
 		$items = $order->get_items();
 
-		$payment_instrument = $this->map_payment_instrument( $order->get_payment_method() );
+		$payment_instrument_id = $this->map_payment_instrument( $order->get_payment_method() );
 		$source = $this->generate_source( $order );
 
 		$params = [
 			'contact_id' => $cid,
 			'financial_type_id' => $default_financial_type_id,
-			'payment_instrument_id' => $payment_instrument,
+			'payment_instrument_id' => $payment_instrument_id,
 			'trxn_id' => $txn_id,
 			'invoice_id' => $invoice_id,
 			'source' => $source,
