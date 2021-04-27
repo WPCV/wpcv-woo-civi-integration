@@ -48,6 +48,7 @@ class WPCV_Woo_Civi_Sync_Email {
 
 		// Sync WooCommerce and CiviCRM email for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
+
 		// Sync WooCommerce and CiviCRM email for User/Contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_email' ], 10, 2 );
 
@@ -57,6 +58,12 @@ class WPCV_Woo_Civi_Sync_Email {
 	 * Sync a CiviCRM Email from a Contact to a WordPress User.
 	 *
 	 * Fires when a Civi Contact's Email is edited.
+	 *
+	 * TODO: This should probably also remove the "civicrm_post" callback because
+	 * it is possible for there to be listeners on the "updated_{$meta_type}_meta"
+	 * action in WordPress.
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/updated_meta_type_meta/
 	 *
 	 * @since 2.0
 	 *
@@ -175,8 +182,7 @@ class WPCV_Woo_Civi_Sync_Email {
 
 		try {
 
-			// FIXME: Undefined index: is_error
-			if ( isset( $civi_email ) && ! $civi_email['is_error'] ) {
+			if ( isset( $civi_email ) && empty( $civi_email['is_error'] ) ) {
 				$new_params = array_merge( $civi_email, $edited_email );
 			} else {
 				$new_params = array_merge( $params, $edited_email );

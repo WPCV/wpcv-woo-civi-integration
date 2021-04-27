@@ -48,6 +48,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 
 		// Sync WooCommerce and CiviCRM Phone for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_phone' ], 10, 4 );
+
 		// Sync WooCommerce and CiviCRM Phone for User/Contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_phone' ], 10, 2 );
 
@@ -57,6 +58,12 @@ class WPCV_Woo_Civi_Sync_Phone {
 	 * Sync a CiviCRM Phone from a CiviCRM Contact to a WordPress User.
 	 *
 	 * Fires when a CiviCRM Contact's Phone is edited.
+	 *
+	 * TODO: This should probably also remove the "civicrm_post" callback because
+	 * it is possible for there to be listeners on the "updated_{$meta_type}_meta"
+	 * action in WordPress.
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/updated_meta_type_meta/
 	 *
 	 * @since 2.0
 	 *
@@ -173,8 +180,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 
 		try {
 
-			// FIXME: Undefined index: is_error
-			if ( isset( $civi_phone ) && ! $civi_phone['is_error'] ) {
+			if ( isset( $civi_phone ) && empty( $civi_phone['is_error'] ) ) {
 				$new_params = array_merge( $civi_phone, $edited_phone );
 			} else {
 				$new_params = array_merge( $params, $edited_phone );

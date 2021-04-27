@@ -48,6 +48,7 @@ class WPCV_Woo_Civi_Sync_Address {
 
 		// Sync WooCommerce and CiviCRM Address for Contact/User.
 		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10, 4 );
+
 		// Sync WooCommerce and CiviCRM Address for User/Contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_address' ], 10, 2 );
 
@@ -57,6 +58,12 @@ class WPCV_Woo_Civi_Sync_Address {
 	 * Sync CiviCRM Address from a CiviCRM Contact to a WordPress User.
 	 *
 	 * Fires when a CiviCRM Contact's Address is edited.
+	 *
+	 * TODO: This should probably also remove the "civicrm_post" callback because
+	 * it is possible for there to be listeners on the "updated_{$meta_type}_meta"
+	 * action in WordPress.
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/updated_meta_type_meta/
 	 *
 	 * @since 2.0
 	 *
@@ -193,8 +200,7 @@ class WPCV_Woo_Civi_Sync_Address {
 
 		try {
 
-			// FIXME: Undefined index: is_error
-			if ( isset( $civi_address ) && ! $civi_address['is_error'] ) {
+			if ( isset( $civi_address ) && empty( $civi_address['is_error'] ) ) {
 				$new_params = array_merge( $civi_address, $edited_address );
 			} else {
 				$new_params = array_merge( $params, $edited_address );
