@@ -187,7 +187,7 @@ class WPCV_Woo_Civi_Manager {
 			$contribution = civicrm_api3( 'Contribution', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( 'Unable to find Contribution' );
+			CRM_Core_Error::debug_log_message( __( 'Unable to find Contribution', 'wpcv-woo-civi-integration' ) );
 			return;
 		}
 
@@ -980,7 +980,7 @@ class WPCV_Woo_Civi_Manager {
 		wp_enqueue_script(
 			'wccivi_admin_order',
 			WPCV_WOO_CIVI_URL . 'assets/js/admin_order.js',
-			'jquery',
+			[ 'jquery' ],
 			WPCV_WOO_CIVI_VERSION,
 			true
 		);
@@ -1016,7 +1016,7 @@ class WPCV_Woo_Civi_Manager {
 			<select id="order_civicrmcampaign" name="order_civicrmcampaign" data-placeholder="<?php esc_attr( __( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ) ); ?>">
 				<option value=""></option>
 				<?php foreach ( $campaign_list as $campaign_id => $campaign_name ) : ?>
-				<option value="<?php esc_attr( $campaign_id ); ?>" <?php selected( $campaign_id, $order_campaign, true ); ?>><?php echo esc_attr( $campaign_name ); ?></option>
+					<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php selected( $campaign_id, $order_campaign, true ); ?>><?php echo esc_attr( $campaign_name ); ?></option>
 				<?php endforeach; ?>
 			</select>
 		</p>
@@ -1027,44 +1027,36 @@ class WPCV_Woo_Civi_Manager {
 			$order_source = '';
 		}
 
+		// Query database directly.
+		global $wpdb;
+		$results = $wpdb->get_results( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '_order_source'" );
+
 		?>
 		<p class="form-field form-field-wide wc-civicrmsource">
 			<label for="order_civicrmsource"><?php esc_html_e( 'CiviCRM Source', 'wpcv-woo-civi-integration' ); ?></label>
-			<input type='text' list="sources" id="order_civicrmsource" name="order_civicrmsource" data-placeholder="<?php esc_attr_e( 'CiviCRM Source', 'wpcv-woo-civi-integration' ); ?>" value="<?php echo esc_attr( $order_source ); ?>">
+			<input type="text" list="sources" id="order_civicrmsource" name="order_civicrmsource" data-placeholder="<?php esc_attr_e( 'CiviCRM Source', 'wpcv-woo-civi-integration' ); ?>" value="<?php echo esc_attr( $order_source ); ?>">
 			<datalist id="sources">
-
-			<?php
-			global $wpdb;
-			// FIXME: What is this, why use wpdb? Interrogation de la base de données.
-			$results = $wpdb->get_results( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '_order_source'" );
-			// Parcours des resultats obtenus.
-			if ( count( $results ) > 0 ) {
-				foreach ( $results as $meta ) {
-					echo esc_html( '<option value="' . $meta->meta_value . '">' );
-				}
-			}
-			?>
+				<?php if ( count( $results ) > 0 ) : ?>
+					<?php foreach ( $results as $meta ) : ?>
+						<option value="<?php echo esc_attr( $meta->meta_value ); ?>"></option>
+					<?php endforeach; ?>
+				<?php endif; ?>
 			</datalist>
-
 		</p>
 		<?php
 
 		$cid = WPCV_WCI()->helper->civicrm_get_cid( $order );
-		if ( $cid ) {
-
-			$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $cid );
-
-			?>
-			<div class="form-field form-field-wide wc-civicrmsource">
-				<h3><?php echo sprintf(
-					/* translators: %1$s: Opening link tag %2$s: Closing link tag */
-					__( 'View %1$sContact%2$s in CiviCRM', 'wpcv-woo-civi-integration' ),
-					'<a href="' . $link . '" target="_blank"> ', '</a>'
-				); ?></h3>
-			</div>
-			<?php
-
+		if ( empty( $cid ) ) {
+			return;
 		}
+
+		$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $cid );
+
+		?>
+		<div class="form-field form-field-wide wc-civicrmsource">
+			<h3><a href="<?php echo $link; ?>" target="_blank"><?php esc_html_e( 'View Contact in CiviCRM', 'wpcv-woo-civi-integration' ); ?></a></h3>
+		</div>
+		<?php
 
 	}
 
