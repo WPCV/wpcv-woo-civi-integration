@@ -188,6 +188,7 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to find Contribution', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return;
 		}
 
@@ -205,6 +206,7 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Contribution', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 		}
 
 	}
@@ -241,6 +243,7 @@ class WPCV_Woo_Civi_Manager {
 
 			} catch ( CiviCRM_API3_Exception $e ) {
 				CRM_Core_Error::debug_log_message( __( 'Unable to fetch Campaign', 'wpcv-woo-civi-integration' ) );
+				CRM_Core_Error::debug_log_message( $e->getMessage() );
 				return false;
 			}
 
@@ -265,7 +268,8 @@ class WPCV_Woo_Civi_Manager {
 			$contribution = civicrm_api3( 'Contribution', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( 'Unable to find Contribution' );
+			CRM_Core_Error::debug_log_message( __( 'Unable to find Contribution', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
 
@@ -281,6 +285,7 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Contribution', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
 
@@ -319,7 +324,8 @@ class WPCV_Woo_Civi_Manager {
 			$contribution = civicrm_api3( 'Contribution', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
-			CRM_Core_Error::debug_log_message( 'Unable to find Contribution' );
+			CRM_Core_Error::debug_log_message( __( 'Unable to find Contribution', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
 
@@ -335,6 +341,7 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Contribution', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
 
@@ -385,6 +392,7 @@ class WPCV_Woo_Civi_Manager {
 
 			} catch ( CiviCRM_API3_Exception $e ) {
 				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
+				CRM_Core_Error::debug_log_message( $e->getMessage() );
 				return false;
 			}
 
@@ -450,6 +458,7 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to create/update Contact', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
 
@@ -574,6 +583,7 @@ class WPCV_Woo_Civi_Manager {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to add/update Address or Phone', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 		}
 
 		return $cid;
@@ -1122,6 +1132,7 @@ class WPCV_Woo_Civi_Manager {
 
 			} catch ( CiviCRM_API3_Exception $e ) {
 				CRM_Core_Error::debug_log_message( __( 'Unable to fetch Campaign', 'wpcv-woo-civi-integration' ) );
+				CRM_Core_Error::debug_log_message( $e->getMessage() );
 				return false;
 			}
 		}

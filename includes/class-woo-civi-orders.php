@@ -108,6 +108,7 @@ class WPCV_Woo_Civi_Orders {
 
 				} catch ( CiviCRM_API3_Exception $e ) {
 					CRM_Core_Error::debug_log_message( __( 'Unable to fetch Campaign', 'wpcv-woo-civi-integration' ) );
+					CRM_Core_Error::debug_log_message( $e->getMessage() );
 				}
 
 			}
@@ -139,6 +140,7 @@ class WPCV_Woo_Civi_Orders {
 		$campaign_list = WPCV_WCI()->helper->get_all_campaigns();
 		if ( $campaign_list && ! empty( $campaign_list ) && is_array( $campaign_list ) ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_campaign_id', FILTER_VALIDATE_INT );
+
 			?>
 			<select name='shop_order_campaign_id' id='dropdown_shop_order_campaign_id'>
 				<option value=""><?php esc_html_e( 'All Campaigns', 'wpcv-woo-civi-integration' ); ?></option>
@@ -149,12 +151,14 @@ class WPCV_Woo_Civi_Orders {
 				<?php endforeach; ?>
 			</select>
 			<?php
+
 		}
 
 		global $wpdb;
 		$results = $wpdb->get_results( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '_order_source'" );
 		if ( count( $results ) > 0 ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_source' );
+
 			?>
 			<select name='shop_order_source' id='dropdown_shop_order_source'>
 				<option value=""><?php esc_html_e( 'All sources', 'wpcv-woo-civi-integration' ); ?></option>
@@ -165,6 +169,7 @@ class WPCV_Woo_Civi_Orders {
 				<?php endforeach; ?>
 			</select>
 			<?php
+
 		}
 
 	}

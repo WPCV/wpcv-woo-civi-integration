@@ -173,6 +173,7 @@ class WPCV_Woo_Civi_Sync_Email {
 			$civi_email = civicrm_api3( 'Email', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Email', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
@@ -191,6 +192,7 @@ class WPCV_Woo_Civi_Sync_Email {
 			$create_email = civicrm_api3( 'Email', 'create', $new_params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to create/update Email', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
 			return false;

@@ -191,6 +191,7 @@ class WPCV_Woo_Civi_Sync_Address {
 			$civi_address = civicrm_api3( 'Address', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Address', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
@@ -209,6 +210,7 @@ class WPCV_Woo_Civi_Sync_Address {
 			$create_address = civicrm_api3( 'Address', 'create', $new_params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to create/update Address', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			add_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10, 4 );
 			return false;

@@ -231,6 +231,7 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 
 			} catch ( CiviCRM_API3_Exception $e ) {
 				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
+				CRM_Core_Error::debug_log_message( $e->getMessage() );
 				$this->unfix_site();
 				return [];
 			}

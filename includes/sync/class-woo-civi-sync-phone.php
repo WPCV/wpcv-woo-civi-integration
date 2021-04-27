@@ -171,6 +171,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 		try {
 			$civi_phone = civicrm_api3( 'Phone', 'getsingle', $params );
 		} catch ( CiviCRM_API3_Exception $e ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Phone', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
@@ -189,6 +190,7 @@ class WPCV_Woo_Civi_Sync_Phone {
 			$create_phone = civicrm_api3( 'Phone', 'create', $new_params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to create/update Phone', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			add_action( 'civicrm_post', [ $this, 'sync_civi_contact_phone' ], 10, 4 );
 			return false;

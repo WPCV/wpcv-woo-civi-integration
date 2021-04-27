@@ -260,7 +260,8 @@ class WPCV_Woo_Civi_Helper {
 
 			$result = civicrm_api3( 'UFMatch', 'getsingle', $params );
 
-		} catch ( Exception $e ) {
+		} catch ( CiviCRM_API3_Exception $e ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM UFMatch data.', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
@@ -1105,6 +1106,8 @@ class WPCV_Woo_Civi_Helper {
 			return civicrm_api3( 'MembershipType', 'gesingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Membership Type.', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return null;
 		}
 
@@ -1141,6 +1144,7 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Decimal Separator', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
 
@@ -1179,6 +1183,7 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Thousand Separator', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			return false;
 		}
 
