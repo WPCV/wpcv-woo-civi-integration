@@ -19,6 +19,17 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Campaign {
 
 	/**
+	 * CiviCRM Campaign component status.
+	 *
+	 * True if the CiviCampaign component is active, false by default.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var array $active The status of the CiviCampaign component.
+	 */
+	public $active = false;
+
+	/**
 	 * CiviCRM Campaigns.
 	 *
 	 * @since 2.2
@@ -73,10 +84,10 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function register_hooks() {
 
-		// Bail early if the CiviCRMCampaign component is not active.
-		if ( ! WPCV_WCI()->helper->is_component_enabled( 'CiviCampaign' ) ) {
-			// FIXME
-			//return;
+		// Bail early if the CiviCampaign component is not active.
+		$this->active = WPCV_WCI()->helper->is_component_enabled( 'CiviCampaign' );
+		if ( ! $this->active ) {
+			return;
 		}
 
 		// Hook into new WooCommerce Orders with CiviCRM data.
@@ -113,6 +124,16 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function get_campaigns() {
 
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
+
+		// Bail early if the CiviCampaign component is not active.
+		if ( ! $this->active ) {
+			return [];
+		}
+
 		// Return early if already calculated.
 		if ( isset( $this->campaigns ) ) {
 			return $this->campaigns;
@@ -121,11 +142,6 @@ class WPCV_Woo_Civi_Campaign {
 		$this->campaigns = [
 			__( 'None', 'wpcv-woo-civi-integration' ),
 		];
-
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return $this->campaigns;
-		}
 
 		$params = [
 			'sequential' => 1,
@@ -186,6 +202,16 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function get_all_campaigns() {
 
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
+
+		// Bail early if the CiviCampaign component is not active.
+		if ( ! $this->active ) {
+			return [];
+		}
+
 		// Return early if already calculated.
 		if ( ! empty( $this->all_campaigns ) ) {
 			return $this->all_campaigns;
@@ -194,11 +220,6 @@ class WPCV_Woo_Civi_Campaign {
 		$this->all_campaigns = [
 			__( 'None', 'wpcv-woo-civi-integration' ),
 		];
-
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return $this->all_campaigns;
-		}
 
 		$params = [
 			'sequential' => 1,
@@ -266,9 +287,73 @@ class WPCV_Woo_Civi_Campaign {
 			return false;
 		}
 
+		// Bail early if the CiviCampaign component is not active.
+		if ( ! $this->active ) {
+			return false;
+		}
+
 		$params = [
 			'sequential' => 1,
 			'id' => $campaign_id,
+			'options' => [
+				'limit' => 1,
+			],
+		];
+
+		$result = civicrm_api3( 'Campaign', 'get', $params );
+
+		// Return early if something went wrong.
+		if ( ! empty( $result['error'] ) ) {
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'result' => $result,
+				'backtrace' => $trace,
+			], true ) );
+
+			return false;
+
+		}
+
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return false;
+		}
+
+		// The result set should contain only one item.
+		$campaign = array_pop( $result['values'] );
+
+		return $campaign;
+
+	}
+
+	/**
+	 * Get a CiviCRM Campaign by its ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $campaign_name The name of the CiviCRM Campaign.
+	 * @return array $campaign The array of data for CiviCRM Campaign, or false on failure.
+	 */
+	public function get_campaign_by_name( $campaign_name ) {
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		// Bail early if the CiviCampaign component is not active.
+		if ( ! $this->active ) {
+			return false;
+		}
+
+		$params = [
+			'sequential' => 1,
+			'name' => $campaign_name,
 			'options' => [
 				'limit' => 1,
 			],
@@ -317,17 +402,22 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function get_campaigns_status() {
 
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
+
+		// Bail early if the CiviCampaign component is not active.
+		if ( ! $this->active ) {
+			return [];
+		}
+
 		// Return early if already calculated.
 		if ( ! empty( $this->campaigns_status ) ) {
 			return $this->campaigns_status;
 		}
 
 		$this->campaigns_status = [];
-
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return $this->campaigns_status;
-		}
 
 		$params = [
 			'sequential' => 1,

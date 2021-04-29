@@ -97,48 +97,16 @@ class WPCV_Woo_Civi_UTM {
 		 */
 		$expire = apply_filters( 'wpcv_woo_civi/utm_cookie/expire', 0 );
 		$secure = ( 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ) );
-		$campaign = filter_input( INPUT_GET, 'utm_campaign' );
 
-		if ( false !== $campaign ) {
-
-			try {
-
-				$params = [
-					'sequential' => 1,
-					'return' => ['id'],
-					// FIXME: Should this be "esc_sql"?
-					'name' => esc_attr( $campaign ),
-				];
-
-				$result = civicrm_api3( 'Campaign', 'get', $params );
-
-				$campaign_cookie = 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH;
-
-				// FIXME: Error checking.
-				if ( $result && isset( $result['values'][0]['id'] ) ) {
-					setcookie( $campaign_cookie, $result['values'][0]['id'], $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
-				} else {
-					// Remove cookie if Campaign is invalid.
-					setcookie( $campaign_cookie, ' ', time() - YEAR_IN_SECONDS );
-				}
-
-			} catch ( CiviCRM_API3_Exception $e ) {
-
-				// Write to CiviCRM log.
-				CRM_Core_Error::debug_log_message( __( 'Unable to fetch Campaign', 'wpcv-woo-civi-integration' ) );
-				CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-				// Write details to PHP log.
-				$e = new \Exception();
-				$trace = $e->getTraceAsString();
-				error_log( print_r( [
-					'method' => __METHOD__,
-					'params' => $params,
-					'backtrace' => $trace,
-				], true ) );
-
-				return false;
-
+		$campaign_name = filter_input( INPUT_GET, 'utm_campaign' );
+		if ( ! empty( $campaign_name ) ) {
+			$campaign_cookie = 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH;
+			$campaign = WPCV_WCI()->campaign->get_campaign_by_name( esc_attr( $campaign_name ) );
+			if ( ! empty( $campaign['id'] ) && is_numeric( $campaign['id'] ) ) {
+				setcookie( $campaign_cookie, $campaign['id'], $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
+			} else {
+				// Remove cookie if Campaign is invalid.
+				setcookie( $campaign_cookie, ' ', time() - YEAR_IN_SECONDS );
 			}
 		}
 
