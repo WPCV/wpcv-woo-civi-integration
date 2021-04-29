@@ -145,6 +145,19 @@ class WPCV_Woo_Civi_Orders {
 	 */
 	public function order_status_changed( $order_id, $old_status, $new_status, $order ) {
 
+		// Return early if there is no change in the WooCommerce Order status.
+		if ( $old_status === $new_status ) {
+			return;
+		}
+
+		// Return early if there is no change in the CiviCRM Contrbution status.
+		$old_status_id = $this->contribution_status_map( $old_status );
+		$new_status_id = $this->contribution_status_map( $new_status );
+		if ( $old_status_id === $new_status_id ) {
+			return;
+		}
+
+		// Return early if a CiviCRM Contact can't be found.
 		$contact_id = WPCV_WCI()->contact->civicrm_get_cid( $order );
 		if ( false === $contact_id ) {
 			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'wpcv-woo-civi-integration' ) );
@@ -164,7 +177,7 @@ class WPCV_Woo_Civi_Orders {
 		if ( $order->is_paid() ) {
 			$contribution['contribution_status_id'] = 'Completed';
 		} else {
-			$contribution['contribution_status_id'] = $this->contribution_status_map( $order->get_status() );
+			$contribution['contribution_status_id'] = $new_status_id;
 		}
 
 		// Update Contribution.
