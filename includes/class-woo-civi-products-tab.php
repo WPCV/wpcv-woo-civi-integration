@@ -43,8 +43,6 @@ class WPCV_Woo_Civi_Products_Tab {
 	 * Register hooks.
 	 *
 	 * @since 2.2
-	 *
-	 * @return void
 	 */
 	public function register_hooks() {
 
