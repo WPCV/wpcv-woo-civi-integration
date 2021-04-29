@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0
  */
-class WPCV_Woo_Civi_Orders_Contact_Tab {
+class WPCV_Woo_Civi_Contact_Orders_Tab {
 
 	/**
 	 * Class constructor.
@@ -25,8 +25,8 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 */
 	public function __construct() {
 
-		// Init when this plugin is fully loaded.
-		add_action( 'wpcv_woo_civi/loaded', [ $this, 'initialise' ] );
+		// Init when the Contact class is fully loaded.
+		add_action( 'wpcv_woo_civi/contact/loaded', [ $this, 'initialise' ] );
 
 	}
 
@@ -185,17 +185,17 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 			return;
 		}
 
-		$cid = $context['contact_id'];
+		$contact_id = $context['contact_id'];
 
 		// Bail if Contact has no Orders and "Hide Order" is enabled.
-		$order_count = $this->count_orders( $cid );
+		$order_count = $this->count_orders( $contact_id );
 		$option = get_option( 'woocommerce_civicrm_hide_orders_tab_for_non_customers', false );
 		$hide_orders_tab = WPCV_WCI()->helper->check_yes_no_value( $option );
 		if ( $hide_orders_tab && ! $order_count ) {
 			return;
 		}
 
-		$url = CRM_Utils_System::url( 'civicrm/contact/view/purchases', "reset=1&cid=$cid&no_redirect=1" );
+		$url = CRM_Utils_System::url( 'civicrm/contact/view/purchases', "reset=1&cid=$contact_id&no_redirect=1" );
 
 		$tabs[] = [
 			'id' => 'woocommerce-orders',
@@ -212,26 +212,38 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 *
 	 * @since 2.2
 	 *
-	 * @param int $cid The Contact ID.
+	 * @param int $contact_id The Contact ID.
 	 * @return array $customer_orders The array of raw Order data.
 	 */
-	private function _get_orders( $cid ) {
+	private function _get_orders( $contact_id ) {
 
 		$this->fix_site();
-		$uid = abs( CRM_Core_BAO_UFMatch::getUFId( $cid ) );
+		$uid = abs( CRM_Core_BAO_UFMatch::getUFId( $contact_id ) );
 		if ( ! $uid ) {
 			try {
 
 				$params = [
-					'contact_id' => $cid,
+					'contact_id' => $contact_id,
 					'return' => [ 'email' ],
 				];
 
 				$contact = civicrm_api3( 'Contact', 'getsingle', $params );
 
 			} catch ( CiviCRM_API3_Exception $e ) {
+
+				// Write to CiviCRM log.
 				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
 				CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+				// Write details to PHP log.
+				$e = new \Exception();
+				$trace = $e->getTraceAsString();
+				error_log( print_r( [
+					'method' => __METHOD__,
+					'params' => $params,
+					'backtrace' => $trace,
+				], true ) );
+
 				$this->unfix_site();
 				return [];
 			}
@@ -295,11 +307,11 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 *
 	 * @since 2.2
 	 *
-	 * @param int $cid The Contact ID.
+	 * @param int $contact_id The Contact ID.
 	 * @return int $orders_count The number of Orders.
 	 */
-	public function count_orders( $cid ) {
-		return count( $this->_get_orders( $cid ) );
+	public function count_orders( $contact_id ) {
+		return count( $this->_get_orders( $contact_id ) );
 	}
 
 	/**
@@ -307,12 +319,12 @@ class WPCV_Woo_Civi_Orders_Contact_Tab {
 	 *
 	 * @since 2.1
 	 *
-	 * @param int $cid The Contact ID.
+	 * @param int $contact_id The Contact ID.
 	 * @return array|bool $orders The array of Orders, or false on failure.
 	 */
-	public function get_orders( $cid ) {
+	public function get_orders( $contact_id ) {
 
-		$customer_orders = $this->_get_orders( $cid );
+		$customer_orders = $this->_get_orders( $contact_id );
 		$orders = [];
 		$date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
 

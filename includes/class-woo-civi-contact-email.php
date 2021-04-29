@@ -1,6 +1,6 @@
 <?php
 /**
- * Sync Email class.
+ * Contact Email class.
  *
  * Handles syncing Email Addresses between WooCommerce and CiviCRM.
  *
@@ -12,11 +12,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Sync Email class.
+ * Contact Email class.
  *
  * @since 2.0
  */
-class WPCV_Woo_Civi_Sync_Email {
+class WPCV_Woo_Civi_Contact_Email {
 
 	/**
 	 * Class constructor.
@@ -25,8 +25,8 @@ class WPCV_Woo_Civi_Sync_Email {
 	 */
 	public function __construct() {
 
-		// Init when the sync loader class is fully loaded.
-		add_action( 'wpcv_woo_civi/sync/loaded', [ $this, 'initialise' ] );
+		// Init when the Contact class is fully loaded.
+		add_action( 'wpcv_woo_civi/contact/loaded', [ $this, 'initialise' ] );
 
 	}
 
@@ -97,7 +97,7 @@ class WPCV_Woo_Civi_Sync_Email {
 			return;
 		}
 
-		$cms_user = WPCV_WCI()->helper->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
+		$cms_user = WPCV_WCI()->contact->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
 
 		// Bail if we don't have a WordPress User.
 		if ( ! $cms_user ) {
@@ -147,7 +147,7 @@ class WPCV_Woo_Civi_Sync_Email {
 			return false;
 		}
 
-		$civi_contact = WPCV_WCI()->helper->get_civicrm_ufmatch( $user_id, 'uf_id' );
+		$civi_contact = WPCV_WCI()->contact->get_civicrm_ufmatch( $user_id, 'uf_id' );
 
 		// Bail if we don't have a CiviCRM Contact.
 		if ( ! $civi_contact ) {
@@ -173,9 +173,22 @@ class WPCV_Woo_Civi_Sync_Email {
 			$civi_email = civicrm_api3( 'Email', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Email', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
 			return false;
+
 		}
 
 		// Prevent reverse sync.
@@ -192,10 +205,23 @@ class WPCV_Woo_Civi_Sync_Email {
 			$create_email = civicrm_api3( 'Email', 'create', $new_params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to create/update Email', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'new_params' => $new_params,
+				'backtrace' => $trace,
+			], true ) );
+
 			add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
 			return false;
+
 		}
 
 		// Rehook callback.

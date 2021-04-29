@@ -35,78 +35,95 @@ class WPCV_Woo_Civi {
 	private static $instance;
 
 	/**
-	 * The Settings Tab management object.
+	 * The Helper object.
 	 *
 	 * @since 2.0
-	 * @access private
-	 * @var object $settings_tab The Settings Tab management object.
-	 */
-	public $settings_tab;
-
-	/**
-	 * The Orders Contact Tab management object.
-	 *
-	 * @since 2.0
-	 * @access private
-	 * @var object $orders_tab The Orders Tab management object.
-	 */
-	public $orders_tab;
-
-	/**
-	 * The General management object.
-	 *
-	 * @since 2.0
-	 * @access private
-	 * @var object $manager The plugin functionality management object.
-	 */
-	public $manager;
-
-	/**
-	 * The Sync management object.
-	 *
-	 * Encapsulates synchronisation between WooCommerce and CiviCRM.
-	 *
-	 * @since 2.0
-	 * @access private
-	 * @var object $sync The Sync management object.
-	 */
-	public $sync;
-
-	/**
-	 * The Helper management object.
-	 *
-	 * @since 2.0
-	 * @access private
-	 * @var object $helper The Helper management object.
+	 * @access public
+	 * @var object $helper The Helper object.
 	 */
 	public $helper;
 
 	/**
-	 * CiviCRM States/Provinces management object.
+	 * The Settings Tab object.
 	 *
 	 * @since 2.0
-	 * @access private
-	 * @var object $states_replacement The States replacement management object.
+	 * @access public
+	 * @var object $settings_tab The Settings Tab object.
 	 */
-	public $states_replacement;
+	public $settings_tab;
 
 	/**
-	 * WooCommerce Product management object.
+	 * CiviCRM States/Provinces object.
 	 *
-	 * @since 2.2
+	 * @since 2.0
 	 * @access public
-	 * @var object $products The Product management object.
+	 * @var object $states The States/Provinces object.
+	 */
+	public $states;
+
+	/**
+	 * The Contact object.
+	 *
+	 * @since 2.0
+	 * @since 3.0 Renamed from "sync".
+	 * @access public
+	 * @var object $contact The Contact object.
+	 */
+	public $contact;
+
+	/**
+	 * WooCommerce Order integration object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $orders The WooCommerce Order integration object.
+	 */
+	public $orders;
+
+	/**
+	 * Source management object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $source The Source management object.
+	 */
+	public $source;
+
+	/**
+	 * Urchin Tracking Module management object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $utm The Urchin Tracking Module management object.
+	 */
+	public $utm;
+
+	/**
+	 * Campaign management object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $campaign The Campaign management object.
+	 */
+	public $campaign;
+
+	/**
+	 * Products object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $products The Products object.
 	 */
 	public $products;
 
 	/**
-	 * WooCommerce Order management object.
+	 * WooCommerce Product Tab object.
 	 *
-	 * @since 3.0
+	 * @since 2.2
 	 * @access public
-	 * @var object $orders The Order management object.
+	 * @var object $products_tab The WooCommerce Product Tab object.
 	 */
-	public $orders;
+	public $products_tab;
 
 	/**
 	 * Dummy instance constructor.
@@ -202,20 +219,29 @@ class WPCV_Woo_Civi {
 
 		// Include Helper class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-helper.php';
-		// Include WooCommerce settings tab class.
+
+		// Include WooCommerce Settings Tab class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-settings-tab.php';
-		// Include CiviCRM orders tab class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-orders-contact-tab.php';
-		// Include WooCommerce functionality class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-manager.php';
-		// Include Address Sync functionality class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-sync.php';
-		// Include States replacement functionality class.
+		// Include States class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-states.php';
-		// Include Products functionality class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-products.php';
-		// Include Orders functionality class.
+
+		// Include Contact class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contact.php';
+
+		// Include Orders class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-orders.php';
+		// Include Source class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-source.php';
+		// Include UTM class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-utm.php';
+
+		// Include Campaign class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-campaign.php';
+
+		// Include Products class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-products.php';
+		// Include Products Tab class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-products-tab.php';
 
 	}
 
@@ -226,22 +252,31 @@ class WPCV_Woo_Civi {
 	 */
 	public function setup_objects() {
 
-		// Init Orders tab.
-		$this->orders_tab = new WPCV_Woo_Civi_Orders_Contact_Tab();
-		// Init helper instance.
+		// Init helper object.
 		$this->helper = new WPCV_Woo_Civi_Helper();
-		// Init Settings page.
+
+		// Init Settings Tab object.
 		$this->settings_tab = new WPCV_Woo_Civi_Settings_Tab();
-		// Init General manager.
-		$this->manager = new WPCV_Woo_Civi_Manager();
-		// Init States replacement.
-		$this->states_replacement = new WPCV_Woo_Civi_States();
-		// Init Sync manager.
-		$this->sync = new WPCV_Woo_Civi_Sync();
-		// Init Products manager.
-		$this->products = new WPCV_Woo_Civi_Products();
-		// Init Orders manager.
+		// Init States object.
+		$this->states = new WPCV_Woo_Civi_States();
+
+		// Init Contact object.
+		$this->contact = new WPCV_Woo_Civi_Contact();
+
+		// Init Orders object.
 		$this->orders = new WPCV_Woo_Civi_Orders();
+		// Init Source object.
+		$this->source = new WPCV_Woo_Civi_Source();
+		// Init UTM object.
+		$this->utm = new WPCV_Woo_Civi_UTM();
+
+		// Init Campaign object.
+		$this->campaign = new WPCV_Woo_Civi_Campaign();
+
+		// Init Products object.
+		$this->products = new WPCV_Woo_Civi_Products();
+		// Init Products Tab object.
+		$this->products_tab = new WPCV_Woo_Civi_Products_Tab();
 
 	}
 

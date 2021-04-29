@@ -1,27 +1,27 @@
 <?php
 /**
- * Product class.
+ * Products class.
  *
- * Handles the integration of WooCommerce Products with CiviCRM.
+ * Manages Products and their integration as Line Items.
  *
  * @package WPCV_Woo_Civi
- * @since 2.0
+ * @since 3.0
  */
 
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Product class.
+ * Products class.
  *
- * @since 2.2
+ * @since 3.0
  */
 class WPCV_Woo_Civi_Products {
 
 	/**
 	 * Class constructor.
 	 *
-	 * @since 2.0
+	 * @since 3.0
 	 */
 	public function __construct() {
 
@@ -42,205 +42,219 @@ class WPCV_Woo_Civi_Products {
 	/**
 	 * Register hooks.
 	 *
-	 * @since 2.2
-	 *
-	 * @return void
+	 * @since 3.0
 	 */
 	public function register_hooks() {
 
-		// Add CiviCRM tab to the Product Settings tabs.
-		add_filter( 'woocommerce_product_data_tabs', [ $this, 'add_civicrm_product_tab' ] );
-
-		// Add CiviCRM Product panel template.
-		add_action( 'woocommerce_product_data_panels', [ $this, 'add_civicrm_product_panel' ] );
-
-		// Save CiviCRM Product settings.
-		add_action( 'woocommerce_admin_process_product_object', [ $this, 'save_civicrm_product_settings' ] );
-
-		// Append Contribution Type to Product Cat.
-		add_action( 'manage_product_posts_custom_column', [ $this, 'columns_content' ], 90, 2 );
-
-		// Product Bulk Edit and Quick Edit operations.
-		add_action( 'woocommerce_product_bulk_edit_end', [ $this, 'bulk_edit_markup' ] );
-		add_action( 'woocommerce_product_bulk_edit_save', [ $this, 'product_edit_save' ] );
-		add_action( 'woocommerce_product_quick_edit_end', [ $this, 'quick_edit_markup' ] );
-		add_action( 'woocommerce_product_quick_edit_save', [ $this, 'product_edit_save' ] );
+		// Add Source ID to Order.
+		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'items_get_for_order' ], 30, 2 );
 
 	}
 
 	/**
-	 * Adds a "CiviCRM Settings" tab to the New & Edit Product screens.
-	 *
-	 * @since 2.4
-	 *
-	 * @param array $tabs The existing Product tabs.
-	 * @return array $tabs The modified Product tabs.
-	 */
-	public function add_civicrm_product_tab( $tabs ) {
-
-		$tabs['woocommerce_civicrm'] = [
-			'label' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
-			'target'   => 'woocommerce_civicrm',
-		];
-
-		return $tabs;
-
-	}
-
-	/**
-	 * Includes the CiviCRM settings panel on the New & Edit Product screens.
-	 *
-	 * @since 2.4
-	 */
-	public function add_civicrm_product_panel() {
-		include WPCV_WOO_CIVI_PATH . 'assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-panel-civicrm.php';
-	}
-
-	/**
-	 * Add the CiviCRM Product settings as meta before Product is saved.
-	 *
-	 * @since 2.4
-	 *
-	 * @param WC_Product $product The Product object.
-	 */
-	public function save_civicrm_product_settings( $product ) {
-
-		if ( isset( $_POST['woocommerce_civicrm_financial_type_id'] ) ) {
-			$financial_type_id = sanitize_key( $_POST['woocommerce_civicrm_financial_type_id'] );
-			$product->add_meta_data( 'woocommerce_civicrm_financial_type_id', $financial_type_id, true );
-		}
-
-		if ( isset( $_POST['woocommerce_civicrm_membership_type_id'] ) ) {
-			$membership_type_id = sanitize_key( $_POST['woocommerce_civicrm_membership_type_id'] );
-			$product->add_meta_data( 'woocommerce_civicrm_membership_type_id', $membership_type_id, true );
-		}
-
-	}
-
-	/**
-	 * Appends the Financial Type to the Product Category column.
-	 *
-	 * @since 2.4
-	 *
-	 * @param string $column_name The column name.
-	 * @param int $post_id The WordPress Post ID.
-	 */
-	public function columns_content( $column_name, $post_id ) {
-
-		if ( 'product_cat' !== $column_name ) {
-			return;
-		}
-
-		$default_contribution_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
-		$product_contribution_type_id = get_post_meta( $post_id, 'woocommerce_civicrm_financial_type_id', true );
-		$financial_types = WPCV_WCI()->helper->get_financial_types();
-
-		echo '<br>';
-
-		// If there's a specific Financial Type for this Product, use it.
-		if ( null !== $product_contribution_type_id && isset( $financial_types[ $product_contribution_type_id ] ) ) {
-			echo esc_html( $financial_types[ $product_contribution_type_id ] );
-			return;
-		}
-
-		// Fall back to the default Financial Type.
-		$default = isset( $financial_types[ $default_contribution_type_id ] )
-			? $financial_types[ $default_contribution_type_id ]
-			: __( 'Not set', 'wpcv-woo-civi-integration' );
-
-		/* translators: %s: The default Financial Type */
-		echo sprintf( __( '%s (Default)', 'wpcv-woo-civi-integration' ), $default );
-
-	}
-
-	/**
-	 * Adds a Contribution Type selector to WooCommerce "Product data" on Bulk Edit screen.
-	 *
-	 * @since 3.0
-	 */
-	public function bulk_edit_markup() {
-
-		// Construct select options array.
-		$financial_types = WPCV_WCI()->helper->get_financial_types();
-		$options = [
-			'' => __( '— No change —', 'wpcv-woo-civi-integration' ),
-		]
-		+ $financial_types +
-		[
-			'exclude' => '-- ' . __( 'Exclude', 'wpcv-woo-civi-integration' ),
-		];
-
-		?>
-		<label>
-			<span class="title"><?php esc_html_e( 'Contribution Type', 'wpcv-woo-civi-integration' ); ?></span>
-			<span class="input-text-wrap">
-				<select class="civicrm_financial_type_id" name="_civicrm_financial_type_id">
-					<?php
-					foreach ( $options as $key => $value ) {
-						echo '<option value="' . esc_attr( $key ) . '">' . esc_html( $value ) . '</option>';
-					}
-					?>
-				</select>
-			</span>
-		</label>
-		<?php
-
-	}
-
-	/**
-	 * Adds a Contribution Type selector to WooCommerce "Product data" on Quick Edit screen.
-	 *
-	 * @since 3.0
-	 */
-	public function quick_edit_markup() {
-
-		// Construct select options array.
-		$financial_types = WPCV_WCI()->helper->get_financial_types();
-		$options = [
-			'' => __( '— No change —', 'wpcv-woo-civi-integration' ),
-		]
-		+ $financial_types +
-		[
-			'exclude' => '-- ' . __( 'Exclude', 'wpcv-woo-civi-integration' ),
-		];
-
-		?>
-		<div class="inline-edit-group">
-			<span class="title"><?php esc_html_e( 'Contribution Type', 'wpcv-woo-civi-integration' ); ?></span>
-			<span class="input-text-wrap">
-				<select class="civicrm_financial_type_id" name="_civicrm_financial_type_id">
-					<?php
-					foreach ( $options as $key => $value ) {
-						echo '<option value="' . esc_attr( $key ) . '">' . esc_html( $value ) . '</option>';
-					}
-					?>
-				</select>
-			</span>
-		</div>
-		<?php
-
-	}
-
-	/**
-	 * Saves the Contribution Type when Bulk Edit or Quick Edit is submitted.
+	 * Gets the Line Items for an Order.
 	 *
 	 * @since 3.0
 	 *
-	 * @param object $product The WooCommerce Product object being saved.
+	 * @param array $params The existing array of params for the CiviCRM API.
+	 * @param object $order The Order object.
+	 * @return array $params The modified array of params for the CiviCRM API.
 	 */
-	public function product_edit_save( $product ) {
+	public function items_get_for_order( $params, $order ) {
 
-		// Bail if there's none of our data present.
-		if ( empty( $_REQUEST['_civicrm_financial_type_id'] ) ) {
+		$items = $order->get_items();
+
+		// Add note.
+		$params['note'] = $this->note_generate( $items );
+
+		// Init Line Items.
+		$params['line_items'] = [];
+
+		// Filter the params and add Line Items.
+		$params = $this->items_build_for_order( $params, $order, $items );
+
+		return $params;
+
+	}
+
+	/**
+	 * Gets the Line Items for an Order.
+	 *
+	 * @since 2.2 Line Items added to CiviCRM Contribution.
+	 * @since 3.0
+	 *
+	 * @param array $params The existing array of params for the CiviCRM API.
+	 * @param object $order The Order object.
+	 * @return array $params The modified array of params for the CiviCRM API.
+	 */
+	public function items_build_for_order( $params, $order, $items ) {
+
+		// Bail if no Items.
+		if ( empty( $items ) ) {
+			return $params;
+		}
+
+		// TODO: Error checking.
+		$default_contribution_amount_data = WPCV_WCI()->helper->get_default_contribution_price_field_data();
+
+		$decimal_separator = WPCV_WCI()->helper->get_decimal_separator();
+		$thousand_separator = WPCV_WCI()->helper->get_thousand_separator();
+		if ( $decimal_separator === false || $thousand_separator === false ) {
+			return $params;
+		}
+
+		$financial_types = [];
+		foreach ( $items as $item ) {
+
+			$product = $item->get_product();
+
+			$product_financial_type_id = $product->get_meta( 'woocommerce_civicrm_financial_type_id' );
+
+			if ( 'exclude' === $product_financial_type_id ) {
+				continue;
+			}
+
+			if ( empty( $product_financial_type_id ) ) {
+				$product_financial_type_id = $default_financial_type_id;
+			}
+
+			if ( 0 === $item['qty'] ) {
+				$item['qty'] = 1;
+			}
+
+			$line_item = [
+				'price_field_id' => $default_contribution_amount_data['price_field']['id'],
+				'qty' => $item['qty'],
+				'line_total' => number_format( $item['line_total'], 2, $decimal_separator, $thousand_separator ),
+				'unit_price' => number_format( $item['line_total'] / $item['qty'], 2, $decimal_separator, $thousand_separator ),
+				'label' => $item['name'],
+				'financial_type_id' => $product_financial_type_id,
+			];
+
+			// Get Membership Type ID from Product meta.
+			$product_membership_type_id = $product->get_meta( 'woocommerce_civicrm_membership_type_id' );
+
+			// FIXME
+			/*
+			 * Decide whether we want to override the Financial Type with
+			 * the one from the Membership Type instead of Product/default.
+			 */
+
+			// Add line item membership params if applicable.
+			if ( ! empty( $product_membership_type_id ) ) {
+
+				$line_item = array_merge(
+					$line_item,
+					[
+						'entity_table' => 'civicrm_membership',
+						'membership_type_id' => $product_membership_type_id,
+					]
+				);
+
+				$line_item_params = [
+					'membership_type_id' => $product_membership_type_id,
+					'contact_id' => $params['contact_id'],
+				];
+
+			}
+
+			$params['line_items'][ $item->get_id() ] = isset( $line_item_params )
+				? [
+					'line_item' => [ $line_item ],
+					'params' => $line_item_params,
+				]
+				: [ 'line_item' => [ $line_item ] ];
+
+			$financial_types[ $product_financial_type_id ] = $product_financial_type_id;
+
+		}
+
+		// Maybe override the Contribution's Financial Type.
+		if ( 1 === count( $financial_types ) ) {
+			$params['financial_type_id'] = $product_financial_type_id;
+		}
+
+		return $params;
+
+	}
+
+	/**
+	 * Gets the Line Items for an Order.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param object $order The Order object.
+	 * @param array $items The array of Items in the Order.
+	 */
+	public function shipping_build_for_order( $params, $order, $items ) {
+
+		// Grab Shipping cost and sanity check.
+		$shipping_cost = $order->get_total_shipping();
+		if ( empty( $shipping_cost ) ) {
+			$shipping_cost = 0;
+		}
+
+		$decimal_separator = WPCV_WCI()->helper->get_decimal_separator();
+		$thousand_separator = WPCV_WCI()->helper->get_thousand_separator();
+		if ( $decimal_separator === false || $thousand_separator === false ) {
+			return $params;
+		}
+
+		// Ensure number format is CiviCRM-compliant.
+		$shipping_cost = number_format( $shipping_cost, 2, $decimal_separator, $thousand_separator );
+		if ( ! ( floatval( $shipping_cost ) > 0 ) ) {
 			return;
 		}
 
-		// Extract Post ID.
-		$post_id = $product->get_id();
+		// TODO: Error checking.
+		$default_contribution_amount_data = WPCV_WCI()->helper->get_default_contribution_price_field_data();
 
-		// Save Contribution Type directly to Post meta.
-		$financial_type_id = sanitize_text_field( $_REQUEST['_civicrm_financial_type_id'] );
-		update_post_meta( $post_id, 'woocommerce_civicrm_financial_type_id', $financial_type_id );
+		// Get the default Financial Type Shipping ID.
+		$default_financial_type_shipping_id = get_option( 'woocommerce_civicrm_financial_type_shipping_id' );
+
+		/*
+		 * Line item for shipping.
+		 *
+		 * Shouldn't it be added to it's corresponding Product/Line Item?
+		 * i.e. an Order can have both shippable and downloadable Products?
+		 */
+		$params['line_items'][0] = [
+			'line_item' => [
+				[
+					'price_field_id' => $default_contribution_amount_data['price_field']['id'],
+					'qty' => 1,
+					'line_total' => $shipping_cost,
+					'unit_price' => $shipping_cost,
+					'label' => 'Shipping',
+					'financial_type_id' => $default_financial_type_shipping_id,
+				]
+			],
+		];
+
+	}
+
+	/**
+	 * Create string to insert for Purchase Activity Details.
+	 *
+	 * @since 2.0
+	 *
+	 * @param object $items The Order object.
+	 * @return string $str The Purchase Activity Details.
+	 */
+	public function note_generate( $items ) {
+
+		$str = '';
+		$n = 1;
+		foreach ( $items as $item ) {
+			if ( $n > 1 ) {
+				$str .= ', ';
+			}
+			$str .= $item['name'] . ' x ' . $item['quantity'];
+			$n++;
+		}
+
+		return $str;
 
 	}
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Sync Address class.
+ * Contact Address class.
  *
  * Handles syncing Addresses between WooCommerce and CiviCRM.
  *
@@ -12,11 +12,22 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Sync Address class.
+ * Contact Address class.
  *
  * @since 2.0
  */
-class WPCV_Woo_Civi_Sync_Address {
+class WPCV_Woo_Civi_Contact_Address {
+
+	/**
+	 * The Address Location Types.
+	 *
+	 * Array of key/value pairs holding the Address Location Types.
+	 *
+	 * @since 2.0
+	 * @access public
+	 * @var array $location_types The Address Location Types.
+	 */
+	public $location_types;
 
 	/**
 	 * Class constructor.
@@ -25,8 +36,8 @@ class WPCV_Woo_Civi_Sync_Address {
 	 */
 	public function __construct() {
 
-		// Init when the sync loader class is fully loaded.
-		add_action( 'wpcv_woo_civi/sync/loaded', [ $this, 'initialise' ] );
+		// Init when the Contact class is fully loaded.
+		add_action( 'wpcv_woo_civi/contact/loaded', [ $this, 'initialise' ] );
 
 	}
 
@@ -51,6 +62,93 @@ class WPCV_Woo_Civi_Sync_Address {
 
 		// Sync WooCommerce and CiviCRM Address for User/Contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_address' ], 10, 2 );
+
+	}
+
+	/**
+	 * Get the Address Field mappings between WooCommerce and CiviCRM.
+	 *
+	 * @since 2.0
+	 *
+	 * @param string $address_type The WooCommerce Address Type. Either 'billing' or 'shipping'.
+	 * @return array $mapped_address The Address Field mappings.
+	 */
+	public function get_mapped_address( $address_type ) {
+
+		$mapped_address = [
+			$address_type . '_address_1' => 'street_address',
+			$address_type . '_address_2' => 'supplemental_address_1',
+			$address_type . '_city' => 'city',
+			$address_type . '_postcode' => 'postal_code',
+			$address_type . '_country' => 'country_id',
+			$address_type . '_state' => 'state_province_id',
+			$address_type . '_company' => 'name',
+		];
+
+		/**
+		 * Filter the Address Field mappings.
+		 *
+		 * @since 2.0
+		 *
+		 * @param array $mapped_address The default Address Field mappings.
+		 */
+		return apply_filters( 'wpcv_woo_civi/address_fields/mappings', $mapped_address );
+
+	}
+
+	/**
+	 * Get CiviCRM Address Location Types.
+	 *
+	 * @since 2.0
+	 *
+	 * @return array $location_types The array of CiviCRM Address Location Types.
+	 */
+	public function get_address_location_types() {
+
+		// Return early if already calculated.
+		if ( isset( $this->location_types ) ) {
+			return $this->location_types;
+		}
+
+		$this->location_types = [];
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $this->location_types;
+		}
+
+		$params = [
+			'field' => 'location_type_id',
+			'options' => [
+				'limit' => 0,
+			],
+		];
+
+		$result = civicrm_api3( 'Address', 'getoptions', $params );
+
+		// Return early if something went wrong.
+		if ( ! empty( $result['error'] ) ) {
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'result' => $result,
+				'backtrace' => $trace,
+			], true ) );
+
+			return $this->location_types;
+
+		}
+
+		// Store values in property.
+		if ( ! empty( $result['values'] ) ) {
+			$this->location_types = $result['values'];
+		}
+
+		return $this->location_types;
 
 	}
 
@@ -97,7 +195,7 @@ class WPCV_Woo_Civi_Sync_Address {
 			return;
 		}
 
-		$cms_user = WPCV_WCI()->helper->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
+		$cms_user = WPCV_WCI()->contact->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
 
 		// Bail if we don't have a WordPress User.
 		if ( ! $cms_user ) {
@@ -107,15 +205,15 @@ class WPCV_Woo_Civi_Sync_Address {
 		// Proceed.
 		$address_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types(), true );
 
-		foreach ( WPCV_WCI()->helper->get_mapped_address( $address_type ) as $wc_field => $civi_field ) {
+		foreach ( $this->get_mapped_address( $address_type ) as $wc_field => $civi_field ) {
 			if ( ! empty( $object_ref->{$civi_field} ) && ! is_null( $object_ref->{$civi_field} ) && 'null' !== $object_ref->{$civi_field} ) {
 
 				switch ( $civi_field ) {
 					case 'country_id':
-						update_user_meta( $cms_user['uf_id'], $wc_field, WPCV_WCI()->helper->get_civi_country_iso_code( $object_ref->{$civi_field} ) );
+						update_user_meta( $cms_user['uf_id'], $wc_field, WPCV_WCI()->states->get_civicrm_country_iso_code( $object_ref->{$civi_field} ) );
 						continue 2;
 					case 'state_province_id':
-						update_user_meta( $cms_user['uf_id'], $wc_field, WPCV_WCI()->helper->get_civi_state_province_name( $object_ref->{$civi_field} ) );
+						update_user_meta( $cms_user['uf_id'], $wc_field, WPCV_WCI()->states->get_civicrm_state_province_name( $object_ref->{$civi_field} ) );
 						continue 2;
 					default:
 						update_user_meta( $cms_user['uf_id'], $wc_field, $object_ref->{$civi_field} );
@@ -156,7 +254,7 @@ class WPCV_Woo_Civi_Sync_Address {
 
 		$customer = new WC_Customer( $user_id );
 
-		$civi_contact = WPCV_WCI()->helper->get_civicrm_ufmatch( $user_id, 'uf_id' );
+		$civi_contact = WPCV_WCI()->contact->get_civicrm_ufmatch( $user_id, 'uf_id' );
 
 		// Bail if we don't have a CiviCRM Contact.
 		if ( ! $civi_contact ) {
@@ -167,13 +265,13 @@ class WPCV_Woo_Civi_Sync_Address {
 		$civi_address_location_type = $mapped_location_types[ $load_address ];
 		$edited_address = [];
 
-		foreach ( WPCV_WCI()->helper->get_mapped_address( $load_address ) as $wc_field => $civi_field ) {
+		foreach ( $this->get_mapped_address( $load_address ) as $wc_field => $civi_field ) {
 			switch ( $civi_field ) {
 				case 'country_id':
-					$edited_address[ $civi_field ] = WPCV_WCI()->helper->get_civi_country_id( $customer->{'get_' . $wc_field}() );
+					$edited_address[ $civi_field ] = WPCV_WCI()->states->get_civicrm_country_id( $customer->{'get_' . $wc_field}() );
 					continue 2;
 				case 'state_province_id':
-					$edited_address[ $civi_field ] = WPCV_WCI()->helper->get_civi_state_province_id( $customer->{'get_' . $wc_field}(), $edited_address['country_id'] );
+					$edited_address[ $civi_field ] = WPCV_WCI()->states->get_civicrm_state_province_id( $customer->{'get_' . $wc_field}(), $edited_address['country_id'] );
 					continue 2;
 				default:
 					$edited_address[ $civi_field ] = $customer->{'get_' . $wc_field}();
@@ -191,9 +289,22 @@ class WPCV_Woo_Civi_Sync_Address {
 			$civi_address = civicrm_api3( 'Address', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Address', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
 			return false;
+
 		}
 
 		// Prevent reverse sync.
@@ -210,10 +321,23 @@ class WPCV_Woo_Civi_Sync_Address {
 			$create_address = civicrm_api3( 'Address', 'create', $new_params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to create/update Address', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'new_params' => $new_params,
+				'backtrace' => $trace,
+			], true ) );
+
 			add_action( 'civicrm_post', [ $this, 'sync_civi_contact_address' ], 10, 4 );
 			return false;
+
 		}
 
 		// Rehook callback.

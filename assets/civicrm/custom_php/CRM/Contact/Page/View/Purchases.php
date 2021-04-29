@@ -27,7 +27,7 @@ class CRM_Contact_Page_View_Purchases extends CRM_Core_Page {
 
     $cid = CRM_Utils_Request::retrieve('cid', 'Positive', $this);
 
-    $orders = WPCV_WCI()->orders_tab->get_orders($cid);
+    $orders = WPCV_WCI()->contact->orders_tab->get_orders($cid);
 
     $this->assign('i18n', [
       'orderNumber'  => __('Order Number', 'wpcv-woo-civi-integration'),

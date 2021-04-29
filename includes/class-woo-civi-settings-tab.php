@@ -232,13 +232,29 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 */
 	public function civicrm_settings_fields() {
 
-		$options = [
+		// Init title.
+		$section_title = [
 			'section_title' => [
 				'name' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
 				'type' => 'title',
 				'desc' => __( 'Below are the values used when creating Contribution/Address in CiviCRM.', 'wpcv-woo-civi-integration' ),
 				'id' => 'woocommerce_civicrm_section_title',
 			],
+		];
+
+		/**
+		 * Filter the section title settings array.
+		 *
+		 * This can be used to add settings directly after the title.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $section_title The section title settings array.
+		 */
+		$section_title = apply_filters( 'wpcv_woo_civi/admin_settings/fields/section_title', $section_title );
+
+		// Init selects.
+		$selects = [
 			'woocommerce_civicrm_financial_type_id' => [
 				'name' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
@@ -257,24 +273,33 @@ class WPCV_Woo_Civi_Settings_Tab {
 				'options' => WPCV_WCI()->helper->get_financial_types(),
 				'id'   => 'woocommerce_civicrm_financial_type_shipping_id',
 			],
-			'woocommerce_civicrm_campaign_id' => [
-				'name' => __( 'Default Campaign', 'wpcv-woo-civi-integration' ),
-				'type' => 'select',
-				'options' => WPCV_WCI()->helper->get_campaigns(),
-				'id'   => 'woocommerce_civicrm_campaign_id',
-			],
 			'woocommerce_civicrm_billing_location_type_id' => [
 				'name' => __( 'Billing Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WPCV_WCI()->helper->get_address_location_types(),
+				'options' => WPCV_WCI()->contact->address->get_address_location_types(),
 				'id'   => 'woocommerce_civicrm_billing_location_type_id',
 			],
 			'woocommerce_civicrm_shipping_location_type_id' => [
 				'name' => __( 'Shipping Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WPCV_WCI()->helper->get_address_location_types(),
+				'options' => WPCV_WCI()->contact->address->get_address_location_types(),
 				'id'   => 'woocommerce_civicrm_shipping_location_type_id',
 			],
+		];
+
+		/**
+		 * Filter the select settings array.
+		 *
+		 * This can be used to add further select settings.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $selects The select settings array.
+		 */
+		$selects = apply_filters( 'wpcv_woo_civi/admin_settings/fields/selects', $selects );
+
+		// Init checkboxes.
+		$checkboxes = [
 			'woocommerce_civicrm_sync_contact_address' => [
 				'name' => __( 'Sync Contact Address', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
@@ -311,18 +336,35 @@ class WPCV_Woo_Civi_Settings_Tab {
 				'desc' => __( 'If enabled, this option will remove the WooCommerce Orders tab in the Contact Summary page for non customer Contacts.', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_hide_orders_tab_for_non_customers',
 			],
+		];
+
+		/**
+		 * Filter the checkboxes settings array.
+		 *
+		 * This can be used to add further checkbox settings.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $checkboxes The checkboxes settings array.
+		 */
+		$checkboxes = apply_filters( 'wpcv_woo_civi/admin_settings/fields/checkboxes', $checkboxes );
+
+		// Init section end.
+		$section_end = [
 			'section_end' => [
 				'type' => 'sectionend',
 				'id' => 'woocommerce_civicrm_section_end',
 			],
 		];
 
+		$options = $section_title + $selects + $checkboxes + $section_end;
+
 		/**
-		 * Filter fields configuration.
+		 * Filter the settings array.
 		 *
 		 * @since 2.0
 		 *
-		 * @param array $options The fields configuration.
+		 * @param array $options The settings array.
 		 */
 		return apply_filters( 'wpcv_woo_civi/admin_settings/fields', $options );
 
