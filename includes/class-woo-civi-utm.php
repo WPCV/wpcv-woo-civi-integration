@@ -2,7 +2,7 @@
 /**
  * Urchin Tracking Module class.
  *
- * Handles integration of Urchin Tracking Module.
+ * Handles integration of Urchin Tracking Module when CiviCAmpaing is enabled.
  *
  * @package WPCV_Woo_Civi
  * @since 3.0
@@ -37,6 +37,11 @@ class WPCV_Woo_Civi_UTM {
 	 */
 	public function initialise() {
 
+		// Bail if the CiviCampaign component is not active.
+		if ( ! WPCV_WCI()->helper->is_component_enabled( 'CiviCampaign' ) ) {
+			return;
+		}
+
 		$this->register_hooks();
 		$this->utm_check();
 
@@ -53,7 +58,7 @@ class WPCV_Woo_Civi_UTM {
 		add_action( 'wpcv_woo_civi/order/created', [ $this, 'utm_cookies_delete' ] );
 
 		// Save UTM Campaign cookie content to the Order post meta.
-		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'utm_to_order' ] );
+		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'utm_to_order' ], 20 );
 
 		// Save UTM Campaign cookie content to the Order post meta.
 		add_filter( 'wpcv_woo_civi/order/source/generate', [ $this, 'utm_filter_source' ] );
@@ -160,13 +165,13 @@ class WPCV_Woo_Civi_UTM {
 		$cookie = wp_unslash( $_COOKIE );
 		$campaign_cookie = 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH;
 
+		// Set the UTM Campaign ID if present, otherwise set default CiviCRM Campaign ID.
 		if ( ! empty( $cookie[ $campaign_cookie ] ) ) {
-			update_post_meta( $order_id, '_woocommerce_civicrm_campaign_id', esc_attr( $cookie[ $campaign_cookie ] ) );
+			WPCV_WCI()->campaign->set_order_meta( $order_id, esc_attr( $cookie[ $campaign_cookie ] ) );
 			setcookie( $campaign_cookie, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 		} else {
-			// Get the global CiviCRM Campaign ID.
 			$campaign_id = get_option( 'woocommerce_civicrm_campaign_id' );
-			update_post_meta( $order_id, '_woocommerce_civicrm_campaign_id', $campaign_id );
+			WPCV_WCI()->campaign->set_order_meta( $order_id, $campaign_id );
 		}
 
 	}

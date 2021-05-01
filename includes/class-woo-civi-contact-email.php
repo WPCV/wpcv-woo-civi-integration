@@ -52,6 +52,106 @@ class WPCV_Woo_Civi_Contact_Email {
 		// Sync WooCommerce and CiviCRM email for User/Contact.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_email' ], 10, 2 );
 
+		// Update CiviCRM Email record(s) for User/Contact.
+		add_action( 'wpcv_woo_civi/contact/create_from_order', [ $this, 'entities_create' ], 20, 2 );
+		add_action( 'wpcv_woo_civi/contact/update_from_order', [ $this, 'entities_update' ], 20, 2 );
+
+	}
+
+	/**
+	 * Creates Email record(s) when a Contact has been added.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $contact The CiviCRM Contact data.
+	 * @param object $order The WooCommerce Order object.
+	 */
+	public function entities_create( $contact, $order ) {
+
+		// Pass to update for now.
+		$this->entities_update( $contact, $order );
+
+	}
+
+	/**
+	 * Updates Email record(s) when a Contact has been edited.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $contact The CiviCRM Contact data.
+	 * @param object $order The WooCommerce Order object.
+	 */
+	public function entities_update( $contact, $order ) {
+
+		$contact_id = $contact['id'];
+		$existing_emails = $this->emails_get_by_contact_id( $contact_id );
+
+		try {
+
+			// Only use 'billing' because there is no 'shipping_email' in WooCommerce.
+			$address_types = WPCV_WCI()->helper->get_mapped_location_types();
+			$address_type = 'billing';
+			$location_type_id = $address_types['billing'];
+
+			// Process Email.
+			$email_exists = false;
+
+			$email_address = $order->{'get_' . $address_type . '_email'}();
+			if ( ! empty( $email_address ) ) {
+
+				$email = [
+					'location_type_id' => $location_type_id,
+					'email' => $email_address,
+					'contact_id' => $contact_id,
+				];
+
+				foreach ( $existing_emails as $existing_email ) {
+
+					if ( isset( $existing_email['location_type_id'] ) && $existing_email['location_type_id'] === $location_type_id ) {
+						$email['id'] = $existing_email['id'];
+					}
+
+					if ( isset( $existing_email['email'] ) && $existing_email['email'] === $email['email'] ) {
+						$email_exists = true;
+					}
+
+				}
+
+				if ( ! $email_exists ) {
+
+					civicrm_api3( 'Email', 'create', $email );
+
+					/* translators: %1$s: Address Type, %2$s: Email Address */
+					$note = sprintf(
+						__( 'Created new CiviCRM Email of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
+						$address_type,
+						$email['email']
+					);
+
+					$order->add_order_note( $note );
+
+				}
+
+			}
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to add/update Address', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				//'params' => $params,
+				//'result' => $result,
+				'backtrace' => $trace,
+			], true ) );
+
+		}
+
 	}
 
 	/**
@@ -97,7 +197,7 @@ class WPCV_Woo_Civi_Contact_Email {
 			return;
 		}
 
-		$cms_user = WPCV_WCI()->contact->get_civicrm_ufmatch( $object_ref->contact_id, 'contact_id' );
+		$cms_user = WPCV_WCI()->contact->get_ufmatch( $object_ref->contact_id, 'contact_id' );
 
 		// Bail if we don't have a WordPress User.
 		if ( ! $cms_user ) {
@@ -147,7 +247,7 @@ class WPCV_Woo_Civi_Contact_Email {
 			return false;
 		}
 
-		$civi_contact = WPCV_WCI()->contact->get_civicrm_ufmatch( $user_id, 'uf_id' );
+		$civi_contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
 
 		// Bail if we don't have a CiviCRM Contact.
 		if ( ! $civi_contact ) {
@@ -239,6 +339,95 @@ class WPCV_Woo_Civi_Contact_Email {
 
 		// Success.
 		return true;
+
+	}
+
+	/**
+	 * Tries to get the Email of the current User.
+	 *
+	 * @since 3.0
+	 *
+	 * @param object $order The WooCommerce Order object.
+	 * @return str|bool $email The Email of the current User, or false if not found.
+	 */
+	public function get_by_order( $order ) {
+
+		$email = false;
+
+		// If User is logged in but not in WordPress admin, i.e. it's not a manual Order.
+		if ( is_user_logged_in() && ! is_admin() ) {
+			$current_user = wp_get_current_user();
+			$email = $current_user->user_email;
+			return $email;
+		}
+
+		// If there was a "Customer User" field in form, i.e. it's a manual Order.
+		$customer_id = filter_input( INPUT_POST, 'customer_user', FILTER_VALIDATE_INT );
+		if ( ! empty( $customer_id ) && is_numeric( $customer_id ) ) {
+			$user_info = get_userdata( (int) $customer_id );
+			$email = $user_info->user_email;
+			return $email;
+		}
+
+		// Fall back to the Billing Email in the Order if there is one.
+		$order_email = $order->get_billing_email();
+		if ( ! empty( $order_email ) ) {
+			$email = $order_email;
+		}
+
+		return $email;
+
+	}
+
+	/**
+	 * Get the Emails for a given Contact ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @param integer $contact_id The numeric ID of the CiviCRM Contact.
+	 * @return array $email_data The array of Email data for the CiviCRM Contact.
+	 */
+	public function emails_get_by_contact_id( $contact_id ) {
+
+		$email_data = [];
+
+		// Bail if we have no Contact ID.
+		if ( empty( $contact_id ) ) {
+			return $email_data;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $email_data;
+		}
+
+		// Define params to get queried Emails.
+		$params = [
+			'version' => 3,
+			'sequential' => 1,
+			'contact_id' => $contact_id,
+			'options' => [
+				'limit' => 0, // No limit.
+			],
+		];
+
+		// Call the API.
+		$result = civicrm_api( 'Email', 'get', $params );
+
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+			return $email_data;
+		}
+
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return $email_data;
+		}
+
+		// The result set it what we want.
+		$email_data = $result['values'];
+
+		return $email_data;
 
 	}
 

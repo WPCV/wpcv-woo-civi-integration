@@ -40,7 +40,15 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 	}
 
 	/**
-	 * Check if WooCommerce is activated on another blog.
+	 * Check if WooCommerce is activated on another site.
+	 *
+	 * This relies on the setting in WPCV_Woo_Civi_Settings_Network to work.
+	 * This method plus "fix_site()" and "unfix_site()" should probably be moved
+	 * to that class for better encapsulation.
+	 *
+	 * Furthermore, it's entirely possible for there to be multiple WooCommerce
+	 * instances on a Multisite network, so data may need to be gathered for all
+	 * of them.
 	 *
 	 * @since 2.2
 	 */
@@ -50,14 +58,14 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 			return false;
 		}
 
-		$option = 'woocommerce_civicrm_network_settings';
+		$option = WPCV_WCI()->settings_network->settings_key;
 		$options = get_site_option( $option );
 		if ( ! $options ) {
 			return false;
 		}
 
-		$wc_site_id = $options['wc_blog_id'];
-		if ( get_current_blog_id() === $wc_site_id ) {
+		$wc_site_id = (int) $options['wc_blog_id'];
+		if ( $wc_site_id === get_current_blog_id() ) {
 			return false;
 		}
 
@@ -66,14 +74,13 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 	}
 
 	/**
-	 * Move to main WooCommerce site if multisite installation.
+	 * Switch to main WooCommerce site on Multisite installation.
 	 *
 	 * @since 2.2
 	 */
 	private function fix_site() {
 
 		$wc_site_id = $this->is_remote_wc();
-
 		if ( false === $wc_site_id ) {
 			return;
 		}
@@ -83,7 +90,7 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 	}
 
 	/**
-	 * Move to current site if multisite installation.
+	 * Switch back to current site on Multisite installation.
 	 *
 	 * @since 2.2
 	 */
@@ -200,7 +207,7 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 		$tabs[] = [
 			'id' => 'woocommerce-orders',
 			'url' => $url,
-			'title' => __( 'WooCommerce Orders', 'wpcv-woo-civi-integration' ),
+			'title' => __( 'Woo Orders', 'wpcv-woo-civi-integration' ),
 			'count' => $order_count,
 			'weight' => 99,
 		];

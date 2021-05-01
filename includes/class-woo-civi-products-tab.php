@@ -67,7 +67,7 @@ class WPCV_Woo_Civi_Products_Tab {
 	}
 
 	/**
-	 * Adds a "CiviCRM Settings" tab to the New & Edit Product screens.
+	 * Adds a "CiviCRM Settings" Product Tab to the New & Edit Product screens.
 	 *
 	 * @since 2.4
 	 *
@@ -91,11 +91,12 @@ class WPCV_Woo_Civi_Products_Tab {
 	 * @since 2.4
 	 */
 	public function add_civicrm_product_panel() {
-		include WPCV_WOO_CIVI_PATH . 'assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-panel-civicrm.php';
+		$directory = 'assets/templates/woocommerce/admin/meta-boxes/views/';
+		include WPCV_WOO_CIVI_PATH . $directory . 'html-product-data-panel-civicrm.php';
 	}
 
 	/**
-	 * Add the CiviCRM Product settings as meta before Product is saved.
+	 * Adds the CiviCRM settings as meta before Product is saved.
 	 *
 	 * @since 2.4
 	 *
@@ -103,15 +104,20 @@ class WPCV_Woo_Civi_Products_Tab {
 	 */
 	public function save_civicrm_product_settings( $product ) {
 
+		// Always save the Financial Type ID.
 		if ( isset( $_POST['woocommerce_civicrm_financial_type_id'] ) ) {
 			$financial_type_id = sanitize_key( $_POST['woocommerce_civicrm_financial_type_id'] );
-			$product->add_meta_data( 'woocommerce_civicrm_financial_type_id', $financial_type_id, true );
+			$product->add_meta_data( WPCV_WCI()->products->meta_key, $financial_type_id, true );
 		}
 
-		if ( isset( $_POST['woocommerce_civicrm_membership_type_id'] ) ) {
-			$membership_type_id = sanitize_key( $_POST['woocommerce_civicrm_membership_type_id'] );
-			$product->add_meta_data( 'woocommerce_civicrm_membership_type_id', $membership_type_id, true );
-		}
+		/**
+		 * Fires when the settings from the "CiviCRM Settings" Product Tab have been saved.
+		 *
+		 * @since 3.0
+		 *
+		 * @param WC_Product $product The Product object.
+		 */
+		do_action( 'wpcv_woo_civi/product/panel/saved', $product );
 
 	}
 
@@ -130,7 +136,7 @@ class WPCV_Woo_Civi_Products_Tab {
 		}
 
 		$default_contribution_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
-		$product_contribution_type_id = get_post_meta( $post_id, 'woocommerce_civicrm_financial_type_id', true );
+		$product_contribution_type_id = WPCV_WCI()->products->get_product_meta( $post_id );
 		$financial_types = WPCV_WCI()->helper->get_financial_types();
 
 		echo '<br>';
@@ -238,7 +244,7 @@ class WPCV_Woo_Civi_Products_Tab {
 
 		// Save Contribution Type directly to Post meta.
 		$financial_type_id = sanitize_text_field( $_REQUEST['_civicrm_financial_type_id'] );
-		update_post_meta( $post_id, 'woocommerce_civicrm_financial_type_id', $financial_type_id );
+		WPCV_WCI()->products->set_product_meta( $post_id, $financial_type_id );
 
 	}
 

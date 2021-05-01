@@ -19,6 +19,24 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Orders {
 
 	/**
+	 * WooCommerce Order meta key holding the CiviCRM Contribution ID.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $meta_key The WooCommerce Order meta key.
+	 */
+	public $meta_key = '_woocommerce_civicrm_contribution_id';
+
+	/**
+	 * Whether or not the Order is created via the WooCommerce Checkout.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $is_checkout True if in Checkout, false otherwise.
+	 */
+	public $is_checkout = false;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 2.0
@@ -46,13 +64,67 @@ class WPCV_Woo_Civi_Orders {
 	 */
 	public function register_hooks() {
 
+		// Process new WooCommerce Orders from Checkout.
+		add_action( 'woocommerce_checkout_create_order', [ $this, 'checkout_create_order' ], 20, 2 );
+		add_action( 'woocommerce_checkout_order_processed', [ $this, 'order_processed' ], 20, 3 );
+
 		// Process changes in WooCommerce Orders.
-		add_action( 'woocommerce_new_order', [ $this, 'order_new' ], 10, 2 );
-		add_action( 'woocommerce_checkout_order_processed', [ $this, 'order_processed' ], 10, 3 );
+		add_action( 'woocommerce_new_order', [ $this, 'order_new' ], 20, 2 );
 		add_action( 'woocommerce_order_status_changed', [ $this, 'order_status_changed' ], 99, 4 );
 
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'woocommerce_admin_order_data_after_order_details', [ $this, 'order_data_additions' ], 30 );
+
+		// Add Contact info notes to an Order.
+		add_action( 'wpcv_woo_civi/contact/create_from_order', [ $this, 'note_add_contact_created' ], 10, 2 );
+		add_action( 'wpcv_woo_civi/contact/update_from_order', [ $this, 'note_add_contact_updated' ], 10, 2 );
+
+	}
+
+	/**
+	 * Gets the CiviCRM Contribution ID from WooCommerce Order meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @return int|bool $contribution_id The numeric ID of the CiviCRM Contribution, false otherwise.
+	 */
+	public function get_order_meta( $order_id ) {
+		$contribution_id = get_post_meta( $order_id, $this->meta_key, true );
+		return $contribution_id;
+	}
+
+	/**
+	 * Sets the CiviCRM Contribution ID as meta data on a WooCommerce Order.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param int $contribution_id The numeric ID of the CiviCRM Contribution.
+	 */
+	public function set_order_meta( $order_id, $contribution_id ) {
+		update_post_meta( $order_id, $this->meta_key, $contribution_id, true );
+	}
+
+	/**
+	 * Called when a WooCommerce Order is created from the Checkout.
+	 *
+	 * The "woocommerce_checkout_create_order" action fires before the
+	 * "woocommerce_new_order" action - so this gives us a way to determine the
+	 * context in which the Order has been created.
+	 *
+	 * Note: Orders can also be created via the WooCommerce REST API, so this
+	 * plugin also needs to check for that route as well.
+	 *
+	 * @since 3.0
+	 *
+	 * @param object $order The Order object.
+	 * @param array $data The Order data.
+	 */
+	public function checkout_create_order( $order, $data ) {
+
+		// Set flag.
+		$this->is_checkout = true;
 
 	}
 
@@ -68,24 +140,28 @@ class WPCV_Woo_Civi_Orders {
 	 */
 	public function order_new( $order_id, $order ) {
 
-		// In dashbord context, "woocommerce_checkout_order_processed" is not called after a creation.
-		$nonce = filter_input( INPUT_POST, 'woocommerce_civicrm_order_new', FILTER_SANITIZE_STRING );
-		if ( ! wp_verify_nonce( $nonce, 'woocommerce_civicrm_order_new' ) ) {
+		// Bail when the Order is created in the Checkout.
+		if ( $this->is_checkout ) {
 			return;
 		}
 
-		// FIXME: Is this really necessary?
+		// In WordPress admin, mimic the "woocommerce_checkout_order_processed" callback.
 		$this->order_processed( $order_id, null, new WC_Order( $order_id ) );
 
 		/**
 		 * Broadcast that a new WooCommerce Order with CiviCRM data has been created.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Source::order_new() (Priority: 10)
+		 * * WPCV_Woo_Civi_Campaign::utm_to_order() (Priority: 20)
 		 *
 		 * @since 3.0
 		 *
 		 * @param int $order_id The Order ID.
 		 * @param object $order The Order object.
 		 */
-		do_action( 'wpcv_woo_civi/order/form/new', $order_id, $order );
+		do_action( 'wpcv_woo_civi/order/new', $order_id, $order );
 
 	}
 
@@ -101,33 +177,24 @@ class WPCV_Woo_Civi_Orders {
 	 */
 	public function order_processed( $order_id, $posted_data, $order ) {
 
-		$contact_id = WPCV_WCI()->contact->civicrm_get_cid( $order );
-		if ( false === $contact_id ) {
-			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'wpcv-woo-civi-integration' ) );
-			return;
-		}
-
-		$contact_id = WPCV_WCI()->contact->add_update_contact( $contact_id, $order );
-		if ( false === $contact_id ) {
-			$order->add_order_note( __( 'CiviCRM Contact could not be found or created', 'wpcv-woo-civi-integration' ) );
-			return;
-		}
-
 		// Add the Contribution record.
-		$this->contribution_create( $contact_id, $order );
+		$contribution = $this->contribution_create( $order );
 
 		/**
 		 * Broadcast that a Contribution record has been added for a new WooCommerce Order.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Source::order_processed() (Priority: 10)
+		 * * WPCV_Woo_Civi_UTM::utm_to_order() (Priority: 20)
 		 *
 		 * @since 3.0
 		 *
 		 * @param int $order_id The Order ID.
 		 * @param object $order The Order object.
-		 * @param int $contact_id The numeric ID of the CiviCRM Contact.
+		 * @param array $contribution The array of Contribution data, or false on failure.
 		 */
-		do_action( 'wpcv_woo_civi/order/processed', $order_id, $order, $contact_id );
-
-		return $order_id;
+		do_action( 'wpcv_woo_civi/order/processed', $order_id, $order, $contribution );
 
 	}
 
@@ -157,13 +224,6 @@ class WPCV_Woo_Civi_Orders {
 			return;
 		}
 
-		// Return early if a CiviCRM Contact can't be found.
-		$contact_id = WPCV_WCI()->contact->civicrm_get_cid( $order );
-		if ( false === $contact_id ) {
-			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'wpcv-woo-civi-integration' ) );
-			return;
-		}
-
 		// Get Contribution.
 		$invoice_id = WPCV_WCI()->helper->get_invoice_id( $order_id );
 		$contribution = WPCV_WCI()->helper->get_contribution_by_invoice_id( $invoice_id );
@@ -181,9 +241,6 @@ class WPCV_Woo_Civi_Orders {
 		}
 
 		// Update Contribution.
-		// FIXME: Won't update twice when Order is created:
-		// "Cannot change contribution status from Pending to In Progress."
-		// Execution never reaches line after API call.
 		$result = civicrm_api3( 'Contribution', 'create', $contribution );
 
 		// Sanity check.
@@ -211,11 +268,10 @@ class WPCV_Woo_Civi_Orders {
 	 *
 	 * @since 2.0
 	 *
-	 * @param int $contact_id The numeric ID of the CiviCRM Contact.
 	 * @param WC_Order $order The Order object.
 	 * @return bool True on success, otherwise false.
 	 */
-	public function contribution_create( $contact_id, $order ) {
+	public function contribution_create( $order ) {
 
 		// Bail if Order is 'free' (0 amount) and 0 amount setting is enabled.
 		$ignore_zero_orders = WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false ) );
@@ -237,6 +293,11 @@ class WPCV_Woo_Civi_Orders {
 		$order_date = $order->get_date_paid();
 		$order_paid_date = ! empty( $order_date ) ? $order_date->date( 'Y-m-d H:i:s' ) : gmdate( 'Y-m-d H:i:s' );
 
+		// Get the Contact ID associated with this Order.
+		$contact_id = WPCV_WCI()->contact->get_id_by_order( $order );
+
+		// FIXME: Error check?
+
 		// Init Order params.
 		$params = [
 			'contact_id' => $contact_id,
@@ -252,23 +313,23 @@ class WPCV_Woo_Civi_Orders {
 		// FIXME: This could be done via the filter below.
 		$params = $this->tax_add_to_order( $params, $order );
 
-		try {
+		/**
+		 * Filter the Contribution params before calling the CiviCRM API.
+		 *
+		 * Used internally by:
+		 *
+		 * - WPCV_Woo_Civi_Source (Priority: 10)
+		 * - WPCV_Woo_Civi_Campaign (Priority: 20)
+		 * - WPCV_Woo_Civi_Products (Priority: 30)
+		 *
+		 * @since 2.0
+		 *
+		 * @param array $params The params to be passed to the CiviCRM API.
+		 * @param object $order The WooCommerce Order object.
+		 */
+		$params = apply_filters( 'wpcv_woo_civi/order/create/params', $params, $order );
 
-			/**
-			 * Filter the Contribution params before calling the CiviCRM API.
-			 *
-			 * Used internally by:
-			 *
-			 * - WPCV_Woo_Civi_Source (Priority: 10)
-			 * - WPCV_Woo_Civi_Campaign (Priority: 20)
-			 * - WPCV_Woo_Civi_Products (Priority: 30)
-			 *
-			 * @since 2.0
-			 *
-			 * @param array $params The params to be passed to the CiviCRM API.
-			 * @param object $order The WooCommerce Order object.
-			 */
-			$params = apply_filters( 'wpcv_woo_civi/order/create/params', $params, $order );
+		try {
 
 			$contribution = civicrm_api3( 'Order', 'create', $params );
 
@@ -322,10 +383,14 @@ class WPCV_Woo_Civi_Orders {
 		$order->add_order_note( $note );
 
 		// Save Contribution ID in post meta.
-		update_post_meta( $order_id, '_woocommerce_civicrm_contribution_id', $contribution['id'] );
+		$this->set_order_meta( $order_id, $contribution['id'] );
 
 		/**
 		 * Broadcast that a Contribution has been created.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_UTM::utm_cookies_delete() (Priority: 10)
 		 *
 		 * @since 3.0
 		 *
@@ -478,6 +543,50 @@ class WPCV_Woo_Civi_Orders {
 	}
 
 	/**
+	 * Adds a note to an Order when a Contact has been added or edited.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $contact The CiviCRM Contact data.
+	 * @param object $order The WooCommerce Order object.
+	 */
+	public function note_add_contact_created( $contact, $order ) {
+
+		// Get the link to the Contact in CiviCRM.
+		$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
+		$contact_url = '<a href="' . $link . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
+
+		/* translators: %s: The link to the Contact in CiviCRM */
+		$note = sprintf( __( 'Created new CiviCRM Contact - %s', 'wpcv-woo-civi-integration' ), $contact_url );
+
+		// Add Order note.
+		$order->add_order_note( $note );
+
+	}
+
+	/**
+	 * Adds a note to an Order when a Contact has been added or edited.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $contact The CiviCRM Contact data.
+	 * @param object $order The WooCommerce Order object.
+	 */
+	public function note_add_contact_updated( $contact, $order ) {
+
+		// Get the link to the Contact in CiviCRM.
+		$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
+		$contact_url = '<a href="' . $link . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
+
+		/* translators: %s: The link to the Contact in CiviCRM */
+		$note = sprintf( __( 'CiviCRM Contact Updated - %s', 'wpcv-woo-civi-integration' ), $contact_url );
+
+		// Add Order note.
+		$order->add_order_note( $note );
+
+	}
+
+	/**
 	 * Adds a form field to set a Campaign.
 	 *
 	 * @since 2.2
@@ -486,14 +595,15 @@ class WPCV_Woo_Civi_Orders {
 	 */
 	public function order_data_additions( $order ) {
 
-		if ( $order->get_status() === 'auto-draft' ) {
-			wp_nonce_field( 'woocommerce_civicrm_order_new', 'woocommerce_civicrm_order_new' );
-		} else {
-			wp_nonce_field( 'woocommerce_civicrm_order_edit', 'woocommerce_civicrm_order_edit' );
-		}
+		// TODO: Source and Campaign can hook in to the form directly.
 
 		/**
 		 * Fires before adding form elements to a WooCommerce Order.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Source::order_data_additions() (Priority: 10)
+		 * * WPCV_Woo_Civi_Campaign::order_data_additions() (Priority: 20)
 		 *
 		 * @since 3.0
 		 *
@@ -501,7 +611,7 @@ class WPCV_Woo_Civi_Orders {
 		 */
 		do_action( 'wpcv_woo_civi/order/form/before', $order );
 
-		$contact_id = WPCV_WCI()->contact->civicrm_get_cid( $order );
+		$contact_id = WPCV_WCI()->contact->get_id_by_order( $order );
 		if ( empty( $contact_id ) ) {
 			return;
 		}

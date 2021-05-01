@@ -1,6 +1,6 @@
 <?php
 /**
- * The HTML template for the CiviCRM Settings Tab in the Product Tabs.
+ * The HTML template for the "CiviCRM Settings" Product Tab.
  *
  * @package WPCV_Woo_Civi
  * @since 2.4
@@ -14,6 +14,14 @@ defined( 'ABSPATH' ) || exit;
 	<div>
 		<?php
 
+		/**
+		 * Fires at the beginning of the "CiviCRM Settings" Product Tab.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/product/panel/civicrm/before' );
+
+		// Always render the Financial Type select.
 		woocommerce_wp_select( [
 			'id' => 'woocommerce_civicrm_financial_type_id',
 			'name' => 'woocommerce_civicrm_financial_type_id',
@@ -23,14 +31,12 @@ defined( 'ABSPATH' ) || exit;
 			'options' => WPCV_WCI()->helper->get_financial_types_options(),
 		] );
 
-		woocommerce_wp_select( [
-			'id' => 'woocommerce_civicrm_membership_type_id',
-			'name' => 'woocommerce_civicrm_membership_type_id',
-			'label' => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
-			'description' => __( 'Select a Membership Type if you would like this Product to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
-			'options' => WPCV_WCI()->helper->get_membership_types_options(),
-		] );
+		/**
+		 * Fires at the end of the "CiviCRM Settings" Product Tab.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/product/panel/civicrm/after' );
 
 		?>
 	</div>

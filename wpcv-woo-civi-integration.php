@@ -44,6 +44,15 @@ class WPCV_Woo_Civi {
 	public $helper;
 
 	/**
+	 * The Network Settings object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $settings_network The Network Settings object.
+	 */
+	public $settings_network;
+
+	/**
 	 * The Settings Tab object.
 	 *
 	 * @since 2.0
@@ -124,6 +133,15 @@ class WPCV_Woo_Civi {
 	 * @var object $products_tab The WooCommerce Product Tab object.
 	 */
 	public $products_tab;
+
+	/**
+	 * Membership management object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $membership The Membership management object.
+	 */
+	public $membership;
 
 	/**
 	 * Dummy instance constructor.
@@ -220,6 +238,8 @@ class WPCV_Woo_Civi {
 		// Include Helper class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-helper.php';
 
+		// Include Network Settings class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-settings-network.php';
 		// Include WooCommerce Settings Tab class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-settings-tab.php';
 		// Include States class.
@@ -235,13 +255,15 @@ class WPCV_Woo_Civi {
 		// Include UTM class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-utm.php';
 
-		// Include Campaign class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-campaign.php';
-
 		// Include Products class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-products.php';
 		// Include Products Tab class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-products-tab.php';
+
+		// Include Campaign class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-campaign.php';
+		// Include Membership class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-membership.php';
 
 	}
 
@@ -255,6 +277,8 @@ class WPCV_Woo_Civi {
 		// Init helper object.
 		$this->helper = new WPCV_Woo_Civi_Helper();
 
+		// Init Network Settings object.
+		$this->settings_network = new WPCV_Woo_Civi_Settings_Network();
 		// Init Settings Tab object.
 		$this->settings_tab = new WPCV_Woo_Civi_Settings_Tab();
 		// Init States object.
@@ -270,13 +294,15 @@ class WPCV_Woo_Civi {
 		// Init UTM object.
 		$this->utm = new WPCV_Woo_Civi_UTM();
 
-		// Init Campaign object.
-		$this->campaign = new WPCV_Woo_Civi_Campaign();
-
 		// Init Products object.
 		$this->products = new WPCV_Woo_Civi_Products();
 		// Init Products Tab object.
 		$this->products_tab = new WPCV_Woo_Civi_Products_Tab();
+
+		// Init Campaign object.
+		$this->campaign = new WPCV_Woo_Civi_Campaign();
+		// Init Membership object.
+		$this->membership = new WPCV_Woo_Civi_Membership();
 
 	}
 

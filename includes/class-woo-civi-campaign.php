@@ -57,6 +57,15 @@ class WPCV_Woo_Civi_Campaign {
 	public $campaigns_status = [];
 
 	/**
+	 * WooCommerce Order meta key holding the CiviCRM Campaign ID.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $meta_key The WooCommerce Order meta key.
+	 */
+	public $meta_key = '_woocommerce_civicrm_campaign_id';
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 3.0
@@ -91,10 +100,10 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		// Hook into new WooCommerce Orders with CiviCRM data.
-		add_action( 'wpcv_woo_civi/order/form/new', [ $this, 'order_new' ], 10, 2 );
+		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 20, 2 );
 
 		// Add CiviCRM options to Edit Order screen.
-		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_data_additions' ] );
+		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_data_additions' ], 20 );
 
 		// Add Campaign ID to Order.
 		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'campaign_get_for_order' ], 20, 2 );
@@ -110,6 +119,31 @@ class WPCV_Woo_Civi_Campaign {
 		add_action( 'restrict_manage_posts', [ $this, 'restrict_manage_orders' ], 5 );
 		add_action( 'pre_get_posts', [ $this, 'pre_get_posts' ], 100 );
 
+	}
+
+	/**
+	 * Gets the CiviCRM Campaign ID from WooCommerce Order meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @return int|bool $campaign_id The numeric ID of the CiviCRM Campaign, false otherwise.
+	 */
+	public function get_order_meta( $order_id ) {
+		$campaign_id = get_post_meta( $order_id, $this->meta_key, true );
+		return $campaign_id;
+	}
+
+	/**
+	 * Sets the CiviCRM Campaign ID as meta data on a WooCommerce Order.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param int $campaign_id The numeric ID of the CiviCRM Campaign.
+	 */
+	public function set_order_meta( $order_id, $campaign_id ) {
+		update_post_meta( $order_id, $this->meta_key, $campaign_id, true );
 	}
 
 	/**
@@ -499,7 +533,7 @@ class WPCV_Woo_Civi_Campaign {
 		$default_campaign_id = get_option( 'woocommerce_civicrm_campaign_id', false );
 
 		// Use the local CiviCRM Campaign ID if possible.
-		$local_campaign_id = get_post_meta( $order->get_id(), '_woocommerce_civicrm_campaign_id', true );
+		$local_campaign_id = $this->get_order_meta( $order->get_id() );
 		if ( ! empty( $local_campaign_id ) ) {
 			$default_campaign_id = $local_campaign_id;
 		}
@@ -523,11 +557,11 @@ class WPCV_Woo_Civi_Campaign {
 	public function order_new( $order_id, $order ) {
 
 		// Add the Campaign ID to the Order.
-		$current_campaign_id = get_post_meta( $order_id, '_woocommerce_civicrm_campaign_id', true );
+		$current_campaign_id = $this->get_order_meta( $order_id );
 		$new_campaign_id = filter_input( INPUT_POST, 'order_civicrmcampaign', FILTER_VALIDATE_INT );
 		if ( false !== $new_campaign_id && $new_campaign_id !== $current_campaign_id ) {
 			$this->campaign_update( $order_id, $current_campaign_id, $new_campaign_id );
-			update_post_meta( $order_id, '_woocommerce_civicrm_campaign_id', esc_attr( $new_campaign_id ) );
+			$this->set_order_meta( $order_id, esc_attr( $new_campaign_id ) );
 		}
 
 	}
@@ -664,7 +698,7 @@ class WPCV_Woo_Civi_Campaign {
 			return;
 		}
 
-		$campaign_id = get_post_meta( $post_id, '_woocommerce_civicrm_campaign_id', true );
+		$campaign_id = $this->get_order_meta( $post_id );
 		if ( empty( $campaign_id ) ) {
 			return;
 		}
@@ -746,7 +780,7 @@ class WPCV_Woo_Civi_Campaign {
 
 		// Add Campaign meta query.
 		$meta_query['campaign_clause'] = [
-			'key' => '_woocommerce_civicrm_campaign_id',
+			'key' => $this->meta_key,
 			'value' => $campaign_id,
 			'compare' => '==',
 		];
@@ -772,7 +806,7 @@ class WPCV_Woo_Civi_Campaign {
 			true
 		);
 
-		$order_campaign = get_post_meta( $order->get_id(), '_woocommerce_civicrm_campaign_id', true );
+		$order_campaign = $this->get_order_meta( $order->get_id() );
 
 		// If there is no Campaign selected, select the default one as defined on our Settings page.
 		if ( '' === $order_campaign || false === $order_campaign ) {

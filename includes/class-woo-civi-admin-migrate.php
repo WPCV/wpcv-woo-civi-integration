@@ -254,7 +254,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 */
 	public function page_migrate() {
 
-		// We must be network admin in multisite.
+		// We must be network admin in Multisite.
 		if ( is_multisite() AND ! is_super_admin() ) {
 			wp_die( __( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
 		}
@@ -576,17 +576,23 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			$data['from'] = (int) $offset;
 			$data['to'] = $data['from'] + $diff;
 
+			// Find out if CiviMember is active.
+			$member_active = false;
+			if ( WPCV_WCI()->boot_civi() ) {
+				$components = CRM_Core_Component::getEnabledComponents();
+				if ( array_key_exists( 'CiviMember', $components ) ) {
+					$member_active = true;
+				}
+			}
+
 			// Loop and set up post.
 			while ( $query->have_posts() ) { $query->the_post();
 
-				// Does the Product have the duplicate meta?
-				$duplicate = get_post_meta( get_the_ID(), '_civicrm_contribution_type', true );
+				// Grat Product ID.
+				$product_id = get_the_ID();
 
-				// When it does, update the proper meta and remove duplicate.
-				if ( ! empty( $duplicate ) ) {
-					update_post_meta( get_the_ID(), 'woocommerce_civicrm_financial_type_id', $duplicate );
-					delete_post_meta( get_the_ID(), '_civicrm_contribution_type' );
-				}
+				// Process this Product.
+				$this->product_process( $product_id, $member_active );
 
 			}
 
@@ -612,6 +618,51 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		// Send data to browser.
 		if ( wp_doing_ajax() ) {
 			wp_send_json( $data );
+		}
+
+	}
+
+	/**
+	 * Process a Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $product_id The numeric ID of the Product.
+	 * @param bool $member_active True if the CiviMember Component is active.
+	 */
+	public function product_process( $product_id, $member_active ) {
+
+		// Does the Product have the duplicate meta?
+		$duplicate = get_post_meta( $product_id, '_civicrm_contribution_type', true );
+
+		// When it does, update the proper meta and remove duplicate.
+		if ( ! empty( $duplicate ) || $duplicate == 0 ) {
+			//if ( ! empty( $duplicate ) ) {
+				update_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id', $duplicate );
+			//}
+			delete_post_meta( $product_id, '_civicrm_contribution_type' );
+		}
+
+		// Does the Product have meta without the leading underscore?
+		$financial_type_id = get_post_meta( $product_id, 'woocommerce_civicrm_financial_type_id', true );
+
+		// When it does, update the proper meta and remove old.
+		if ( ! empty( $financial_type_id ) || $financial_type_id == 0 ) {
+			//if ( ! empty( $financial_type_id ) ) {
+				update_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id', $financial_type_id );
+			//}
+			delete_post_meta( $product_id, 'woocommerce_civicrm_financial_type_id' );
+		}
+
+		// Does the Product have meta without the leading underscore?
+		$membership_type_id = get_post_meta( $product_id, 'woocommerce_civicrm_membership_type_id', true );
+
+		// When it does, update the proper meta and remove old.
+		if ( ! empty( $membership_type_id ) || $membership_type_id == 0 ) {
+			if ( $member_active ) {
+				update_post_meta( $product_id, '_woocommerce_civicrm_membership_type_id', $membership_type_id );
+			}
+			delete_post_meta( $product_id, 'woocommerce_civicrm_membership_type_id' );
 		}
 
 	}

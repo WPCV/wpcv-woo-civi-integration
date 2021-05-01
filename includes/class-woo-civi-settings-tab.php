@@ -2,7 +2,7 @@
 /**
  * Settings Tab class.
  *
- * Handles the CiviCRM Settings tab on the WooCommerce Settings screen.
+ * Handles the "CiviCRM Settings" tab on the WooCommerce Settings screen.
  *
  * @package WPCV_Woo_Civi
  * @since 2.0
@@ -38,166 +38,36 @@ class WPCV_Woo_Civi_Settings_Tab {
 	public function initialise() {
 
 		$this->register_hooks();
-		$this->register_settings();
 
 	}
 
 	/**
-	 * Register hooks
+	 * Register hooks.
 	 *
 	 * @since 2.0
 	 */
 	public function register_hooks() {
 
 		// Add CiviCRM settings tab.
-		add_filter( 'woocommerce_settings_tabs_array', [ $this, 'add_settings_tab' ], 50 );
+		add_filter( 'woocommerce_settings_tabs_array', [ $this, 'tab_add' ], 50 );
+
 		// Add settings for this plugin.
-		add_action( 'woocommerce_settings_woocommerce_civicrm', [ $this, 'add_settings_fields' ], 10 );
+		add_action( 'woocommerce_settings_woocommerce_civicrm', [ $this, 'fields_add' ], 10 );
+
 		// Update settings for this plugin.
-		add_action( 'woocommerce_update_options_woocommerce_civicrm', [ $this, 'update_settings_fields' ] );
-		// Update network settings.
-		add_action( 'network_admin_edit_woocommerce_civicrm_network_settings', [ $this, 'trigger_network_settings' ] );
-
-		if ( WPCV_WCI()->is_network_activated() ) {
-			add_action( 'network_admin_menu', [ $this, 'network_admin_menu' ] );
-		}
+		add_action( 'woocommerce_update_options_woocommerce_civicrm', [ $this, 'fields_update' ] );
 
 	}
 
 	/**
-	 * Registers the plugin settings.
+	 * Adds the "CiviCRM" Tab to the WooCommerce Settings page.
 	 *
 	 * @since 2.0
-	 */
-	public function register_settings() {
-
-		// Bail if not network-activated.
-		if ( ! WPCV_WCI()->is_network_activated() ) {
-			return;
-		}
-
-		register_setting( 'woocommerce_civicrm_network_settings', 'woocommerce_civicrm_network_settings' );
-
-		// Makes sure function exists.
-		if ( ! function_exists( 'add_settings_field' ) ) {
-			require_once ABSPATH . '/wp-admin/includes/template.php';
-		}
-
-		add_settings_section(
-			'woocommerce-civicrm-settings-network-general',
-			__( 'General settings', 'wpcv-woo-civi-integration' ),
-			[ $this, 'settings_section_callback' ],
-			'woocommerce-civicrm-settings-network'
-		);
-
-		add_settings_field(
-			'woocommerce_civicrm_shop_blog_id',
-			__( 'Main WooCommerce Blog ID', 'wpcv-woo-civi-integration' ),
-			[ $this, 'settings_field_select' ],
-			'woocommerce-civicrm-settings-network',
-			'woocommerce-civicrm-settings-network-general',
-			[
-				'name' => 'wc_blog_id',
-				'network' => true,
-				'description' => __( 'The shop on a multisite network', 'wpcv-woo-civi-integration' ),
-				'options' => WPCV_WCI()->helper->get_sites(),
-			]
-		);
-
-	}
-
-	/**
-	 * Settings section callback.
-	 *
-	 * @since 2.0
-	 */
-	public function settings_section_callback() {
-		// FIXME: Why is this empty?
-	}
-
-	/**
-	 * Settings field select.
-	 *
-	 * @since 2.0
-	 *
-	 * @param array $args The field params.
-	 */
-	public function settings_field_select( $args ) {
-
-		$option = 'woocommerce_civicrm_network_settings';
-		$options = get_site_option( $option );
-
-		?>
-		<select
-			name="<?php echo esc_attr( $option ); ?>[<?php echo esc_attr( $args['name'] ); ?>]"
-			id="<?php echo esc_attr( $args['name'] ); ?>"
-			class="regular-select">
-			<?php foreach ( (array) $args['options'] as $key => $option ) : ?>
-				<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $key, isset( $options[ $args['name'] ] ) ? $options[ $args['name'] ] : '', true ); ?>>
-					<?php echo esc_attr( $option ); ?>
-				</option>
-			<?php endforeach; ?>
-		</select>
-		<?php if ( isset( $args['description'] ) && $args['description'] ) : ?>
-		<div class="description"><?php echo esc_html( $args['description'] ); ?></div>
-		<?php endif; ?>
-		<?php
-
-	}
-
-	/**
-	 * Trigger network settings.
-	 *
-	 * @since 2.0
-	 */
-	public function trigger_network_settings() {
-
-		if ( ! wp_verify_nonce( filter_input( INPUT_POST, 'woocommerce-civicrm-settings', FILTER_SANITIZE_STRING ), 'woocommerce-civicrm-settings' ) ) {
-			wp_die( __( 'Cheating uh?', 'wpcv-woo-civi-integration' ) );
-		}
-
-		if ( ! empty( $_POST['woocommerce_civicrm_network_settings']['wc_blog_id'] ) ) {
-			$settings = [
-				'wc_blog_id' => sanitize_text_field( $_POST['woocommerce_civicrm_network_settings']['wc_blog_id'] ),
-			];
-			update_site_option( 'woocommerce_civicrm_network_settings', $settings );
-			wp_safe_redirect(
-				add_query_arg(
-					[
-						'page' => 'woocommerce-civicrm-settings',
-						'confirm' => 'success',
-					],
-					( network_admin_url( 'settings.php' ) )
-				)
-			);
-		} else {
-			wp_safe_redirect(
-				add_query_arg(
-					[
-						'page' => 'woocommerce-civicrm-settings',
-						// FIXME: Not sure this is correct.
-						'confirm' => 'error',
-					],
-					( network_admin_url( 'settings.php' ) )
-				)
-			);
-		}
-
-		exit;
-
-	}
-
-	/**
-	 * Add CiviCRM tab to the settings page.
-	 *
-	 * @since 2.0
-	 *
-	 * @uses 'woocommerce_settings_tabs_array' filter.
 	 *
 	 * @param array $setting_tabs The existing setting tabs array.
 	 * @return array $setting_tabs The modified setting tabs array.
 	 */
-	public function add_settings_tab( $setting_tabs ) {
+	public function tab_add( $setting_tabs ) {
 
 		$setting_tabs['woocommerce_civicrm'] = __( 'CiviCRM', 'wpcv-woo-civi-integration' );
 
@@ -210,8 +80,8 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 *
 	 * @since 2.0
 	 */
-	public function add_settings_fields() {
-		woocommerce_admin_fields( $this->civicrm_settings_fields() );
+	public function fields_add() {
+		woocommerce_admin_fields( $this->fields_define() );
 	}
 
 	/**
@@ -219,201 +89,302 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 *
 	 * @since 2.0
 	 */
-	public function update_settings_fields() {
-		woocommerce_update_options( $this->civicrm_settings_fields() );
+	public function fields_update() {
+		woocommerce_update_options( $this->fields_define() );
 	}
 
 	/**
-	 * Settings options.
+	 * Defines the plugin settings fields.
 	 *
-	 * @since 2.0
+	 * @since 3.0
 	 *
-	 * @return array $options The fields configuration.
+	 * @return array $fields The array of plugin settings fields.
 	 */
-	public function civicrm_settings_fields() {
+	public function fields_define() {
 
-		// Init title.
-		$section_title = [
-			'section_title' => [
-				'name' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
+		// Define and combine plugin settings fields.
+		$contribution_fields = $this->fields_contribution();
+		$address_fields = $this->fields_address();
+		$other_fields = $this->fields_other();
+		$fields = $contribution_fields + $address_fields + $other_fields;
+
+		/**
+		 * Filter the plugin fields array.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $fields The plugin fields array.
+		 */
+		return apply_filters( 'wpcv_woo_civi/woo_settings/fields', $fields );
+
+		return $fields;
+	}
+
+	/**
+	 * Defines the Contribution settings fields.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $fields The array of Contribution settings fields.
+	 */
+	public function fields_contribution() {
+
+		// Init Contribution section.
+		$section_start = [
+			'contribution_title' => [
+				'title' => __( 'Contribution settings', 'wpcv-woo-civi-integration' ),
 				'type' => 'title',
-				'desc' => __( 'Below are the values used when creating Contribution/Address in CiviCRM.', 'wpcv-woo-civi-integration' ),
-				'id' => 'woocommerce_civicrm_section_title',
+				'desc' => __( 'Below are the default settings that  are used when creating Contributions in CiviCRM. These settings can be overridden on individual Products on the "CiviCRM Settings" tab.', 'wpcv-woo-civi-integration' ),
+				'id' => 'contribution_title',
 			],
 		];
 
 		/**
-		 * Filter the section title settings array.
+		 * Filter the Contribution section array.
 		 *
 		 * This can be used to add settings directly after the title.
 		 *
 		 * @since 3.0
 		 *
-		 * @param array $section_title The section title settings array.
+		 * @param array $section_start The Contribution section settings array.
 		 */
-		$section_title = apply_filters( 'wpcv_woo_civi/admin_settings/fields/section_title', $section_title );
+		$section_start = apply_filters( 'wpcv_woo_civi/woo_settings/fields/contribution/title', $section_start );
 
-		// Init selects.
-		$selects = [
-			'woocommerce_civicrm_financial_type_id' => [
-				'name' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
+		// Init Contribution settings.
+		$settings = [
+			'financial_type_id' => [
+				'title' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WPCV_WCI()->helper->get_financial_types(),
 				'id'   => 'woocommerce_civicrm_financial_type_id',
 			],
-			'woocommerce_civicrm_financial_type_vat_id' => [
-				'name' => __( 'Tax/VAT Financial Type', 'wpcv-woo-civi-integration' ),
+			'financial_type_vat_id' => [
+				'title' => __( 'Tax/VAT Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WPCV_WCI()->helper->get_financial_types(),
 				'id'   => 'woocommerce_civicrm_financial_type_vat_id',
 			],
-			'woocommerce_civicrm_financial_type_shipping_id' => [
-				'name' => __( 'Shipping Financial Type', 'wpcv-woo-civi-integration' ),
+			'financial_type_shipping_id' => [
+				'title' => __( 'Shipping Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WPCV_WCI()->helper->get_financial_types(),
 				'id'   => 'woocommerce_civicrm_financial_type_shipping_id',
 			],
-			'woocommerce_civicrm_billing_location_type_id' => [
-				'name' => __( 'Billing Location Type', 'wpcv-woo-civi-integration' ),
+			'ignore_0_amount_orders' => [
+				'title' => __( 'Do not create 0 amount Contributions', 'wpcv-woo-civi-integration' ),
+				'type' => 'checkbox',
+				'desc' => __( 'Do not create Contributions for Orders with a total of 0, i.e. free Products or using a Coupon.', 'wpcv-woo-civi-integration' ),
+				'id'   => 'woocommerce_civicrm_ignore_0_amount_orders',
+			],
+		];
+
+		/**
+		 * Filter the Contribution settings array.
+		 *
+		 * This can be used to add further Contribution settings.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $settings The Contribution settings array.
+		 */
+		$settings = apply_filters( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', $settings );
+
+		// Declare section end.
+		$section_end = [
+			'contribution_section_end' => [
+				'type' => 'sectionend',
+				'id' => 'contribution_title',
+			],
+		];
+
+		// Combine these fields.
+		$fields = $section_start + $settings + $section_end;
+
+		/**
+		 * Filter the Contribution fields array.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $fields The Contribution fields array.
+		 */
+		return apply_filters( 'wpcv_woo_civi/woo_settings/fields/contribution', $fields );
+
+	}
+
+	/**
+	 * Address settings options.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $options The Address settings fields.
+	 */
+	public function fields_address() {
+
+		// Init Address section.
+		$section_start = [
+			'address_title' => [
+				'title' => __( 'Address, Phone and Email settings', 'wpcv-woo-civi-integration' ),
+				'type' => 'title',
+				'desc' => '',
+				//'desc' => __( 'Default settings for synchronizing Addresses in CiviCRM.', 'wpcv-woo-civi-integration' ),
+				'id' => 'address_title',
+			],
+		];
+
+		/**
+		 * Filter the Address section array.
+		 *
+		 * This can be used to add settings directly after the Address title.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $section_start The Address section settings array.
+		 */
+		$section_start = apply_filters( 'wpcv_woo_civi/woo_settings/fields/address/title', $section_start );
+
+		// Init Address settings.
+		$settings = [
+			'billing_location_type_id' => [
+				'title' => __( 'Billing Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WPCV_WCI()->contact->address->get_address_location_types(),
 				'id'   => 'woocommerce_civicrm_billing_location_type_id',
 			],
-			'woocommerce_civicrm_shipping_location_type_id' => [
-				'name' => __( 'Shipping Location Type', 'wpcv-woo-civi-integration' ),
+			'shipping_location_type_id' => [
+				'title' => __( 'Shipping Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
 				'options' => WPCV_WCI()->contact->address->get_address_location_types(),
 				'id'   => 'woocommerce_civicrm_shipping_location_type_id',
 			],
-		];
-
-		/**
-		 * Filter the select settings array.
-		 *
-		 * This can be used to add further select settings.
-		 *
-		 * @since 3.0
-		 *
-		 * @param array $selects The select settings array.
-		 */
-		$selects = apply_filters( 'wpcv_woo_civi/admin_settings/fields/selects', $selects );
-
-		// Init checkboxes.
-		$checkboxes = [
-			'woocommerce_civicrm_sync_contact_address' => [
-				'name' => __( 'Sync Contact Address', 'wpcv-woo-civi-integration' ),
+			'sync_contact_address' => [
+				'title' => __( 'Sync Address', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will synchronize WooCommerce User Address with CiviCRM\'s Contact Address and vice versa.', 'wpcv-woo-civi-integration' ),
+				'desc' => __( 'Synchronize WooCommerce User Address with its matching CiviCRM Contact Address and vice versa.', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_sync_contact_address',
 			],
-			'woocommerce_civicrm_sync_contact_phone' => [
-				'name' => __( 'Sync Contact Billing Phone', 'wpcv-woo-civi-integration' ),
+			'sync_contact_phone' => [
+				'title' => __( 'Sync Billing Phone', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will synchronize WooCommerce User\'s Billing Phone with CiviCRM\'s Contact Billing Phone and vice versa.', 'wpcv-woo-civi-integration' ),
+				'desc' => __( 'Synchronize WooCommerce User Billing Phone Number with its matching CiviCRM Contact Billing Phone Number and vice versa.', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_sync_contact_phone',
 			],
-			'woocommerce_civicrm_sync_contact_email' => [
-				'name' => __( 'Sync Contact Billing Email', 'wpcv-woo-civi-integration' ),
+			'sync_contact_email' => [
+				'title' => __( 'Sync Billing Email', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will synchronize WooCommerce user\'s Billing Email with CiviCRM\'s Contact Billing Email and vice versa.', 'wpcv-woo-civi-integration' ),
+				'desc' => __( 'Synchronize WooCommerce User Billing Email with its matching CiviCRM Contact Billing Email and vice versa.', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_sync_contact_email',
-			],
-			'woocommerce_civicrm_replace_woocommerce_states' => [
-				'name' => __( 'Replace WooCommerce States', 'wpcv-woo-civi-integration' ),
-				'type' => 'checkbox',
-				'desc' => __( 'WARNING, POSSIBLE DATA LOSS! If enabled, this option will replace WooCommerce\'s States/Countries with CiviCRM\'s States/Provinces, you WILL lose any existing State/Country data for existing Customers. Any WooCommerce Settings that rely on State/Country will have to be reconfigured.', 'wpcv-woo-civi-integration' ),
-				'id'   => 'woocommerce_civicrm_replace_woocommerce_states',
-			],
-			'woocommerce_civicrm_ignore_0_amount_orders' => [
-				'name' => __( 'Don\'t create 0 amount Contributions', 'wpcv-woo-civi-integration' ),
-				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will not create Contributions for Orders with a total of 0, i.e. free Products (using a Coupon).', 'wpcv-woo-civi-integration' ),
-				'id'   => 'woocommerce_civicrm_ignore_0_amount_orders',
-			],
-			'woocommerce_civicrm_hide_orders_tab_for_non_customers' => [
-				'name' => __( 'Hide Orders tab for non customers', 'wpcv-woo-civi-integration' ),
-				'type' => 'checkbox',
-				'desc' => __( 'If enabled, this option will remove the WooCommerce Orders tab in the Contact Summary page for non customer Contacts.', 'wpcv-woo-civi-integration' ),
-				'id'   => 'woocommerce_civicrm_hide_orders_tab_for_non_customers',
 			],
 		];
 
 		/**
-		 * Filter the checkboxes settings array.
+		 * Filter the Address settings array.
 		 *
-		 * This can be used to add further checkbox settings.
+		 * This can be used to add further Address settings.
 		 *
 		 * @since 3.0
 		 *
-		 * @param array $checkboxes The checkboxes settings array.
+		 * @param array $settings The Address settings array.
 		 */
-		$checkboxes = apply_filters( 'wpcv_woo_civi/admin_settings/fields/checkboxes', $checkboxes );
+		$settings = apply_filters( 'wpcv_woo_civi/woo_settings/fields/address/settings', $settings );
 
 		// Init section end.
 		$section_end = [
-			'section_end' => [
+			'address_section_end' => [
 				'type' => 'sectionend',
-				'id' => 'woocommerce_civicrm_section_end',
+				'id' => 'address_title',
 			],
 		];
 
-		$options = $section_title + $selects + $checkboxes + $section_end;
+		// Combine these fields.
+		$fields = $section_start + $settings + $section_end;
 
 		/**
-		 * Filter the settings array.
+		 * Filter the Address settings array.
 		 *
 		 * @since 2.0
 		 *
-		 * @param array $options The settings array.
+		 * @param array $fields The Address settings array.
 		 */
-		return apply_filters( 'wpcv_woo_civi/admin_settings/fields', $options );
-
-	}
-
-
-	/**
-	 * Add the Settings Page menu item.
-	 *
-	 * @since 2.4
-	 * @since 3.0 Moved to this class.
-	 */
-	public function network_admin_menu() {
-
-		// We must be network admin in Multisite.
-		if ( ! is_super_admin() ) {
-			return;
-		}
-
-		add_submenu_page(
-			'settings.php',
-			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
-			__( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ),
-			'manage_network_options',
-			'woocommerce-civicrm-settings',
-			[ $this, 'network_settings' ]
-		);
+		return apply_filters( 'wpcv_woo_civi/woo_settings/fields/address', $fields );
 
 	}
 
 	/**
-	 * Network settings.
+	 * Defines the Other settings fields.
 	 *
-	 * @since 2.0
+	 * @since 3.0
+	 *
+	 * @return array $fields The array of Other settings fields.
 	 */
-	public function network_settings() {
+	public function fields_other() {
 
-		?>
-		<div class="wrap">
-			<h2><?php esc_html_e( 'Integrate CiviCRM with WooCommerce Settings', 'wpcv-woo-civi-integration' ); ?></h2>
-			<?php settings_errors(); ?>
-			<form action="edit.php?action=woocommerce_civicrm_network_settings" method="post">
-				<?php wp_nonce_field( 'woocommerce-civicrm-settings', 'woocommerce-civicrm-settings' ); ?>
-				<?php settings_fields( 'woocommerce-civicrm-settings-network' ); ?>
-				<?php do_settings_sections( 'woocommerce-civicrm-settings-network' ); ?>
-				<?php submit_button(); ?>
-			</form>
-		</div>
-		<?php
+		// Init Contribution section.
+		$section_start = [
+			'other_title' => [
+				'title' => __( 'Other settings', 'wpcv-woo-civi-integration' ),
+				'type' => 'title',
+				'desc' => '',
+				'id' => 'other_title',
+			],
+		];
+
+		/**
+		 * Filter the Other section array.
+		 *
+		 * This can be used to add settings directly after the title.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $section_start The Other section settings array.
+		 */
+		$section_start = apply_filters( 'wpcv_woo_civi/woo_settings/fields/other/title', $section_start );
+
+		// Init Contribution settings.
+		$settings = [
+			'hide_orders_tab_for_non_customers' => [
+				'title' => __( 'Hide "Woo Orders" Tab for non-customers', 'wpcv-woo-civi-integration' ),
+				'type' => 'checkbox',
+				'desc' => __( 'Remove the "Woo Orders" Tab from the CiviCRM Contact screen for non-customer Contacts.', 'wpcv-woo-civi-integration' ),
+				'id'   => 'woocommerce_civicrm_hide_orders_tab_for_non_customers',
+			],
+			'replace_woocommerce_states' => [
+				'title' => __( 'Replace WooCommerce States', 'wpcv-woo-civi-integration' ),
+				'type' => 'checkbox',
+				'desc' => __( 'WARNING, POSSIBLE DATA LOSS! If enabled, this plugin will replace the list of States/Countries in WooCommerce with the States/Provinces list from CiviCRM. If this is not a fresh install of WooCommerce and CiviCRM, then you WILL lose any existing State/Country data for existing Customers. Any WooCommerce Settings that rely on State/Country will have to be reconfigured.', 'wpcv-woo-civi-integration' ),
+				'id'   => 'woocommerce_civicrm_replace_woocommerce_states',
+			],
+		];
+
+		/**
+		 * Filter the Other settings array.
+		 *
+		 * This can be used to add further Other settings.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $settings The Other settings array.
+		 */
+		$settings = apply_filters( 'wpcv_woo_civi/woo_settings/fields/other/settings', $settings );
+
+		// Declare section end.
+		$section_end = [
+			'other_section_end' => [
+				'type' => 'sectionend',
+				'id' => 'other_title',
+			],
+		];
+
+		// Combine these fields.
+		$fields = $section_start + $settings + $section_end;
+
+		/**
+		 * Filter the Other fields array.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $fields The Other fields array.
+		 */
+		return apply_filters( 'wpcv_woo_civi/woo_settings/fields/other', $fields );
 
 	}
 

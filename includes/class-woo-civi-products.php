@@ -19,6 +19,15 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Products {
 
 	/**
+	 * WooCommerce Product meta key holding the CiviCRM Financial Type ID.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $meta_key The WooCommerce Order meta key.
+	 */
+	public $meta_key = '_woocommerce_civicrm_financial_type_id';
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 3.0
@@ -49,6 +58,31 @@ class WPCV_Woo_Civi_Products {
 		// Add Source ID to Order.
 		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'items_get_for_order' ], 30, 2 );
 
+	}
+
+	/**
+	 * Gets the Financial Type ID from WooCommerce Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $product_id The Product ID.
+	 * @return int|bool $financial_type_id The Financial Type ID, false otherwise.
+	 */
+	public function get_product_meta( $product_id ) {
+		$financial_type_id = get_post_meta( $product_id, $this->meta_key, true );
+		return $financial_type_id;
+	}
+
+	/**
+	 * Sets the CiviCRM Financial Type ID as meta data on a WooCommerce Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $product_id The Product ID.
+	 * @param int $financial_type_id The numeric ID of the Financial Type.
+	 */
+	public function set_product_meta( $product_id, $financial_type_id ) {
+		update_post_meta( $product_id, $this->meta_key, $financial_type_id, true );
 	}
 
 	/**
@@ -104,12 +138,12 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		$financial_types = [];
+
 		foreach ( $items as $item ) {
 
 			$product = $item->get_product();
 
-			$product_financial_type_id = $product->get_meta( 'woocommerce_civicrm_financial_type_id' );
-
+			$product_financial_type_id = $product->get_meta( $this->meta_key );
 			if ( 'exclude' === $product_financial_type_id ) {
 				continue;
 			}
@@ -122,7 +156,7 @@ class WPCV_Woo_Civi_Products {
 				$item['qty'] = 1;
 			}
 
-			$line_item = [
+			$line_item_data = [
 				'price_field_id' => $default_contribution_amount_data['price_field']['id'],
 				'qty' => $item['qty'],
 				'line_total' => number_format( $item['line_total'], 2, $decimal_separator, $thousand_separator ),
@@ -131,39 +165,31 @@ class WPCV_Woo_Civi_Products {
 				'financial_type_id' => $product_financial_type_id,
 			];
 
-			// Get Membership Type ID from Product meta.
-			$product_membership_type_id = $product->get_meta( 'woocommerce_civicrm_membership_type_id' );
+			// Construct Line Item.
+			$line_item = [
+				'params' => [],
+				'line_item' => [ $line_item_data ],
+			];
 
-			// FIXME
-			/*
-			 * Decide whether we want to override the Financial Type with
-			 * the one from the Membership Type instead of Product/default.
+			/**
+			 * Filter the Line Item.
+			 *
+			 * @since 3.0
+			 *
+			 * @param array $line_item The array of Line Item data.
+			 * @param object $product The WooCommerce Product object.
+			 * @param array $params The params as presently constructed.
 			 */
+			$line_item = apply_filters( 'wpcv_woo_civi/products/line_item', $line_item, $product, $params );
 
-			// Add line item membership params if applicable.
-			if ( ! empty( $product_membership_type_id ) ) {
+			$params['line_items'][ $item->get_id() ] = $line_item;
 
-				$line_item = array_merge(
-					$line_item,
-					[
-						'entity_table' => 'civicrm_membership',
-						'membership_type_id' => $product_membership_type_id,
-					]
-				);
+			// FIXME: Override the Financial Type?
 
-				$line_item_params = [
-					'membership_type_id' => $product_membership_type_id,
-					'contact_id' => $params['contact_id'],
-				];
-
-			}
-
-			$params['line_items'][ $item->get_id() ] = isset( $line_item_params )
-				? [
-					'line_item' => [ $line_item ],
-					'params' => $line_item_params,
-				]
-				: [ 'line_item' => [ $line_item ] ];
+			/*
+			 * Decide if we want to override the Financial Type with the one from
+			 * the Membership Type instead of Product/default.
+			 */
 
 			$financial_types[ $product_financial_type_id ] = $product_financial_type_id;
 

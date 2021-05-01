@@ -19,6 +19,15 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Source {
 
 	/**
+	 * WooCommerce Order meta key holding the Source string.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $meta_key The WooCommerce Order meta key.
+	 */
+	public $meta_key = '_order_source';
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 3.0
@@ -47,10 +56,10 @@ class WPCV_Woo_Civi_Source {
 	public function register_hooks() {
 
 		// Hook into new WooCommerce Orders with CiviCRM data.
-		add_action( 'wpcv_woo_civi/order/form/new', [ $this, 'order_new' ], 10, 2 );
+		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
 
 		// Hook into WooCommerce Order processed.
-		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'order_processed' ], 10, 3 );
+		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'order_processed' ], 10, 2 );
 
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_data_additions' ] );
@@ -69,6 +78,31 @@ class WPCV_Woo_Civi_Source {
 	}
 
 	/**
+	 * Gets the Source from WooCommerce Order meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @return str|bool $source The Source string, false otherwise.
+	 */
+	public function get_order_meta( $order_id ) {
+		$source = get_post_meta( $order_id, $this->meta_key, true );
+		return $source;
+	}
+
+	/**
+	 * Sets the CiviCRM Source as meta data on a WooCommerce Order.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param str $source The Source string.
+	 */
+	public function set_order_meta( $order_id, $source ) {
+		update_post_meta( $order_id, $this->meta_key, $source, true );
+	}
+
+	/**
 	 * Performs necessary actions when a WooCommerce Order is created.
 	 *
 	 * @since 3.0
@@ -79,11 +113,11 @@ class WPCV_Woo_Civi_Source {
 	public function order_new( $order_id, $order ) {
 
 		// Add the Source to Order.
-		$current_civicrmsource = get_post_meta( $order_id, '_order_source', true );
+		$current_civicrmsource = $this->get_order_meta( $order_id );
 		$new_civicrmsource = filter_input( INPUT_POST, 'order_civicrmsource', FILTER_SANITIZE_STRING );
 		if ( false !== $new_civicrmsource && $new_civicrmsource !== $current_civicrmsource ) {
 			$this->source_update( $order_id, $new_civicrmsource );
-			update_post_meta( $order_id, '_order_source', esc_attr( $new_civicrmsource ) );
+			$this->set_order_meta( $order_id, esc_attr( $new_civicrmsource ) );
 		}
 
 	}
@@ -95,13 +129,12 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @param int $order_id The Order ID.
 	 * @param object $order The Order object.
-	 * @param int $contact_id The numeric ID of the CiviCRM Contact.
 	 */
-	public function order_processed( $order_id, $order, $contact_id ) {
+	public function order_processed( $order_id, $order ) {
 
 		$source = $this->source_generate( $order );
 		$this->source_update( $order_id, $source );
-		update_post_meta( $order_id, '_order_source', $source );
+		$this->set_order_meta( $order_id, $source );
 
 	}
 
@@ -249,7 +282,7 @@ class WPCV_Woo_Civi_Source {
 			return;
 		}
 
-		echo esc_html( get_post_meta( $post_id, '_order_source', true ) );
+		echo esc_html( $this->get_order_meta( $post_id ) );
 
 	}
 
@@ -270,7 +303,7 @@ class WPCV_Woo_Civi_Source {
 		}
 
 		global $wpdb;
-		$results = $wpdb->get_results( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '_order_source'" );
+		$results = $wpdb->get_results( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '{$this->meta_key}'" );
 		if ( count( $results ) > 0 ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_source' );
 
@@ -320,7 +353,7 @@ class WPCV_Woo_Civi_Source {
 
 		// Add Source meta query.
 		$meta_query['source_clause'] = [
-			'key' => '_order_source',
+			'key' => $this->meta_key,
 			'value' => $source,
 			'compare' => '==',
 		];
@@ -338,14 +371,14 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function order_data_additions( $order ) {
 
-		$order_source = get_post_meta( $order->get_id(), '_order_source', true );
+		$order_source = $this->get_order_meta( $order->get_id() );
 		if ( false === $order_source ) {
 			$order_source = '';
 		}
 
 		// Query database directly.
 		global $wpdb;
-		$results = $wpdb->get_results( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '_order_source'" );
+		$results = $wpdb->get_results( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '{$this->meta_key}'" );
 
 		?>
 		<p class="form-field form-field-wide wc-civicrmsource">

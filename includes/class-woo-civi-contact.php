@@ -56,6 +56,24 @@ class WPCV_Woo_Civi_Contact {
 	public $orders_tab;
 
 	/**
+	 * WooCommerce Order meta key holding the CiviCRM Contact ID.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $meta_key The WooCommerce Order meta key.
+	 */
+	public $meta_key = '_woocommerce_civicrm_contact_id';
+
+	/**
+	 * Whether or not the Order is created via the WooCommerce Checkout.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $is_checkout True if in Checkout, false otherwise.
+	 */
+	public $is_checkout = false;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 2.1
@@ -76,6 +94,7 @@ class WPCV_Woo_Civi_Contact {
 
 		$this->include_files();
 		$this->setup_objects();
+		$this->register_hooks();
 
 		/**
 		 * Broadcast that this class is loaded.
@@ -125,106 +144,182 @@ class WPCV_Woo_Civi_Contact {
 	}
 
 	/**
-	 * Get a CiviCRM Contact ID for a given WooCommerce Order.
+	 * Register hooks.
 	 *
-	 * @since 2.0
-	 *
-	 * @param object $order The WooCommerce Order object.
-	 * @return int|bool $contact_id The numeric ID of the CiviCRM Contact if found.
-	 *                              Returns 0 if a Contact needs to be created, or false on failure.
+	 * @since 3.0
 	 */
-	public function civicrm_get_cid( $order ) {
+	public function register_hooks() {
+
+		// Process new WooCommerce Orders from Checkout.
+		add_action( 'woocommerce_checkout_create_order', [ $this, 'checkout_create_order' ], 10, 2 );
+		add_action( 'woocommerce_checkout_order_processed', [ $this, 'order_processed' ], 10, 3 );
+
+		// Process changes in WooCommerce Orders.
+		add_action( 'woocommerce_new_order', [ $this, 'order_new' ], 10, 2 );
+
+	}
+
+	/**
+	 * Gets the CiviCRM Contact ID from WooCommerce Order meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @return int|bool $contact_id The numeric ID of the CiviCRM Contact, false otherwise.
+	 */
+	public function get_order_meta( $order_id ) {
+		$contact_id = get_post_meta( $order_id, $this->meta_key, true );
+		return (int) $contact_id;
+	}
+
+	/**
+	 * Sets the CiviCRM Contact ID as meta data on a WooCommerce Order.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param int $contact_id The numeric ID of the CiviCRM Contact.
+	 */
+	public function set_order_meta( $order_id, $contact_id ) {
+		update_post_meta( $order_id, $this->meta_key, (int) $contact_id, true );
+	}
+
+	/**
+	 * Called when a WooCommerce Order is created from the Checkout.
+	 *
+	 * The "woocommerce_checkout_create_order" action fires before the
+	 * "woocommerce_new_order" action - so this gives us a way to determine the
+	 * context in which the Order has been created.
+	 *
+	 * Note: Orders can also be created via the WooCommerce REST API, so this
+	 * plugin also needs to check for that route as well.
+	 *
+	 * @since 3.0
+	 *
+	 * @param object $order The Order object.
+	 * @param array $data The Order data.
+	 */
+	public function checkout_create_order( $order, $data ) {
+
+		// Set flag.
+		$this->is_checkout = true;
+
+	}
+
+	/**
+	 * Performs necessary actions when a WooCommerce Order is created.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param object $order The Order object.
+	 */
+	public function order_new( $order_id, $order ) {
+
+		// Bail when the Order is created in the Checkout.
+		if ( $this->is_checkout ) {
+			return;
+		}
+
+		// In WordPress admin, mimic the "woocommerce_checkout_order_processed" callback.
+		$this->order_processed( $order_id, null, new WC_Order( $order_id ) );
+
+		/**
+		 * Broadcast that a new WooCommerce Order with CiviCRM data has been created.
+		 *
+		 * @since 3.0
+		 *
+		 * @param int $order_id The Order ID.
+		 * @param object $order The Order object.
+		 */
+		do_action( 'wpcv_woo_civi/contact/order/new', $order_id, $order );
+
+	}
+
+	/**
+	 * Performs necessary actions when an Order is processed in WooCommerce.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param array $posted_data The posted data.
+	 * @param object $order The Order object.
+	 */
+	public function order_processed( $order_id, $posted_data, $order ) {
+
+		// Get the Contact ID (or false on error)
+		$contact_id = $this->get_id_by_order( $order );
+
+		// TODO: Do we want to bail here, or carry on if there's an error?
+		if ( false === $contact_id ) {
+			$order->add_order_note( __( 'CiviCRM Contact could not be fetched', 'wpcv-woo-civi-integration' ) );
+			return;
+		}
+
+		// Create (or update) the CiviCRM Contact.
+		if ( empty( $contact_id ) ) {
+
+			$contact_id = $this->create_from_order( $order );
+			if ( false === $contact_id ) {
+				$order->add_order_note( __( 'CiviCRM Contact could not be created', 'wpcv-woo-civi-integration' ) );
+				return;
+			}
+
+		} else {
+
+			$contact_id = $this->update_from_order( $contact_id, $order );
+			if ( false === $contact_id ) {
+				$order->add_order_note( __( 'CiviCRM Contact could not be updated', 'wpcv-woo-civi-integration' ) );
+				return;
+			}
+
+		}
+
+		// Add Contact ID to Order meta.
+		if ( empty( $this->get_order_meta( $order->get_id() ) ) ) {
+			$this->set_order_meta( $order->get_id(), $contact_id );
+		}
+
+	}
+
+	/**
+	 * Get the CiviCRM Contact data for a given ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @param integer $contact_id The numeric ID of the CiviCRM Contact to query.
+	 * @return array|boolean $contact_data An array of Contact data, or false on failure.
+	 */
+	public function get_by_id( $contact_id ) {
+
+		// Bail if we have no Contact ID.
+		if ( empty( $contact_id ) ) {
+			return false;
+		}
 
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
 			return false;
 		}
 
-		$email = '';
+		// Define params to get queried Contact.
+		$params = [
+			'version' => 3,
+			'sequential' => 1,
+			'id' => $contact_id,
+			'options' => [
+				'limit' => 1, // Only one please.
+			],
+		];
 
-		// If user is logged in but not in the admin (not a manual order).
-		if ( is_user_logged_in() && ! is_admin() ) {
-			$current_user = wp_get_current_user();
-			$email = $current_user->user_email;
-		} else {
-			// if there was a customer user field in form (manual order).
-			if ( filter_input( INPUT_POST, 'customer_user', FILTER_VALIDATE_INT ) ) {
-				$cu_id = filter_input( INPUT_POST, 'customer_user', FILTER_VALIDATE_INT );
+		// Call the API.
+		$result = civicrm_api( 'Contact', 'get', $params );
 
-				$user_info = get_userdata( $cu_id );
-				$email = $user_info->user_email;
-
-			} else {
-				$email = $order->get_billing_email();
-			}
-		}
-
-		$wp_user_id = $order->get_user_id();
-
-		// Backend Order should not use the logged in User's Contact.
-		// FIXME: Why not? The wrong Contact ID can returned on the Edit Order screen when there's a duplicate Email.
-		// This happens when the Default Org has the same Email as a Contact.
-		if ( ! is_admin() && 0 !== $wp_user_id ) {
-
-			try {
-
-				$params = [
-					'sequential' => 1,
-					'uf_id' => $wp_user_id,
-				];
-
-				$result = civicrm_api3( 'UFMatch', 'get', $params );
-
-				if ( 1 === $result['count'] && ! empty( $result['values'][0]['contact_id'] ) ) {
-					return (int) $result['values'][0]['contact_id'];
-				}
-
-			} catch ( CiviCRM_API3_Exception $e ) {
-
-				// Write to CiviCRM log.
-				CRM_Core_Error::debug_log_message( __( 'Failed to get a Contact from UFMatch table', 'wpcv-woo-civi-integration' ) );
-				CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-				// Write details to PHP log.
-				$e = new \Exception();
-				$trace = $e->getTraceAsString();
-				error_log( print_r( [
-					'method' => __METHOD__,
-					'params' => $params,
-					'backtrace' => $trace,
-				], true ) );
-
-				return false;
-
-			}
-
-		} elseif ( $email != '' ) {
-
-			/*
-			 * The customer is anonymous. Look in the CiviCRM Contacts table for a
-			 * Contact that matches the Billing Email.
-			 */
-			$params = [
-				'email' => $email,
-				'return.contact_id' => true,
-				'sequential' => 1,
-			];
-
-		}
-
-		// Return early if something went wrong.
-		if ( ! isset( $params ) ) {
-			CRM_Core_Error::debug_log_message( __( 'Cannot guess the Contact without an Email', 'wpcv-woo-civi-integration' ) );
-			return false;
-		}
-
-		try {
-			$result = civicrm_api3( 'Contact', 'get', $params );
-		} catch ( CiviCRM_API3_Exception $e ) {
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
 
 			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Failed to get Contact by Email', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( __( 'Failed to get Contact by ID', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
 			$e = new \Exception();
@@ -232,6 +327,7 @@ class WPCV_Woo_Civi_Contact {
 			error_log( print_r( [
 				'method' => __METHOD__,
 				'params' => $params,
+				'result' => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -239,20 +335,202 @@ class WPCV_Woo_Civi_Contact {
 
 		}
 
-		// No matches found, so we will need to create a Contact.
-		if ( count( $result ) == 0 ) {
-			return 0;
+		$contact_data = [];
+
+		// The result set should contain only one item.
+		if ( ! empty( $result['values'] ) ) {
+			$contact_data = array_pop( $result['values'] );
+			$contact_data['id'] = $contact_data['contact_id'];
 		}
 
-		$contact_id = isset( $result['values'][0]['id'] ) ? $result['values'][0]['id'] : 0;
+		return $contact_data;
+
+	}
+
+	/**
+	 * Get the CiviCRM Contacts for a given Email.
+	 *
+	 * Previous versions of the plugin assume that no Contacts share the same
+	 * Email address. This is not necessarily the case.
+	 *
+	 * @since 3.0
+	 *
+	 * @param str $email The Email address.
+	 * @return array|bool $contacts The array of CiviCRM Contacts, or false on failure.
+	 */
+	public function get_by_email( $email ) {
+
+		// Sanity check.
+		if ( empty( $email ) ) {
+			return false;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		$params = [
+			'sequential' => 1,
+			'email' => $email,
+		];
+
+		$result = civicrm_api3( 'Contact', 'get', $params );
+
+		// If there's an error.
+		if ( ! empty( $result['is_error'] ) ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Failed to get Contact by Email', 'wpcv-woo-civi-integration' ) );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'result' => $result,
+				'backtrace' => $trace,
+			], true ) );
+
+			return false;
+
+		}
+
+		$contacts = [];
+
+		// Overwrite with array of values if populated.
+		if ( ! empty( $result['values'] ) ) {
+			$contacts = $result['values'];
+			foreach ( $contacts as $contact ) {
+				$contact['id'] = $contact['contact_id'];
+			}
+		}
+
+		return $contacts;
+
+	}
+
+	/**
+	 * Gets a suggested CiviCRM Contact ID via the "Unsupervised" Dedupe Rule.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $contact The array of CiviCRM Contact data.
+	 * @param string $contact_type The Contact Type.
+	 * @return int|boolean $contact_id The suggested Contact ID, or false on failure.
+	 */
+	public function get_by_dedupe_unsupervised( $contact, $contact_type = 'Individual' ) {
+
+		// Bail if we have no Contact data.
+		if ( empty( $contact ) ) {
+			return false;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		// Get the Dedupe params.
+		$dedupe_params = CRM_Dedupe_Finder::formatParams( $contact, $contact_type );
+		$dedupe_params['check_permission'] = false;
+
+		// Use Dedupe Rules to find possible Contact IDs.
+		$contact_ids = CRM_Dedupe_Finder::dupesByParams( $dedupe_params, $contact_type, 'Unsupervised' );
+
+		$contact_id = 0;
+
+		// Return the suggested Contact ID.
+		if ( ! empty( $contact_ids ) ) {
+			$contact_ids = array_reverse( $contact_ids );
+			$contact_id = array_pop( $contact_ids );
+		}
+
 		return $contact_id;
 
 	}
 
 	/**
-	 * Get CiviCRM UFMatch data.
+	 * Gets a suggested CiviCRM Contact ID using a specified Dedupe Rule.
 	 *
-	 * Get UFMatch for contact_id or WP user_id.
+	 * @since 3.0
+	 *
+	 * @param array $contact The array of Contact data.
+	 * @param string $contact_type The Contact Type.
+	 * @param int $dedupe_rule_id The Dedupe Rule ID.
+	 * @return int|bool $contact_id The numeric Contact ID, or false on failure.
+	 */
+	public function get_by_dedupe_rule( $contact, $contact_type = 'Individual', $dedupe_rule_id ) {
+
+		// Bail if we have no Contact data.
+		if ( empty( $contact ) ) {
+			return false;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		// Build the Dedupe params.
+		$dedupe_params = CRM_Dedupe_Finder::formatParams( $contact, $contact_type );
+		$dedupe_params['check_permission'] = false;
+
+		$contact_id = 0;
+
+		// Check for duplicates.
+		$contact_ids = CRM_Dedupe_Finder::dupesByParams( $dedupe_params, $contact_type, NULL, [], $dedupe_rule_id );
+
+		// Return the suggested Contact ID.
+		if ( ! empty( $contact_ids ) ) {
+			$contact_ids = array_reverse( $contact_ids );
+			$contact_id = array_pop( $contact_ids );
+		}
+
+		return $contact_id;
+
+	}
+
+	/**
+	 * Get Dedupe Rules.
+	 *
+	 * By default, all Dedupe Rules for all the top-level Contact Types will be
+	 * returned, but you can specify a Contact Type if you want to limit what is
+	 * returned.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $contact_type An optional Contact Type to filter rules by.
+	 * @return array $dedupe_rules The Dedupe Rules, or empty on failure.
+	 */
+	public function dedupe_rules_get( $contact_type = '' ) {
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
+
+		$dedupe_rules = [];
+
+		// Add the Dedupe rules for all Contact Types.
+		$types = [ 'Organization', 'Household', 'Individual' ];
+		foreach( $types AS $type ) {
+			if ( empty( $contact_type ) ) {
+				$dedupe_rules[$type] = CRM_Dedupe_BAO_RuleGroup::getByType( $type );
+			} elseif ( $contact_type == $type ) {
+				$dedupe_rules[$type] = CRM_Dedupe_BAO_RuleGroup::getByType( $type );
+			}
+		}
+
+		return $dedupe_rules;
+
+	}
+
+	/**
+	 * Gets CiviCRM UFMatch data.
+	 *
+	 * Get UFMatch by CiviCRM "contact_id" or WordPress "user_id".
 	 *
 	 * @since 2.0
 	 *
@@ -260,7 +538,7 @@ class WPCV_Woo_Civi_Contact {
 	 * @param string $property Either 'contact_id' or 'uf_id'.
 	 * @return array|bool $result The UFMatch data, or false on failure.
 	 */
-	public function get_civicrm_ufmatch( $id, $property ) {
+	public function get_ufmatch( $id, $property ) {
 
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
@@ -311,280 +589,375 @@ class WPCV_Woo_Civi_Contact {
 	}
 
 	/**
-	 * Create or update a CiviCRM Contact.
+	 * Create a CiviCRM Contact for a given set of data.
 	 *
-	 * @since 2.0
+	 * @since 0.4
+	 *
+	 * @param array $contact The CiviCRM Contact data.
+	 * @return array|boolean $contact_data The array Contact data from the CiviCRM API, or false on failure.
+	 */
+	public function create( $contact = [] ) {
+
+		// Bail if there's no data.
+		if ( empty( $contact ) ) {
+			return false;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		// Maybe debug?
+		$params = [
+			'debug' => 1,
+		] + $contact;
+
+		/*
+		 * Minimum array to create a Contact:
+		 *
+		 * $params = [
+		 *   'contact_type' => "Individual",
+		 *   'contact_sub_type' => "Student",
+		 *   'display_name' => "John Doe",
+		 * ];
+		 *
+		 * Updates are triggered by:
+		 *
+		 * $params['id'] = 255;
+		 */
+		$result = civicrm_api3( 'Contact', 'create', $params );
+
+		// Log and bail if there's an error.
+		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+			$e = new Exception;
+			$trace = $e->getTraceAsString();
+			error_log( print_r( array(
+				'method' => __METHOD__,
+				'params' => $params,
+				'result' => $result,
+				//'backtrace' => $trace,
+			), true ) );
+			return false;
+		}
+
+		// Init as empty.
+		$contact_data = [];
+
+		// The result set should contain only one item.
+		if ( ! empty( $result['values'] ) ) {
+			$contact_data = array_pop( $result['values'] );
+			$contact_data['contact_id'] = $contact_data['id'];
+		}
+
+		// --<
+		return $contact_data;
+
+	}
+
+	/**
+	 * Update a CiviCRM Contact with a given set of data.
+	 *
+	 * This is an alias of `self::create()` except that we expect a Contact ID
+	 * to have been set in the Contact data.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $contact The array of CiviCRM Contact data.
+	 * @return array|boolean The array Contact data from the CiviCRM API, or false on failure.
+	 */
+	public function update( $contact ) {
+
+		// Log and bail if there's no Contact ID.
+		if ( empty( $contact['id'] ) ) {
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'message' => __( 'A numerical ID must be present to update a Contact.', 'wpcv-woo-civi-integration' ),
+				'contact' => $contact,
+				'backtrace' => $trace,
+			], true ) );
+			return false;
+		}
+
+		// Pass through.
+		return $this->create( $contact );
+
+	}
+
+	/**
+	 * Prepares CiviCRM Contact data from Order data.
+	 *
+	 * @since 3.0
+	 *
+	 * @param object $order The Order object.
+	 * @return array $contact The prepared array of CiviCRM Contact data.
+	 */
+	public function prepare_from_order( $order ) {
+
+		$contact = [
+			'first_name' => '',
+			'last_name' => '',
+			'email' => '',
+		];
+
+		// Maybe populate First Name.
+		$first_name = $order->get_billing_first_name();
+		if ( ! empty( $first_name ) ) {
+			$contact['first_name'] = $first_name;
+		}
+
+		// Maybe populate Last Name.
+		$last_name = $order->get_billing_last_name();
+		if ( ! empty( $last_name ) ) {
+			$contact['last_name'] = $last_name;
+		}
+
+		// Maybe populate Email.
+		$email = $order->get_billing_email();
+		if ( ! empty( $first_name ) ) {
+			$contact['email'] = $email;
+		}
+
+		return $contact;
+
+	}
+
+	/**
+	 * Create a CiviCRM Contact from a given Order.
+	 *
+	 * @since 3.0
 	 *
 	 * @param int $contact_id The numeric ID if the CiviCRM Contact.
 	 * @param object $order The Order object.
 	 * @return int|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
 	 */
-	public function add_update_contact( $contact_id, $order ) {
+	public function create_from_order( $order ) {
+
+		/**
+		 * Allow Contact create to be bypassed.
+		 *
+		 * Return boolean "true" to bypass this process.
+		 *
+		 * @since 3.0
+		 *
+		 * @param bool False by default: do not bypass.
+		 * @param object $order The WooCommerce Order object.
+		 */
+		if ( true === apply_filters( 'wpcv_woo_civi/contact/create_from_order/bypass', false, $order ) ) {
+			return false;
+		}
+
+		// Prime a Contact to dedupe.
+		$contact = $this->prepare_from_order( $order );
+
+		// We must NOT create a default Primary Email.
+		unset( $contact['email'] );
+
+		// We need a default Contact Type.
+		// TODO Maybe this should be a setting?
+		$contact['contact_type'] = 'Individual';
+
+		/*
+		 * The CiviCRM API requires at least a Display Name when creating a Contact.
+		 * When First Name and Last Name are both missing, add a default to prevent
+		 * an error when hitting the API.
+		 */
+		if ( empty( $contact['first_name'] ) && empty( $contact['last_name'] ) ) {
+			$contact['display_name'] = __( 'Unknown Name', 'wpcv-woo-civi-integration' );
+		}
+
+		// Assign Source because this is a new Contact.
+		$contact['contact_source'] = __( 'WooCommerce purchase', 'wpcv-woo-civi-integration' );
+
+		// Okay, go ahead and create a Contact.
+		$contact = $this->create( $contact );
+
+		// Bail if something went wrong.
+		if ( $contact === false ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to create Contact', 'wpcv-woo-civi-integration' ) );
+			return false;
+		}
+
+		/**
+		 * Fires when a Contact has been successfully created from an Order.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Orders::note_add_contact_created() (Priority: 10)
+		 * * WPCV_Woo_Civi_Contact_Email::entities_create() (Priority: 20)
+		 * * WPCV_Woo_Civi_Contact_Phone::entities_create() (Priority: 30)
+		 * * WPCV_Woo_Civi_Contact_Address::entities_create() (Priority: 40)
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $contact The CiviCRM Contact data.
+		 * @param object $order The WooCommerce Order object.
+		 */
+		do_action( 'wpcv_woo_civi/contact/create_from_order', $contact, $order );
+
+		return $contact['id'];
+
+	}
+
+	/**
+	 * Update a CiviCRM Contact from a given Order.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $contact_id The numeric ID if the CiviCRM Contact.
+	 * @param object $order The Order object.
+	 * @return int|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
+	 */
+	public function update_from_order( $contact_id, $order ) {
 
 		/**
 		 * Allow Contact update to be bypassed.
 		 *
-		 * Return boolean "true" to bypass the update process.
+		 * Return boolean "true" to bypass this process.
 		 *
-		 * @since 2.0
+		 * @since 3.0
 		 *
-		 * @param bool False by default: do not bypass update.
+		 * @param bool False by default: do not bypass.
 		 * @param int $contact_id The numeric ID of the Contact.
 		 * @param object $order The WooCommerce Order object.
 		 */
-		if ( true === apply_filters( 'wpcv_woo_civi/contact/add_update/bypass', false, $contact_id, $order ) ) {
+		if ( true === apply_filters( 'wpcv_woo_civi/contact/update_from_order/bypass', false, $contact_id, $order ) ) {
 			return $contact_id;
 		}
 
-		$action = 'create';
+		// Try and find the Contact.
+		$contact = $this->get_by_id( $contact_id );
 
-		$contact = [];
-		if ( 0 !== $contact_id ) {
-
-			try {
-
-				$params = [
-					'contact_id' => $contact_id,
-					'return' => [ 'id', 'contact_source', 'first_name', 'last_name', 'contact_type' ],
-				];
-
-				$contact = civicrm_api3( 'contact', 'getsingle', $params );
-
-			} catch ( CiviCRM_API3_Exception $e ) {
-
-				// Write to CiviCRM log.
-				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
-				CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-				// Write details to PHP log.
-				$e = new \Exception();
-				$trace = $e->getTraceAsString();
-				error_log( print_r( [
-					'method' => __METHOD__,
-					'params' => $params,
-					'backtrace' => $trace,
-				], true ) );
-
-				return false;
-
-			}
-
-		} else {
-			$contact['contact_type'] = 'Individual';
-		}
-
-		// Create Contact.
-		// Prepare array to update Contact via CiviCRM API.
-		$contact_id = '';
-		$email = $order->get_billing_email();
-		$fname = $order->get_billing_first_name();
-		$lname = $order->get_billing_last_name();
-
-		// Try to get an existing CiviCRM Contact ID using dedupe.
-		if ( '' !== $fname ) {
-			$contact['first_name'] = $fname;
-		} else {
-			unset( $contact['first_name'] );
-		}
-		if ( '' !== $lname ) {
-			$contact['last_name'] = $lname;
-		} else {
-			unset( $contact['last_name'] );
-		}
-
-		$contact['email'] = $email;
-		$dedupe_params = CRM_Dedupe_Finder::formatParams( $contact, $contact['contact_type'] );
-		$dedupe_params['check_permission'] = false;
-		$ids = CRM_Dedupe_Finder::dupesByParams( $dedupe_params, $contact['contact_type'], 'Unsupervised' );
-
-		if ( $ids ) {
-			$contact_id = $ids['0'];
-			$action = 'update';
-		}
-
-		if ( empty( $contact['contact_source'] ) ) {
-			$contact['contact_source'] = __( 'WooCommerce purchase', 'wpcv-woo-civi-integration' );
-		}
-
-		// Create (or update) CiviCRM Contact.
-		try {
-
-			$result = civicrm_api3( 'Contact', 'create', $contact );
-
-			$contact_id = $result['id'];
-
-			// Get the link to the Contact in CiviCRM.
-			$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact_id );
-			$contact_url = '<a href="' . $link . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
-
-			// Add Order note.
-			// FIXME: Always records "CiviCRM Contact Updated".
-			if ( 'update' === $action ) {
-				/* translators: %s: The link to the Contact in CiviCRM */
-				$note = sprintf( __( 'CiviCRM Contact Updated - %s', 'wpcv-woo-civi-integration' ), $contact_url );
-			} else {
-				/* translators: %s: The link to the Contact in CiviCRM */
-				$note = sprintf( __( 'Created new CiviCRM Contact - %s', 'wpcv-woo-civi-integration' ), $contact_url );
-			}
-
-			$order->add_order_note( $note );
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to create/update Contact', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'contact' => $contact,
-				'backtrace' => $trace,
-			], true ) );
-
+		// Sanity check.
+		if ( $contact === false ) {
 			return false;
-
 		}
 
-		try {
+		// Prime the Contact array if empty.
+		if ( empty( $contact ) ) {
+			$contact = [
+				'contact_type' => 'Individual',
+			];
+		}
 
-			// FIXME: Error checking.
-			$existing_addresses = civicrm_api3( 'Address', 'get', [ 'contact_id' => $contact_id ] );
-			$existing_addresses = $existing_addresses['values'];
-			$existing_phones = civicrm_api3( 'Phone', 'get', [ 'contact_id' => $contact_id ] );
-			$existing_phones = $existing_phones['values'];
-			$existing_emails = civicrm_api3( 'Email', 'get', [ 'contact_id' => $contact_id ] );
-			$existing_emails = $existing_emails['values'];
+		// Prime a Contact data array.
+		$prepared_contact = $this->prepare_from_order( $order );
 
-			$address_types = WPCV_WCI()->helper->get_mapped_location_types();
-			foreach ( $address_types as $address_type => $location_type_id ) {
+		// FIXME: Shouldn't the following depend on if there is existing data?
 
-				// Process Phone.
-				$phone_exists = false;
+		// Overwrite First Name with data from Order.
+		if ( ! empty( $prepared_contact['first_name'] ) ) {
+			$contact['first_name'] = $prepared_contact['first_name'];
+		}
 
-				// 'shipping_phone' does not exist as a WooCommerce field.
-				if ( 'shipping' !== $address_type && ! empty( $order->{'get_' . $address_type . '_phone'}() ) ) {
-					$phone = [
-						'phone_type_id' => 1,
-						'location_type_id' => $location_type_id,
-						'phone' => $order->{'get_' . $address_type . '_phone'}(),
-						'contact_id' => $contact_id,
-					];
-					foreach ( $existing_phones as $existing_phone ) {
-						if ( isset( $existing_phone['location_type_id'] ) && $existing_phone['location_type_id'] === $location_type_id ) {
-							$phone['id'] = $existing_phone['id'];
-						}
-						if ( $existing_phone['phone'] === $phone['phone'] ) {
-							$phone_exists = true;
-						}
-					}
-					if ( ! $phone_exists ) {
+		// Overwrite Last Name with data from Order.
+		if ( ! empty( $prepared_contact['last_name'] ) ) {
+			$contact['last_name'] = $prepared_contact['last_name'];
+		}
 
-						// FIXME: Error checking.
-						civicrm_api3( 'Phone', 'create', $phone );
+		// We must NOT create or update the default Primary Email.
+		unset( $contact['email'] );
 
-						/* translators: %1$s: Address Type, %2$s: Phone Number */
-						$note = sprintf( __( 'Created new CiviCRM Phone of type %1$s: %2$s', 'wpcv-woo-civi-integration' ), $address_type, $phone['phone'] );
-						$order->add_order_note( $note );
-					}
+		/*
+		 * When First Name and Last Name are both missing, add a default to prevent
+		 * an error when hitting the API.
+		 */
+		if ( empty( $contact['first_name'] ) && empty( $contact['last_name'] ) ) {
+			$contact['display_name'] = __( 'Unknown Name', 'wpcv-woo-civi-integration' );
+		}
+
+		// Update the CiviCRM Contact.
+		$contact = $this->update( $contact );
+
+		// Bail if something went wrong.
+		if ( $contact === false ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to update Contact', 'wpcv-woo-civi-integration' ) );
+			return false;
+		}
+
+		/**
+		 * Fires when a Contact has been successfully created or updated from an Order.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Orders::note_add_contact_updated() (Priority: 10)
+		 * * WPCV_Woo_Civi_Contact_Email::entities_update() (Priority: 20)
+		 * * WPCV_Woo_Civi_Contact_Phone::entities_update() (Priority: 30)
+		 * * WPCV_Woo_Civi_Contact_Address::entities_update() (Priority: 40)
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $contact The CiviCRM Contact data.
+		 * @param object $order The WooCommerce Order object.
+		 */
+		do_action( 'wpcv_woo_civi/contact/update_from_order', $contact, $order );
+
+		return $contact['id'];
+
+	}
+
+	/**
+	 * Tries to get a CiviCRM Contact ID for a given WooCommerce Order.
+	 *
+	 * @since 3.0
+	 *
+	 * @param object $order The WooCommerce Order object.
+	 * @return int|bool $contact_id The numeric ID of the CiviCRM Contact if found.
+	 *                              Returns 0 if a CiviCRM Contact cannot be found.
+	 *                              Returns boolean false on failure.
+	 */
+	public function get_id_by_order( $order ) {
+
+		// First check if this Order has the Contact ID stored in its meta data.
+		$contact_id = $this->get_order_meta( $order->get_id() );
+
+		// Return early if it does.
+		if ( ! empty( $contact_id ) ) {
+			return (int) $contact_id;
+		}
+
+		// Orders created in WordPress admin should not use the logged in User's Contact.
+		// FIXME: Why not? The wrong Contact ID can returned on the Edit Order screen when there's a duplicate Email.
+		// This happens when the Default Org has the same Email as a Contact.
+
+		// Check the WordPress User when it's a Checkout Order.
+		if ( $this->is_checkout ) {
+
+			// Check if this Order has a WordPress User ID.
+			$user_id = $order->get_user_id();
+
+			// If there's an existing User ID.
+			if ( ! empty( $user_id ) ) {
+
+				// Get the matched Contact ID.
+				$ufmatch = $this->get_ufmatch( $user_id, 'uf_id' );
+
+				// Return the Contact ID if found.
+				if ( $ufmatch !== false && ! empty( $ufmatch['contact_id'] ) ) {
+					return (int) $ufmatch['contact_id'];
 				}
 
-				// Process Email.
-				$email_exists = false;
-
-				// 'shipping_email' does not exist as a WooCommerce field.
-				if ( 'shipping' !== $address_type && ! empty( $order->{'get_' . $address_type . '_email'}() ) ) {
-					$email = [
-						'location_type_id' => $location_type_id,
-						'email' => $order->{'get_' . $address_type . '_email'}(),
-						'contact_id' => $contact_id,
-					];
-					foreach ( $existing_emails as $existing_email ) {
-						if ( isset( $existing_email['location_type_id'] ) && $existing_email['location_type_id'] === $location_type_id ) {
-							$email['id'] = $existing_email['id'];
-						}
-						if ( isset( $existing_email['email'] ) && $existing_email['email'] === $email['email'] ) {
-							$email_exists = true;
-						}
-					}
-					if ( ! $email_exists ) {
-
-						// FIXME: Error checking.
-						civicrm_api3( 'Email', 'create', $email );
-
-						/* translators: %1$s: Address Type, %2$s: Email Address */
-						$note = sprintf( __( 'Created new CiviCRM Email of type %1$s: %2$s', 'wpcv-woo-civi-integration' ), $address_type, $email['email'] );
-						$order->add_order_note( $note );
-					}
-				}
-
-				// Process Address.
-				$address_exists = false;
-
-				if ( ! empty( $order->{'get_' . $address_type . '_address_1'}() ) && ! empty( $order->{'get_' . $address_type . '_postcode'}() ) ) {
-
-					$country_id = WPCV_WCI()->states->get_civicrm_country_id( $order->{'get_' . $address_type . '_country'}() );
-					$address = [
-						'location_type_id'       => $location_type_id,
-						'city'                   => $order->{'get_' . $address_type . '_city'}(),
-						'postal_code'            => $order->{'get_' . $address_type . '_postcode'}(),
-						'name'                   => $order->{'get_' . $address_type . '_company'}(),
-						'street_address'         => $order->{'get_' . $address_type . '_address_1'}(),
-						'supplemental_address_1' => $order->{'get_' . $address_type . '_address_2'}(),
-						'country'                => $country_id,
-						'state_province_id'      => WPCV_WCI()->states->get_civicrm_state_province_id( $order->{'get_' . $address_type . '_state'}(), $country_id ),
-						'contact_id'             => $contact_id,
-					];
-
-					foreach ( $existing_addresses as $existing ) {
-						if ( isset( $existing['location_type_id'] ) && $existing['location_type_id'] === $location_type_id ) {
-							$address['id'] = $existing['id'];
-						} elseif (
-							// TODO: Don't create if exact match of another - should we make 'exact match' configurable?
-							isset( $existing['street_address'] )
-							&& isset( $existing['city'] )
-							&& isset( $existing['postal_code'] )
-							&& isset( $address['street_address'] )
-							&& $existing['street_address'] === $address['street_address']
-							&& CRM_Utils_Array::value( 'supplemental_address_1', $existing ) === CRM_Utils_Array::value( 'supplemental_address_1', $address )
-							&& $existing['city'] == $address['city']
-							&& $existing['postal_code'] === $address['postal_code']
-						) {
-							$address_exists = true;
-						}
-					}
-					if ( ! $address_exists ) {
-
-						// FIXME: Error checking.
-						civicrm_api3( 'Address', 'create', $address );
-
-						/* translators: %1$s: Address Type, %2$s: Street Address */
-						$note = sprintf( __( 'Created new CiviCRM Address of type %1$s: %2$s', 'wpcv-woo-civi-integration' ), $address_type, $address['street_address'] );
-						$order->add_order_note( $note );
-					}
-				}
 			}
 
-		} catch ( CiviCRM_API3_Exception $e ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to add/update Address or Phone', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				//'params' => $params,
-				//'result' => $result,
-				'message' => 'HUGE TRY/CATCH FFS',
-				'backtrace' => $trace,
-			], true ) );
-
 		}
+
+		/*
+		 * Either it's WordPress admin or there's no User ID in the Order.
+		 *
+		 * This is where we need to analyse the incoming data and use Dedupe
+		 * Rules to try and find a matching CiviCRM Contact.
+		 */
+
+		// Prime a Contact to dedupe.
+		$contact = $this->prepare_from_order( $order );
+
+		// TODO: Create setting to choose a Dedupe Rule.
+		// @see self::get_by_dedupe_rule()
+
+		// Fetch the suggested CiviCRM Contact ID using dedupe.
+		$contact_id = $this->get_by_dedupe_unsupervised( $contact );
 
 		return $contact_id;
 
