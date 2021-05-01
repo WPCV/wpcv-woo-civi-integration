@@ -532,38 +532,41 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * Get UFMatch by CiviCRM "contact_id" or WordPress "user_id".
 	 *
+	 * It's okay not to find a UFMatch entry, so use "get" instead of "getsingle"
+	 * and only log when there's a genuine API error.
+	 *
 	 * @since 2.0
 	 *
 	 * @param int $id The CiviCRM Contact ID or WordPress User ID.
 	 * @param string $property Either 'contact_id' or 'uf_id'.
-	 * @return array|bool $result The UFMatch data, or false on failure.
+	 * @return array $result The UFMatch data, or empty array on failure.
 	 */
 	public function get_ufmatch( $id, $property ) {
 
+		$ufmatch = [];
+
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
-			return false;
+			return $ufmatch;
 		}
 
 		// Bail if there's a problem with the param.
 		if ( ! in_array( $property, [ 'contact_id', 'uf_id' ], true ) ) {
-			return false;
+			return $ufmatch;
 		}
 
-		try {
+		$params = [
+			'sequential' => 1,
+			$property => $id,
+		];
 
-			$params = [
-				'sequential' => 1,
-				$property => $id,
-			];
+		$result = civicrm_api3( 'UFMatch', 'get', $params );
 
-			$result = civicrm_api3( 'UFMatch', 'getsingle', $params );
-
-		} catch ( CiviCRM_API3_Exception $e ) {
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM UFMatch data.', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
 			$e = new \Exception();
@@ -574,17 +577,19 @@ class WPCV_Woo_Civi_Contact {
 				'backtrace' => $trace,
 			], true ) );
 
-			return false;
+			return $ufmatch;
 
 		}
 
-		// Return the UFMatch data if there's no error.
-		if ( empty( $result['is_error'] ) ) {
-			return $result;
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return $ufmatch;
 		}
 
-		// Fallback.
-		return false;
+ 		// The result set should contain only one item.
+		$ufmatch = array_pop( $result['values'] );
+
+		return $ufmatch;
 
 	}
 
