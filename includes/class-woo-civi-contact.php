@@ -181,7 +181,7 @@ class WPCV_Woo_Civi_Contact {
 	 * @param int $contact_id The numeric ID of the CiviCRM Contact.
 	 */
 	public function set_order_meta( $order_id, $contact_id ) {
-		update_post_meta( $order_id, $this->meta_key, (int) $contact_id, true );
+		update_post_meta( $order_id, $this->meta_key, (int) $contact_id );
 	}
 
 	/**

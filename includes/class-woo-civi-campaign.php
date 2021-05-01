@@ -134,7 +134,7 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function get_order_meta( $order_id ) {
 		$campaign_id = get_post_meta( $order_id, $this->meta_key, true );
-		return $campaign_id;
+		return (int) $campaign_id;
 	}
 
 	/**
@@ -146,7 +146,7 @@ class WPCV_Woo_Civi_Campaign {
 	 * @param int $campaign_id The numeric ID of the CiviCRM Campaign.
 	 */
 	public function set_order_meta( $order_id, $campaign_id ) {
-		update_post_meta( $order_id, $this->meta_key, $campaign_id, true );
+		update_post_meta( $order_id, $this->meta_key, (int) $campaign_id );
 	}
 
 	/**
@@ -563,7 +563,8 @@ class WPCV_Woo_Civi_Campaign {
 		$new_campaign_id = filter_input( INPUT_POST, 'order_civicrmcampaign', FILTER_VALIDATE_INT );
 		if ( false !== $new_campaign_id && $new_campaign_id !== $current_campaign_id ) {
 			$this->campaign_update( $order_id, $current_campaign_id, $new_campaign_id );
-			$this->set_order_meta( $order_id, esc_attr( $new_campaign_id ) );
+			$this->set_order_meta( $order_id, (int) $new_campaign_id );
+
 		}
 
 	}

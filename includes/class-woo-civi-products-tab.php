@@ -47,13 +47,13 @@ class WPCV_Woo_Civi_Products_Tab {
 	public function register_hooks() {
 
 		// Add CiviCRM tab to the Product Settings tabs.
-		add_filter( 'woocommerce_product_data_tabs', [ $this, 'add_civicrm_product_tab' ] );
+		add_filter( 'woocommerce_product_data_tabs', [ $this, 'tab_add' ] );
 
 		// Add CiviCRM Product panel template.
-		add_action( 'woocommerce_product_data_panels', [ $this, 'add_civicrm_product_panel' ] );
+		add_action( 'woocommerce_product_data_panels', [ $this, 'panel_add' ] );
 
 		// Save CiviCRM Product settings.
-		add_action( 'woocommerce_admin_process_product_object', [ $this, 'save_civicrm_product_settings' ] );
+		add_action( 'woocommerce_admin_process_product_object', [ $this, 'panel_saved' ] );
 
 		// Append Contribution Type to Product Cat.
 		add_action( 'manage_product_posts_custom_column', [ $this, 'columns_content' ], 90, 2 );
@@ -74,7 +74,7 @@ class WPCV_Woo_Civi_Products_Tab {
 	 * @param array $tabs The existing Product tabs.
 	 * @return array $tabs The modified Product tabs.
 	 */
-	public function add_civicrm_product_tab( $tabs ) {
+	public function tab_add( $tabs ) {
 
 		$tabs['woocommerce_civicrm'] = [
 			'label' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
@@ -90,9 +90,12 @@ class WPCV_Woo_Civi_Products_Tab {
 	 *
 	 * @since 2.4
 	 */
-	public function add_civicrm_product_panel() {
+	public function panel_add() {
+
+		// Include template.
 		$directory = 'assets/templates/woocommerce/admin/meta-boxes/views/';
 		include WPCV_WOO_CIVI_PATH . $directory . 'html-product-data-panel-civicrm.php';
+
 	}
 
 	/**
@@ -102,16 +105,20 @@ class WPCV_Woo_Civi_Products_Tab {
 	 *
 	 * @param WC_Product $product The Product object.
 	 */
-	public function save_civicrm_product_settings( $product ) {
+	public function panel_saved( $product ) {
 
 		// Always save the Financial Type ID.
-		if ( isset( $_POST['woocommerce_civicrm_financial_type_id'] ) ) {
-			$financial_type_id = sanitize_key( $_POST['woocommerce_civicrm_financial_type_id'] );
-			$product->add_meta_data( WPCV_WCI()->products->meta_key, $financial_type_id, true );
+		if ( isset( $_POST[ WPCV_WCI()->products->meta_key ] ) ) {
+			$financial_type_id = sanitize_key( $_POST[ WPCV_WCI()->products->meta_key ] );
+			$product->add_meta_data( WPCV_WCI()->products->meta_key, (int) $financial_type_id, true );
 		}
 
 		/**
 		 * Fires when the settings from the "CiviCRM Settings" Product Tab have been saved.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Membership::panel_saved() (Priority: 10)
 		 *
 		 * @since 3.0
 		 *

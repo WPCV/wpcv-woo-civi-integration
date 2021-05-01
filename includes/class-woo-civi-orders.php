@@ -103,7 +103,7 @@ class WPCV_Woo_Civi_Orders {
 	 * @param int $contribution_id The numeric ID of the CiviCRM Contribution.
 	 */
 	public function set_order_meta( $order_id, $contribution_id ) {
-		update_post_meta( $order_id, $this->meta_key, $contribution_id, true );
+		update_post_meta( $order_id, $this->meta_key, $contribution_id );
 	}
 
 	/**

@@ -102,7 +102,7 @@ class WPCV_Woo_Civi_Source {
 	 * @param str $source The Source string.
 	 */
 	public function set_order_meta( $order_id, $source ) {
-		update_post_meta( $order_id, $this->meta_key, $source, true );
+		update_post_meta( $order_id, $this->meta_key, $source );
 	}
 
 	/**
@@ -229,7 +229,7 @@ class WPCV_Woo_Civi_Source {
 		// Default is the Order Type.
 		// Until 2.2, Contribution Source was exactly the same as Contribution note.
 		// TODO: What should be the default here?
-		$source = __( 'WooCommerce Shop', 'wpcv-woo-civi-integration' );
+		$source = __( 'Shop', 'wpcv-woo-civi-integration' );
 
 		/**
 		 * Filter the Contribution Source string.

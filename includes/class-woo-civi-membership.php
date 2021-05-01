@@ -93,10 +93,13 @@ class WPCV_Woo_Civi_Membership {
 		}
 
 		// Add Membership Type select to the "CiviCRM Settings" Product Tab.
-		add_action( 'wpcv_woo_civi/product/panel/civicrm/after', [ $this, 'panel_add_select' ] );
+		add_action( 'wpcv_woo_civi/product/panel/civicrm/after', [ $this, 'panel_add_markup' ] );
+
+		// Save Membership Type on the "CiviCRM Settings" Product Tab.
+		add_action( 'wpcv_woo_civi/product/panel/saved', [ $this, 'panel_saved' ] );
 
 		// Add Membership Type to Line Item.
-		add_action( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ] );
+		add_action( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ], 10, 3 );
 
 	}
 
@@ -105,11 +108,11 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 */
-	public function panel_add_select() {
+	public function panel_add_markup() {
 
 		woocommerce_wp_select( [
-			'id' => 'woocommerce_civicrm_membership_type_id',
-			'name' => 'woocommerce_civicrm_membership_type_id',
+			'id' => $this->meta_key,
+			'name' => $this->meta_key,
 			'label' => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
 			'desc_tip' => 'true',
 			'description' => __( 'Select a Membership Type if you would like this Product to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
@@ -127,9 +130,10 @@ class WPCV_Woo_Civi_Membership {
 	 */
 	public function panel_saved( $product ) {
 
-		if ( isset( $_POST['woocommerce_civicrm_membership_type_id'] ) ) {
-			$membership_type_id = sanitize_key( $_POST['woocommerce_civicrm_membership_type_id'] );
-			$product->add_meta_data( $this->meta_key, $membership_type_id, true );
+		// Save the Membership Type ID.
+		if ( isset( $_POST[$this->meta_key] ) ) {
+			$membership_type_id = sanitize_key( $_POST[$this->meta_key] );
+			$product->add_meta_data( $this->meta_key, (int) $membership_type_id, true );
 		}
 
 	}
@@ -162,6 +166,7 @@ class WPCV_Woo_Civi_Membership {
 		];
 		$line_item_params = [
 			'membership_type_id' => $product_membership_type_id,
+			'source' => __( 'Shop', 'wpcv-woo-civi-integration' ),
 			'contact_id' => $params['contact_id'],
 		];
 
@@ -202,7 +207,7 @@ class WPCV_Woo_Civi_Membership {
 	 * @param int $membership_type_id The numeric ID of the Membership Type.
 	 */
 	public function set_product_meta( $product_id, $membership_type_id ) {
-		update_post_meta( $product_id, $this->meta_key, $membership_type_id, true );
+		update_post_meta( $product_id, $this->meta_key, $membership_type_id );
 	}
 
 	/**
@@ -336,7 +341,7 @@ class WPCV_Woo_Civi_Membership {
 		$membership_types_options = array_reduce(
 			$result['values'],
 			function( $list, $membership_type ) {
-				$list[ $membership_type['id'] ] = $membership_type['name'];
+				$list[ (int) $membership_type['id'] ] = $membership_type['name'];
 				return $list;
 			},
 			$membership_types_options
