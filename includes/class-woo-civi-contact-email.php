@@ -89,42 +89,44 @@ class WPCV_Woo_Civi_Contact_Email {
 		try {
 
 			// Only use 'billing' because there is no 'shipping_email' in WooCommerce.
-			$address_types = WPCV_WCI()->helper->get_mapped_location_types();
-			$address_type = 'billing';
-			$location_type_id = $address_types['billing'];
+			$location_types = WPCV_WCI()->helper->get_mapped_location_types();
+			$location_type = 'billing';
+			$location_type_id = $location_types['billing'];
 
 			// Process Email.
 			$email_exists = false;
 
-			$email_address = $order->{'get_' . $address_type . '_email'}();
+			$email_address = $order->{'get_' . $location_type . '_email'}();
 			if ( ! empty( $email_address ) ) {
 
+				// Prime the Email data.
 				$email = [
 					'location_type_id' => $location_type_id,
 					'email' => $email_address,
 					'contact_id' => $contact_id,
 				];
 
-				foreach ( $existing_emails as $existing_email ) {
-
-					if ( isset( $existing_email['location_type_id'] ) && $existing_email['location_type_id'] === $location_type_id ) {
-						$email['id'] = $existing_email['id'];
+				foreach ( $existing_emails as $existing ) {
+					// Does this Email have the same Location Type?
+					if ( isset( $existing['location_type_id'] ) && $existing['location_type_id'] === $location_type_id ) {
+						// Let's update that one.
+						$email['id'] = $existing['id'];
 					}
-
-					if ( isset( $existing_email['email'] ) && $existing_email['email'] === $email['email'] ) {
+					// Is this Email the same as the one from the Order?
+					if ( isset( $existing['email'] ) && $existing['email'] === $email['email'] ) {
+						// FIXME: Should we still create a new Email with the 'Billing' Location Type?
 						$email_exists = true;
 					}
-
 				}
 
 				if ( ! $email_exists ) {
 
 					civicrm_api3( 'Email', 'create', $email );
 
-					/* translators: %1$s: Address Type, %2$s: Email Address */
+					/* translators: %1$s: Location Type, %2$s: Email Address */
 					$note = sprintf(
 						__( 'Created new CiviCRM Email of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
-						$address_type,
+						$location_type,
 						$email['email']
 					);
 
@@ -137,7 +139,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		} catch ( CiviCRM_API3_Exception $e ) {
 
 			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to add/update Address', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Unable to add/update Email', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
@@ -247,10 +249,10 @@ class WPCV_Woo_Civi_Contact_Email {
 			return false;
 		}
 
-		$civi_contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
+		$contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
 
 		// Bail if we don't have a CiviCRM Contact.
-		if ( ! $civi_contact ) {
+		if ( ! $contact ) {
 			return false;
 		}
 
@@ -266,7 +268,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		try {
 
 			$params = [
-				'contact_id' => $civi_contact['contact_id'],
+				'contact_id' => $contact['contact_id'],
 				'location_type_id' => $civi_email_location_type,
 			];
 
@@ -335,7 +337,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		 * @param int $contact_id The CiviCRM Contact ID.
 		 * @param array $email The CiviCRM Email that has been edited.
 		 */
-		do_action( 'wpcv_woo_civi/civi_email/updated', $civi_contact['contact_id'], $create_email );
+		do_action( 'wpcv_woo_civi/civi_email/updated', $contact['contact_id'], $create_email );
 
 		// Success.
 		return true;

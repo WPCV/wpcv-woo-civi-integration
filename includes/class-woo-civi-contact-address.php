@@ -4,6 +4,20 @@
  *
  * Handles syncing Addresses between WooCommerce and CiviCRM.
  *
+ * There are some issues to be worked out here because:
+ *
+ * * An Address can have a Location Type of "Billing".
+ * * Multiple Addresses can have their "is_billing" property set.
+ *
+ * In this plugin the decision was made to go with the "Billing" Location Type
+ * and to ignore the "is_billing" property. So for historical reasons, this is
+ * the logic that is followed.
+ *
+ * @see https://lab.civicrm.org/dev/core/-/issues/1727
+ * @see https://lab.civicrm.org/dev/core/-/issues/1178
+ * @see https://forum.civicrm.org/index.php%3Ftopic=11447.0.html
+ * @see https://github.com/artfulrobot/uk.artfulrobot.civicrm.gocardless/blob/1.9.2/CRM/Core/Payment/GoCardless.php#L358
+ *
  * @package WPCV_Woo_Civi
  * @since 2.0
  */
@@ -105,59 +119,62 @@ class WPCV_Woo_Civi_Contact_Address {
 				// Process Address.
 				$address_exists = false;
 
+				// Skip if we don't have both Address_1 and Postcode.
 				$address_1 = $order->{'get_' . $address_type . '_address_1'}();
 				$postcode = $order->{'get_' . $address_type . '_postcode'}();
-				if ( ! empty( $address_1 ) && ! empty( $postcode ) ) {
+				if ( empty( $address_1 ) || empty( $postcode ) ) {
+					continue;
+				}
 
-					$country = $order->{'get_' . $address_type . '_country'}();
-					$country_id = WPCV_WCI()->states->get_civicrm_country_id( $country );
-					$state = $order->{'get_' . $address_type . '_state'}();
+				$country = $order->{'get_' . $address_type . '_country'}();
+				$country_id = WPCV_WCI()->states->get_civicrm_country_id( $country );
+				$state = $order->{'get_' . $address_type . '_state'}();
 
-					$address = [
-						'location_type_id'       => $location_type_id,
-						'city'                   => $order->{'get_' . $address_type . '_city'}(),
-						'postal_code'            => $postcode,
-						'name'                   => $order->{'get_' . $address_type . '_company'}(),
-						'street_address'         => $address_1,
-						'supplemental_address_1' => $order->{'get_' . $address_type . '_address_2'}(),
-						'country'                => $country_id,
-						'state_province_id'      => WPCV_WCI()->states->get_civicrm_state_province_id( $state, $country_id ),
-						'contact_id'             => $contact_id,
-					];
+				// Prime the Address data array.
+				$address = [
+					'location_type_id'       => $location_type_id,
+					'city'                   => $order->{'get_' . $address_type . '_city'}(),
+					'postal_code'            => $postcode,
+					'name'                   => $order->{'get_' . $address_type . '_company'}(),
+					'street_address'         => $address_1,
+					'supplemental_address_1' => $order->{'get_' . $address_type . '_address_2'}(),
+					'country'                => $country_id,
+					'state_province_id'      => WPCV_WCI()->states->get_civicrm_state_province_id( $state, $country_id ),
+					'contact_id'             => $contact_id,
+				];
 
-					foreach ( $existing_addresses as $existing ) {
-						if ( isset( $existing->location_type_id ) && $existing->location_type_id === $location_type_id ) {
-							$address['id'] = $existing->id;
-						} elseif (
-							// TODO: Don't create if exact match of another - should we make 'exact match' configurable?
-							isset( $existing->street_address )
-							&& isset( $existing->city )
-							&& isset( $existing->postal_code )
-							&& isset( $address['street_address'] )
-							&& $existing->street_address === $address['street_address']
-							&& CRM_Utils_Array::value( 'supplemental_address_1', $existing ) === CRM_Utils_Array::value( 'supplemental_address_1', $address )
-							&& $existing->city == $address['city']
-							&& $existing->postal_code === $address['postal_code']
-						) {
-							$address_exists = true;
-						}
+				foreach ( $existing_addresses as $existing ) {
+					// Does this Address have the desired Location Type?
+					if ( isset( $existing->location_type_id ) && $existing->location_type_id === $location_type_id ) {
+						$address['id'] = $existing->id;
+					} elseif (
+						// TODO: Don't create an Address if it's an exact match of another Address.
+						// FIXME: should we make 'exact match' configurable?
+						isset( $existing->street_address )
+						&& isset( $existing->city )
+						&& isset( $existing->postal_code )
+						&& isset( $address['street_address'] )
+						&& $existing->street_address === $address['street_address']
+						&& CRM_Utils_Array::value( 'supplemental_address_1', $existing ) === CRM_Utils_Array::value( 'supplemental_address_1', $address )
+						&& $existing->city == $address['city']
+						&& $existing->postal_code === $address['postal_code']
+					) {
+						$address_exists = true;
 					}
+				}
 
-					if ( ! $address_exists ) {
+				if ( ! $address_exists ) {
 
-						// FIXME: Error checking.
-						civicrm_api3( 'Address', 'create', $address );
+					civicrm_api3( 'Address', 'create', $address );
 
-						/* translators: %1$s: Address Type, %2$s: Street Address */
-						$note = sprintf(
-							__( 'Created new CiviCRM Address of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
-							$address_type,
-							$address['street_address']
-						);
+					/* translators: %1$s: Address Type, %2$s: Street Address */
+					$note = sprintf(
+						__( 'Created new CiviCRM Address of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
+						$address_type,
+						$address['street_address']
+					);
 
-						$order->add_order_note( $note );
-
-					}
+					$order->add_order_note( $note );
 
 				}
 
@@ -372,10 +389,10 @@ class WPCV_Woo_Civi_Contact_Address {
 
 		$customer = new WC_Customer( $user_id );
 
-		$civi_contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
+		$contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
 
 		// Bail if we don't have a CiviCRM Contact.
-		if ( ! $civi_contact ) {
+		if ( ! $contact ) {
 			return false;
 		}
 
@@ -400,7 +417,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		try {
 
 			$params = [
-				'contact_id' => $civi_contact['contact_id'],
+				'contact_id' => $contact['contact_id'],
 				'location_type_id' => $civi_address_location_type,
 			];
 
@@ -469,7 +486,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		 * @param int $contact_id The CiviCRM Contact ID.
 		 * @param array $address The CiviCRM Address that has been edited.
 		 */
-		do_action( 'wpcv_woo_civi/civi_address/updated', $civi_contact['contact_id'], $create_address );
+		do_action( 'wpcv_woo_civi/civi_address/updated', $contact['contact_id'], $create_address );
 
 		// Success.
 		return true;

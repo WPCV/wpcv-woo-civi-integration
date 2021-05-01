@@ -89,16 +89,17 @@ class WPCV_Woo_Civi_Contact_Phone {
 		try {
 
 			// Only use 'billing' because there is no 'shipping_phone' in WooCommerce.
-			$address_types = WPCV_WCI()->helper->get_mapped_location_types();
-			$address_type = 'billing';
-			$location_type_id = $address_types['billing'];
+			$location_types = WPCV_WCI()->helper->get_mapped_location_types();
+			$location_type = 'billing';
+			$location_type_id = $location_types['billing'];
 
 			// Process Phone.
 			$phone_exists = false;
 
-			$phone_number = $order->{'get_' . $address_type . '_phone'}();
+			$phone_number = $order->{'get_' . $location_type . '_phone'}();
 			if ( ! empty( $phone_number ) ) {
 
+				// Prime the Phone data.
 				$phone = [
 					'phone_type_id' => 1,
 					'location_type_id' => $location_type_id,
@@ -106,27 +107,26 @@ class WPCV_Woo_Civi_Contact_Phone {
 					'contact_id' => $contact_id,
 				];
 
-				foreach ( $existing_phones as $existing_phone ) {
-
-					if ( isset( $existing_phone['location_type_id'] ) && $existing_phone['location_type_id'] === $location_type_id ) {
-						$phone['id'] = $existing_phone['id'];
+				foreach ( $existing_phones as $existing ) {
+					// Does this Phone have the same Location Type?
+					if ( isset( $existing['location_type_id'] ) && $existing['location_type_id'] === $location_type_id ) {
+						// Let's update that one.
+						$phone['id'] = $existing['id'];
 					}
-
-					if ( $existing_phone['phone'] === $phone['phone'] ) {
+					// Is this Phone the same as the one from the Order?
+					if ( $existing['phone'] === $phone['phone'] ) {
 						$phone_exists = true;
 					}
-
 				}
 
 				if ( ! $phone_exists ) {
 
-					// FIXME: Error checking.
 					civicrm_api3( 'Phone', 'create', $phone );
 
-					/* translators: %1$s: Address Type, %2$s: Phone Number */
+					/* translators: %1$s: Location Type, %2$s: Phone Number */
 					$note = sprintf(
 						__( 'Created new CiviCRM Phone of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
-						$address_type,
+						$location_type,
 						$phone['phone']
 					);
 
@@ -139,7 +139,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 		} catch ( CiviCRM_API3_Exception $e ) {
 
 			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to add/update Address', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Unable to add/update Phone', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
@@ -248,10 +248,10 @@ class WPCV_Woo_Civi_Contact_Phone {
 			return false;
 		}
 
-		$civi_contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
+		$contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
 
 		// Bail if we don't have a CiviCRM Contact.
-		if ( ! $civi_contact ) {
+		if ( ! $contact ) {
 			return false;
 		}
 
@@ -267,7 +267,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 		try {
 
 			$params = [
-				'contact_id' => $civi_contact['contact_id'],
+				'contact_id' => $contact['contact_id'],
 				'location_type_id' => $civi_phone_location_type,
 			];
 
@@ -336,7 +336,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 		 * @param int $contact_id The CiviCRM Contact ID.
 		 * @param array $phone The CiviCRM Phone that has been edited.
 		 */
-		do_action( 'wpcv_woo_civi/civi_phone/updated', $civi_contact['contact_id'], $create_phone );
+		do_action( 'wpcv_woo_civi/civi_phone/updated', $contact['contact_id'], $create_phone );
 
 		// Success.
 		return true;
