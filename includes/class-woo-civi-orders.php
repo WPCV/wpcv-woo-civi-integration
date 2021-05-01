@@ -443,8 +443,21 @@ class WPCV_Woo_Civi_Orders {
 		/*
 		 * Couldn't figure where WooCommerce stores the subtotal (ie no TAX price)
 		 * So for now...
+		 *
+		 * CMW: The WooCommerce Order has all the meta needed here:
+		 *
+		 * * "_order_total"
+		 * * "_order_tax"
+		 * * "_order_shipping_tax"
+		 *
+		 * There are also Order methods that can help:
+		 *
+		 * * WC_Abstract_Order::get_item_total( $item, $inc_tax = false, $round = true )
+		 *
+		 * None of this is properly implemented at present.
 		 */
 		//$rounded_subtotal = $rounded_total - $tax_raw;
+
 		// Ensure number format is CiviCRM-compliant.
 		//$rounded_subtotal = number_format( $rounded_subtotal, 2, $decimal_separator, $thousand_separator );
 
