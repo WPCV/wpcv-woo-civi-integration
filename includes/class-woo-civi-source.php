@@ -58,6 +58,9 @@ class WPCV_Woo_Civi_Source {
 		// Hook into new WooCommerce Orders with CiviCRM data.
 		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
 
+		// Allow Source to be set on Order in WordPress admin.
+		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 10, 2 );
+
 		// Hook into WooCommerce Order processed.
 		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'order_processed' ], 10, 2 );
 
@@ -100,6 +103,21 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function set_order_meta( $order_id, $source ) {
 		update_post_meta( $order_id, $this->meta_key, $source, true );
+	}
+
+	/**
+	 * Performs necessary actions when a WooCommerce Order is updated.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param object $order The Order object.
+	 */
+	public function order_updated( $order_id, $order ) {
+
+		// Use same method as for new Orders for now.
+		$this->order_new( $order_id, $order );
+
 	}
 
 	/**

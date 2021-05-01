@@ -36,7 +36,7 @@ class WPCV_Woo_Civi_Campaign {
 	 * @access public
 	 * @var array $campaigns The CiviCRM Campaigns.
 	 */
-	public $campaigns = [];
+	public $campaigns;
 
 	/**
 	 * The complete set of CiviCRM Campaigns.
@@ -45,7 +45,7 @@ class WPCV_Woo_Civi_Campaign {
 	 * @access public
 	 * @var array $all_campaigns The complete set of CiviCRM Campaigns.
 	 */
-	public $all_campaigns = [];
+	public $all_campaigns;
 
 	/**
 	 * CiviCRM Campaign Statuses.
@@ -54,7 +54,7 @@ class WPCV_Woo_Civi_Campaign {
 	 * @access public
 	 * @var array $campaigns The CiviCRM Campaign Statuses.
 	 */
-	public $campaigns_status = [];
+	public $campaigns_status;
 
 	/**
 	 * WooCommerce Order meta key holding the CiviCRM Campaign ID.
@@ -101,6 +101,9 @@ class WPCV_Woo_Civi_Campaign {
 
 		// Hook into new WooCommerce Orders with CiviCRM data.
 		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 20, 2 );
+
+		// Allow Campaign to be set on Order in WordPress admin.
+		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 10, 2 );
 
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_data_additions' ], 20 );
@@ -179,7 +182,6 @@ class WPCV_Woo_Civi_Campaign {
 
 		$params = [
 			'sequential' => 1,
-			'return' => [ 'id', 'name' ],
 			'is_active' => 1,
 			'status_id' => [ 'NOT IN' => [ 'Completed', 'Cancelled' ] ],
 			'options' => [
@@ -217,7 +219,7 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		foreach ( $result['values'] as $key => $value ) {
-			$this->campaigns[ $value['id'] ] = $value['name'];
+			$this->campaigns[ $value['id'] ] = $value['title'];
 		}
 
 		return $this->campaigns;
@@ -567,6 +569,21 @@ class WPCV_Woo_Civi_Campaign {
 	}
 
 	/**
+	 * Performs necessary actions when a WooCommerce Order is updated.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param object $order The Order object.
+	 */
+	public function order_updated( $order_id, $order ) {
+
+		// Use same method as for new Orders for now.
+		$this->order_new( $order_id, $order );
+
+	}
+
+	/**
 	 * Update Campaign.
 	 *
 	 * @since 2.0
@@ -837,7 +854,7 @@ class WPCV_Woo_Civi_Campaign {
 			<select id="order_civicrmcampaign" name="order_civicrmcampaign" data-placeholder="<?php esc_attr( __( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ) ); ?>">
 				<option value=""></option>
 				<?php foreach ( $campaign_list as $campaign_id => $campaign_name ) : ?>
-					<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php selected( $campaign_id, $order_campaign, true ); ?>><?php echo esc_attr( $campaign_name ); ?></option>
+					<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php selected( $campaign_id, $order_campaign, true ); ?>><?php echo esc_html( $campaign_name ); ?></option>
 				<?php endforeach; ?>
 			</select>
 		</p>
