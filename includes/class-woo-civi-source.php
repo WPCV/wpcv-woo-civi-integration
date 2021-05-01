@@ -157,9 +157,7 @@ class WPCV_Woo_Civi_Source {
 		// Get Contribution.
 		$invoice_id = WPCV_WCI()->helper->get_invoice_id( $order_id );
 		$contribution = WPCV_WCI()->helper->get_contribution_by_invoice_id( $invoice_id );
-
-		// Bail on failure.
-		if ( $contribution === false ) {
+		if ( empty( $contribution ) ) {
 			return false;
 		}
 

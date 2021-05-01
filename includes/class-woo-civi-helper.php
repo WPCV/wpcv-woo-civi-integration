@@ -311,43 +311,52 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Gets the CiviCRM Thousand Separator.
+	 * Gets the CiviCRM Contribution associated with a WooCommerce Order Number.
+	 *
+	 * It's okay not to find a Contribution, so use "get" instead of "getsingle"
+	 * and only log when there's a genuine API error.
 	 *
 	 * @since 3.0
 	 *
-	 * @return str|bool $thousand_separator The CiviCRM Thousand Separator, or false on failure.
+	 * @return array $result The CiviCRM Contribution data, or empty on failure.
 	 */
 	public function get_contribution_by_invoice_id( $invoice_id ) {
 
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return false;
+		$contribution = [];
+
+		// Bail if we have no Contact ID.
+		if ( empty( $invoice_id ) ) {
+			return $contribution;
 		}
 
-		$contribution = '';
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $contribution;
+		}
 
-		try {
+		// Construct API query.
+		$params = [
+			'version' => 3,
+			'invoice_id' => $invoice_id,
+		];
 
-			$params = [
-				'invoice_id' => $invoice_id,
-			];
+		/**
+		 * Filter the Contribution params before calling the CiviCRM API.
+		 *
+		 * @since 2.0
+		 *
+		 * @param array $params The params to be passed to the CiviCRM API.
+		 */
+		$params = apply_filters( 'wpcv_woo_civi/contribution/get_by_invoice_id/params', $params );
 
-			/**
-			 * Filter the Contribution params before calling the CiviCRM API.
-			 *
-			 * @since 2.0
-			 *
-			 * @param array $params The params to be passed to the CiviCRM API.
-			 */
-			$params = apply_filters( 'wpcv_woo_civi/contribution/get_by_invoice_id/params', $params );
+		// Get Contribution details via API.
+		$result = civicrm_api( 'Contribution', 'get', $params );
 
-			$contribution = civicrm_api3( 'Contribution', 'getsingle', $params );
-
-		} catch ( CiviCRM_API3_Exception $e ) {
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
 
 			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to find Contribution by Invoice ID', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( __( 'Error try to find Contribution by Invoice ID', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
 			$e = new \Exception();
@@ -358,9 +367,17 @@ class WPCV_Woo_Civi_Helper {
 				'backtrace' => $trace,
 			], true ) );
 
-			return false;
+			return $contribution;
 
 		}
+
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return $contribution;
+		}
+
+ 		// The result set should contain only one item.
+		$contribution = array_pop( $result['values'] );
 
 		return $contribution;
 

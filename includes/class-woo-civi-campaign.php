@@ -621,7 +621,7 @@ class WPCV_Woo_Civi_Campaign {
 		$contribution = WPCV_WCI()->helper->get_contribution_by_invoice_id( $invoice_id );
 
 		// Bail on failure.
-		if ( $contribution === false ) {
+		if ( empty( $contribution ) ) {
 			return false;
 		}
 

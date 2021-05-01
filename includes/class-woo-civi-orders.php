@@ -227,6 +227,9 @@ class WPCV_Woo_Civi_Orders {
 		// Get Contribution.
 		$invoice_id = WPCV_WCI()->helper->get_invoice_id( $order_id );
 		$contribution = WPCV_WCI()->helper->get_contribution_by_invoice_id( $invoice_id );
+		if ( empty( $contribution ) ) {
+			return;
+		}
 
 		// Ignore Contribution Note if already present.
 		if ( ! empty( $contribution['contribution_note'] ) ) {
