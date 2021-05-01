@@ -114,8 +114,10 @@ class WPCV_Woo_Civi_Products {
 	/**
 	 * Gets the Line Items for an Order.
 	 *
+	 * @see https://docs.civicrm.org/dev/en/latest/financial/orderAPI/#step-1
+	 *
 	 * @since 2.2 Line Items added to CiviCRM Contribution.
-	 * @since 3.0
+	 * @since 3.0 Logic moved to this method
 	 *
 	 * @param array $params The existing array of params for the CiviCRM API.
 	 * @param object $order The Order object.
