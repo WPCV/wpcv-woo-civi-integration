@@ -30,9 +30,17 @@ This plugin requires a minimum of *CiviCRM 4.6* and *WooCommerce 3.0+*.
 
 ### Configuration
 
-Configure the integration settings in WooCommerce &rarr; Settings &rarr; CiviCRM (Tab)
+Configure general integration settings in *WooCommerce* &rarr; *Settings* &rarr; *CiviCRM* Tab
 
-Example URL: `https://example.com/wp-admin/admin.php?page=wc-settings&tab=woocommerce_civicrm`
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/screenshots/wpcv-woo-settings.jpg" alt="General settings for integrating CiviCRM with WooCommerce" width="600" />
+
+Configure settings for a Product in the *CiviCRM Settings* Tab.
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/screenshots/wpcv-woo-product.jpg" alt="Settings for integrating CiviCRM with a Product" width="470" />
+
+Configure settings for an Order in the *General* section of the "New Order" and "Edit Order" screens.
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/screenshots/wpcv-woo-order.jpg" alt="Settings for integrating CiviCRM with anOrder" width="153" />
 
 
 
@@ -48,7 +56,7 @@ Example URL: `https://example.com/wp-admin/admin.php?page=wc-settings&tab=woocom
 
 = 3.0 =
 
-* Plugin refactored and renamed.
+* Initial WordPress Plugin Directory release.
 
 = Prior to 3.0 =
 
