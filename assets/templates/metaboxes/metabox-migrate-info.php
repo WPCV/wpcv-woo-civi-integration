@@ -7,37 +7,57 @@
 
 	<h3><?php _e( 'What needs to be done?', 'wpcv-woo-civi-integration' ) ?></h3>
 
-	<p><?php _e( 'Before you go ahead and deactivate and delete the WooCommerce CiviCRM plugin, there are few things that need to be checked to make sure your site continues to work as normal.', 'wpcv-woo-civi-integration' ); ?> <em><?php _e( 'Integrate CiviCRM with WooCommerce will not affect your site until you have clicked "Submit" and deactivated WooCommerce CiviCRM.', 'wpcv-woo-civi-integration' ); ?></em></p>
+	<p><?php _e( 'Before you go ahead and deactivate and delete the WooCommerce CiviCRM plugin, there are few things that need to be checked to make sure your site continues to work as normal.', 'wpcv-woo-civi-integration' ); ?> <em><?php _e( 'Integrate CiviCRM with WooCommerce will not affect your site until you have started one of the migration steps below, so take your time.', 'wpcv-woo-civi-integration' ); ?></em></p>
 
-	<?php if ( $metabox['args']['metadata'] === false ) : ?>
+	<h4><?php _e( 'Filters and Actions', 'wpcv-woo-civi-integration' ) ?></h3>
+
+	<p><em><?php _e( 'If you have not implemented any of the Filters or Actions from the WooCommerce CiviCRM plugin, then you can skip this section.', 'wpcv-woo-civi-integration' ); ?></em></p>
+
+	<p><?php _e( 'Filters and Actions have undergone a major overhaul and there isn’t really a simple substitution formula that we can give you. If you are technical enough to have used them to modify or extend the behaviour of the WooCommerce CiviCRM plugin, then we are confident that you are capable of figuring out their replacements by looking at the equivalent classes, functions and templates in this plugin.', 'wpcv-woo-civi-integration' ); ?> <em><?php _e( 'You need to do so before taking any further action.', 'wpcv-woo-civi-integration' ); ?></em></p>
+
+	<?php if ( $metabox['args']['product-metadata'] === false ) : ?>
 
 		<div id="wpcv_woocivi_products">
 
 			<h4><?php _e( 'Product Metadata', 'wpcv-woo-civi-integration' ) ?></h3>
 
-			<p><?php _e( 'The WooCommerce CiviCRM plugin duplicated some Product metadata in certain circumstances. Click the "Process Products" button below to resolve this issue now.', 'wpcv-woo-civi-integration' ); ?></p>
+			<p><?php _e( 'The WooCommerce CiviCRM plugin duplicated some Product metadata in certain circumstances. Click the "Upgrade Products" button below to resolve this issue.', 'wpcv-woo-civi-integration' ); ?></p>
 
-			<?php if ( $metabox['args']['offset'] !== false ) : ?>
-				<?php submit_button( esc_html__( 'Stop', 'wpcv-woo-civi-integration' ), 'secondary', 'wpcv_woocivi_process_stop', false ); ?>
+			<?php if ( $metabox['args']['product-offset'] !== false ) : ?>
+				<?php submit_button( esc_html__( 'Stop', 'wpcv-woo-civi-integration' ), 'secondary', 'wpcv_woocivi_products_process_stop', false ); ?>
 			<?php endif; ?>
 
-			<?php submit_button( $metabox['args']['button_title'], 'primary', 'wpcv_woocivi_process', false, [
+			<?php submit_button( $metabox['args']['product-button_title'], 'primary', 'wpcv_woocivi_products_process', false, [
 				'data-security' => esc_attr( wp_create_nonce( 'wpcv_migrate_products' ) ),
 			] ); ?>
 
-			<div id="progress-bar"><div class="progress-label"></div></div>
+			<div id="product-progress-bar"><div class="progress-label"></div></div>
 
 		</div>
 
 	<?php endif; ?>
 
-	<h4><?php _e( 'Filters and Actions', 'wpcv-woo-civi-integration' ) ?></h3>
+	<?php if ( $metabox['args']['order-metadata'] === false ) : ?>
 
-	<p><em><?php _e( 'If you have not implemented any of the Filters or Actions from the WooCommerce CiviCRM plugin, then it is unlikely that you will need to take any further action before migrating.', 'wpcv-woo-civi-integration' ); ?></em></p>
+		<div id="wpcv_woocivi_orders">
 
-	<p><?php _e( 'Filters and Actions have undergone a major overhaul and there isn’t really a simple substitution formula that we can give you. If you are technical enough to have used them to modify or extend the behaviour of the WooCommerce CiviCRM plugin, then we are confident that you are capable of figuring out their replacements by looking at the equivalent classes, functions and templates in this plugin.', 'wpcv-woo-civi-integration' ); ?></p>
+			<h4><?php _e( 'Order Metadata', 'wpcv-woo-civi-integration' ) ?></h3>
 
-	<p><?php _e( 'This is really just a reminder that you need to do so.', 'wpcv-woo-civi-integration' ); ?></p>
+			<p><?php _e( 'This plugin needs to store some information in WooCommerce Order metadata so that it can perform certain tasks. Click the "Upgrade Orders" button below to start the upgrade process.', 'wpcv-woo-civi-integration' ); ?></p>
+
+			<?php if ( $metabox['args']['order-offset'] !== false ) : ?>
+				<?php submit_button( esc_html__( 'Stop', 'wpcv-woo-civi-integration' ), 'secondary', 'wpcv_woocivi_orders_process_stop', false ); ?>
+			<?php endif; ?>
+
+			<?php submit_button( $metabox['args']['order-button_title'], 'primary', 'wpcv_woocivi_orders_process', false, [
+				'data-security' => esc_attr( wp_create_nonce( 'wpcv_migrate_orders' ) ),
+			] ); ?>
+
+			<div id="order-progress-bar"><div class="progress-label"></div></div>
+
+		</div>
+
+	<?php endif; ?>
 
 	<h4><?php _e( 'Settings', 'wpcv-woo-civi-integration' ) ?></h3>
 

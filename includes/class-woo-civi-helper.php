@@ -324,7 +324,7 @@ class WPCV_Woo_Civi_Helper {
 
 		$contribution = [];
 
-		// Bail if we have no Contact ID.
+		// Bail if we have no Invoice ID.
 		if ( empty( $invoice_id ) ) {
 			return $contribution;
 		}
@@ -348,6 +348,67 @@ class WPCV_Woo_Civi_Helper {
 		 * @param array $params The params to be passed to the CiviCRM API.
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/contribution/get_by_invoice_id/params', $params );
+
+		// Get Contribution details via API.
+		$result = civicrm_api( 'Contribution', 'get', $params );
+
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Error try to find Contribution by Invoice ID', 'wpcv-woo-civi-integration' ) );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
+			return $contribution;
+
+		}
+
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return $contribution;
+		}
+
+ 		// The result set should contain only one item.
+		$contribution = array_pop( $result['values'] );
+
+		return $contribution;
+
+	}
+
+	/**
+	 * Gets a CiviCRM Contribution by its ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $result The CiviCRM Contribution data, or empty on failure.
+	 */
+	public function get_contribution_by_id( $contribution_id ) {
+
+		$contribution = [];
+
+		// Bail if we have no Contact ID.
+		if ( empty( $contribution_id ) ) {
+			return $contribution;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $contribution;
+		}
+
+		// Construct API query.
+		$params = [
+			'version' => 3,
+			'id' => $contribution_id,
+		];
 
 		// Get Contribution details via API.
 		$result = civicrm_api( 'Contribution', 'get', $params );

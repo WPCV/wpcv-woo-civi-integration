@@ -818,7 +818,7 @@ class WPCV_Woo_Civi_Campaign {
 
 		wp_enqueue_script(
 			'wccivi_admin_order',
-			WPCV_WOO_CIVI_URL . 'assets/js/admin_order.js',
+			WPCV_WOO_CIVI_URL . 'assets/js/woocommerce/admin/page-order-details-general.js',
 			[ 'jquery' ],
 			WPCV_WOO_CIVI_VERSION,
 			true

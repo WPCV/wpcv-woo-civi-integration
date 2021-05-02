@@ -193,6 +193,10 @@ class WPCV_Woo_Civi {
 		// Defer to "WooCommerce CiviCRM" if present.
 		if ( function_exists( 'WCI' ) ) {
 
+			// Include Helper class and init.
+			include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-helper.php';
+			$this->helper = new WPCV_Woo_Civi_Helper();
+
 			// Include Admin Migrate class and init.
 			include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-admin-migrate.php';
 			$this->migrate = new WPCV_Woo_Civi_Admin_Migrate();

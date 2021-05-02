@@ -1,5 +1,5 @@
 /**
- * Admin Order Javascript.
+ * Javascript for the WooCommerce Add & Edit Order screens.
  *
  * @package WPCV_Woo_Civi
  * @since 2.0

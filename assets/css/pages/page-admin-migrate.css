@@ -27,11 +27,13 @@
 	padding-left: 20px;
 }
 
-#wpcv_woocivi_info #progress-bar {
+#wpcv_woocivi_info #product-progress-bar,
+#wpcv_woocivi_info #order-progress-bar {
 	display: none;
 }
 
-body.js #wpcv_woocivi_info #wpcv_woocivi_process_stop {
+body.js #wpcv_woocivi_info #wpcv_woocivi_product_process_stop,
+body.js #wpcv_woocivi_info #wpcv_woocivi_product_order_stop {
 	display: none;
 }
 
