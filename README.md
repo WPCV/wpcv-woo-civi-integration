@@ -27,7 +27,7 @@ Configure the integration settings in WooCommerce >> Settings >> CiviCRM (Tab)
 
 Example URL: `https://example.com/wp-admin/admin.php?page=wc-settings&tab=woocommerce_civicrm`
 
-![Settings to integrate CiviCRM with WooCommerce](./screenshots/settings.jpg)
+![Settings to integrate CiviCRM with WooCommerce](./screenshots/wpcv-woo-settings.jpg)
 
 
 
