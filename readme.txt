@@ -30,7 +30,7 @@ This plugin requires a minimum of *CiviCRM 4.6* and *WooCommerce 3.0+*.
 
 ### Configuration
 
-Configure the integration settings in WooCommerce >> Settings >> CiviCRM (Tab)
+Configure the integration settings in WooCommerce &rarr; Settings &rarr; CiviCRM (Tab)
 
 Example URL: `https://example.com/wp-admin/admin.php?page=wc-settings&tab=woocommerce_civicrm`
 
