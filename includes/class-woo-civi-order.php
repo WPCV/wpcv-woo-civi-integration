@@ -212,18 +212,24 @@ class WPCV_Woo_Civi_Order {
 			unset( $contribution['contribution_note'] );
 		}
 
-		// Overwrite a Contribution Status.
+		// Overwrite the Contribution Status.
 		if ( $order->is_paid() ) {
 			$contribution['contribution_status_id'] = 'Completed';
 		} else {
 			$contribution['contribution_status_id'] = $new_status_id;
 		}
 
-		// Update Contribution.
-		$result = civicrm_api3( 'Contribution', 'create', $contribution );
+		// Overwrite the Contribution "Receive Date".
+		if ( $order->is_paid() ) {
+			$date_paid = $order->get_date_paid();
+			if ( ! empty( $date_paid ) ) {
+				$contribution['receive_date'] = $date_paid->date( 'Y-m-d H:i:s' );
+			}
+		}
 
-		// Sanity check.
-		if ( ! empty( $result['error'] ) ) {
+		// Update Contribution.
+		$contribution = WPCV_WCI()->contribution->update( $contribution );
+		if ( empty( $contribution ) ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Order Status', 'wpcv-woo-civi-integration' ) );

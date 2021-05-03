@@ -202,27 +202,9 @@ class WPCV_Woo_Civi_Source {
 		}
 
 		// Update Contribution.
-		try {
-
-			$result = civicrm_api3( 'Contribution', 'create', $contribution );
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to update Contribution', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'contribution' => $contribution,
-				'backtrace' => $trace,
-			], true ) );
-
+		$contribution = WPCV_WCI()->contribution->update( $contribution );
+		if ( empty( $contribution ) ) {
 			return false;
-
 		}
 
 		// Success.
@@ -242,7 +224,7 @@ class WPCV_Woo_Civi_Source {
 
 		// Default is the Order Type.
 		// Until 2.2, Contribution Source was exactly the same as Contribution note.
-		// TODO: What should be the default here?
+		// TODO: Should this be a setting?
 		$source = __( 'Shop', 'wpcv-woo-civi-integration' );
 
 		/**

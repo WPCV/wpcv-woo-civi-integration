@@ -653,27 +653,10 @@ class WPCV_Woo_Civi_Campaign {
 			unset( $contribution['contribution_note'] );
 		}
 
-		try {
-
-			$result = civicrm_api3( 'Contribution', 'create', $contribution );
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to update Contribution', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'contribution' => $contribution,
-				'backtrace' => $trace,
-			], true ) );
-
+		// Update Contribution.
+		$contribution = WPCV_WCI()->contribution->update( $contribution );
+		if ( empty( $contribution ) ) {
 			return false;
-
 		}
 
 		// Success.
