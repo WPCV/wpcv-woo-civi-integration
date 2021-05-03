@@ -215,6 +215,10 @@ class WPCV_Woo_Civi_Source {
 	/**
 	 * Generates a string to define a Contribution Source.
 	 *
+	 * Rescued comment in case it's helpful:
+	 *
+	 * "Until 2.2, Contribution Source was exactly the same as Contribution note."
+	 *
 	 * @since 2.2
 	 *
 	 * @param object $order The Order object.
@@ -222,13 +226,15 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function source_generate( $order ) {
 
-		// Default is the Order Type.
-		// Until 2.2, Contribution Source was exactly the same as Contribution note.
 		// TODO: Should this be a setting?
 		$source = __( 'Shop', 'wpcv-woo-civi-integration' );
 
 		/**
 		 * Filter the Contribution Source string.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_UTM::utm_filter_source() (Priority: 10)
 		 *
 		 * @since 3.0
 		 *

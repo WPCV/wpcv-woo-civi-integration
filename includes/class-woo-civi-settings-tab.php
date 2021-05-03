@@ -183,6 +183,10 @@ class WPCV_Woo_Civi_Settings_Tab {
 		 *
 		 * This can be used to add further Contribution settings.
 		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Campaign::campaign_settings_add() (Priority: 10)
+		 *
 		 * @since 3.0
 		 *
 		 * @param array $settings The Contribution settings array.

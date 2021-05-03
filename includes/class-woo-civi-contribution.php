@@ -316,9 +316,10 @@ class WPCV_Woo_Civi_Contribution {
 		 *
 		 * Used internally by:
 		 *
-		 * - WPCV_Woo_Civi_Source (Priority: 10)
-		 * - WPCV_Woo_Civi_Campaign (Priority: 20)
-		 * - WPCV_Woo_Civi_Products (Priority: 30)
+		 * - WPCV_Woo_Civi_Source::source_get_for_order() (Priority: 10)
+		 * - WPCV_Woo_Civi_Campaign::campaign_get_for_order() (Priority: 20)
+		 * - WPCV_Woo_Civi_Products::items_get_for_order() (Priority: 30)
+		 * - WPCV_Woo_Civi_Products::shipping_get_for_order() (Priority: 30)
 		 *
 		 * @since 2.0
 		 *
