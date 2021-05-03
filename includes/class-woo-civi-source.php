@@ -258,7 +258,14 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function source_get_for_order( $params, $order ) {
 
-		$params['source'] = $this->source_generate( $order );
+		// Generate the default Source if there isn't one.
+		$source = $this->get_order_meta( $order->get_id() );
+		if ( empty( $source ) ) {
+			$source = $this->source_generate( $order );
+			$this->set_order_meta( $order->get_id(), $source );
+		}
+
+		$params['source'] = $source;
 
 		return $params;
 
