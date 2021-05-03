@@ -87,7 +87,7 @@ class WPCV_Woo_Civi_Source {
 	 * @return str|bool $source The Source string, false otherwise.
 	 */
 	public function get_order_meta( $order_id ) {
-		$source = get_post_meta( $order_id, $this->meta_key, true );
+		$source = (string) get_post_meta( $order_id, $this->meta_key, true );
 		return $source;
 	}
 
@@ -100,7 +100,7 @@ class WPCV_Woo_Civi_Source {
 	 * @param str $source The Source string.
 	 */
 	public function set_order_meta( $order_id, $source ) {
-		update_post_meta( $order_id, $this->meta_key, $source );
+		update_post_meta( $order_id, $this->meta_key, (string) $source );
 	}
 
 	/**
@@ -125,7 +125,7 @@ class WPCV_Woo_Civi_Source {
 		$current_source = $this->get_order_meta( $order_id );
 		$new_source = filter_input( INPUT_POST, 'order_civicrmsource', FILTER_SANITIZE_STRING );
 
-		// Generate a Source if there isn't one.
+		// Generate the default Source if there isn't one.
 		if ( empty( $new_source ) ) {
 			$new_source = $this->source_generate( $order );
 			$this->set_order_meta( $order_id, esc_attr( $new_source ) );
@@ -148,7 +148,7 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function order_processed( $order_id, $order ) {
 
-		// Generate a Source if there isn't one.
+		// Generate the default Source if there isn't one.
 		$source = $this->get_order_meta( $order_id );
 		if ( empty( $source ) ) {
 			$source = $this->source_generate( $order );
@@ -401,9 +401,10 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function order_details_add( $order ) {
 
-		$order_source = $this->get_order_meta( $order->get_id() );
-		if ( false === $order_source ) {
-			$order_source = '';
+		// Generate the default Source if there isn't one.
+		$source = $this->get_order_meta( $order->get_id() );
+		if ( empty( $source ) ) {
+			$source = $this->source_generate( $order );
 		}
 
 		// Query database directly.
@@ -413,7 +414,7 @@ class WPCV_Woo_Civi_Source {
 		?>
 		<p class="form-field form-field-wide wc-civicrmsource">
 			<label for="order_civicrmsource"><?php esc_html_e( 'CiviCRM Source:', 'wpcv-woo-civi-integration' ); ?></label>
-			<input type="text" list="sources" id="order_civicrmsource" name="order_civicrmsource" data-placeholder="<?php esc_attr_e( 'CiviCRM Source', 'wpcv-woo-civi-integration' ); ?>" value="<?php echo esc_attr( $order_source ); ?>">
+			<input type="text" list="sources" id="order_civicrmsource" name="order_civicrmsource" data-placeholder="<?php esc_attr_e( 'CiviCRM Source', 'wpcv-woo-civi-integration' ); ?>" value="<?php echo esc_attr( $source ); ?>">
 			<datalist id="sources">
 				<?php if ( count( $results ) > 0 ) : ?>
 					<?php foreach ( $results as $meta ) : ?>
