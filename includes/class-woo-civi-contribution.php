@@ -186,7 +186,7 @@ class WPCV_Woo_Civi_Contribution {
 	 * @param string $invoice_id The Invoice ID.
 	 * @return array $result The CiviCRM Contribution data, or empty on failure.
 	 */
-	public function get_contribution_by_invoice_id( $invoice_id ) {
+	public function get_by_invoice_id( $invoice_id ) {
 
 		$contribution = [];
 
@@ -439,7 +439,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		/* translators: %d: The numeric ID of the WooCommerce Order */
 		$trxn_id = sprintf( __( 'WooCommerce Order - %d', 'wpcv-woo-civi-integration' ), (int) $order_id );
-		$invoice_id = WPCV_WCI()->helper->get_invoice_id( $order_id );
+		$invoice_id = $this->get_invoice_id( $order_id );
 
 		// Get dates. These are already adjusted for timezone.
 		$date_created = $order->get_date_created();
