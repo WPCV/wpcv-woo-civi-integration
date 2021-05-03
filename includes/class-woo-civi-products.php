@@ -219,11 +219,13 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $params The array of params.
+	 * @param array $params The existing array of params for the CiviCRM API.
 	 * @param object $order The Order object.
-	 * @param array $items The array of Items in the Order.
+	 * @return array $params The modified array of params for the CiviCRM API.
 	 */
-	public function shipping_get_for_order( $params, $order, $items ) {
+	public function shipping_get_for_order( $params, $order ) {
+
+		$items = $order->get_items();
 
 		// Bail if no Items.
 		if ( empty( $items ) ) {
