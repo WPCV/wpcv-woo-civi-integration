@@ -30,33 +30,6 @@ class WPCV_Woo_Civi_Campaign {
 	public $active = false;
 
 	/**
-	 * CiviCRM Campaigns.
-	 *
-	 * @since 2.2
-	 * @access public
-	 * @var array $campaigns The CiviCRM Campaigns.
-	 */
-	public $campaigns;
-
-	/**
-	 * The complete set of CiviCRM Campaigns.
-	 *
-	 * @since 2.2
-	 * @access public
-	 * @var array $all_campaigns The complete set of CiviCRM Campaigns.
-	 */
-	public $all_campaigns;
-
-	/**
-	 * CiviCRM Campaign Statuses.
-	 *
-	 * @since 2.2
-	 * @access public
-	 * @var array $campaigns The CiviCRM Campaign Statuses.
-	 */
-	public $campaigns_status;
-
-	/**
 	 * WooCommerce Order meta key holding the CiviCRM Campaign ID.
 	 *
 	 * @since 3.0
@@ -161,6 +134,17 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function get_campaigns() {
 
+		// Bail early if the CiviCampaign component is not active.
+		if ( ! $this->active ) {
+			return [];
+		}
+
+		// Return early if already calculated.
+		static $campaigns;
+		if ( isset( $campaigns ) ) {
+			return $campaigns;
+		}
+
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
 			return [];
@@ -170,15 +154,6 @@ class WPCV_Woo_Civi_Campaign {
 		if ( ! $this->active ) {
 			return [];
 		}
-
-		// Return early if already calculated.
-		if ( isset( $this->campaigns ) ) {
-			return $this->campaigns;
-		}
-
-		$this->campaigns = [
-			__( 'None', 'wpcv-woo-civi-integration' ),
-		];
 
 		$params = [
 			'sequential' => 1,
@@ -214,15 +189,19 @@ class WPCV_Woo_Civi_Campaign {
 				'backtrace' => $trace,
 			], true ) );
 
-			return $this->campaigns;
+			return [];
 
 		}
+
+		$campaigns = [
+			__( 'None', 'wpcv-woo-civi-integration' ),
+		];
 
 		foreach ( $result['values'] as $key => $value ) {
-			$this->campaigns[ $value['id'] ] = $value['title'];
+			$campaigns[ $value['id'] ] = $value['title'];
 		}
 
-		return $this->campaigns;
+		return $campaigns;
 
 	}
 
@@ -238,24 +217,21 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function get_all_campaigns() {
 
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return [];
-		}
-
 		// Bail early if the CiviCampaign component is not active.
 		if ( ! $this->active ) {
 			return [];
 		}
 
 		// Return early if already calculated.
-		if ( ! empty( $this->all_campaigns ) ) {
-			return $this->all_campaigns;
+		static $all_campaigns;
+		if ( isset( $all_campaigns ) ) {
+			return $all_campaigns;
 		}
 
-		$this->all_campaigns = [
-			__( 'None', 'wpcv-woo-civi-integration' ),
-		];
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
 
 		$params = [
 			'sequential' => 1,
@@ -290,21 +266,28 @@ class WPCV_Woo_Civi_Campaign {
 				'backtrace' => $trace,
 			], true ) );
 
-			return $this->all_campaigns;
+			return [];
 
 		}
 
-		$campaign_statuses = $this->get_campaigns_status();
+		$campaign_statuses = $this->get_campaign_statuses();
+		if ( empty( $campaign_statuses ) ) {
+			return [];
+		}
+
+		$all_campaigns = [
+			__( 'None', 'wpcv-woo-civi-integration' ),
+		];
 
 		foreach ( $result['values'] as $key => $value ) {
 			$status = '';
 			if ( isset( $value['status_id'] ) && isset( $campaign_statuses[ $value['status_id'] ] ) ) {
 				$status = ' - ' . $campaign_statuses[ $value['status_id'] ];
 			}
-			$this->all_campaigns[ $value['id'] ] = $value['name'] . $status;
+			$all_campaigns[ $value['id'] ] = $value['name'] . $status;
 		}
 
-		return $this->all_campaigns;
+		return $all_campaigns;
 
 	}
 
@@ -314,17 +297,17 @@ class WPCV_Woo_Civi_Campaign {
 	 * @since 3.0
 	 *
 	 * @param int $campaign_id The numeric ID of the CiviCRM Campaign.
-	 * @return array $campaign The array of data for CiviCRM Campaign, or false on failure.
+	 * @return array|bool $campaign The array of data for CiviCRM Campaign, or false on failure.
 	 */
 	public function get_campaign_by_id( $campaign_id ) {
 
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
+		// Bail early if the CiviCampaign component is not active.
+		if ( ! $this->active ) {
 			return false;
 		}
 
-		// Bail early if the CiviCampaign component is not active.
-		if ( ! $this->active ) {
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
 			return false;
 		}
 
@@ -373,17 +356,17 @@ class WPCV_Woo_Civi_Campaign {
 	 * @since 3.0
 	 *
 	 * @param int $campaign_name The name of the CiviCRM Campaign.
-	 * @return array $campaign The array of data for CiviCRM Campaign, or false on failure.
+	 * @return array|bool $campaign The array of data for CiviCRM Campaign, or false on failure.
 	 */
 	public function get_campaign_by_name( $campaign_name ) {
 
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
+		// Bail early if the CiviCampaign component is not active.
+		if ( ! $this->active ) {
 			return false;
 		}
 
-		// Bail early if the CiviCampaign component is not active.
-		if ( ! $this->active ) {
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
 			return false;
 		}
 
@@ -434,14 +417,9 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 2.2
 	 *
-	 * @return array $campaigns_status The array of CiviCRM Campaign Statuses.
+	 * @return array $campaign_statuses The array of CiviCRM Campaign Statuses.
 	 */
-	public function get_campaigns_status() {
-
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return [];
-		}
+	public function get_campaign_statuses() {
 
 		// Bail early if the CiviCampaign component is not active.
 		if ( ! $this->active ) {
@@ -449,11 +427,15 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		// Return early if already calculated.
-		if ( ! empty( $this->campaigns_status ) ) {
-			return $this->campaigns_status;
+		static $campaign_statuses;
+		if ( isset( $campaign_statuses ) ) {
+			return $campaign_statuses;
 		}
 
-		$this->campaigns_status = [];
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
 
 		$params = [
 			'sequential' => 1,
@@ -487,15 +469,17 @@ class WPCV_Woo_Civi_Campaign {
 				'backtrace' => $trace,
 			], true ) );
 
-			return $this->campaigns_status;
+			return [];
 
 		}
+
+		$campaign_statuses = [];
 
 		foreach ( $result['values'] as $key => $value ) {
-			$this->campaigns_status[ $value['value'] ] = $value['label'];
+			$campaign_statuses[ $value['value'] ] = $value['label'];
 		}
 
-		return $this->campaigns_status;
+		return $campaign_statuses;
 
 	}
 
