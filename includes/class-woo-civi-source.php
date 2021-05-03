@@ -177,8 +177,8 @@ class WPCV_Woo_Civi_Source {
 		}
 
 		// Get Contribution.
-		$invoice_id = WPCV_WCI()->helper->get_invoice_id( $order_id );
-		$contribution = WPCV_WCI()->helper->get_contribution_by_invoice_id( $invoice_id );
+		$invoice_id = WPCV_WCI()->contribution->get_invoice_id( $order_id );
+		$contribution = WPCV_WCI()->contribution->get_by_invoice_id( $invoice_id );
 
 		$e = new \Exception();
 		$trace = $e->getTraceAsString();

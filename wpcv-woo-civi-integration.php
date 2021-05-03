@@ -201,16 +201,8 @@ class WPCV_Woo_Civi {
 
 		// Defer to "WooCommerce CiviCRM" if present.
 		if ( function_exists( 'WCI' ) ) {
-
-			// Include Helper class and init.
-			include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-helper.php';
-			$this->helper = new WPCV_Woo_Civi_Helper();
-
-			// Include Admin Migrate class and init.
-			include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-admin-migrate.php';
-			$this->migrate = new WPCV_Woo_Civi_Admin_Migrate();
+			$this->migrate();
 			return;
-
 		}
 
 		// Bootstrap this plugin.
@@ -240,6 +232,27 @@ class WPCV_Woo_Civi {
 		define( 'WPCV_WOO_CIVI_FILE', __FILE__ );
 		define( 'WPCV_WOO_CIVI_URL', plugin_dir_url( WPCV_WOO_CIVI_FILE ) );
 		define( 'WPCV_WOO_CIVI_PATH', plugin_dir_path( WPCV_WOO_CIVI_FILE ) );
+
+	}
+
+	/**
+	 * Bootstrap Migration functionality.
+	 *
+	 * @since 3.0
+	 */
+	private function migrate() {
+
+		// Include Helper class and init.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-helper.php';
+		$this->helper = new WPCV_Woo_Civi_Helper();
+
+		// Include Contribution class and init.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contribution.php';
+		$this->contribution = new WPCV_Woo_Civi_Contribution();
+
+		// Include Admin Migrate class and init.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-admin-migrate.php';
+		$this->migrate = new WPCV_Woo_Civi_Admin_Migrate();
 
 	}
 

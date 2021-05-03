@@ -888,7 +888,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		// Try and find the Contact ID via the Contribution ID meta.
 		$contribution_id = get_post_meta( $order_id, '_woocommerce_civicrm_contribution_id', true );
 		if ( ! empty( $contribution_id ) && is_numeric( $contribution_id ) ) {
-			$contribution = WPCV_WCI()->helper->get_contribution_by_id( $contribution_id );
+			$contribution = WPCV_WCI()->contribution->get_by_id( $contribution_id );
 			if ( ! empty( $contribution ) ) {
 				$contact_id = (int) $contribution['contact_id'];
 			}
@@ -896,8 +896,8 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// If that fails, try and find the Contact ID via the Invoice ID.
 		if ( $contact_id === false ) {
-			$invoice_id = WPCV_WCI()->helper->get_invoice_id( $order_id );
-			$contribution = WPCV_WCI()->helper->get_contribution_by_invoice_id( $invoice_id );
+			$invoice_id = WPCV_WCI()->contribution->get_invoice_id( $order_id );
+			$contribution = WPCV_WCI()->contribution->get_by_invoice_id( $invoice_id );
 			if ( ! empty( $contribution ) ) {
 				$contact_id = (int) $contribution['contact_id'];
 				// Fix Contribution ID meta while we're here.
