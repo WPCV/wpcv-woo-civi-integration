@@ -199,7 +199,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		try {
 
-			$contribution = civicrm_api3( 'Order', 'create', $params );
+			$result = civicrm_api3( 'Order', 'create', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 
@@ -221,19 +221,28 @@ class WPCV_Woo_Civi_Contribution {
 		}
 
 		// Sanity check.
-		if ( empty( $contribution['id'] ) || ! is_numeric( $contribution['id'] ) ) {
+		if ( empty( $result['id'] ) || ! is_numeric( $result['id'] ) ) {
 
 			// Write details to PHP log.
 			$e = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
 				'method' => __METHOD__,
-				'contribution' => $contribution,
+				'params' => $params,
+				'result' => $result,
 				'backtrace' => $trace,
 			], true ) );
 
 			return false;
 
+		}
+
+		// Init as empty.
+		$contribution = [];
+
+		// The result set should contain only one item.
+		if ( ! empty( $result['values'] ) ) {
+			$contribution = array_pop( $result['values'] );
 		}
 
 		return $contribution;
@@ -260,7 +269,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Get the default Financial Type & Payment Method.
 		$default_financial_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
-		$payment_instrument_id = WPCV_WCI()->payment_instrument_map( $order->get_payment_method() );
+		$payment_instrument_id = WPCV_WCI()->helper->payment_instrument_map( $order->get_payment_method() );
 
 		/* translators: %d: The numeric ID of the WooCommerce Order */
 		$trxn_id = sprintf( __( 'WooCommerce Order - %d', 'wpcv-woo-civi-integration' ), (int) $order_id );
