@@ -30,26 +30,6 @@ class WPCV_Woo_Civi_Membership {
 	public $active = false;
 
 	/**
-	 * The active Membership Types.
-	 *
-	 * Array of key/value pairs holding the active Membership Types.
-	 *
-	 * @since 2.0
-	 * @access public
-	 * @var array $financial_types The active Membership Types.
-	 */
-	public $membership_types;
-
-	/**
-	 * The CiviCRM Membership Signup OptionValue.
-	 *
-	 * @since 2.0
-	 * @access public
-	 * @var array $optionvalue_membership_signup The CiviCRM Membership Signup OptionValue.
-	 */
-	public $optionvalue_membership_signup;
-
-	/**
 	 * WooCommerce Product meta key holding the CiviCRM Membership ID.
 	 *
 	 * @since 3.0
@@ -101,6 +81,31 @@ class WPCV_Woo_Civi_Membership {
 		// Add Membership Type to Line Item.
 		add_action( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ], 10, 3 );
 
+	}
+
+	/**
+	 * Gets the Membership Type ID from WooCommerce Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $product_id The Product ID.
+	 * @return int|bool $membership_type_id The Membership Type ID, false otherwise.
+	 */
+	public function get_product_meta( $product_id ) {
+		$membership_type_id = get_post_meta( $product_id, $this->meta_key, true );
+		return $membership_type_id;
+	}
+
+	/**
+	 * Sets the CiviCRM Membership Type ID as meta data on a WooCommerce Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $product_id The Product ID.
+	 * @param int $membership_type_id The numeric ID of the Membership Type.
+	 */
+	public function set_product_meta( $product_id, $membership_type_id ) {
+		update_post_meta( $product_id, $this->meta_key, $membership_type_id );
 	}
 
 	/**
@@ -170,6 +175,14 @@ class WPCV_Woo_Civi_Membership {
 			'contact_id' => $params['contact_id'],
 		];
 
+		// FIXME: Need to add:
+		/*
+		 * New Memberships need:
+		 *
+		 * "skipStatusCal": 1,
+		 * "status_id": "Pending"
+		 */
+
 		// Apply Membership to Line Item.
 		$line_item = [
 			'params' => $line_item_params,
@@ -186,31 +199,6 @@ class WPCV_Woo_Civi_Membership {
 	}
 
 	/**
-	 * Gets the Membership Type ID from WooCommerce Product meta.
-	 *
-	 * @since 3.0
-	 *
-	 * @param int $product_id The Product ID.
-	 * @return int|bool $membership_type_id The Membership Type ID, false otherwise.
-	 */
-	public function get_product_meta( $product_id ) {
-		$membership_type_id = get_post_meta( $product_id, $this->meta_key, true );
-		return $membership_type_id;
-	}
-
-	/**
-	 * Sets the CiviCRM Membership Type ID as meta data on a WooCommerce Product.
-	 *
-	 * @since 3.0
-	 *
-	 * @param int $product_id The Product ID.
-	 * @param int $membership_type_id The numeric ID of the Membership Type.
-	 */
-	public function set_product_meta( $product_id, $membership_type_id ) {
-		update_post_meta( $product_id, $this->meta_key, $membership_type_id );
-	}
-
-	/**
 	 * Get CiviCRM Membership Types.
 	 *
 	 * @since 2.0
@@ -220,15 +208,19 @@ class WPCV_Woo_Civi_Membership {
 	public function get_membership_types() {
 
 		// Return early if already calculated.
-		if ( isset( $this->membership_types ) ) {
-			return $this->membership_types;
+		static $membership_types;
+		if ( isset( $membership_types ) ) {
+			return $membership_types;
 		}
 
-		$this->membership_types = [];
+		// Bail early if the CiviCampaign component is not active.
+		if ( ! $this->active ) {
+			return [];
+		}
 
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
-			return $this->membership_types;
+			return [];
 		}
 
 		$params = [
@@ -267,9 +259,11 @@ class WPCV_Woo_Civi_Membership {
 
 		}
 
+		$membership_types = [];
+
 		foreach ( $result['values'] as $key => $value ) {
-			$this->membership_types['by_membership_type_id'][ $value['id'] ] = $value;
-			$this->membership_types['by_financial_type_id'][ $value['financial_type_id'] ] = $value;
+			$membership_types['by_membership_type_id'][ $value['id'] ] = $value;
+			$membership_types['by_financial_type_id'][ $value['financial_type_id'] ] = $value;
 		}
 
 		/**
@@ -280,9 +274,9 @@ class WPCV_Woo_Civi_Membership {
 		 * @param array $membership_types The existing array of CiviCRM Membership Types.
 		 * @param array $result The CiviCRM API data array.
 		 */
-		$this->membership_types = apply_filters( 'wpcv_woo_civi/membership_types', $this->membership_types, $result );
+		$membership_types = apply_filters( 'wpcv_woo_civi/membership_types', $membership_types, $result );
 
-		return $this->membership_types;
+		return $membership_types;
 
 	}
 
@@ -300,14 +294,14 @@ class WPCV_Woo_Civi_Membership {
 			return [];
 		}
 
-		try {
+		$params = [
+			'is_active' => true,
+			'options' => [
+				'limit' => 0,
+			],
+		];
 
-			$params = [
-				'is_active' => true,
-				'options' => [
-					'limit' => 0,
-				],
-			];
+		try {
 
 			$result = civicrm_api3( 'MembershipType', 'get', $params );
 
@@ -406,15 +400,19 @@ class WPCV_Woo_Civi_Membership {
 	public function get_membership_signup_optionvalue() {
 
 		// Return early if already calculated.
-		if ( isset( $this->optionvalue_membership_signup ) ) {
-			return $this->optionvalue_membership_signup;
+		static $optionvalue_membership_signup;
+		if ( isset( $optionvalue_membership_signup ) ) {
+			return $optionvalue_membership_signup;
 		}
 
-		$this->optionvalue_membership_signup = false;
+		// Bail early if the CiviCampaign component is not active.
+		if ( ! $this->active ) {
+			return false;
+		}
 
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
-			return $this->optionvalue_membership_signup;
+			return false;
 		}
 
 		$params = [
@@ -438,16 +436,18 @@ class WPCV_Woo_Civi_Membership {
 				'backtrace' => $trace,
 			], true ) );
 
-			return $this->optionvalue_membership_signup;
+			return false;
 
 		}
+
+		$optionvalue_membership_signup = false;
 
 		// Sanity check.
 		if ( ! empty( $result['values'][0]['value'] ) ) {
-			$this->optionvalue_membership_signup = $result['values'][0]['value'];
+			$optionvalue_membership_signup = $result['values'][0]['value'];
 		}
 
-		return $this->optionvalue_membership_signup;
+		return $optionvalue_membership_signup;
 
 	}
 
