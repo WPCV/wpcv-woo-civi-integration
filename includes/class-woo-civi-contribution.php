@@ -493,7 +493,7 @@ class WPCV_Woo_Civi_Contribution {
 		 * @param array $params The params to be passed to the CiviCRM API.
 		 * @param object $order The WooCommerce Order object.
 		 */
-		$params = apply_filters( 'wpcv_woo_civi/order/create/params', $params, $order );
+		$params = apply_filters( 'wpcv_woo_civi/contribution/create_from_order/params', $params, $order );
 
 		// Go ahead.
 		$contribution = $this->order_create( $params );

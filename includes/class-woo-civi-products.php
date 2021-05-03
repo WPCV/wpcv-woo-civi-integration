@@ -56,8 +56,8 @@ class WPCV_Woo_Civi_Products {
 	public function register_hooks() {
 
 		// Add Line Items to Order.
-		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'items_get_for_order' ], 30, 2 );
-		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'shipping_get_for_order' ], 40, 2 );
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'items_get_for_order' ], 30, 2 );
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'shipping_get_for_order' ], 40, 2 );
 
 	}
 

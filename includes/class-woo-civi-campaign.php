@@ -82,7 +82,7 @@ class WPCV_Woo_Civi_Campaign {
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ], 20 );
 
 		// Add Campaign ID to Order.
-		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'campaign_get_for_order' ], 20, 2 );
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'campaign_get_for_order' ], 20, 2 );
 
 		// Add Campaign ID to plugin settings fields.
 		add_filter( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', [ $this, 'campaign_settings_add' ] );

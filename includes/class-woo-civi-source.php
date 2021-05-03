@@ -65,8 +65,8 @@ class WPCV_Woo_Civi_Source {
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ] );
 
-		// Add Source ID to Order.
-		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'source_get_for_order' ], 20, 2 );
+		// Add Source to Order.
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'source_get_for_order' ], 20, 2 );
 
 		// Show Source on Orders listing screen.
 		add_filter( 'manage_shop_order_posts_columns', [ $this, 'columns_head' ], 30 );
