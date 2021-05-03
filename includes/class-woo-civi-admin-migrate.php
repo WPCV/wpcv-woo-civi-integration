@@ -128,7 +128,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			// Show general "Call to Action".
 			$message = sprintf(
 				__( 'You can now deactivate %1$sWooCommerce CiviCRM%2$s.', 'wpcv-woo-civi-integration' ),
-				'<strong>', '</strong>',
+				'<strong>', '</strong>'
 			);
 
 			// Add a link if we are not on the "Plugins" page.
