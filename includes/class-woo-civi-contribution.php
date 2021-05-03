@@ -342,6 +342,7 @@ class WPCV_Woo_Civi_Contribution {
 		 *
 		 * Used internally by:
 		 *
+		 * * WPCV_Woo_Civi_Order::note_add_contribution_created() (Priority: 10)
 		 * * WPCV_Woo_Civi_UTM::utm_cookies_delete() (Priority: 10)
 		 *
 		 * @since 3.0

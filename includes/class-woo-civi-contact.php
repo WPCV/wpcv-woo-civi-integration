@@ -99,6 +99,8 @@ class WPCV_Woo_Civi_Contact {
 		/**
 		 * Broadcast that this class is loaded.
 		 *
+		 * Used internally by included classes in order to bootstrap.
+		 *
 		 * @since 3.0
 		 */
 		do_action( 'wpcv_woo_civi/contact/loaded' );

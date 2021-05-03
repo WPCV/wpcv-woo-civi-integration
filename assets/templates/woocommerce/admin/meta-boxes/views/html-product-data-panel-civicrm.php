@@ -34,6 +34,10 @@ defined( 'ABSPATH' ) || exit;
 		/**
 		 * Fires at the end of the "CiviCRM Settings" Product Tab.
 		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Membership::panel_add_markup() (Priority: 10)
+		 *
 		 * @since 3.0
 		 */
 		do_action( 'wpcv_woo_civi/product/panel/civicrm/after' );

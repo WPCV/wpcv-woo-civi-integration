@@ -221,6 +221,8 @@ class WPCV_Woo_Civi {
 		/**
 		 * Broadcast that this plugin is loaded.
 		 *
+		 * Used internally by included classes in order to bootstrap.
+		 *
 		 * @since 2.0
 		 */
 		do_action( 'wpcv_woo_civi/loaded' );
