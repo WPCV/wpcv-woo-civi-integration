@@ -65,7 +65,7 @@ class WPCV_Woo_Civi_Source {
 		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'order_processed' ], 10, 2 );
 
 		// Add CiviCRM options to Edit Order screen.
-		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_data_additions' ] );
+		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ] );
 
 		// Add Source ID to Order.
 		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'source_get_for_order' ], 20, 2 );
@@ -379,13 +379,13 @@ class WPCV_Woo_Civi_Source {
 	}
 
 	/**
-	 * Adds a form field to set a Source.
+	 * Adds a form field to set a Source for the Order.
 	 *
 	 * @since 2.2
 	 *
 	 * @param object $order The WooCommerce Order object.
 	 */
-	public function order_data_additions( $order ) {
+	public function order_details_add( $order ) {
 
 		$order_source = $this->get_order_meta( $order->get_id() );
 		if ( false === $order_source ) {
@@ -398,7 +398,7 @@ class WPCV_Woo_Civi_Source {
 
 		?>
 		<p class="form-field form-field-wide wc-civicrmsource">
-			<label for="order_civicrmsource"><?php esc_html_e( 'CiviCRM Source', 'wpcv-woo-civi-integration' ); ?></label>
+			<label for="order_civicrmsource"><?php esc_html_e( 'CiviCRM Source:', 'wpcv-woo-civi-integration' ); ?></label>
 			<input type="text" list="sources" id="order_civicrmsource" name="order_civicrmsource" data-placeholder="<?php esc_attr_e( 'CiviCRM Source', 'wpcv-woo-civi-integration' ); ?>" value="<?php echo esc_attr( $order_source ); ?>">
 			<datalist id="sources">
 				<?php if ( count( $results ) > 0 ) : ?>

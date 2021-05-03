@@ -318,6 +318,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 3.0
 	 *
+	 * @param string $invoice_id The Invoice ID.
 	 * @return array $result The CiviCRM Contribution data, or empty on failure.
 	 */
 	public function get_contribution_by_invoice_id( $invoice_id ) {
@@ -388,6 +389,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 3.0
 	 *
+	 * @param int $contribution_id The numeric ID of the CiviCRM Contribution.
 	 * @return array $result The CiviCRM Contribution data, or empty on failure.
 	 */
 	public function get_contribution_by_id( $contribution_id ) {
@@ -509,6 +511,34 @@ class WPCV_Woo_Civi_Helper {
 		];
 
 		return $default_contribution_amount_data;
+
+	}
+
+	/**
+	 * Maps a WooCommerce payment method to a CiviCRM payment instrument.
+	 *
+	 * @since 2.0
+	 *
+	 * @param string $payment_method The WooCommerce payment method.
+	 * @return int $id The CiviCRM payment processor ID.
+	 */
+	public function payment_instrument_map( $payment_method ) {
+
+		$map = [
+			'paypal' => 1,
+			'cod' => 3,
+			'cheque' => 4,
+			'bacs' => 5,
+		];
+
+		if ( array_key_exists( $payment_method, $map ) ) {
+			$id = $map[ $payment_method ];
+		} else {
+			// Another WooCommerce payment method - good chance this is credit.
+			$id = 1;
+		}
+
+		return $id;
 
 	}
 

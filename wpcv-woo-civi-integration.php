@@ -81,13 +81,22 @@ class WPCV_Woo_Civi {
 	public $contact;
 
 	/**
+	 * WooCommerce Contribution object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $contribution The CiviCRM Contribution integration object.
+	 */
+	public $contribution;
+
+	/**
 	 * WooCommerce Order integration object.
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $orders The WooCommerce Order integration object.
+	 * @var object $order The WooCommerce Order integration object.
 	 */
-	public $orders;
+	public $order;
 
 	/**
 	 * Source management object.
@@ -252,8 +261,10 @@ class WPCV_Woo_Civi {
 		// Include Contact class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contact.php';
 
-		// Include Orders class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-orders.php';
+		// Include Contribution class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contribution.php';
+		// Include Order class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-order.php';
 		// Include Source class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-source.php';
 		// Include UTM class.
@@ -291,8 +302,10 @@ class WPCV_Woo_Civi {
 		// Init Contact object.
 		$this->contact = new WPCV_Woo_Civi_Contact();
 
-		// Init Orders object.
-		$this->orders = new WPCV_Woo_Civi_Orders();
+		// Init Contribution object.
+		$this->contribution = new WPCV_Woo_Civi_Contribution();
+		// Init Order object.
+		$this->order = new WPCV_Woo_Civi_Order();
 		// Init Source object.
 		$this->source = new WPCV_Woo_Civi_Source();
 		// Init UTM object.

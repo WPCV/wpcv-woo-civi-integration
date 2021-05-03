@@ -121,6 +121,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @param array $params The existing array of params for the CiviCRM API.
 	 * @param object $order The Order object.
+	 * @param array $items The array of Items in the Order.
 	 * @return array $params The modified array of params for the CiviCRM API.
 	 */
 	public function items_build_for_order( $params, $order, $items ) {
@@ -211,11 +212,13 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
+	 * @param array $params The array of params.
 	 * @param object $order The Order object.
 	 * @param array $items The array of Items in the Order.
 	 */
 	public function shipping_build_for_order( $params, $order, $items ) {
+
+		// FIXME: Not implemented.
 
 		// Grab Shipping cost and sanity check.
 		$shipping_cost = $order->get_total_shipping();

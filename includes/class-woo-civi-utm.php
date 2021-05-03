@@ -54,8 +54,8 @@ class WPCV_Woo_Civi_UTM {
 	 */
 	public function register_hooks() {
 
-		// Flush cookies when a Contribution has been created.
-		add_action( 'wpcv_woo_civi/order/created', [ $this, 'utm_cookies_delete' ] );
+		// Flush cookies when a Contribution has been created from an Order.
+		add_action( 'wpcv_woo_civi/contribution/create_from_order', [ $this, 'utm_cookies_delete' ] );
 
 		// Save UTM Campaign cookie content to the Order post meta.
 		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'utm_to_order' ], 20 );

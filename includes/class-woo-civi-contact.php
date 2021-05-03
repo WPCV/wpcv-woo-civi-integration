@@ -734,7 +734,6 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $contact_id The numeric ID if the CiviCRM Contact.
 	 * @param object $order The Order object.
 	 * @return int|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
 	 */
@@ -790,7 +789,7 @@ class WPCV_Woo_Civi_Contact {
 		 *
 		 * Used internally by:
 		 *
-		 * * WPCV_Woo_Civi_Orders::note_add_contact_created() (Priority: 10)
+		 * * WPCV_Woo_Civi_Order::note_add_contact_created() (Priority: 10)
 		 * * WPCV_Woo_Civi_Contact_Email::entities_create() (Priority: 20)
 		 * * WPCV_Woo_Civi_Contact_Phone::entities_create() (Priority: 30)
 		 * * WPCV_Woo_Civi_Contact_Address::entities_create() (Priority: 40)
@@ -887,7 +886,7 @@ class WPCV_Woo_Civi_Contact {
 		 *
 		 * Used internally by:
 		 *
-		 * * WPCV_Woo_Civi_Orders::note_add_contact_updated() (Priority: 10)
+		 * * WPCV_Woo_Civi_Order::note_add_contact_updated() (Priority: 10)
 		 * * WPCV_Woo_Civi_Contact_Email::entities_update() (Priority: 20)
 		 * * WPCV_Woo_Civi_Contact_Phone::entities_update() (Priority: 30)
 		 * * WPCV_Woo_Civi_Contact_Address::entities_update() (Priority: 40)

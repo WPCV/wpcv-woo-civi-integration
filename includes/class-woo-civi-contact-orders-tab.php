@@ -349,7 +349,6 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 
 				$orders[ $order_id ]['order_number'] = $order_id;
 				$orders[ $order_id ]['order_date'] = date_i18n( $date_format, strtotime( $order->post_date ) );
-				//$orders[ $order_id ]['order_date'] = $order->get_date_created()->date_i18n($date_format);
 				$orders[ $order_id ]['order_billing_name'] = get_post_meta( $order_id, '_billing_first_name', true ) . ' ' . get_post_meta( $order_id, '_billing_last_name', true );
 				$orders[ $order_id ]['order_shipping_name'] = get_post_meta( $order_id, '_shipping_first_name', true ) . ' ' . get_post_meta( $order_id, '_shipping_last_name', true );
 				$orders[ $order_id ]['item_count'] = '--';
@@ -372,8 +371,7 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 			$total = $order->get_total();
 
 			$orders[ $order_id ]['order_number'] = $order->get_order_number();
-			$orders[ $order_id ]['order_date'] = date_i18n( $date_format, strtotime( $order->get_date_created() ) );
-			//$orders[ $order_id ]['order_date'] = $order->get_date_created()->date_i18n( $date_format );
+			$orders[ $order_id ]['order_date'] = $order->get_date_created()->date_i18n( $date_format );
 			$orders[ $order_id ]['order_billing_name'] = $order->get_formatted_billing_full_name();
 			$orders[ $order_id ]['order_shipping_name'] = $order->get_formatted_shipping_full_name();
 			$orders[ $order_id ]['item_count'] = $item_count;

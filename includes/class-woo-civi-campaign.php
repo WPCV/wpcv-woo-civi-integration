@@ -106,7 +106,7 @@ class WPCV_Woo_Civi_Campaign {
 		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 10, 2 );
 
 		// Add CiviCRM options to Edit Order screen.
-		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_data_additions' ], 20 );
+		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ], 20 );
 
 		// Add Campaign ID to Order.
 		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'campaign_get_for_order' ], 20, 2 );
@@ -808,13 +808,13 @@ class WPCV_Woo_Civi_Campaign {
 	}
 
 	/**
-	 * Adds a form field to set a Campaign.
+	 * Adds a form field to set a Campaign for the Order.
 	 *
 	 * @since 2.2
 	 *
 	 * @param object $order The WooCommerce Order object.
 	 */
-	public function order_data_additions( $order ) {
+	public function order_details_add( $order ) {
 
 		wp_enqueue_script(
 			'wccivi_admin_order',
@@ -851,7 +851,7 @@ class WPCV_Woo_Civi_Campaign {
 
 		?>
 		<p class="form-field form-field-wide wc-civicrmcampaign">
-			<label for="order_civicrmcampaign"><?php esc_html_e( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ); ?></label>
+			<label for="order_civicrmcampaign"><?php esc_html_e( 'CiviCRM Campaign:', 'wpcv-woo-civi-integration' ); ?></label>
 			<select id="order_civicrmcampaign" name="order_civicrmcampaign" data-placeholder="<?php esc_attr( __( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ) ); ?>">
 				<option value=""></option>
 				<?php foreach ( $campaign_list as $campaign_id => $campaign_name ) : ?>
