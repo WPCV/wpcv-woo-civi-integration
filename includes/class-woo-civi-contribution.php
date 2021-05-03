@@ -310,7 +310,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Override Financial Type if Order has a tax value.
 		// FIXME: This could be done via the filter below.
-		$params = $this->tax_add_to_order( $params, $order );
+		$params = $this->tax_add( $params, $order );
 
 		/**
 		 * Filter the Contribution params before calling the CiviCRM API.
@@ -365,7 +365,7 @@ class WPCV_Woo_Civi_Contribution {
 	 * @param object $order The Order object.
 	 * @return array $params The modified array of params for the CiviCRM API.
 	 */
-	public function tax_add_to_order( $params, $order ) {
+	public function tax_add( $params, $order ) {
 
 		// Bail if we can't get the Monetary settings.
 		$decimal_separator = WPCV_WCI()->helper->get_decimal_separator();
