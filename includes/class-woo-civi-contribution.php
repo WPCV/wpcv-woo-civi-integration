@@ -307,7 +307,7 @@ class WPCV_Woo_Civi_Contribution {
 			'contribution_status_id' => 'Pending',
 		];
 
-		// Override Financial Type if Order has a tax value.
+		// Modify params when the Order has a tax value.
 		// FIXME: This could be done via the filter below.
 		$params = $this->tax_add( $params, $order );
 

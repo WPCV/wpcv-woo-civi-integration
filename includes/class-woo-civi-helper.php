@@ -100,7 +100,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 *
-	 * @return array $financial_types The array of CiviCRM Financial Types.
+	 * @return array $financial_types The array of CiviCRM Financial Types keyed by ID.
 	 */
 	public function get_financial_types() {
 
@@ -443,74 +443,6 @@ class WPCV_Woo_Civi_Helper {
 		$contribution = array_pop( $result['values'] );
 
 		return $contribution;
-
-	}
-
-	/**
-	 * Get the default Contribution amount data.
-	 *
-	 * Values retrieved are: price set, price_field, and price field value.
-	 *
-	 * @since 2.4
-	 *
-	 * @return array $default_contribution_amount_data The default Contribution amount data.
-	 */
-	public function get_default_contribution_price_field_data() {
-
-		static $default_contribution_amount_data;
-		if ( isset( $default_contribution_amount_data ) ) {
-			return $default_contribution_amount_data;
-		}
-
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return null;
-		}
-
-		try {
-
-			$params = [
-				'name' => 'default_contribution_amount',
-				'is_reserved' => true,
-				'api.PriceField.getsingle' => [
-					'price_set_id' => "\$value.id",
-					'options' => [
-						'limit' => 1,
-						'sort' => 'id ASC',
-					],
-				],
-			];
-
-			$price_set = civicrm_api3( 'PriceSet', 'getsingle', $params );
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Price Set', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'backtrace' => $trace,
-			], true ) );
-
-			return null;
-
-		}
-
-		$price_field = $price_set['api.PriceField.getsingle'];
-		unset( $price_set['api.PriceField.getsingle'] );
-
-		$default_contribution_amount_data = [
-			'price_set' => $price_set,
-			'price_field' => $price_field,
-		];
-
-		return $default_contribution_amount_data;
 
 	}
 

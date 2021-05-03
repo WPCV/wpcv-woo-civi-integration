@@ -149,7 +149,7 @@ class WPCV_Woo_Civi_Products_Tab {
 		echo '<br>';
 
 		// If there's a specific Financial Type for this Product, use it.
-		if ( null !== $product_contribution_type_id && isset( $financial_types[ $product_contribution_type_id ] ) ) {
+		if ( $product_contribution_type_id !== 0 && isset( $financial_types[ $product_contribution_type_id ] ) ) {
 			echo esc_html( $financial_types[ $product_contribution_type_id ] );
 			return;
 		}

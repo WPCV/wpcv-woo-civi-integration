@@ -132,8 +132,10 @@ class WPCV_Woo_Civi_Products {
 			return $params;
 		}
 
-		// TODO: Error checking.
-		$default_contribution_amount_data = WPCV_WCI()->helper->get_default_contribution_price_field_data();
+		$default_price_set_data = $this->get_default_price_set_data();
+		if ( empty( $default_price_set_data ) ) {
+			return $params;
+		}
 
 		$decimal_separator = WPCV_WCI()->helper->get_decimal_separator();
 		$thousand_separator = WPCV_WCI()->helper->get_thousand_separator();
@@ -161,7 +163,7 @@ class WPCV_Woo_Civi_Products {
 			}
 
 			$line_item_data = [
-				'price_field_id' => $default_contribution_amount_data['price_field']['id'],
+				'price_field_id' => $default_price_set_data['price_field']['id'],
 				'qty' => $item['qty'],
 				'line_total' => number_format( $item['line_total'], 2, $decimal_separator, $thousand_separator ),
 				'unit_price' => number_format( $item['line_total'] / $item['qty'], 2, $decimal_separator, $thousand_separator ),
@@ -177,6 +179,10 @@ class WPCV_Woo_Civi_Products {
 
 			/**
 			 * Filter the Line Item.
+			 *
+			 * Used internally by:
+			 *
+			 * * WPCV_Woo_Civi_Membership::line_item_filter() (Priority: 10)
 			 *
 			 * @since 3.0
 			 *
@@ -209,7 +215,7 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
-	 * Gets the Line Items for an Order.
+	 * Gets the Shipping Line Item for an Order.
 	 *
 	 * @since 3.0
 	 *
@@ -219,12 +225,14 @@ class WPCV_Woo_Civi_Products {
 	 */
 	public function shipping_get_for_order( $params, $order, $items ) {
 
-		// FIXME: Not implemented.
+		// Bail if no Items.
+		if ( empty( $items ) ) {
+			return $params;
+		}
 
-		// Grab Shipping cost and sanity check.
-		$shipping_cost = $order->get_total_shipping();
-		if ( empty( $shipping_cost ) ) {
-			$shipping_cost = 0;
+		$default_price_set_data = $this->get_default_price_set_data();
+		if ( empty( $default_price_set_data ) ) {
+			return $params;
 		}
 
 		$decimal_separator = WPCV_WCI()->helper->get_decimal_separator();
@@ -233,17 +241,41 @@ class WPCV_Woo_Civi_Products {
 			return $params;
 		}
 
+		// Grab Shipping cost and sanity check.
+		$shipping_cost = $order->get_total_shipping();
+		if ( empty( $shipping_cost ) ) {
+			$shipping_cost = 0;
+		}
+
 		// Ensure number format is CiviCRM-compliant.
 		$shipping_cost = number_format( $shipping_cost, 2, $decimal_separator, $thousand_separator );
 		if ( ! ( floatval( $shipping_cost ) > 0 ) ) {
-			return;
+			return $params;
 		}
-
-		// TODO: Error checking.
-		$default_contribution_amount_data = WPCV_WCI()->helper->get_default_contribution_price_field_data();
 
 		// Get the default Financial Type Shipping ID.
 		$default_financial_type_shipping_id = get_option( 'woocommerce_civicrm_financial_type_shipping_id' );
+
+		// Needs to be defined in Settings.
+		if ( empty( $default_financial_type_shipping_id ) ) {
+
+			// Write message to CiviCRM log.
+			$message = __( 'There must be a default Shipping Financial Type set.', 'wpcv-woo-civi-integration' );
+			CRM_Core_Error::debug_log_message( $message );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'message' =>  $message,
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
+			return $params;
+
+		}
 
 		/*
 		 * Line item for shipping.
@@ -254,7 +286,7 @@ class WPCV_Woo_Civi_Products {
 		$params['line_items'][0] = [
 			'line_item' => [
 				[
-					'price_field_id' => $default_contribution_amount_data['price_field']['id'],
+					'price_field_id' => $default_price_set_data['price_field']['id'],
 					'qty' => 1,
 					'line_total' => $shipping_cost,
 					'unit_price' => $shipping_cost,
@@ -263,6 +295,76 @@ class WPCV_Woo_Civi_Products {
 				]
 			],
 		];
+
+		return $params;
+
+	}
+
+	/**
+	 * Get the Contribution amount data from default Price Set.
+	 *
+	 * Values retrieved are: price set, price_field, and price field value.
+	 *
+	 * @since 2.4
+	 *
+	 * @return array $default_price_set_data The default Price Set data.
+	 */
+	public function get_default_price_set_data() {
+
+		static $default_price_set_data;
+		if ( isset( $default_price_set_data ) ) {
+			return $default_price_set_data;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
+
+		$params = [
+			'name' => 'default_contribution_amount',
+			'is_reserved' => true,
+			'api.PriceField.getsingle' => [
+				'price_set_id' => "\$value.id",
+				'options' => [
+					'limit' => 1,
+					'sort' => 'id ASC',
+				],
+			],
+		];
+
+		try {
+
+			$price_set = civicrm_api3( 'PriceSet', 'getsingle', $params );
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Price Set', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
+			return [];
+
+		}
+
+		$price_field = $price_set['api.PriceField.getsingle'];
+		unset( $price_set['api.PriceField.getsingle'] );
+
+		$default_price_set_data = [
+			'price_set' => $price_set,
+			'price_field' => $price_field,
+		];
+
+		return $default_price_set_data;
 
 	}
 
