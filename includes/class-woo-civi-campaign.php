@@ -511,9 +511,10 @@ class WPCV_Woo_Civi_Campaign {
 
 		$options['woocommerce_civicrm_campaign_id'] = [
 			'name' => __( 'Default Campaign', 'wpcv-woo-civi-integration' ),
+			'desc' => __( 'The default Campaign can be overridden on individual Orders.', 'wpcv-woo-civi-integration' ),
 			'type' => 'select',
 			'options' => $this->get_campaigns(),
-			'id'   => 'woocommerce_civicrm_campaign_id',
+			'id' => 'woocommerce_civicrm_campaign_id',
 		];
 
 		return $options;
