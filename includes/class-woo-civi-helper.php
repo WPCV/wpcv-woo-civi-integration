@@ -584,7 +584,6 @@ class WPCV_Woo_Civi_Helper {
 			true // CMS back end.
 		);
 
-		// --<
 		return $link;
 
 	}

@@ -451,7 +451,6 @@ class WPCV_Woo_Civi {
 		// Test if network active.
 		$is_network_active = is_plugin_active_for_network( $this_plugin );
 
-		// --<
 		return $is_network_active;
 
 	}

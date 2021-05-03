@@ -534,7 +534,6 @@ class WPCV_Woo_Civi_Contact_Address {
 			$addresses[] = (object) $item;
 		}
 
-		// --<
 		return $addresses;
 
 	}
@@ -580,7 +579,6 @@ class WPCV_Woo_Civi_Contact_Address {
  		// The result set should contain only one item.
 		$address = (object) array_pop( $result['values'] );
 
-		// --<
 		return $address;
 
 	}
@@ -629,7 +627,6 @@ class WPCV_Woo_Civi_Contact_Address {
  		// The result set should contain only one item.
 		$address = (object) array_pop( $result['values'] );
 
-		// --<
 		return $address;
 
 	}
@@ -677,7 +674,6 @@ class WPCV_Woo_Civi_Contact_Address {
 			$addresses[] = (object) $item;
 		}
 
-		// --<
 		return $addresses;
 
 	}

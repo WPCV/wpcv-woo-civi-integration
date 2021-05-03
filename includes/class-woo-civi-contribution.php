@@ -148,7 +148,6 @@ class WPCV_Woo_Civi_Contribution {
 			$contribution_data = array_pop( $result['values'] );
 		}
 
-		// --<
 		return $contribution_data;
 
 	}

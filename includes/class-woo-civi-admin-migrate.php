@@ -349,7 +349,6 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			$target_url = htmlentities( $url_raw . '&updated=true' );
 		}
 
-		// --<
 		return $target_url;
 
 	}
@@ -948,7 +947,6 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		}
 
-		// --<
 		return $offset;
 
 	}

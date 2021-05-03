@@ -655,7 +655,6 @@ class WPCV_Woo_Civi_Contact {
 			$contact_data['contact_id'] = $contact_data['id'];
 		}
 
-		// --<
 		return $contact_data;
 
 	}
