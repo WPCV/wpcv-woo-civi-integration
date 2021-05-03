@@ -55,8 +55,9 @@ class WPCV_Woo_Civi_Products {
 	 */
 	public function register_hooks() {
 
-		// Add Source ID to Order.
+		// Add Line Items to Order.
 		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'items_get_for_order' ], 30, 2 );
+		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'shipping_get_for_order' ], 40, 2 );
 
 	}
 
@@ -216,7 +217,7 @@ class WPCV_Woo_Civi_Products {
 	 * @param object $order The Order object.
 	 * @param array $items The array of Items in the Order.
 	 */
-	public function shipping_build_for_order( $params, $order, $items ) {
+	public function shipping_get_for_order( $params, $order, $items ) {
 
 		// FIXME: Not implemented.
 
