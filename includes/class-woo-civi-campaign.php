@@ -112,7 +112,7 @@ class WPCV_Woo_Civi_Campaign {
 		add_filter( 'wpcv_woo_civi/order/create/params', [ $this, 'campaign_get_for_order' ], 20, 2 );
 
 		// Add Campaign ID to plugin settings fields.
-		add_filter( 'wpcv_woo_civi/admin_settings/fields/selects', [ $this, 'campaign_settings_add' ] );
+		add_filter( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', [ $this, 'campaign_settings_add' ] );
 
 		// Show Campaign on Orders listing screen.
 		add_filter( 'manage_shop_order_posts_columns', [ $this, 'columns_head' ], 20 );
@@ -521,7 +521,7 @@ class WPCV_Woo_Civi_Campaign {
 	}
 
 	/**
-	 * Gets the CiviCRM Campagin ID for an Order.
+	 * Gets the CiviCRM Campaign ID for an Order.
 	 *
 	 * @since 3.0
 	 *
@@ -824,12 +824,13 @@ class WPCV_Woo_Civi_Campaign {
 			true
 		);
 
+		// If there is no Campaign selected, select the plugin default.
 		$order_campaign = $this->get_order_meta( $order->get_id() );
-
-		// If there is no Campaign selected, select the default one as defined on our Settings page.
-		if ( '' === $order_campaign || false === $order_campaign ) {
-			// Get the global CiviCRM Campaign ID.
-			$order_campaign = get_option( 'woocommerce_civicrm_campaign_id' );
+		if ( empty( $order_campaign ) ) {
+			$global_campaign = get_option( 'woocommerce_civicrm_campaign_id' );
+			if ( ! empty( $global_campaign ) ) {
+				$order_campaign = $global_campaign;
+			}
 		}
 
 		/**
@@ -855,7 +856,7 @@ class WPCV_Woo_Civi_Campaign {
 			<select id="order_civicrmcampaign" name="order_civicrmcampaign" data-placeholder="<?php esc_attr( __( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ) ); ?>">
 				<option value=""></option>
 				<?php foreach ( $campaign_list as $campaign_id => $campaign_name ) : ?>
-					<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php selected( $campaign_id, $order_campaign, true ); ?>><?php echo esc_html( $campaign_name ); ?></option>
+					<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php selected( $order_campaign, $campaign_id ); ?>><?php echo esc_html( $campaign_name ); ?></option>
 				<?php endforeach; ?>
 			</select>
 		</p>
