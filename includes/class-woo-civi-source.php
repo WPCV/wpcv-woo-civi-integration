@@ -55,10 +55,8 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function register_hooks() {
 
-		// Hook into new WooCommerce Orders with CiviCRM data.
-		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
-
-		// Allow Source to be set on Order in WordPress admin.
+		// Allow Source to be set on Orders in WordPress admin.
+		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_updated' ], 10, 2 );
 		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 10, 2 );
 
 		// Hook into WooCommerce Order processed.
@@ -106,7 +104,11 @@ class WPCV_Woo_Civi_Source {
 	}
 
 	/**
-	 * Performs necessary actions when a WooCommerce Order is updated.
+	 * Called when a WooCommerce Order is updated in WordPress admin.
+	 *
+	 * This fires before "order_processed()" so things can get a bit confusing
+	 * since "order_processed()" is called in both the Checkout and by the
+	 * "New Order" screen in WordPress admin.
 	 *
 	 * @since 3.0
 	 *
@@ -115,27 +117,23 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function order_updated( $order_id, $order ) {
 
-		// Use same method as for new Orders for now.
-		$this->order_new( $order_id, $order );
-
-	}
-
-	/**
-	 * Performs necessary actions when a WooCommerce Order is created.
-	 *
-	 * @since 3.0
-	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
-	 */
-	public function order_new( $order_id, $order ) {
+		if ( ! is_admin() ) {
+			return;
+		}
 
 		// Add the Source to Order.
-		$current_civicrmsource = $this->get_order_meta( $order_id );
-		$new_civicrmsource = filter_input( INPUT_POST, 'order_civicrmsource', FILTER_SANITIZE_STRING );
-		if ( false !== $new_civicrmsource && $new_civicrmsource !== $current_civicrmsource ) {
-			$this->source_update( $order_id, $new_civicrmsource );
-			$this->set_order_meta( $order_id, esc_attr( $new_civicrmsource ) );
+		$current_source = $this->get_order_meta( $order_id );
+		$new_source = filter_input( INPUT_POST, 'order_civicrmsource', FILTER_SANITIZE_STRING );
+
+		// Generate a Source if there isn't one.
+		if ( empty( $new_source ) ) {
+			$new_source = $this->source_generate( $order );
+			$this->set_order_meta( $order_id, esc_attr( $new_source ) );
+		}
+
+		// Update the Contribution.
+		if ( $new_source !== $current_source ) {
+			$this->source_update( $order_id, $new_source );
 		}
 
 	}
@@ -150,9 +148,15 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function order_processed( $order_id, $order ) {
 
-		$source = $this->source_generate( $order );
+		// Generate a Source if there isn't one.
+		$source = $this->get_order_meta( $order_id );
+		if ( empty( $source ) ) {
+			$source = $this->source_generate( $order );
+			$this->set_order_meta( $order_id, $source );
+		}
+
+		// Update the Contribution.
 		$this->source_update( $order_id, $source );
-		$this->set_order_meta( $order_id, $source );
 
 	}
 
@@ -175,6 +179,16 @@ class WPCV_Woo_Civi_Source {
 		// Get Contribution.
 		$invoice_id = WPCV_WCI()->helper->get_invoice_id( $order_id );
 		$contribution = WPCV_WCI()->helper->get_contribution_by_invoice_id( $invoice_id );
+
+		$e = new \Exception();
+		$trace = $e->getTraceAsString();
+		error_log( print_r( [
+			'method' => __METHOD__,
+			'order_id' => $order_id,
+			'contribution' => $contribution,
+			//'backtrace' => $trace,
+		], true ) );
+
 		if ( empty( $contribution ) ) {
 			return false;
 		}
