@@ -179,6 +179,9 @@ class WPCV_Woo_Civi_Orders {
 
 		// Add the Contribution record.
 		$contribution = $this->contribution_create( $order );
+		if ( $contribution === false ) {
+			return false;
+		}
 
 		/**
 		 * Broadcast that a Contribution record has been added for a new WooCommerce Order.
@@ -298,8 +301,9 @@ class WPCV_Woo_Civi_Orders {
 
 		// Get the Contact ID associated with this Order.
 		$contact_id = WPCV_WCI()->contact->get_id_by_order( $order );
-
-		// FIXME: Error check?
+		if ( empty( $contact_id ) ) {
+			return false;
+		}
 
 		// Init Order params.
 		$params = [
@@ -371,6 +375,11 @@ class WPCV_Woo_Civi_Orders {
 
 		}
 
+		// Save Contribution ID in post meta.
+		$this->set_order_meta( $order_id, $contribution['id'] );
+
+		// TODO: Move Order Note to 'wpcv_woo_civi/order/created' action?
+
 		// Add an Order note with reference to the created Contribution.
 		$link = WPCV_WCI()->helper->get_civi_admin_link(
 			'civicrm/contact/view/contribution',
@@ -384,9 +393,6 @@ class WPCV_Woo_Civi_Orders {
 		);
 
 		$order->add_order_note( $note );
-
-		// Save Contribution ID in post meta.
-		$this->set_order_meta( $order_id, $contribution['id'] );
 
 		/**
 		 * Broadcast that a Contribution has been created.
