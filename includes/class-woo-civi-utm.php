@@ -2,7 +2,7 @@
 /**
  * Urchin Tracking Module class.
  *
- * Handles integration of Urchin Tracking Module when CiviCAmpaing is enabled.
+ * Handles integration of Urchin Tracking Module when CiviCampaign is enabled.
  *
  * @package WPCV_Woo_Civi
  * @since 3.0
