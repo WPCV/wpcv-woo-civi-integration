@@ -198,25 +198,25 @@ class WPCV_Woo_Civi_Helper {
 	 */
 	public function get_decimal_separator() {
 
+		// Return early if already calculated.
+		static $decimal_separator;
+		if ( isset( $decimal_separator ) ) {
+			return $decimal_separator;
+		}
+
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
 			return false;
 		}
 
-		$decimal_separator = '.';
+		$params = [
+			'sequential' => 1,
+			'name' => 'monetaryDecimalPoint',
+		];
 
 		try {
 
-			$params = [
-				'sequential' => 1,
-				'name' => 'monetaryDecimalPoint',
-			];
-
 			$result = civicrm_api3( 'Setting', 'getvalue', $params );
-
-			if ( is_string( $result ) ) {
-				$decimal_separator = $result;
-			}
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 
@@ -237,6 +237,12 @@ class WPCV_Woo_Civi_Helper {
 
 		}
 
+		$decimal_separator = '.';
+
+		if ( is_string( $result ) ) {
+			$decimal_separator = $result;
+		}
+
 		return $decimal_separator;
 
 	}
@@ -250,25 +256,25 @@ class WPCV_Woo_Civi_Helper {
 	 */
 	public function get_thousand_separator() {
 
+		// Return early if already calculated.
+		static $thousand_separator;
+		if ( isset( $thousand_separator ) ) {
+			return $thousand_separator;
+		}
+
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
 			return false;
 		}
 
-		$thousand_separator = '';
+		$params = [
+			'sequential' => 1,
+			'name' => 'monetaryThousandSeparator',
+		];
 
 		try {
 
-			$params = [
-				'sequential' => 1,
-				'name' => 'monetaryThousandSeparator',
-			];
-
 			$result = civicrm_api3( 'Setting', 'getvalue', $params );
-
-			if ( is_string( $result ) ) {
-				$thousand_separator = $result;
-			}
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 
@@ -289,7 +295,36 @@ class WPCV_Woo_Civi_Helper {
 
 		}
 
+		$thousand_separator = '';
+
+		if ( is_string( $result ) ) {
+			$thousand_separator = $result;
+		}
+
 		return $thousand_separator;
+
+	}
+
+	/**
+	 * Converts a number to CiviCRM-compliant number format.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int|float $number The WooCommerce number.
+	 * @return float $civicrm_number The CiviCRM-compliant number.
+	 */
+	public function get_civicrm_float( $number ) {
+
+		// Return incoming value on error.
+		$decimal_separator = $this->get_decimal_separator();
+		$thousand_separator = $this->get_thousand_separator();
+		if ( $decimal_separator === false || $thousand_separator === false ) {
+			return $number;
+		}
+
+		$civicrm_number = number_format( $number, 2, $decimal_separator, $thousand_separator );
+
+		return $civicrm_number;
 
 	}
 
