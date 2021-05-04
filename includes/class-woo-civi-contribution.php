@@ -403,17 +403,6 @@ class WPCV_Woo_Civi_Contribution {
 
 		}
 
-		///*
-		$e = new \Exception();
-		$trace = $e->getTraceAsString();
-		error_log( print_r( [
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-			//'backtrace' => $trace,
-		], true ) );
-		//*/
-
 		// Init as empty.
 		$contribution = [];
 
