@@ -694,7 +694,14 @@ class WPCV_Woo_Civi_Campaign {
 			return;
 		}
 
-		echo ( ! empty( $campaign['name'] ) ) ? esc_attr( $campaign['name'] ) : '';
+		// Use title if present.
+		if ( ! empty( $campaign['title'] ) ) {
+			echo esc_attr( $campaign['title'] );
+			return;
+		}
+
+		// Fall back to name.
+		echo esc_attr( $campaign['name'] );
 
 	}
 
