@@ -403,6 +403,17 @@ class WPCV_Woo_Civi_Contribution {
 
 		}
 
+		///*
+		$e = new \Exception();
+		$trace = $e->getTraceAsString();
+		error_log( print_r( [
+			'method' => __METHOD__,
+			'params' => $params,
+			'result' => $result,
+			//'backtrace' => $trace,
+		], true ) );
+		//*/
+
 		// Init as empty.
 		$contribution = [];
 
@@ -557,9 +568,8 @@ class WPCV_Woo_Civi_Contribution {
 			return $params;
 		}
 
-		$total_tax = $order->get_total_tax();
-
 		// Return early if the Order has no Tax.
+		$total_tax = $order->get_total_tax();
 		if ( 0 === $total_tax ) {
 			return $params;
 		}
@@ -574,7 +584,7 @@ class WPCV_Woo_Civi_Contribution {
 		if ( empty( $default_financial_type_vat_id ) ) {
 
 			// Write message to CiviCRM log.
-			$message = __( 'There must be a default VAT Financial Type set.', 'wpcv-woo-civi-integration' );
+			$message = __( 'There must be a default Tax/VAT Financial Type set.', 'wpcv-woo-civi-integration' );
 			CRM_Core_Error::debug_log_message( $message );
 
 			// Write details to PHP log.
