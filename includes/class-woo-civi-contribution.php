@@ -474,8 +474,25 @@ class WPCV_Woo_Civi_Contribution {
 			'contribution_status_id' => 'Pending',
 		];
 
+		/*
+		 * From the CiviCRM Order API docs:
+		 *
+		 * If you provide a value to "total_amount", it must equal the sum of
+		 * all the "line_total" values.
+		 *
+		 * Before 5.20 there was a bug that required the top-level "total_amount"
+		 * to be provided, but from 5.20 onward you can omit this and it will be
+		 * calculated automatically from the sum of the "line_items".
+		 *
+		 * @see https://docs.civicrm.org/dev/en/latest/financial/orderAPI/#step-1
+		 *
+		 * Since WooCommerce has already calculated this (including taxes), we can
+		 * maintain compatibility with versions of CiviCRM prior to 5.20 by adding
+		 * the CiviCRM-compliant total now.
+		 */
+		$params['total_amount'] = WPCV_WCI()->helper->get_civicrm_float( $order->get_total() );
+
 		// Modify params when the Order has a tax value.
-		// FIXME: This could be done via the filter below.
 		$params = $this->tax_add( $params, $order );
 
 		/**
@@ -535,48 +552,20 @@ class WPCV_Woo_Civi_Contribution {
 	 */
 	public function tax_add( $params, $order ) {
 
-		// Bail if we can't get the Monetary settings.
-		$decimal_separator = WPCV_WCI()->helper->get_decimal_separator();
-		$thousand_separator = WPCV_WCI()->helper->get_thousand_separator();
-		if ( $decimal_separator === false || $thousand_separator === false ) {
+		// Return early if Tax is not enabled in WooCommerce.
+		if ( ! wc_tax_enabled() ) {
 			return $params;
 		}
 
-		$tax_raw = $order->get_total_tax();
+		$total_tax = $order->get_total_tax();
 
 		// Return early if the Order has no Tax.
-		if ( 0 === $tax_raw ) {
+		if ( 0 === $total_tax ) {
 			return $params;
 		}
 
 		// Ensure number format is CiviCRM-compliant.
-		$tax = number_format( $tax_raw, 2, $decimal_separator, $thousand_separator );
-
-		// FIXME: Neither $rounded_total nor $rounded_subtotal are used.
-
-		// FIXME: CiviCRM doesn't seem to accept financial values with precision greater than 2 digits after the decimal.
-		//$rounded_total = round( $order->get_total() * 100 ) / 100;
-
-		/*
-		 * Couldn't figure where WooCommerce stores the subtotal (ie no TAX price)
-		 * So for now...
-		 *
-		 * CMW: The WooCommerce Order has all the meta needed here:
-		 *
-		 * * "_order_total"
-		 * * "_order_tax"
-		 * * "_order_shipping_tax"
-		 *
-		 * There are also Order methods that can help:
-		 *
-		 * * WC_Abstract_Order::get_item_total( $item, $inc_tax = false, $round = true )
-		 *
-		 * None of this is properly implemented at present.
-		 */
-		//$rounded_subtotal = $rounded_total - $tax_raw;
-
-		// Ensure number format is CiviCRM-compliant.
-		//$rounded_subtotal = number_format( $rounded_subtotal, 2, $decimal_separator, $thousand_separator );
+		$params['tax_amount'] = WPCV_WCI()->helper->get_civicrm_float( $total_tax );
 
 		// Get the default VAT Financial Type.
 		$default_financial_type_vat_id = get_option( 'woocommerce_civicrm_financial_type_vat_id' );

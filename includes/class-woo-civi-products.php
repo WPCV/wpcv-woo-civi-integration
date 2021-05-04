@@ -137,15 +137,9 @@ class WPCV_Woo_Civi_Products {
 			return $params;
 		}
 
-		$decimal_separator = WPCV_WCI()->helper->get_decimal_separator();
-		$thousand_separator = WPCV_WCI()->helper->get_thousand_separator();
-		if ( $decimal_separator === false || $thousand_separator === false ) {
-			return $params;
-		}
-
 		$financial_types = [];
 
-		foreach ( $items as $item ) {
+		foreach ( $items as $item_id => $item ) {
 
 			$product = $item->get_product();
 
@@ -158,15 +152,18 @@ class WPCV_Woo_Civi_Products {
 				$product_financial_type_id = $default_financial_type_id;
 			}
 
+			// FIXME: This is probably not necessary.
 			if ( 0 === $item['qty'] ) {
-				$item['qty'] = 1;
+				//$item['qty'] = 1;
 			}
 
 			$line_item_data = [
 				'price_field_id' => $default_price_set_data['price_field']['id'],
-				'qty' => $item['qty'],
-				'line_total' => number_format( $item['line_total'], 2, $decimal_separator, $thousand_separator ),
-				'unit_price' => number_format( $item['line_total'] / $item['qty'], 2, $decimal_separator, $thousand_separator ),
+				'qty' => $item->get_quantity(),
+				// The line_total must equal the unit_price × qty.
+				'line_total' => WPCV_WCI()->helper->get_civicrm_number_format( $item->get_total() ),
+				'unit_price' => WPCV_WCI()->helper->get_civicrm_number_format( $product->get_price() ),
+				'tax_amount' => WPCV_WCI()->helper->get_civicrm_number_format( $item->get_total_tax() ),
 				'label' => $item['name'],
 				'financial_type_id' => $product_financial_type_id,
 			];
@@ -192,15 +189,14 @@ class WPCV_Woo_Civi_Products {
 			 */
 			$line_item = apply_filters( 'wpcv_woo_civi/products/line_item', $line_item, $product, $params );
 
-			$params['line_items'][ $item->get_id() ] = $line_item;
-
-			// FIXME: Override the Financial Type?
+			$params['line_items'][ $item_id ] = $line_item;
 
 			/*
 			 * Decide if we want to override the Financial Type with the one from
 			 * the Membership Type instead of Product/default.
 			 */
 
+			// FIXME: Override the Financial Type?
 			$financial_types[ $product_financial_type_id ] = $product_financial_type_id;
 
 		}
@@ -237,12 +233,6 @@ class WPCV_Woo_Civi_Products {
 			return $params;
 		}
 
-		$decimal_separator = WPCV_WCI()->helper->get_decimal_separator();
-		$thousand_separator = WPCV_WCI()->helper->get_thousand_separator();
-		if ( $decimal_separator === false || $thousand_separator === false ) {
-			return $params;
-		}
-
 		// Grab Shipping cost and sanity check.
 		$shipping_cost = $order->get_total_shipping();
 		if ( empty( $shipping_cost ) ) {
@@ -250,7 +240,7 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		// Ensure number format is CiviCRM-compliant.
-		$shipping_cost = number_format( $shipping_cost, 2, $decimal_separator, $thousand_separator );
+		$shipping_cost = WPCV_WCI()->helper->get_civicrm_number_format( $shipping_cost );
 		if ( ! ( floatval( $shipping_cost ) > 0 ) ) {
 			return $params;
 		}
