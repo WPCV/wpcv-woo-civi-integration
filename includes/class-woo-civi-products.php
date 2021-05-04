@@ -161,9 +161,9 @@ class WPCV_Woo_Civi_Products {
 				'price_field_id' => $default_price_set_data['price_field']['id'],
 				'qty' => $item->get_quantity(),
 				// The line_total must equal the unit_price × qty.
-				'line_total' => WPCV_WCI()->helper->get_civicrm_number_format( $item->get_total() ),
-				'unit_price' => WPCV_WCI()->helper->get_civicrm_number_format( $product->get_price() ),
-				'tax_amount' => WPCV_WCI()->helper->get_civicrm_number_format( $item->get_total_tax() ),
+				'line_total' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total() ),
+				'unit_price' => WPCV_WCI()->helper->get_civicrm_float( $product->get_price() ),
+				'tax_amount' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total_tax() ),
 				'label' => $item['name'],
 				'financial_type_id' => $product_financial_type_id,
 			];
@@ -240,7 +240,7 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		// Ensure number format is CiviCRM-compliant.
-		$shipping_cost = WPCV_WCI()->helper->get_civicrm_number_format( $shipping_cost );
+		$shipping_cost = WPCV_WCI()->helper->get_civicrm_float( $shipping_cost );
 		if ( ! ( floatval( $shipping_cost ) > 0 ) ) {
 			return $params;
 		}
