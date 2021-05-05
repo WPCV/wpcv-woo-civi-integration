@@ -39,6 +39,15 @@ class WPCV_Woo_Civi_Campaign {
 	public $meta_key = '_woocommerce_civicrm_campaign_id';
 
 	/**
+	 * Urchin Tracking Module management object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $utm The Urchin Tracking Module management object.
+	 */
+	public $utm;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 3.0
@@ -56,7 +65,50 @@ class WPCV_Woo_Civi_Campaign {
 	 * @since 3.0
 	 */
 	public function initialise() {
+
+		// Bail early if the CiviCampaign component is not active.
+		$this->active = WPCV_WCI()->helper->is_component_enabled( 'CiviCampaign' );
+		if ( ! $this->active ) {
+			return;
+		}
+
+		$this->include_files();
+		$this->setup_objects();
 		$this->register_hooks();
+
+		/**
+		 * Broadcast that this class is loaded.
+		 *
+		 * Used internally by included classes in order to bootstrap.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/campaign/loaded' );
+
+	}
+
+	/**
+	 * Include class files.
+	 *
+	 * @since 3.0
+	 */
+	public function include_files() {
+
+		// Include UTM class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-campaign-utm.php';
+
+	}
+
+	/**
+	 * Setup objects.
+	 *
+	 * @since 3.0
+	 */
+	public function setup_objects() {
+
+		// Init UTM object.
+		$this->utm = new WPCV_Woo_Civi_UTM();
+
 	}
 
 	/**
@@ -65,12 +117,6 @@ class WPCV_Woo_Civi_Campaign {
 	 * @since 3.0
 	 */
 	public function register_hooks() {
-
-		// Bail early if the CiviCampaign component is not active.
-		$this->active = WPCV_WCI()->helper->is_component_enabled( 'CiviCampaign' );
-		if ( ! $this->active ) {
-			return;
-		}
 
 		// Hook into new WooCommerce Orders with CiviCRM data.
 		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 20, 2 );
@@ -82,7 +128,7 @@ class WPCV_Woo_Civi_Campaign {
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ], 20 );
 
 		// Add Campaign ID to Order.
-		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'campaign_get_for_order' ], 20, 2 );
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'campaign_get_for_order' ], 30, 2 );
 
 		// Add Campaign ID to plugin settings fields.
 		add_filter( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', [ $this, 'campaign_settings_add' ] );
@@ -636,6 +682,9 @@ class WPCV_Woo_Civi_Campaign {
 		if ( ! empty( $contribution['contribution_note'] ) ) {
 			unset( $contribution['contribution_note'] );
 		}
+
+		// Remove financial data to prevent recalculation.
+		$contribution = WPCV_WCI()->contribution->unset_amounts( $contribution );
 
 		// Update Contribution.
 		$contribution = WPCV_WCI()->contribution->update( $contribution );

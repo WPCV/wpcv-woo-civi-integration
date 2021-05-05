@@ -227,6 +227,9 @@ class WPCV_Woo_Civi_Order {
 			}
 		}
 
+		// Remove financial data to prevent recalculation.
+		$contribution = WPCV_WCI()->contribution->unset_amounts( $contribution );
+
 		// Update Contribution.
 		$contribution = WPCV_WCI()->contribution->update( $contribution );
 		if ( empty( $contribution ) ) {

@@ -108,13 +108,13 @@ class WPCV_Woo_Civi {
 	public $source;
 
 	/**
-	 * Urchin Tracking Module management object.
+	 * Tax/VAT management object.
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $utm The Urchin Tracking Module management object.
+	 * @var object $tax The Tax/VAT management object.
 	 */
-	public $utm;
+	public $tax;
 
 	/**
 	 * Campaign management object.
@@ -282,8 +282,8 @@ class WPCV_Woo_Civi {
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-order.php';
 		// Include Source class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-source.php';
-		// Include UTM class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-utm.php';
+		// Include Tax/VAT class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-tax.php';
 
 		// Include Products class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-products.php';
@@ -323,8 +323,8 @@ class WPCV_Woo_Civi {
 		$this->order = new WPCV_Woo_Civi_Order();
 		// Init Source object.
 		$this->source = new WPCV_Woo_Civi_Source();
-		// Init UTM object.
-		$this->utm = new WPCV_Woo_Civi_UTM();
+		// Init Tax/VAT object.
+		$this->tax = new WPCV_Woo_Civi_Tax();
 
 		// Init Products object.
 		$this->products = new WPCV_Woo_Civi_Products();

@@ -25,8 +25,8 @@ class WPCV_Woo_Civi_UTM {
 	 */
 	public function __construct() {
 
-		// Init when this plugin is fully loaded.
-		add_action( 'wpcv_woo_civi/loaded', [ $this, 'initialise' ] );
+		// Init when the Campaign class is fully loaded.
+		add_action( 'wpcv_woo_civi/campaign/loaded', [ $this, 'initialise' ] );
 
 	}
 

@@ -320,6 +320,34 @@ class WPCV_Woo_Civi_Contribution {
 	}
 
 	/**
+	 * Unsets the amounts in a Contribution record to prevent recalculation.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $contribution The existing array of Contribution data.
+	 * @return array $contribution The modified array of Contribution data.
+	 */
+	public function unset_amounts( $contribution ) {
+
+		// Unset Contribution amounts to prevent recalculation.
+		if ( ! empty( $contribution['total_amount'] ) ) {
+			unset( $contribution['total_amount'] );
+		}
+		if ( ! empty( $contribution['fee_amount'] ) ) {
+			unset( $contribution['fee_amount'] );
+		}
+		if ( ! empty( $contribution['net_amount'] ) ) {
+			unset( $contribution['net_amount'] );
+		}
+		if ( ! empty( $contribution['non_deductible_amount'] ) ) {
+			unset( $contribution['non_deductible_amount'] );
+		}
+
+		return $contribution;
+
+	}
+
+	/**
 	 * Update a Contribution record.
 	 *
 	 * @since 3.0
@@ -492,18 +520,16 @@ class WPCV_Woo_Civi_Contribution {
 		 */
 		$params['total_amount'] = WPCV_WCI()->helper->get_civicrm_float( $order->get_total() );
 
-		// Modify params when the Order has a tax value.
-		$params = $this->tax_add( $params, $order );
-
 		/**
 		 * Filter the Contribution params before calling the CiviCRM API.
 		 *
 		 * Used internally by:
 		 *
-		 * - WPCV_Woo_Civi_Source::source_get_for_order() (Priority: 10)
-		 * - WPCV_Woo_Civi_Campaign::campaign_get_for_order() (Priority: 20)
-		 * - WPCV_Woo_Civi_Products::items_get_for_order() (Priority: 30)
-		 * - WPCV_Woo_Civi_Products::shipping_get_for_order() (Priority: 30)
+		 * - WPCV_Woo_Civi_Tax::contribution_tax_add() (Priority: 10)
+		 * - WPCV_Woo_Civi_Source::source_get_for_order() (Priority: 20)
+		 * - WPCV_Woo_Civi_Campaign::campaign_get_for_order() (Priority: 30)
+		 * - WPCV_Woo_Civi_Products::items_get_for_order() (Priority: 40)
+		 * - WPCV_Woo_Civi_Products::shipping_get_for_order() (Priority: 50)
 		 *
 		 * @since 2.0
 		 *
@@ -538,62 +564,6 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Success.
 		return $contribution;
-
-	}
-
-	/**
-	 * Filters the Order params to add the Tax and override Financial Type.
-	 *
-	 * @since 3.0
-	 *
-	 * @param array $params The existing array of params for the CiviCRM API.
-	 * @param object $order The Order object.
-	 * @return array $params The modified array of params for the CiviCRM API.
-	 */
-	public function tax_add( $params, $order ) {
-
-		// Return early if Tax is not enabled in WooCommerce.
-		if ( ! wc_tax_enabled() ) {
-			return $params;
-		}
-
-		// Return early if the Order has no Tax.
-		$total_tax = $order->get_total_tax();
-		if ( 0 === $total_tax ) {
-			return $params;
-		}
-
-		// Ensure number format is CiviCRM-compliant.
-		$params['tax_amount'] = WPCV_WCI()->helper->get_civicrm_float( $total_tax );
-
-		// Get the default VAT Financial Type.
-		$default_financial_type_vat_id = get_option( 'woocommerce_civicrm_financial_type_vat_id' );
-
-		// Needs to be defined in Settings.
-		if ( empty( $default_financial_type_vat_id ) ) {
-
-			// Write message to CiviCRM log.
-			$message = __( 'There must be a default Tax/VAT Financial Type set.', 'wpcv-woo-civi-integration' );
-			CRM_Core_Error::debug_log_message( $message );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'message' =>  $message,
-				'params' => $params,
-				'backtrace' => $trace,
-			], true ) );
-
-			return $params;
-
-		}
-
-		// Override with the default VAT Financial Type.
-		$params['financial_type_id'] = $default_financial_type_vat_id;
-
-		return $params;
 
 	}
 

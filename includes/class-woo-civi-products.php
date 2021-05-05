@@ -56,8 +56,8 @@ class WPCV_Woo_Civi_Products {
 	public function register_hooks() {
 
 		// Add Line Items to Order.
-		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'items_get_for_order' ], 30, 2 );
-		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'shipping_get_for_order' ], 40, 2 );
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'items_get_for_order' ], 40, 2 );
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'shipping_get_for_order' ], 50, 2 );
 
 	}
 
@@ -143,30 +143,41 @@ class WPCV_Woo_Civi_Products {
 
 			$product = $item->get_product();
 
+			// Does this Product have a Financial Type?
 			$product_financial_type_id = $product->get_meta( $this->meta_key );
+
+			// Skip if this Product should not be synced to CiviCRM.
 			if ( 'exclude' === $product_financial_type_id ) {
 				continue;
 			}
 
-			if ( empty( $product_financial_type_id ) ) {
-				$product_financial_type_id = $default_financial_type_id;
-			}
-
-			// FIXME: This is probably not necessary.
-			if ( 0 === $item['qty'] ) {
-				//$item['qty'] = 1;
-			}
-
 			$line_item_data = [
 				'price_field_id' => $default_price_set_data['price_field']['id'],
-				'qty' => $item->get_quantity(),
-				// The line_total must equal the unit_price × qty.
-				'line_total' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total() ),
 				'unit_price' => WPCV_WCI()->helper->get_civicrm_float( $product->get_price() ),
+				'qty' => $item->get_quantity(),
+				// The "line_total" must equal the unit_price × qty.
+				'line_total' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total() ),
 				'tax_amount' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total_tax() ),
-				'label' => $item['name'],
-				'financial_type_id' => $product_financial_type_id,
+				'label' => $product->get_name(),
 			];
+
+			/*
+			 * From the docs:
+			 *
+			 * The Line Item will inherit the "financial_type_id" from the contribution
+			 * if it is not set.
+			 *
+			 * @see https://docs.civicrm.org/dev/en/latest/financial/orderAPI/
+			 *
+			 * This means that we only need to set this here if it's different to
+			 * the one set on the Contribution itself.
+			 *
+			 * In practice, all Products should have an appropriate Financial Type
+			 * set, otherwise bad things will happen.
+			 */
+			if ( $product_financial_type_id !== $params['financial_type_id'] ) {
+				$line_item_data['financial_type_id'] = $product_financial_type_id;
+			}
 
 			// Construct Line Item.
 			$line_item = [
@@ -179,15 +190,17 @@ class WPCV_Woo_Civi_Products {
 			 *
 			 * Used internally by:
 			 *
-			 * * WPCV_Woo_Civi_Membership::line_item_filter() (Priority: 10)
+			 * * WPCV_Woo_Civi_Tax::line_item_filter() (Priority: 10)
+			 * * WPCV_Woo_Civi_Membership::line_item_filter() (Priority: 20)
 			 *
 			 * @since 3.0
 			 *
 			 * @param array $line_item The array of Line Item data.
+			 * @param object $item The WooCommerce Item object.
 			 * @param object $product The WooCommerce Product object.
 			 * @param array $params The params as presently constructed.
 			 */
-			$line_item = apply_filters( 'wpcv_woo_civi/products/line_item', $line_item, $product, $params );
+			$line_item = apply_filters( 'wpcv_woo_civi/products/line_item', $line_item, $item, $product, $params );
 
 			$params['line_items'][ $item_id ] = $line_item;
 
