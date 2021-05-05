@@ -166,14 +166,17 @@ class WPCV_Woo_Civi_Membership {
 		// Grab the Line Item data.
 		$line_item_data = array_pop( $line_item['line_item'] );
 
-		$membership_params = [
-			'entity_table' => 'civicrm_membership',
-			'membership_type_id' => $product_membership_type_id,
-		];
 		$line_item_params = [
 			'membership_type_id' => $product_membership_type_id,
 			'source' => __( 'Shop', 'wpcv-woo-civi-integration' ),
 			'contact_id' => $params['contact_id'],
+			'skipStatusCal' => 1,
+			'status_id' => 'Pending',
+		];
+
+		$membership_line_item_data = [
+			'entity_table' => 'civicrm_membership',
+			'membership_type_id' => $product_membership_type_id,
 		];
 
 		// FIXME: Need to add:
@@ -188,7 +191,7 @@ class WPCV_Woo_Civi_Membership {
 		$line_item = [
 			'params' => $line_item_params,
 			'line_item' => [
-				array_merge( $line_item_data, $membership_params ),
+				array_merge( $line_item_data, $membership_line_item_data ),
 			],
 		];
 

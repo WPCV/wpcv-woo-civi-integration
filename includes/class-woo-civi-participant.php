@@ -212,6 +212,9 @@ class WPCV_Woo_Civi_Event_Participant {
 			return $line_item;
 		}
 
+		// Grab the existing Line Item data.
+		$line_item_data = array_pop( $line_item['line_item'] );
+
 		/*
 		 * Refine "Source" for Event signups, e.g.
 		 *
@@ -241,11 +244,8 @@ class WPCV_Woo_Civi_Event_Participant {
 		 */
 		$line_item_params['status_id'] = 'Pending from incomplete transaction';
 
-		// Grab the existing Line Item data.
-		$line_item_data = array_pop( $line_item['line_item'] );
-
-		// TODO: Are there other params for the Line Item?
-		$participant_params = [
+		// TODO: Are there other params for the Line Item data?
+		$participant_line_item_data = [
 			'entity_table' => 'civicrm_participant',
 		];
 
@@ -253,7 +253,7 @@ class WPCV_Woo_Civi_Event_Participant {
 		$line_item = [
 			'params' => $line_item_params,
 			'line_item' => [
-				array_merge( $line_item_data, $participant_params ),
+				array_merge( $line_item_data, $participant_line_item_data ),
 			],
 		];
 
