@@ -206,7 +206,7 @@ class WPCV_Woo_Civi_Tax {
 	public function line_item_tax_add( $line_item, $item, $product, $params ) {
 
 		// Bail if Product is not taxable.
-		if ( ! $$product->is_taxable() ) {
+		if ( ! $product->is_taxable() ) {
 			return $line_item;
 		}
 
