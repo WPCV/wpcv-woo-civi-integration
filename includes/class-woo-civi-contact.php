@@ -774,7 +774,7 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		// Assign Source because this is a new Contact.
-		$contact['contact_source'] = __( 'WooCommerce purchase', 'wpcv-woo-civi-integration' );
+		$contact['contact_source'] = __( 'WooCommerce Purchase', 'wpcv-woo-civi-integration' );
 
 		// Okay, go ahead and create a Contact.
 		$contact = $this->create( $contact );
