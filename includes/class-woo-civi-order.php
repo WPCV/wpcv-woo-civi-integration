@@ -62,6 +62,7 @@ class WPCV_Woo_Civi_Order {
 		// Process changes in WooCommerce Orders.
 		add_action( 'woocommerce_new_order', [ $this, 'order_new' ], 20, 2 );
 		add_action( 'woocommerce_order_status_changed', [ $this, 'order_status_changed' ], 99, 4 );
+		//add_action( 'woocommerce_order_payment_status_changed', [ $this, 'order_status_changed_to_paid' ], 10, 2 );
 
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'woocommerce_admin_order_data_after_order_details', [ $this, 'order_details_add' ], 30 );
@@ -175,6 +176,35 @@ class WPCV_Woo_Civi_Order {
 	}
 
 	/**
+	 * Acts when the order progresses from a pending payment status to a paid one.
+	 *
+	 * Unfortunately this isn't reliable since it excludes "on-hold" from the valid
+	 * statuses from which the transition to "completed" can be made. Using the
+	 * "woocommerce_valid_order_statuses_for_payment" filter could solve this.
+	 *
+	 *
+	 * @since 3.0
+	 * @since WooCommerce 3.9.0
+	 *
+	 * @param int Order ID
+	 * @param WC_Order Order object
+	 */
+	public function order_status_changed_to_paid( $order_id, $order ) {
+
+		/*
+		$e = new \Exception();
+		$trace = $e->getTraceAsString();
+		error_log( print_r( [
+			'method' => __METHOD__,
+			'order_id' => $order_id,
+			//'order' => $order,
+			//'backtrace' => $trace,
+		], true ) );
+		*/
+
+	}
+
+	/**
 	 * Performs necessary actions when the status of an Order is changed.
 	 *
 	 * @since 2.0
@@ -200,53 +230,13 @@ class WPCV_Woo_Civi_Order {
 			return;
 		}
 
-		// Get Contribution.
-		$invoice_id = WPCV_WCI()->contribution->get_invoice_id( $order_id );
-		$contribution = WPCV_WCI()->contribution->get_by_invoice_id( $invoice_id );
-		if ( empty( $contribution ) ) {
-			return;
-		}
-
-		// Ignore Contribution Note if already present.
-		if ( ! empty( $contribution['contribution_note'] ) ) {
-			unset( $contribution['contribution_note'] );
-		}
-
-		// Overwrite the Contribution Status.
-		if ( $order->is_paid() ) {
-			$contribution['contribution_status_id'] = 'Completed';
+		// Is this a completed Order?
+		if ( $new_status === 'completed' && $order->is_paid() ) {
+			// Yes - use the "Payment.create" route.
+			WPCV_WCI()->contribution->payment_create( $order_id, $order );
 		} else {
-			$contribution['contribution_status_id'] = $new_status_id;
-		}
-
-		// Overwrite the Contribution "Receive Date".
-		if ( $order->is_paid() ) {
-			$date_paid = $order->get_date_paid();
-			if ( ! empty( $date_paid ) ) {
-				$contribution['receive_date'] = $date_paid->date( 'Y-m-d H:i:s' );
-			}
-		}
-
-		// Remove financial data to prevent recalculation.
-		$contribution = WPCV_WCI()->contribution->unset_amounts( $contribution );
-
-		// Update Contribution.
-		$contribution = WPCV_WCI()->contribution->update( $contribution );
-		if ( empty( $contribution ) ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to update Order Status', 'wpcv-woo-civi-integration' ) );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'contribution' => $contribution,
-				'result' => $result,
-				'backtrace' => $trace,
-			], true ) );
-
+			// No - just set the status of the Contribution.
+			WPCV_WCI()->contribution->status_update( $order_id, $new_status_id );
 		}
 
 	}

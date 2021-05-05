@@ -250,6 +250,34 @@ class WPCV_Woo_Civi_Contribution {
 	}
 
 	/**
+	 * Unsets the amounts in a Contribution record to prevent recalculation.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $contribution The existing array of Contribution data.
+	 * @return array $contribution The modified array of Contribution data.
+	 */
+	public function unset_amounts( $contribution ) {
+
+		// Unset Contribution amounts to prevent recalculation.
+		if ( ! empty( $contribution['total_amount'] ) ) {
+			unset( $contribution['total_amount'] );
+		}
+		if ( ! empty( $contribution['fee_amount'] ) ) {
+			unset( $contribution['fee_amount'] );
+		}
+		if ( ! empty( $contribution['net_amount'] ) ) {
+			unset( $contribution['net_amount'] );
+		}
+		if ( ! empty( $contribution['non_deductible_amount'] ) ) {
+			unset( $contribution['non_deductible_amount'] );
+		}
+
+		return $contribution;
+
+	}
+
+	/**
 	 * Creates or updates a Contribution record.
 	 *
 	 * @since 3.0
@@ -316,34 +344,6 @@ class WPCV_Woo_Civi_Contribution {
 		}
 
 		return $contribution_data;
-
-	}
-
-	/**
-	 * Unsets the amounts in a Contribution record to prevent recalculation.
-	 *
-	 * @since 3.0
-	 *
-	 * @param array $contribution The existing array of Contribution data.
-	 * @return array $contribution The modified array of Contribution data.
-	 */
-	public function unset_amounts( $contribution ) {
-
-		// Unset Contribution amounts to prevent recalculation.
-		if ( ! empty( $contribution['total_amount'] ) ) {
-			unset( $contribution['total_amount'] );
-		}
-		if ( ! empty( $contribution['fee_amount'] ) ) {
-			unset( $contribution['fee_amount'] );
-		}
-		if ( ! empty( $contribution['net_amount'] ) ) {
-			unset( $contribution['net_amount'] );
-		}
-		if ( ! empty( $contribution['non_deductible_amount'] ) ) {
-			unset( $contribution['non_deductible_amount'] );
-		}
-
-		return $contribution;
 
 	}
 
@@ -561,6 +561,167 @@ class WPCV_Woo_Civi_Contribution {
 		 * @param object $order The WooCommerce Order object.
 		 */
 		do_action( 'wpcv_woo_civi/contribution/create_from_order', $contribution, $order );
+
+		// Success.
+		return $contribution;
+
+	}
+
+	/**
+	 * Creates a Payment against a Contribution.
+	 *
+	 * This is the preferred flow according to comments in the code:
+	 *
+	 * Calling Payment.create to add payments & having it call "completetransaction"
+	 * and/or "Contribution.create" to update related entities is the preferred flow.
+	 *
+	 * @see CRM_Contribute_BAO_Contribution::add()
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param object $order The Order object.
+	 * @return array|bool $payment_data The array of Payment data on success, false otherwise.
+	 */
+	public function payment_create( $order_id, $order ) {
+
+		// Get Contribution.
+		$invoice_id = $this->get_invoice_id( $order_id );
+		$contribution = $this->get_by_invoice_id( $invoice_id );
+		if ( empty( $contribution ) ) {
+			return false;
+		}
+
+		$params = [
+			'contribution_id' => $contribution['id'],
+			'total_amount' => WPCV_WCI()->helper->get_civicrm_float( $order->get_total() ),
+			'trxn_date' => $order->get_date_paid()->date( 'Y-m-d H:i:s' ),
+			/* translators: %d: The numeric ID of the WooCommerce Order */
+			'trxn_id' => sprintf( __( 'WooCommerce Order - %d', 'wpcv-woo-civi-integration' ), (int) $order_id ),
+			'payment_instrument_id' => WPCV_WCI()->helper->payment_instrument_map( $order->get_payment_method() ),
+		];
+
+		/**
+		 * Filter the Payment params before calling the CiviCRM API.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $params The params to be passed to the CiviCRM API.
+		 * @param object $order The WooCommerce Order object.
+		 * @param array $contribution The CiviCRM Contribution data.
+		 */
+		$params = apply_filters( 'wpcv_woo_civi/contribution/payment_create/params', $params, $order, $contribution );
+
+		try {
+
+			$result = civicrm_api3( 'Payment', 'create', $params );
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to create Payment record.', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $e->getErrorCode() );
+			CRM_Core_Error::debug_log_message( $e->getExtraParams() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'message' => $e->getMessage(),
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
+			return false;
+
+		}
+
+		// Init as empty.
+		$payment_data = [];
+
+		// The result set should contain only one item.
+		if ( ! empty( $result['values'] ) ) {
+			$payment_data = array_pop( $result['values'] );
+		}
+
+		return $payment_data;
+
+	}
+
+	/**
+	 * Updates a Contribution Status via the CiviCRM API.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param object $order The Order object.
+	 * @param string $new_status The new status.
+	 * @return bool True on success, otherwise false.
+	 */
+	public function status_update( $order_id, $order, $new_status_id ) {
+
+		// Get Contribution.
+		$invoice_id = $this->get_invoice_id( $order_id );
+		$contribution = $this->get_by_invoice_id( $invoice_id );
+		if ( empty( $contribution ) ) {
+			return false;
+		}
+
+		// Ignore Contribution Note if already present.
+		if ( ! empty( $contribution['contribution_note'] ) ) {
+			unset( $contribution['contribution_note'] );
+		}
+
+		/*
+		// Overwrite the Contribution "Receive Date".
+		if ( $order->is_paid() ) {
+			$date_paid = $order->get_date_paid();
+			if ( ! empty( $date_paid ) ) {
+				$contribution['receive_date'] = $date_paid->date( 'Y-m-d H:i:s' );
+			}
+		}
+		*/
+
+		// Remove financial data to prevent recalculation.
+		$contribution = $this->unset_amounts( $contribution );
+
+		// Overwrite the Contribution Status.
+		$contribution['contribution_status_id'] = $new_status_id;
+
+		// Update Contribution.
+		$contribution = $this->update( $contribution );
+		if ( empty( $contribution ) ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to update Contribution Status', 'wpcv-woo-civi-integration' ) );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'contribution' => $contribution,
+				'result' => $result,
+				'backtrace' => $trace,
+			], true ) );
+
+			return false;
+
+		}
+
+		/**
+		 * Broadcast that a Contribution Status has been updated.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $contribution The CiviCRM Contribution data.
+		 * @param int $order_id The WooCommerce Order ID.
+		 * @param object $order The WooCommerce Order object.
+		 * @param string $new_status The new status.
+		 */
+		do_action( 'wpcv_woo_civi/contribution/status_update', $contribution, $order );
 
 		// Success.
 		return $contribution;
