@@ -137,6 +137,7 @@ class WPCV_Woo_Civi_Products {
 			return $params;
 		}
 
+		// Track unique Financial Types in the Line Items.
 		$financial_types = [];
 
 		foreach ( $items as $item_id => $item ) {
@@ -204,19 +205,32 @@ class WPCV_Woo_Civi_Products {
 
 			$params['line_items'][ $item_id ] = $line_item;
 
-			/*
-			 * Decide if we want to override the Financial Type with the one from
-			 * the Membership Type instead of Product/default.
-			 */
-
-			// FIXME: Override the Financial Type?
+			// Store (or overwrite) entry in Financial Types array.
 			$financial_types[ $product_financial_type_id ] = $product_financial_type_id;
 
 		}
 
-		// Maybe override the Contribution's Financial Type.
+		/*
+		 * When there is only one Financial Type for the Line Items - or there is
+		 * only one Line Item:
+		 *
+		 * Override the Contribution's Financial Type because the item(s) may have
+		 * been modified to become Membership(s) or Event Participant(s) and the
+		 * "parent" Contribution Financial Type should reflect this.
+		 *
+		 * When there are multiple Line Items with different Financial Types, this
+		 * from Rich Lott @artfulrobot:
+		 *
+		 * "Regrading the Contribution's Financial Type ID, you should omit the
+		 * top level one. There was a bug about that (there may still be a bug around
+		 * that) but if you have it in ALL your line items, that should do."
+		 *
+		 * Let's see!
+		 */
 		if ( 1 === count( $financial_types ) ) {
-			$params['financial_type_id'] = $product_financial_type_id;
+			$params['financial_type_id'] = array_pop( $financial_types );
+		} else {
+			unset( $params['financial_type_id'] );
 		}
 
 		return $params;
