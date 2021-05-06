@@ -19,7 +19,7 @@ A WordPress plugin that integrates CiviCRM with WooCommerce.
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 5.20* and *WooCommerce 3.9+*.
+This plugin requires a minimum of *CiviCRM 5.37* and *WooCommerce 5.2.2+*.
 
 ### Configuration
 

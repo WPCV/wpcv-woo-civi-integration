@@ -2,7 +2,7 @@
 Contributors: veda-consulting, mecachisenros, rajeshrhino, JoeMurray, kcristiano, cdhassell, bastho
 Tags: civicrm, woocommerce, integration
 Requires PHP: 7.1
-Requires at least: 4.9
+Requires at least: 5.5
 Tested up to: 5.7
 Stable tag: 2.0
 License: GPLv3
@@ -26,7 +26,7 @@ Integrates CiviCRM with WooCommerce.
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 5.20* and *WooCommerce 3.9+*.
+This plugin requires a minimum of *CiviCRM 5.37* and *WooCommerce 5.2.2+*.
 
 ### Configuration
 
