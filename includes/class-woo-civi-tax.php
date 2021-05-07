@@ -54,6 +54,21 @@ class WPCV_Woo_Civi_Tax {
 	}
 
 	/**
+	 * Register hooks.
+	 *
+	 * @since 3.0
+	 */
+	public function register_hooks() {
+
+		// Modify params when an Order has a tax value.
+		add_action( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'contribution_tax_add' ], 100, 2 );
+
+		// Add Tax to Line Item.
+		add_action( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_tax_add' ], 10, 4 );
+
+	}
+
+	/**
 	 * Gets the CiviCRM "Enable Tax and Invoicing" setting.
 	 *
 	 * @since 3.0
@@ -113,21 +128,6 @@ class WPCV_Woo_Civi_Tax {
 	}
 
 	/**
-	 * Register hooks.
-	 *
-	 * @since 3.0
-	 */
-	public function register_hooks() {
-
-		// Modify params when an Order has a tax value.
-		add_action( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'contribution_tax_add' ], 10, 2 );
-
-		// Add Tax to Line Item.
-		add_action( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_tax_add' ], 10, 4 );
-
-	}
-
-	/**
 	 * Filters the Order params to add the Tax.
 	 *
 	 * Previously, the plugin used to override Financial Type. This has been
@@ -151,12 +151,30 @@ class WPCV_Woo_Civi_Tax {
 		$params['tax_amount'] = WPCV_WCI()->helper->get_civicrm_float( $total_tax );
 
 		/*
-		 * Returning before overriding the Financial Type.
+		 * Some notes on overriding the Financial Type.
 		 *
-		 * It is flawed logic to override the Financial Type in this way because
-		 * each Product should have its own Financial Type set correctly.
+		 * It should be flawed logic to override the Financial Type in this way
+		 * because each Product should have its own Financial Type set correctly.
+		 *
 		 * Moreover, we would need cascading Financial Type settings for each
 		 * Entity Type that can be created via the CiviCRM Order API.
+		 *
+		 * What actually happens is:
+		 *
+		 * Everything works nicely with purely taxable and purely non-taxable Orders.
+		 * With a mix of taxable and non-taxable in the same Order:
+		 *
+		 * - If the Contribution's "financial_type_id" has a "Sales Tax Account",
+		 * CiviCRM assume all Line Items are taxable and adds tax to those that
+		 * are not taxable, then updates the Contribution's total_amount and
+		 * considers a full Payment not to cover the total.
+		 *
+		 * - If the Contribution's "financial_type_id" does NOT have a "Sales Tax
+		 * Account", CiviCRM assumes all Line Items are NOT taxable and creates
+		 * an incorrect total_amount for the Contribution when the Order is created.
+		 *
+		 * So, at present, DO NOT have a mix of taxable and non-taxable Products
+		 * in WooCommerce or bad things will happen.
 		 */
 		return $params;
 

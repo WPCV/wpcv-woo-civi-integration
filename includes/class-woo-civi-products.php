@@ -56,8 +56,124 @@ class WPCV_Woo_Civi_Products {
 	public function register_hooks() {
 
 		// Add Line Items to Order.
-		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'items_get_for_order' ], 40, 2 );
-		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'shipping_get_for_order' ], 50, 2 );
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'items_get_for_order' ], 30, 2 );
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'shipping_get_for_order' ], 40, 2 );
+
+		// Get Line Items for Payment.
+		//add_filter( 'wpcv_woo_civi/contribution/payment_create/params', [ $this, 'items_get_for_payment' ], 10, 3 );
+
+	}
+
+	/**
+	 * Filter the Payment params before calling the CiviCRM API.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param object $order The WooCommerce Order object.
+	 * @param array $contribution The CiviCRM Contribution data.
+	 */
+	public function items_get_for_payment( $params, $order, $contribution ) {
+
+		// Try and get the Line Items.
+		$items = $this->items_get_by_contribution_id( $contribution['id'] );
+		if ( empty( $items ) ) {
+			return $params;
+		}
+
+		/*
+		 * Build Line Item data. For example:
+		 *
+		 * 'line_item' => [
+		 *   '0' => [
+		 *     '1' => 10,
+		 *   ],
+		 *   '1' => [
+		 *     '2' => 40,
+		 *   ],
+		 * ],
+		 */
+		$items_data = [];
+		$count = 0;
+		foreach ( $items as $item ) {
+			$line_item = [ (string) $count ];
+			$count++;
+			$line_item[ (string) $count ] = (float) $item['line_total'] + (float) $item['tax_amount'];
+			$items_data[] = [ $line_item ];
+		}
+
+		$params['line_item'] = $items_data;
+
+		/*
+		$e = new \Exception();
+		$trace = $e->getTraceAsString();
+		error_log( print_r( [
+			'method' => __METHOD__,
+			'items_data' => $items_data,
+			'params' => $params,
+			//'backtrace' => $trace,
+		], true ) );
+		*/
+
+		return $params;
+
+	}
+
+	/**
+	 * Filter the Payment params before calling the CiviCRM API.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $contribution_id The numeric ID of the CiviCRM Contribution.
+	 * @return array $result The CiviCRM Line Item data, or empty on failure.
+	 */
+	public function items_get_by_contribution_id( $contribution_id ) {
+
+		// Bail if we have no Contribution ID.
+		if ( empty( $contribution_id ) ) {
+			return [];
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
+
+		// Construct API query.
+		$params = [
+			'version' => 3,
+			'contribution_id' => 103,
+		];
+
+		// Get Line Item details via API.
+		$result = civicrm_api( 'LineItem', 'get', $params );
+
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Error trying to find Line Items by Contribution ID', 'wpcv-woo-civi-integration' ) );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
+			return [];
+
+		}
+
+ 		// The result set is what we want.
+		$line_items = [];
+		if ( ! empty( $result['values'] ) ) {
+			$line_items = $result['values'];
+		}
+
+		return $line_items;
 
 	}
 
@@ -176,7 +292,7 @@ class WPCV_Woo_Civi_Products {
 			 * In practice, all Products should have an appropriate Financial Type
 			 * set, otherwise bad things will happen.
 			 */
-			if ( $product_financial_type_id !== $params['financial_type_id'] ) {
+			if ( ! empty( $product_financial_type_id ) ) {
 				$line_item_data['financial_type_id'] = $product_financial_type_id;
 			}
 
@@ -221,16 +337,18 @@ class WPCV_Woo_Civi_Products {
 		 * When there are multiple Line Items with different Financial Types, this
 		 * from Rich Lott @artfulrobot:
 		 *
-		 * "Regrading the Contribution's Financial Type ID, you should omit the
+		 * "Regarding the Contribution's Financial Type ID, you should omit the
 		 * top level one. There was a bug about that (there may still be a bug around
 		 * that) but if you have it in ALL your line items, that should do."
 		 *
-		 * Let's see!
+		 * If only that worked. I thought it sounded too good to be true. Doing that
+		 * results in: "Mandatory key(s) missing from params array: financial_type_id"
+		 so let's try the default and see what happens.
 		 */
 		if ( 1 === count( $financial_types ) ) {
 			$params['financial_type_id'] = array_pop( $financial_types );
 		} else {
-			unset( $params['financial_type_id'] );
+			$params['financial_type_id'] = get_option( 'woocommerce_civicrm_financial_type_id' );
 		}
 
 		return $params;

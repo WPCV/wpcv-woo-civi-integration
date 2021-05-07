@@ -108,7 +108,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		$contribution = [];
 
-		// Bail if we have no Contact ID.
+		// Bail if we have no Contribution ID.
 		if ( empty( $contribution_id ) ) {
 			return $contribution;
 		}
@@ -131,7 +131,7 @@ class WPCV_Woo_Civi_Contribution {
 		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
 
 			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Error try to find Contribution by Invoice ID', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Error trying to find Contribution by ID', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
 			$e = new \Exception();
@@ -398,8 +398,10 @@ class WPCV_Woo_Civi_Contribution {
 		} catch ( CiviCRM_API3_Exception $e ) {
 
 			// Write to CiviCRM log and continue.
-			CRM_Core_Error::debug_log_message( __( 'Unable to create a Contribution via the CiviCRM Order API', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Unable to create an Order via the CiviCRM Order API', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $e->getErrorCode() );
+			CRM_Core_Error::debug_log_message( $e->getExtraParams() );
 
 			// Write details to PHP log.
 			$e = new \Exception();
@@ -525,11 +527,11 @@ class WPCV_Woo_Civi_Contribution {
 		 *
 		 * Used internally by:
 		 *
-		 * - WPCV_Woo_Civi_Tax::contribution_tax_add() (Priority: 10)
-		 * - WPCV_Woo_Civi_Source::source_get_for_order() (Priority: 20)
-		 * - WPCV_Woo_Civi_Campaign::campaign_get_for_order() (Priority: 30)
-		 * - WPCV_Woo_Civi_Products::items_get_for_order() (Priority: 40)
-		 * - WPCV_Woo_Civi_Products::shipping_get_for_order() (Priority: 50)
+		 * - WPCV_Woo_Civi_Source::source_get_for_order() (Priority: 10)
+		 * - WPCV_Woo_Civi_Campaign::campaign_get_for_order() (Priority: 20)
+		 * - WPCV_Woo_Civi_Products::items_get_for_order() (Priority: 30)
+		 * - WPCV_Woo_Civi_Products::shipping_get_for_order() (Priority: 40)
+		 * - WPCV_Woo_Civi_Tax::contribution_tax_add() (Priority: 100)
 		 *
 		 * @since 2.0
 		 *
@@ -647,6 +649,67 @@ class WPCV_Woo_Civi_Contribution {
 		}
 
 		return $payment_data;
+
+	}
+
+	/**
+	 * Adds a Note to a Contribution.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $contribution The array of CiviCRM Contribution data.
+	 * @param string $note The text to add as a Note.
+	 * @return array|bool The Note data on success, otherwise false.
+	 */
+	public function note_add( $contribution, $note ) {
+
+		// Bail if we have no Contribution ID.
+		if ( empty( $contribution['id'] ) ) {
+			return false;
+		}
+
+		$params = [
+			'entity_table' => 'civicrm_contribute',
+			'entity_id' => $contribution['id'],
+			'contact_id' => $contribution['contact_id'],
+			'note' => $note,
+		];
+
+		try {
+
+			$result = civicrm_api3( 'Note', 'create', $params );
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to create a Note for a Contribution.', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $e->getErrorCode() );
+			CRM_Core_Error::debug_log_message( $e->getExtraParams() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'message' => $e->getMessage(),
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
+			return false;
+
+		}
+
+		// Init as empty.
+		$note_data = [];
+
+		// The result set should contain only one item.
+		if ( ! empty( $result['values'] ) ) {
+			$note_data = array_pop( $result['values'] );
+		}
+
+		return $note_data;
 
 	}
 
