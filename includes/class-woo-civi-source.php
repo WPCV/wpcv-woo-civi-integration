@@ -66,7 +66,7 @@ class WPCV_Woo_Civi_Source {
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ] );
 
 		// Add Source to Order.
-		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'source_get_for_order' ], 20, 2 );
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'source_get_for_order' ], 10, 2 );
 
 		// Show Source on Orders listing screen.
 		add_filter( 'manage_shop_order_posts_columns', [ $this, 'columns_head' ], 30 );
@@ -161,7 +161,7 @@ class WPCV_Woo_Civi_Source {
 	}
 
 	/**
-	 * Update Source.
+	 * Updates the Source of a Contribution.
 	 *
 	 * @since 2.0
 	 *
@@ -171,7 +171,10 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function source_update( $order_id, $new_source ) {
 
-		// Bail if no Campaign is passed in.
+		// Disabled because this always triggers Tax recalculation.
+		return true;
+
+		// Bail if no Source is passed in.
 		if ( empty( $new_source ) ) {
 			return false;
 		}

@@ -128,7 +128,7 @@ class WPCV_Woo_Civi_Campaign {
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ], 20 );
 
 		// Add Campaign ID to Order.
-		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'campaign_get_for_order' ], 30, 2 );
+		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'campaign_get_for_order' ], 20, 2 );
 
 		// Add Campaign ID to plugin settings fields.
 		add_filter( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', [ $this, 'campaign_settings_add' ] );
@@ -595,7 +595,6 @@ class WPCV_Woo_Civi_Campaign {
 		if ( false !== $new_campaign_id && $new_campaign_id !== $current_campaign_id ) {
 			$this->campaign_update( $order_id, $current_campaign_id, $new_campaign_id );
 			$this->set_order_meta( $order_id, (int) $new_campaign_id );
-
 		}
 
 	}
@@ -626,6 +625,9 @@ class WPCV_Woo_Civi_Campaign {
 	 * @return bool True if successful, or false on failure.
 	 */
 	public function campaign_update( $order_id, $old_campaign_id, $new_campaign_id ) {
+
+		// Disabled because this always triggers Tax recalculation.
+		return true;
 
 		// Bail if no Campaign is passed in.
 		if ( empty( $old_campaign_id ) && empty( $new_campaign_id ) ) {
@@ -675,8 +677,7 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		// Set Campaign.
-		// FIXME: Is campaign_id really the Campaign name?
-		$contribution['campaign_id'] = $campaign_name;
+		$contribution['campaign_id'] = $new_campaign_id;
 
 		// Ignore Contribution Note if already present.
 		if ( ! empty( $contribution['contribution_note'] ) ) {
