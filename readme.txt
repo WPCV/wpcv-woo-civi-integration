@@ -26,7 +26,7 @@ Integrates CiviCRM with WooCommerce.
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 5.37* and *WooCommerce 5.2.2+*.
+This plugin requires a minimum of *CiviCRM 5.39* and *WooCommerce 5.2.2+*.
 
 ### Configuration
 
