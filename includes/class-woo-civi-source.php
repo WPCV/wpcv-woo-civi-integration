@@ -171,9 +171,6 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function source_update( $order_id, $new_source ) {
 
-		// Disabled because this always triggers Tax recalculation.
-		return true;
-
 		// Bail if no Source is passed in.
 		if ( empty( $new_source ) ) {
 			return false;

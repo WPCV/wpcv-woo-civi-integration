@@ -626,9 +626,6 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function campaign_update( $order_id, $old_campaign_id, $new_campaign_id ) {
 
-		// Disabled because this always triggers Tax recalculation.
-		return true;
-
 		// Bail if no Campaign is passed in.
 		if ( empty( $old_campaign_id ) && empty( $new_campaign_id ) ) {
 			return true;
