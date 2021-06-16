@@ -134,7 +134,7 @@ class WPCV_Woo_Civi_Settings_Tab {
 			'contribution_title' => [
 				'title' => __( 'Contribution settings', 'wpcv-woo-civi-integration' ),
 				'type' => 'title',
-				'desc' => __( 'Below are the default settings that are used when creating Contributions in CiviCRM. The Finanical Type can be overridden on individual Products on the "CiviCRM Settings" tab.', 'wpcv-woo-civi-integration' ),
+				'desc' => __( 'Below are the default settings that are used when creating Contributions in CiviCRM. It is recommended that you set the Financial Type on individual Products on the "CiviCRM Settings" tab.', 'wpcv-woo-civi-integration' ),
 				'id' => 'contribution_title',
 			],
 		];
