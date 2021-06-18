@@ -153,6 +153,15 @@ class WPCV_Woo_Civi {
 	public $membership;
 
 	/**
+	 * Participant management object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $participant The Participant management object.
+	 */
+	public $participant;
+
+	/**
 	 * Dummy instance constructor.
 	 *
 	 * @since 3.0
@@ -294,6 +303,8 @@ class WPCV_Woo_Civi {
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-campaign.php';
 		// Include Membership class.
 		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-membership.php';
+		// Include Participant class.
+		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-participant.php';
 
 	}
 
@@ -335,6 +346,8 @@ class WPCV_Woo_Civi {
 		$this->campaign = new WPCV_Woo_Civi_Campaign();
 		// Init Membership object.
 		$this->membership = new WPCV_Woo_Civi_Membership();
+		// Init Participant object.
+		$this->participant = new WPCV_Woo_Civi_Participant();
 
 	}
 
