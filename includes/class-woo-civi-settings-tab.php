@@ -170,6 +170,15 @@ class WPCV_Woo_Civi_Settings_Tab {
 				'options' => WPCV_WCI()->helper->get_financial_types(),
 				'id'   => 'woocommerce_civicrm_financial_type_shipping_id',
 			],
+			'pay_later_gateways' => [
+				'title' => __( 'Pay Later Payment Methods', 'wpcv-woo-civi-integration' ),
+				'type' => 'multiselect',
+				'options' => WPCV_WCI()->helper->get_payment_gateway_options(),
+				'id'   => 'woocommerce_civicrm_pay_later_gateways',
+				'autoload' => false,
+				'desc' => __( 'Select all the WooCommerce Payment Methods that are considered "Pay Later" in CiviCRM.', 'wpcv-woo-civi-integration' ),
+				'class' => 'wc-enhanced-select',
+			],
 			'ignore_0_amount_orders' => [
 				'title' => __( 'Do not create 0 amount Contributions', 'wpcv-woo-civi-integration' ),
 				'type' => 'checkbox',
