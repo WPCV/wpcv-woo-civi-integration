@@ -56,17 +56,20 @@ class WPCV_Woo_Civi_Source {
 	public function register_hooks() {
 
 		// Allow Source to be set on Orders in WordPress admin.
-		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_updated' ], 10, 2 );
+		//add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
 		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 10, 2 );
 
 		// Hook into WooCommerce Order processed.
-		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'order_processed' ], 10, 2 );
+		//add_action( 'wpcv_woo_civi/order/processed', [ $this, 'order_processed' ], 10, 2 );
 
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ] );
 
 		// Add Source to Order.
 		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'source_get_for_order' ], 10, 2 );
+
+		// Add Source to plugin settings fields.
+		//add_filter( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', [ $this, 'source_settings_add' ] );
 
 		// Show Source on Orders listing screen.
 		add_filter( 'manage_shop_order_posts_columns', [ $this, 'columns_head' ], 30 );
@@ -104,11 +107,42 @@ class WPCV_Woo_Civi_Source {
 	}
 
 	/**
+	 * Performs necessary actions when a WooCommerce Order is created.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param object $order The Order object.
+	 */
+	public function order_new( $order_id, $order ) {
+
+		// Retrieve the current Source.
+		$current_source = $this->get_order_meta( $order_id );
+
+		// Generate the new Source if there isn't one.
+		$new_source = filter_input( INPUT_POST, 'order_civicrmsource', FILTER_SANITIZE_STRING );
+		if ( empty( $new_source ) ) {
+			$new_source = $this->source_generate( $order );
+		}
+
+		// Update the Contribution.
+		if ( $new_source !== $current_source ) {
+			$this->source_update( $order_id, $new_source );
+			$this->set_order_meta( $order_id, esc_attr( $new_source ) );
+		}
+
+	}
+
+	/**
 	 * Called when a WooCommerce Order is updated in WordPress admin.
 	 *
 	 * This fires before "order_processed()" so things can get a bit confusing
 	 * since "order_processed()" is called in both the Checkout and by the
 	 * "New Order" screen in WordPress admin.
+	 *
+	 * The 'woocommerce_update_order' hook can fire more than once when an Order
+	 * is updated, so we protect against that to avoid unnecessary updates to
+	 * the CiviCRM Contribution.
 	 *
 	 * @since 3.0
 	 *
@@ -121,20 +155,17 @@ class WPCV_Woo_Civi_Source {
 			return;
 		}
 
-		// Add the Source to Order.
-		$current_source = $this->get_order_meta( $order_id );
-		$new_source = filter_input( INPUT_POST, 'order_civicrmsource', FILTER_SANITIZE_STRING );
-
-		// Generate the default Source if there isn't one.
-		if ( empty( $new_source ) ) {
-			$new_source = $this->source_generate( $order );
-			$this->set_order_meta( $order_id, esc_attr( $new_source ) );
+		// This only needs to be done once.
+		static $done;
+		if ( isset( $done ) AND $done === true ) {
+			return;
 		}
 
-		// Update the Contribution.
-		if ( $new_source !== $current_source ) {
-			$this->source_update( $order_id, $new_source );
-		}
+		// Use same method as for new Orders for now.
+		$this->order_new( $order_id, $order );
+
+		// We're done.
+		$done = true;
 
 	}
 

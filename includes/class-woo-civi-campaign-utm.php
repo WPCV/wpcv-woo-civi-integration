@@ -54,13 +54,13 @@ class WPCV_Woo_Civi_UTM {
 	 */
 	public function register_hooks() {
 
+		// Save UTM Campaign cookie content to the Order.
+		add_action( 'wpcv_woo_civi/campaign/get_for_order', [ $this, 'utm_to_order' ], 10, 2 );
+
 		// Flush cookies when a Contribution has been created from an Order.
 		add_action( 'wpcv_woo_civi/contribution/create_from_order', [ $this, 'utm_cookies_delete' ] );
 
-		// Save UTM Campaign cookie content to the Order post meta.
-		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'utm_to_order' ], 20 );
-
-		// Save UTM Campaign cookie content to the Order post meta.
+		// Filter the Contribution Source.
 		add_filter( 'wpcv_woo_civi/order/source/generate', [ $this, 'utm_filter_source' ] );
 
 	}
@@ -153,26 +153,26 @@ class WPCV_Woo_Civi_UTM {
 	 * Saves UTM Campaign cookie content to the Order post meta.
 	 *
 	 * @since 2.2
+	 * @since 3.0 Used only on new Orders.
 	 *
-	 * @param int $order_id The Order ID.
+	 * @param array $campaign_id The calculated Campaign ID.
+	 * @param object $order The WooCommerce Order object.
 	 */
-	public function utm_to_order( $order_id ) {
+	public function utm_to_order( $campaign_id, $order ) {
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			return;
+			return $campaign_id;
 		}
 
 		$cookie = wp_unslash( $_COOKIE );
 		$campaign_cookie = 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH;
 
-		// Set the UTM Campaign ID if present, otherwise set default CiviCRM Campaign ID.
+		// Override with the UTM Campaign ID if present.
 		if ( ! empty( $cookie[ $campaign_cookie ] ) ) {
-			WPCV_WCI()->campaign->set_order_meta( $order_id, esc_attr( $cookie[ $campaign_cookie ] ) );
-			setcookie( $campaign_cookie, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
-		} else {
-			$campaign_id = get_option( 'woocommerce_civicrm_campaign_id' );
-			WPCV_WCI()->campaign->set_order_meta( $order_id, $campaign_id );
+			$campaign_id = (int) esc_attr( $cookie[ $campaign_cookie ] );
 		}
+
+		return $campaign_id;
 
 	}
 

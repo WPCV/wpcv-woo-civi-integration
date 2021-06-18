@@ -118,11 +118,9 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function register_hooks() {
 
-		// Hook into new WooCommerce Orders with CiviCRM data.
-		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 20, 2 );
-
 		// Allow Campaign to be set on Order in WordPress admin.
-		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 10, 2 );
+		//add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
+		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 20, 2 );
 
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ], 20 );
@@ -563,16 +561,32 @@ class WPCV_Woo_Civi_Campaign {
 	public function campaign_get_for_order( $params, $order ) {
 
 		// Get the global CiviCRM Campaign ID.
-		$default_campaign_id = get_option( 'woocommerce_civicrm_campaign_id', false );
+		$campaign_id = get_option( 'woocommerce_civicrm_campaign_id', false );
 
 		// Use the local CiviCRM Campaign ID if possible.
 		$local_campaign_id = $this->get_order_meta( $order->get_id() );
 		if ( ! empty( $local_campaign_id ) ) {
-			$default_campaign_id = $local_campaign_id;
+			$campaign_id = $local_campaign_id;
 		}
 
-		if ( ! empty( $default_campaign_id ) ) {
-			$params['campaign_id'] = (int) $default_campaign_id;
+		/**
+		 * Filter the Campaign ID.
+		 *
+		 * Used internally by:
+		 *
+		 * - WPCV_Woo_Civi_UTM::utm_to_order() (Priority: 10)
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $campaign_id The calculated Campaign ID.
+		 * @param object $order The WooCommerce Order object.
+		 */
+		$campaign_id = apply_filters( 'wpcv_woo_civi/campaign/get_for_order', $campaign_id, $order );
+
+		// Store in Order meta and add to params.
+		if ( ! empty( $campaign_id ) ) {
+			$this->set_order_meta( $order->get_id(), $campaign_id );
+			$params['campaign_id'] = (int) $campaign_id;
 		}
 
 		return $params;
@@ -589,9 +603,11 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function order_new( $order_id, $order ) {
 
-		// Add the Campaign ID to the Order.
+		// Retrieve the current and new Campaign ID.
 		$current_campaign_id = $this->get_order_meta( $order_id );
 		$new_campaign_id = filter_input( INPUT_POST, 'order_civicrmcampaign', FILTER_VALIDATE_INT );
+
+		// Update the Contribution.
 		if ( false !== $new_campaign_id && $new_campaign_id !== $current_campaign_id ) {
 			$this->campaign_update( $order_id, $current_campaign_id, $new_campaign_id );
 			$this->set_order_meta( $order_id, (int) $new_campaign_id );
@@ -602,6 +618,10 @@ class WPCV_Woo_Civi_Campaign {
 	/**
 	 * Performs necessary actions when a WooCommerce Order is updated.
 	 *
+	 * The 'woocommerce_update_order' hook can fire more than once when an Order
+	 * is updated, so we protect against that to avoid unnecessary updates to
+	 * the CiviCRM Contribution.
+	 *
 	 * @since 3.0
 	 *
 	 * @param int $order_id The Order ID.
@@ -609,8 +629,21 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function order_updated( $order_id, $order ) {
 
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// This only needs to be done once.
+		static $done;
+		if ( isset( $done ) AND $done === true ) {
+			return;
+		}
+
 		// Use same method as for new Orders for now.
 		$this->order_new( $order_id, $order );
+
+		// We're done.
+		$done = true;
 
 	}
 
