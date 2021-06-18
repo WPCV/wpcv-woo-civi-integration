@@ -178,14 +178,6 @@ class WPCV_Woo_Civi_Membership {
 			'membership_type_id' => $product_membership_type_id,
 		];
 
-		// FIXME: Need to add:
-		/*
-		 * New Memberships need:
-		 *
-		 * "skipStatusCal": 1,
-		 * "status_id": "Pending"
-		 */
-
 		// Apply Membership to Line Item.
 		$line_item = [
 			'params' => $line_item_params,
