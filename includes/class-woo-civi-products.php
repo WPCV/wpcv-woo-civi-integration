@@ -104,17 +104,6 @@ class WPCV_Woo_Civi_Products {
 
 		$params['line_item'] = $items_data;
 
-		/*
-		$e = new \Exception();
-		$trace = $e->getTraceAsString();
-		error_log( print_r( [
-			'method' => __METHOD__,
-			'items_data' => $items_data,
-			'params' => $params,
-			//'backtrace' => $trace,
-		], true ) );
-		*/
-
 		return $params;
 
 	}
@@ -142,7 +131,7 @@ class WPCV_Woo_Civi_Products {
 		// Construct API query.
 		$params = [
 			'version' => 3,
-			'contribution_id' => 103,
+			'contribution_id' => $contribution_id,
 		];
 
 		// Get Line Item details via API.
@@ -276,6 +265,7 @@ class WPCV_Woo_Civi_Products {
 				'line_total' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total() ),
 				'tax_amount' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total_tax() ),
 				'label' => $product->get_name(),
+				'entity_table' => 'civicrm_contribution',
 			];
 
 			/*
@@ -315,9 +305,10 @@ class WPCV_Woo_Civi_Products {
 			 * @param array $line_item The array of Line Item data.
 			 * @param object $item The WooCommerce Item object.
 			 * @param object $product The WooCommerce Product object.
+			 * @param object $order The WooCommerce Order object.
 			 * @param array $params The params as presently constructed.
 			 */
-			$line_item = apply_filters( 'wpcv_woo_civi/products/line_item', $line_item, $item, $product, $params );
+			$line_item = apply_filters( 'wpcv_woo_civi/products/line_item', $line_item, $item, $product, $order, $params );
 
 			$params['line_items'][ $item_id ] = $line_item;
 
@@ -343,7 +334,7 @@ class WPCV_Woo_Civi_Products {
 		 *
 		 * If only that worked. I thought it sounded too good to be true. Doing that
 		 * results in: "Mandatory key(s) missing from params array: financial_type_id"
-		 so let's try the default and see what happens.
+		 * so let's try the default and see what happens.
 		 */
 		if ( 1 === count( $financial_types ) ) {
 			$params['financial_type_id'] = array_pop( $financial_types );

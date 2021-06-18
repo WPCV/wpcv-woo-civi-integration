@@ -57,10 +57,11 @@ class WPCV_Woo_Civi_Order {
 
 		// Process new WooCommerce Orders from Checkout.
 		add_action( 'woocommerce_checkout_create_order', [ $this, 'checkout_create_order' ], 20, 2 );
-		add_action( 'woocommerce_checkout_order_processed', [ $this, 'order_processed' ], 20, 3 );
+		add_action( 'woocommerce_checkout_order_processed', [ $this, 'checkout_order_processed' ], 20, 3 );
 
 		// Process changes in WooCommerce Orders.
 		add_action( 'woocommerce_new_order', [ $this, 'order_new' ], 20, 2 );
+		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 20, 2 );
 		add_action( 'woocommerce_order_status_changed', [ $this, 'order_status_changed' ], 99, 4 );
 		//add_action( 'woocommerce_order_payment_status_changed', [ $this, 'order_status_changed_to_paid' ], 10, 2 );
 
@@ -97,6 +98,45 @@ class WPCV_Woo_Civi_Order {
 	}
 
 	/**
+	 * Performs necessary actions when an Order is processed in WooCommerce.
+	 *
+	 * @since 2.0
+	 * @since 3.0 Renamed from "action_order".
+	 *
+	 * @param int $order_id The Order ID.
+	 * @param array $posted_data The posted data.
+	 * @param object $order The Order object.
+	 */
+	public function checkout_order_processed( $order_id, $posted_data, $order ) {
+
+		// Bail if Order is 'free' (0 amount) and 0 amount setting is enabled.
+		$ignore_zero_orders = WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false ) );
+		if ( $ignore_zero_orders && $order->get_total() === 0 ) {
+			return false;
+		}
+
+		// Add the Contribution record.
+		$contribution = WPCV_WCI()->contribution->create_from_order( $order );
+		if ( $contribution === false ) {
+			return false;
+		}
+
+		/**
+		 * Broadcast that a Contribution record has been added for a new WooCommerce Order.
+		 *
+		 * Used internally by:
+		 *
+		 * @since 3.0
+		 *
+		 * @param int $order_id The Order ID.
+		 * @param object $order The Order object.
+		 * @param array $contribution The array of Contribution data, or false on failure.
+		 */
+		do_action( 'wpcv_woo_civi/order/processed', $order_id, $order, $contribution );
+
+	}
+
+	/**
 	 * Performs necessary actions when a WooCommerce Order is created.
 	 *
 	 * @since 2.2
@@ -114,7 +154,7 @@ class WPCV_Woo_Civi_Order {
 		}
 
 		// In WordPress admin, mimic the "woocommerce_checkout_order_processed" callback.
-		$this->order_processed( $order_id, null, new WC_Order( $order_id ) );
+		$this->checkout_order_processed( $order_id, null, new WC_Order( $order_id ) );
 
 		/**
 		 * Broadcast that a new WooCommerce Order with CiviCRM data has been created.
@@ -134,44 +174,14 @@ class WPCV_Woo_Civi_Order {
 	}
 
 	/**
-	 * Performs necessary actions when an Order is processed in WooCommerce.
+	 * Performs necessary actions when a WooCommerce Order is updated.
 	 *
-	 * @since 2.0
-	 * @since 3.0 Renamed from "action_order".
+	 * @since 3.0
 	 *
 	 * @param int $order_id The Order ID.
-	 * @param array $posted_data The posted data.
 	 * @param object $order The Order object.
 	 */
-	public function order_processed( $order_id, $posted_data, $order ) {
-
-		// Bail if Order is 'free' (0 amount) and 0 amount setting is enabled.
-		$ignore_zero_orders = WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false ) );
-		if ( $ignore_zero_orders && $order->get_total() === 0 ) {
-			return false;
-		}
-
-		// Add the Contribution record.
-		$contribution = WPCV_WCI()->contribution->create_from_order( $order );
-		if ( $contribution === false ) {
-			return false;
-		}
-
-		/**
-		 * Broadcast that a Contribution record has been added for a new WooCommerce Order.
-		 *
-		 * Used internally by:
-		 *
-		 * * WPCV_Woo_Civi_Source::order_processed() (Priority: 10)
-		 * * WPCV_Woo_Civi_UTM::utm_to_order() (Priority: 20)
-		 *
-		 * @since 3.0
-		 *
-		 * @param int $order_id The Order ID.
-		 * @param object $order The Order object.
-		 * @param array $contribution The array of Contribution data, or false on failure.
-		 */
-		do_action( 'wpcv_woo_civi/order/processed', $order_id, $order, $contribution );
+	public function order_updated( $order_id, $order ) {
 
 	}
 

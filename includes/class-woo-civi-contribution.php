@@ -504,6 +504,12 @@ class WPCV_Woo_Civi_Contribution {
 			'contribution_status_id' => 'Pending',
 		];
 
+		// Maybe assign "Pay Later" based on Payment Method.
+		$pay_later_methods = get_option( 'woocommerce_civicrm_pay_later_gateways', [] );
+		if ( in_array( $order->get_payment_method(), $pay_later_methods ) ) {
+			$params['is_pay_later'] = 1;
+		}
+
 		/*
 		 * From the CiviCRM Order API docs:
 		 *
@@ -523,7 +529,7 @@ class WPCV_Woo_Civi_Contribution {
 		$params['total_amount'] = WPCV_WCI()->helper->get_civicrm_float( $order->get_total() );
 
 		/**
-		 * Filter the Contribution params before calling the CiviCRM API.
+		 * Filter the Order params before calling the CiviCRM API.
 		 *
 		 * Used internally by:
 		 *

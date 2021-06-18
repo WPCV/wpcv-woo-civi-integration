@@ -79,7 +79,7 @@ class WPCV_Woo_Civi_Membership {
 		add_action( 'wpcv_woo_civi/product/panel/saved', [ $this, 'panel_saved' ] );
 
 		// Add Membership Type to Line Item.
-		add_action( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ], 20, 4 );
+		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ], 20, 5 );
 
 	}
 
@@ -151,14 +151,13 @@ class WPCV_Woo_Civi_Membership {
 	 * @param array $line_item The array of Line Item data.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
+	 * @param object $order The WooCommerce Order object.
 	 * @param array $params The params to be passed to the CiviCRM API.
 	 */
-	public function line_item_filter( $line_item, $item, $product, $params ) {
+	public function line_item_filter( $line_item, $item, $product, $order, $params ) {
 
 		// Get Membership Type ID from Product meta.
 		$product_membership_type_id = $product->get_meta( $this->meta_key );
-
-		// Bail if none found.
 		if ( empty( $product_membership_type_id ) ) {
 			return $line_item;
 		}

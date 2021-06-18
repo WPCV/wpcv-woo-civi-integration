@@ -64,7 +64,7 @@ class WPCV_Woo_Civi_Tax {
 		add_action( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'contribution_tax_add' ], 100, 2 );
 
 		// Add Tax to Line Item.
-		add_action( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_tax_add' ], 10, 4 );
+		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_tax_add' ], 10, 5 );
 
 	}
 
@@ -219,9 +219,10 @@ class WPCV_Woo_Civi_Tax {
 	 * @param array $line_item The array of Line Item data.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
+	 * @param object $order The WooCommerce Order object.
 	 * @param array $params The params to be passed to the CiviCRM API.
 	 */
-	public function line_item_tax_add( $line_item, $item, $product, $params ) {
+	public function line_item_tax_add( $line_item, $item, $product, $order, $params ) {
 
 		// Bail if Product is not taxable.
 		if ( ! $product->is_taxable() ) {
