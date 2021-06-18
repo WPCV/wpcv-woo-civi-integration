@@ -248,7 +248,7 @@ class WPCV_Woo_Civi_Source {
 	 * @param object $order The Order object.
 	 * @return string $source The Contribution Source string.
 	 */
-	public function source_generate( $order ) {
+	public function source_generate( $order = null ) {
 
 		// TODO: Should this be a setting?
 		$source = __( 'Shop', 'wpcv-woo-civi-integration' );

@@ -283,17 +283,31 @@ class WPCV_Woo_Civi_Participant {
 		// Grab the existing Line Item data.
 		$line_item_data = array_pop( $line_item['line_item'] );
 
-		/*
-		 * FIXME: Refine "Source" for Event signups, e.g.
-		 *
-		 * "Rain-forest Cup Youth Soccer Tournament: Shop registration"
-		 */
+		// Init the params sub-array.
 		$line_item_params = [
 			'event_id' => $event_id,
 			'contact_id' => $params['contact_id'],
 			'role_id' => $participant_role_id,
-			'source' => __( 'Shop', 'wpcv-woo-civi-integration' ),
 		];
+
+		// Set a descriptive source.
+		$line_item_params['source'] = sprintf(
+			__( '%1$s: %2$s' ),
+			WPCV_WCI()->source->source_generate(),
+			$product->get_name()
+		);
+
+		/*
+		// Build source with CiviCRM Event data if we can.
+		$event = $this->get_event_by_id( $event_id );
+		if ( $event !== false ) {
+			$line_item_params['source'] = sprintf(
+				__( '%1$s: %2$s' ),
+				WPCV_WCI()->source->source_generate(),
+				$event['title']
+			);
+		}
+		*/
 
 		/*
 		 * From the CiviCRM Order API docs:
@@ -335,6 +349,60 @@ class WPCV_Woo_Civi_Participant {
 		$this->has_participant[ $product->get_id() ] = [ $event_id, $participant_role_id ];
 
 		return $line_item;
+
+	}
+
+	/**
+	 * Get the CiviCRM Event data for a given ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @param integer $event_id The numeric ID of the CiviCRM Event to query.
+	 * @return array|boolean $event_data An array of Event data, or false on failure.
+	 */
+	public function get_event_by_id( $event_id ) {
+
+		// Init return.
+		$event_data = false;
+
+		// Bail if we have no Event ID.
+		if ( empty( $event_id ) ) {
+			return $event_data;
+		}
+
+		// Try and init CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $event_data;
+		}
+
+		// Define params to get queried Event.
+		$params = [
+			'version' => 3,
+			'sequential' => 1,
+			'id' => $event_id,
+			'options' => [
+				'limit' => 0, // No limit.
+			],
+		];
+
+		// Call the API.
+		$result = civicrm_api( 'Event', 'get', $params );
+
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+			return $event_data;
+		}
+
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return $event_data;
+		}
+
+		// The result set should contain only one item.
+		$event_data = array_pop( $result['values'] );
+
+		// --<
+		return $event_data;
 
 	}
 
