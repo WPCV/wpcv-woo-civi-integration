@@ -761,7 +761,7 @@ class WPCV_Woo_Civi_Contact {
 		unset( $contact['email'] );
 
 		// We need a default Contact Type.
-		// TODO Maybe this should be a setting?
+		// TODO: Maybe this should be a setting? With Sub-type as well perhaps?
 		$contact['contact_type'] = 'Individual';
 
 		/*
@@ -924,7 +924,7 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		// Orders created in WordPress admin should not use the logged in User's Contact.
-		// FIXME: Why not? The wrong Contact ID can returned on the Edit Order screen when there's a duplicate Email.
+		// FIXME: Why not? The wrong Contact ID can be returned on the Edit Order screen when there's a duplicate Email.
 		// This happens when the Default Org has the same Email as a Contact.
 
 		// Check the WordPress User when it's a Checkout Order.
