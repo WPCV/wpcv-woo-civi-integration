@@ -329,6 +329,63 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
+	 * Gets the WooCommerce Payment Gateways.
+	 *
+	 * @since 3.0
+	 *
+	 * @param bool $enabled Pass true if only enabled Payment Gateways are required.
+	 * @return array $gateways The array of WooCommerce Payment Gateway objects.
+	 */
+	public function payment_gateways( $enabled = false ) {
+
+		$gateways = [];
+
+		// Get all Payment Gateways.
+		//$available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+		$all_gateways = WC()->payment_gateways->payment_gateways();
+		if ( empty( $all_gateways ) ) {
+			return $gateways;
+		}
+
+		// Only include those which are enabled.
+		foreach ( $all_gateways as $gateway ) {
+			if ( ! $gateway->is_available() && $enabled ) {
+				continue;
+			}
+			$gateways[] = $gateway;
+		}
+
+		return $gateways;
+
+	}
+
+	/**
+	 * Gets the WooCommerce Payment Gateways as options.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $gateways The array of Payment Gateway options.
+	 */
+	public function get_payment_gateway_options() {
+
+		$gateways = [];
+
+		// Get enabled Payment Gateways.
+		$enabled_gateways = $this->payment_gateways();
+		if ( empty( $enabled_gateways ) ) {
+			return $gateways;
+		}
+
+		// Build the array for the HTML element.
+		foreach ( $enabled_gateways as $gateway ) {
+			$gateways[ $gateway->id ] = $gateway->method_title;
+		}
+
+		return $gateways;
+
+	}
+
+	/**
 	 * Maps a WooCommerce payment method to a CiviCRM payment instrument.
 	 *
 	 * @since 2.0
