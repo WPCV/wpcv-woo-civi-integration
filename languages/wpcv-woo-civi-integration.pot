@@ -1,0 +1,756 @@
+# Copyright (C) 2021 Integrate CiviCRM with WooCommerce
+# This file is distributed under the same license as the Integrate CiviCRM with WooCommerce package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Integrate CiviCRM with WooCommerce 3.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpcv-woo-civi-"
+"integration\n"
+"POT-Creation-Date: 2021-05-02 17:23:10+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2021-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:26
+msgid "Purchases"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:33
+msgid "Order Number"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:34
+msgid "Date"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:35
+msgid "Billing Name"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:36
+msgid "Shipping Name"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:37
+msgid "Item count"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:38
+msgid "Amount"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:39
+msgid "Actions"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:40
+msgid ""
+"This Contact is not linked to any WordPress User or WooCommerce Customer"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:41
+msgid "Orders"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:42
+msgid "Add Order"
+msgstr ""
+
+#: assets/civicrm/custom_php/CRM/Contact/Page/View/Purchases.php:43
+msgid "Edit"
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:4
+msgid "Why migrate?"
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:6
+msgid ""
+"The WooCommerce CiviCRM plugin is no longer being developed and the "
+"functionality that it provides has been transferred to this plugin. New "
+"features and bug fixes will only be added to this plugin from now on. Plus "
+"you get the convenience of updating this plugin via your WordPress Updates "
+"page."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:8
+msgid "What needs to be done?"
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:10
+msgid ""
+"Before you go ahead and deactivate and delete the WooCommerce CiviCRM "
+"plugin, there are few things that need to be checked to make sure your site "
+"continues to work as normal."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:10
+msgid ""
+"Integrate CiviCRM with WooCommerce will not affect your site until you have "
+"started one of the migration steps below, so take your time."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:12
+msgid "Filters and Actions"
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:14
+msgid ""
+"If you have not implemented any of the Filters or Actions from the "
+"WooCommerce CiviCRM plugin, then you can skip this section."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:16
+msgid ""
+"Filters and Actions have undergone a major overhaul and there isn’t really a "
+"simple substitution formula that we can give you. If you are technical "
+"enough to have used them to modify or extend the behaviour of the "
+"WooCommerce CiviCRM plugin, then we are confident that you are capable of "
+"figuring out their replacements by looking at the equivalent classes, "
+"functions and templates in this plugin."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:16
+msgid "You need to do so before taking any further action."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:22
+msgid "Product Metadata"
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:24
+msgid ""
+"The WooCommerce CiviCRM plugin duplicated some Product metadata in certain "
+"circumstances. Click the \"Upgrade Products\" button below to resolve this "
+"issue."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:27
+#: assets/templates/metaboxes/metabox-migrate-info.php:49
+msgid "Stop"
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:44
+msgid "Order Metadata"
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:46
+msgid ""
+"This plugin needs to store some information in WooCommerce Order metadata so "
+"that it can perform certain tasks. Click the \"Upgrade Orders\" button below "
+"to start the upgrade process."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:62
+#: wpcv-woo-civi-integration.php:400
+msgid "Settings"
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:64
+msgid ""
+"Luckily there is no uninstall routine in the WooCommerce CiviCRM plugin at "
+"present. This means that WooCommerce CiviCRM will not auto-delete its "
+"settings when it is deleted. This plugin can therefore use those settings "
+"unchanged and you should not notice any difference once you have deactivated "
+"WooCommerce CiviCRM. Nevertheless, you should only deactivate and delete "
+"WooCommerce CiviCRM when you are sure everything mentioned here has been "
+"attended to and you have clicked \"Submit\"."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:68
+msgid "Congratulations!"
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:70
+msgid ""
+"You have successfully migrated from WooCommerce CiviCRM to Integrate CiviCRM "
+"with WooCommerce."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-info.php:73
+msgid ""
+"You can now go to your %1$sPlugins page%2$s and deactivate the WooCommerce "
+"CiviCRM plugin."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-submit.php:6
+msgid "I have checked everything mentioned here and I am ready to migrate."
+msgstr ""
+
+#: assets/templates/metaboxes/metabox-migrate-submit.php:14
+msgid "Submit"
+msgstr ""
+
+#. #-#-#-#-#  wpcv-woo-civi-integration.pot (Integrate CiviCRM with WooCommerce 3.0)  #-#-#-#-#
+#. Plugin Name of the plugin/theme
+#: assets/templates/pages/page-admin-migrate.php:14
+#: includes/class-woo-civi-admin-migrate.php:187
+#: wpcv-woo-civi-integration.php:506 wpcv-woo-civi-integration.php:546
+#: wpcv-woo-civi-integration.php:586
+msgid "Integrate CiviCRM with WooCommerce"
+msgstr ""
+
+#: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-panel-civicrm.php:28
+#: includes/class-woo-civi-settings-tab.php:156
+msgid "Financial Type"
+msgstr ""
+
+#: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-panel-civicrm.php:30
+msgid "The CiviCRM Financial Type for this Product."
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:130
+msgid "You can now deactivate %1$sWooCommerce CiviCRM%2$s."
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:139
+msgid "Please visit the %1$sPlugins Page%2$s to deactivate it."
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:144
+msgid "%1$s %2$s"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:152
+msgid ""
+"%1$sWooCommerce CiviCRM%2$s has become %3$sIntegrate CiviCRM with WooCommerce"
+"%4$s. Please visit the %5$sMigration Page%6$s to switch over."
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:188
+#: wpcv-woo-civi-integration.php:507
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:238
+msgid "{{total_products}} Products to clean up..."
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:239
+msgid "Processing Products {{from_product}} to {{to_product}}"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:240
+msgid "Processing Products {{from_product}} to {{to_product}} complete"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:241
+msgid "{{total_orders}} Orders to clean up..."
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:242
+msgid "Upgrading Orders {{from_order}} to {{to_order}}"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:243
+msgid "Upgrading Orders {{from_order}} to {{to_order}} complete"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:244
+msgid "All done!"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:303
+#: includes/class-woo-civi-admin-migrate.php:308
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:391
+msgid "Migration Tasks"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:393
+msgid "Migration Complete"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:406
+msgid "Upgrade Products"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:408
+#: includes/class-woo-civi-admin-migrate.php:423
+msgid "Continue Upgrading"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:421
+msgid "Upgrade Orders"
+msgstr ""
+
+#: includes/class-woo-civi-admin-migrate.php:440
+msgid "Confirm Migration"
+msgstr ""
+
+#: includes/class-woo-civi-campaign.php:180
+#: includes/class-woo-civi-campaign.php:257
+#: includes/class-woo-civi-membership.php:338
+msgid "None"
+msgstr ""
+
+#: includes/class-woo-civi-campaign.php:513
+msgid "Default Campaign"
+msgstr ""
+
+#: includes/class-woo-civi-campaign.php:614
+msgid "Unable to fetch Campaign"
+msgstr ""
+
+#: includes/class-woo-civi-campaign.php:662
+#: includes/class-woo-civi-source.php:198
+msgid "Unable to update Contribution"
+msgstr ""
+
+#: includes/class-woo-civi-campaign.php:695
+msgid "Campaign"
+msgstr ""
+
+#: includes/class-woo-civi-campaign.php:757
+msgid "All campaigns"
+msgstr ""
+
+#: includes/class-woo-civi-campaign.php:854
+#: includes/class-woo-civi-campaign.php:855
+msgid "CiviCRM Campaign"
+msgstr ""
+
+#. translators: %1$s: Address Type, %2$s: Street Address
+#: includes/class-woo-civi-contact-address.php:172
+msgid "Created new CiviCRM Address of type %1$s: %2$s"
+msgstr ""
+
+#: includes/class-woo-civi-contact-address.php:186
+msgid "Unable to add/update Address"
+msgstr ""
+
+#: includes/class-woo-civi-contact-address.php:429
+msgid "Unable to fetch Address"
+msgstr ""
+
+#: includes/class-woo-civi-contact-address.php:461
+msgid "Unable to create/update Address"
+msgstr ""
+
+#. translators: %1$s: Location Type, %2$s: Email Address
+#: includes/class-woo-civi-contact-email.php:128
+msgid "Created new CiviCRM Email of type %1$s: %2$s"
+msgstr ""
+
+#: includes/class-woo-civi-contact-email.php:142
+msgid "Unable to add/update Email"
+msgstr ""
+
+#: includes/class-woo-civi-contact-email.php:280
+msgid "Unable to fetch Email"
+msgstr ""
+
+#: includes/class-woo-civi-contact-email.php:312
+msgid "Unable to create/update Email"
+msgstr ""
+
+#: includes/class-woo-civi-contact-orders-tab.php:210
+msgid "Woo Orders"
+msgstr ""
+
+#: includes/class-woo-civi-contact-orders-tab.php:242
+msgid "Unable to find Contact"
+msgstr ""
+
+#: includes/class-woo-civi-contact-orders-tab.php:260
+msgctxt "Order status"
+msgid "Pending payment"
+msgstr ""
+
+#: includes/class-woo-civi-contact-orders-tab.php:261
+msgctxt "Order status"
+msgid "Processing"
+msgstr ""
+
+#: includes/class-woo-civi-contact-orders-tab.php:262
+msgctxt "Order status"
+msgid "On hold"
+msgstr ""
+
+#: includes/class-woo-civi-contact-orders-tab.php:263
+msgctxt "Order status"
+msgid "Completed"
+msgstr ""
+
+#: includes/class-woo-civi-contact-orders-tab.php:264
+msgctxt "Order status"
+msgid "Cancelled"
+msgstr ""
+
+#: includes/class-woo-civi-contact-orders-tab.php:265
+msgctxt "Order status"
+msgid "Refunded"
+msgstr ""
+
+#: includes/class-woo-civi-contact-orders-tab.php:266
+msgctxt "Order status"
+msgid "Failed"
+msgstr ""
+
+#. translators: %1$s: Location Type, %2$s: Phone Number
+#: includes/class-woo-civi-contact-phone.php:128
+msgid "Created new CiviCRM Phone of type %1$s: %2$s"
+msgstr ""
+
+#: includes/class-woo-civi-contact-phone.php:142
+msgid "Unable to add/update Phone"
+msgstr ""
+
+#: includes/class-woo-civi-contact-phone.php:279
+msgid "Unable to fetch Phone"
+msgstr ""
+
+#: includes/class-woo-civi-contact-phone.php:311
+msgid "Unable to create/update Phone"
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:255
+msgid "CiviCRM Contact could not be fetched"
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:264
+msgid "CiviCRM Contact could not be created"
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:272
+msgid "CiviCRM Contact could not be updated"
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:322
+msgid "Failed to get Contact by ID"
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:384
+msgid "Failed to get Contact by Email"
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:569
+msgid "Unable to retrieve CiviCRM UFMatch data."
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:682
+msgid "A numerical ID must be present to update a Contact."
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:773
+#: includes/class-woo-civi-contact.php:873
+msgid "Unknown Name"
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:777
+msgid "WooCommerce purchase"
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:784
+msgid "Unable to create Contact"
+msgstr ""
+
+#: includes/class-woo-civi-contact.php:881
+msgid "Unable to update Contact"
+msgstr ""
+
+#. translators: %s: The Financial Type
+#: includes/class-woo-civi-helper.php:179
+msgid "Default (%s)"
+msgstr ""
+
+#: includes/class-woo-civi-helper.php:180
+#: includes/class-woo-civi-products-tab.php:160
+msgid "Not set"
+msgstr ""
+
+#: includes/class-woo-civi-helper.php:185
+#: includes/class-woo-civi-products-tab.php:181
+#: includes/class-woo-civi-products-tab.php:215
+msgid "Exclude"
+msgstr ""
+
+#: includes/class-woo-civi-helper.php:224
+msgid "Unable to fetch Decimal Separator"
+msgstr ""
+
+#: includes/class-woo-civi-helper.php:276
+msgid "Unable to fetch Thousand Separator"
+msgstr ""
+
+#: includes/class-woo-civi-helper.php:359
+#: includes/class-woo-civi-helper.php:420
+msgid "Error try to find Contribution by Invoice ID"
+msgstr ""
+
+#: includes/class-woo-civi-helper.php:487
+msgid "Unable to retrieve default Price Set"
+msgstr ""
+
+#: includes/class-woo-civi-membership.php:116
+msgid "Membership Type"
+msgstr ""
+
+#: includes/class-woo-civi-membership.php:118
+msgid ""
+"Select a Membership Type if you would like this Product to create a "
+"Membership in CiviCRM. The Membership will be created (with duration, plan, "
+"etc.) based on the settings in CiviCRM."
+msgstr ""
+
+#: includes/class-woo-civi-membership.php:169
+#: includes/class-woo-civi-source.php:232
+msgid "Shop"
+msgstr ""
+
+#: includes/class-woo-civi-membership.php:317
+msgid "Unable to retrieve CiviCRM Membership Types."
+msgstr ""
+
+#: includes/class-woo-civi-membership.php:382
+msgid "Unable to retrieve CiviCRM Membership Type."
+msgstr ""
+
+#: includes/class-woo-civi-orders.php:253
+msgid "Unable to update Order Status"
+msgstr ""
+
+#. translators: %d: The numeric ID of the WooCommerce Order
+#: includes/class-woo-civi-orders.php:292
+msgid "WooCommerce Order - %d"
+msgstr ""
+
+#: includes/class-woo-civi-orders.php:342
+msgid "Unable to add Contribution"
+msgstr ""
+
+#. translators: %s: The View Contribution link
+#: includes/class-woo-civi-orders.php:382
+msgid "Contribution %s has been created in CiviCRM"
+msgstr ""
+
+#: includes/class-woo-civi-orders.php:471
+msgid "There must be a default VAT Financial Type set."
+msgstr ""
+
+#: includes/class-woo-civi-orders.php:573
+#: includes/class-woo-civi-orders.php:595
+msgid "View"
+msgstr ""
+
+#. translators: %s: The link to the Contact in CiviCRM
+#: includes/class-woo-civi-orders.php:576
+msgid "Created new CiviCRM Contact - %s"
+msgstr ""
+
+#. translators: %s: The link to the Contact in CiviCRM
+#: includes/class-woo-civi-orders.php:598
+msgid "CiviCRM Contact Updated - %s"
+msgstr ""
+
+#: includes/class-woo-civi-orders.php:639
+msgid "View Contact in CiviCRM"
+msgstr ""
+
+#: includes/class-woo-civi-products-tab.php:80
+msgid "CiviCRM Settings"
+msgstr ""
+
+#. translators: %s: The default Financial Type
+#: includes/class-woo-civi-products-tab.php:163
+msgid "%s (Default)"
+msgstr ""
+
+#: includes/class-woo-civi-products-tab.php:177
+#: includes/class-woo-civi-products-tab.php:211
+msgid "— No change —"
+msgstr ""
+
+#: includes/class-woo-civi-products-tab.php:186
+#: includes/class-woo-civi-products-tab.php:220
+msgid "Contribution Type"
+msgstr ""
+
+#: includes/class-woo-civi-settings-network.php:96
+#: includes/class-woo-civi-settings-network.php:97
+#: includes/class-woo-civi-settings-network.php:119
+msgid "Integrate CiviCRM with WooCommerce Settings"
+msgstr ""
+
+#: includes/class-woo-civi-settings-network.php:143
+msgid "General settings"
+msgstr ""
+
+#: includes/class-woo-civi-settings-network.php:150
+msgid "Main WooCommerce Site ID"
+msgstr ""
+
+#: includes/class-woo-civi-settings-network.php:157
+msgid "The ID of the Site where the WooCommerce Shop is located."
+msgstr ""
+
+#: includes/class-woo-civi-settings-network.php:209
+msgid "Cheating uh?"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:72
+#: wpcv-woo-civi-integration.php:547 wpcv-woo-civi-integration.php:587
+msgid "CiviCRM"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:135
+msgid "Contribution settings"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:137
+msgid ""
+"Below are the default settings that  are used when creating Contributions in "
+"CiviCRM. These settings can be overridden on individual Products on the "
+"\"CiviCRM Settings\" tab."
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:162
+msgid "Tax/VAT Financial Type"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:168
+msgid "Shipping Financial Type"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:174
+msgid "Do not create 0 amount Contributions"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:176
+msgid ""
+"Do not create Contributions for Orders with a total of 0, i.e. free Products "
+"or using a Coupon."
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:226
+msgid "Address, Phone and Email settings"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:248
+msgid "Billing Location Type"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:254
+msgid "Shipping Location Type"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:260
+msgid "Sync Address"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:262
+msgid ""
+"Synchronize WooCommerce User Address with its matching CiviCRM Contact "
+"Address and vice versa."
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:266
+msgid "Sync Billing Phone"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:268
+msgid ""
+"Synchronize WooCommerce User Billing Phone Number with its matching CiviCRM "
+"Contact Billing Phone Number and vice versa."
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:272
+msgid "Sync Billing Email"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:274
+msgid ""
+"Synchronize WooCommerce User Billing Email with its matching CiviCRM Contact "
+"Billing Email and vice versa."
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:324
+msgid "Other settings"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:345
+msgid "Hide \"Woo Orders\" Tab for non-customers"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:347
+msgid ""
+"Remove the \"Woo Orders\" Tab from the CiviCRM Contact screen for non-"
+"customer Contacts."
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:351
+msgid "Replace WooCommerce States"
+msgstr ""
+
+#: includes/class-woo-civi-settings-tab.php:353
+msgid ""
+"WARNING, POSSIBLE DATA LOSS! If enabled, this plugin will replace the list "
+"of States/Countries in WooCommerce with the States/Provinces list from "
+"CiviCRM. If this is not a fresh install of WooCommerce and CiviCRM, then you "
+"WILL lose any existing State/Country data for existing Customers. Any "
+"WooCommerce Settings that rely on State/Country will have to be reconfigured."
+msgstr ""
+
+#: includes/class-woo-civi-source.php:277
+msgid "Source"
+msgstr ""
+
+#: includes/class-woo-civi-source.php:328
+msgid "All sources"
+msgstr ""
+
+#: includes/class-woo-civi-source.php:401
+#: includes/class-woo-civi-source.php:402
+msgid "CiviCRM Source"
+msgstr ""
+
+#: wpcv-woo-civi-integration.php:504 wpcv-woo-civi-integration.php:544
+#: wpcv-woo-civi-integration.php:584
+msgid "Activation failed"
+msgstr ""
+
+#. translators: %1$s: The plugin name, %2$s: WooCommerce
+#: wpcv-woo-civi-integration.php:511 wpcv-woo-civi-integration.php:551
+msgid "%1$s requires %2$s to be installed and activated."
+msgstr ""
+
+#. translators: %s: WooCommerce
+#: wpcv-woo-civi-integration.php:517 wpcv-woo-civi-integration.php:557
+msgid "This plugin has been deactivated! Please activate %s and try again."
+msgstr ""
+
+#. translators: %1$s: The opening anchor tag, %2$s: The closing anchor tag
+#: wpcv-woo-civi-integration.php:522 wpcv-woo-civi-integration.php:562
+#: wpcv-woo-civi-integration.php:602
+msgid "Back to the WordPress %1$splugins page%2$s."
+msgstr ""
+
+#. translators: %1$s: The plugin name, %2$s: WooCommerce
+#: wpcv-woo-civi-integration.php:591
+msgid "%1$s requires %2$s to be fully installed and configured."
+msgstr ""
+
+#. translators: %s: WooCommerce
+#: wpcv-woo-civi-integration.php:597
+msgid "This plugin has been deactivated! Please configure %s and try again."
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/WPCV/wpcv-woo-civi-integration"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Provides integration between CiviCRM with WooCommerce."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Andrei Mondoc"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://github.com/mecachisenros"
+msgstr ""

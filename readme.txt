@@ -1,85 +1,71 @@
-=== Woocommerce CiviCRM ===
+=== Integrate CiviCRM with WooCommerce ===
 Contributors: veda-consulting, mecachisenros, rajeshrhino, JoeMurray, kcristiano, cdhassell, bastho
 Tags: civicrm, woocommerce, integration
-Requires at least: 4.5
-Tested up to: 4.8
+Requires PHP: 7.1
+Requires at least: 5.5
+Tested up to: 5.7
 Stable tag: 2.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Integrates CiviCRM with Woocommerce.
+Integrates CiviCRM with WooCommerce.
 
 
 == Description ==
 
-1. Woocommerce orders are created as contributions in CiviCRM. Line items are not created in the contribution, but the product name x quantity are included in the 'source' field of the contribution
-2. Salex tax (VAT) & Shipping cost are saved as custom data against contribution
-3. Logged in users are recognised and the contribution is created against the related contact record
-4. If not logged in, the plugin tries to find the contact record in CiviCRM using Dedupe rules and the contribution is created against the found contact record.
-5. If the contact does not exist, a new contact record is created in CiviCRM and the contribution is created against the newly created contact record.
-6. Related contact record link is added to the Woocommerce order as notes.
-7. Option to sync CiviCRM and Woocommerce address, billing phone, and billing email. If a user edits his/hers address, billing phone, or billing email through the Woocommerce Account >> Edit Address page, CiviCRM profile, or through CiviCRM's backoffice, the data will be updated in both CiviCRM and Woocommerce.
-8. Option to replace Woocommerce's States/Counties list with CiviCRM's State/Province list. (WARNING!!! Enabling this option in an exiting Woocommerce instance will cause State/Couny data loss for exiting Customers and Woocommerce settings that relay on those.)
+1. WooCommerce Orders are created as Contributions in CiviCRM. Each Product in the Order is a Line Item in the Contribution.
+2. Sales Tax/VAT & Shipping Costs are configurable/mappable as CiviCRM Financial Types.
+3. A default Campaign can be defined for each Contribution, but Campaigns can be customized per Order.
+4. Logged in Users are recognised and the Contribution is created against the related CiviCRM Contact record.
+5. If not logged in, the plugin tries to find the CiviCRM Contact record using Dedupe Rules and the Contribution is created against the CiviCRM Contact record if one is found.
+6. If the CiviCRM Contact does not exist, a new Contact record is created in CiviCRM and the Contribution is created against the newly-created Contact record.
+7. The related Contact record link is added to the WooCommerce Order as a note.
+8. This plugin enables two-way syncing of Address, Billing Phone, and Billing Email between CiviCRM and WooCommerce. When a User edits their Address, Billing Phone, or Billing Email through their WooCommerce Account >> Edit Address page, their CiviCRM Profile, or through CiviCRM's admin interface, the data will be updated in both CiviCRM and WooCommerce.
+9. This plugin can replace WooCommerce's States/Counties list with CiviCRM's State/Province list. (**WARNING!!!** Enabling this option in an existing WooCommerce instance will cause **States/Counties data loss** for **existing Customers** and the **WooCommerce settings** that rely on those.)
+10. Basic Membership implementation: select the Membership Type in the CiviCRM Settings panel in the Product screen. If selected, a CiviCRM Membership will be created at checkout.
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 4.6* and *Woocommerce 3.0+*.
+This plugin requires a minimum of *CiviCRM 5.39* and *WooCommerce 5.2.2+*.
 
 ### Configuration
 
-Configure the integration settings in Woocommerce Menu >> Settings >> CiviCRM (Tab)
-Direct URL: https://example.com/wp-admin/admin.php?page=wc-settings&tab=woocommerce_civicrm
+Configure general integration settings in *WooCommerce* &rarr; *Settings* &rarr; *CiviCRM* Tab
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/screenshots/wpcv-woo-settings.jpg" alt="General settings for integrating CiviCRM with WooCommerce" width="600" />
+
+Configure settings for a Product in the *CiviCRM Settings* Tab.
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/screenshots/wpcv-woo-product.jpg" alt="Settings for integrating CiviCRM with a Product" width="470" />
+
+Configure settings for an Order in the *General* section of the "New Order" and "Edit Order" screens.
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/screenshots/wpcv-woo-order.jpg" alt="Settings for integrating CiviCRM with anOrder" width="153" />
+
+
+
+== Known Issues ==
+
+This plugin currently relies on the `Order.create` and `Payment.create` API in CiviCRM to register WooCommerce Orders as CiviCRM Contributions. There is currently a push in CiviCRM to fix various aspects of this API, which is why this plugin should ideally be used with CiviCRM 5.39 or greater. The biggest outstanding issue is for Orders with a mix of Contribution, Membership and/or Participant in the same Order. The plugin works well if you are able to avoid these kinds of mixed Orders.
+
+Creating Orders in WooCommerce admin is not fully supported. It is best to create Orders via the Checkout.
 
 
 
 == Installation ==
 
-Step 1: Install Wordpress plugin
+1. Extract the plugin archive
+1. Upload plugin files to your `/wp-content/plugins/` directory
+1. Activate the plugin through the 'Plugins' menu in WordPress
 
-Install this Wordpress plugin as usual. More information about installing plugins in Wordpress - https://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 
 
 == Changelog ==
 
-= 2.3 =
-* Added Campaign support for membership
+= 3.0 =
 
-= 2.2 =
-* Added Campaign support for contributions
-* UTM support (utm_campaign, utm_source and utm_medium)
-* Added Multisite support
-* Updated contribution source: default to order type. Contribution source was the same as contrinution note
-* Fixed number format for contribution amount must match CiviCRM Settings
-* Fixed i18n
-* Added French L10n
+* Initial WordPress Plugin Directory release.
 
-= 2.1 =
-* More refactoring
-* Minor fixes
-* The Order tab is rendered from this plugin, there's no need for the CiviCRM extension
+= Prior to 3.0 =
 
-= 2.0 =
-* Plugin refactored
-* Moved Settings page to Woocommerce -> Settings -> CiviCRM (Tab)
-* Added translation support
-* Added option to sync Customer/Contact address
-* Added option to sync Customer/Contact billing phone
-* Added option to sync Customer/Contact billing email
-* Added option to replace Woocommerce State/County list with CiviCRM State/Province list
-* Added 'woocommerce_civicrm_contribution_create_params' filter
-* Added 'woocommerce_civicrm_contribution_update_params' filter
-* Added 'woocommerce_civicrm_financial_types_params' filter
-* Added 'woocommerce_civicrm_admin_settings_fields' filter
-* Added 'woocommerce_civicrm_address_map' filter
-* Added 'woocommerce_civicrm_mapped_location_types' filter
-* Added 'woocommerce_civicrm_wc_address_updated' action
-* Added 'woocommerce_civicrm_civi_address_updated' action
-* Added ‘woocommerce_civicrm_wc_phone_updated’ action
-* Added ‘woocommerce_civicrm_civi_phone_updated’ action
-* Added ‘woocommerce_civicrm_wc_email_updated’ action
-* Added ‘woocommerce_civicrm_civi_email_updated’ action
-
-
-= 1.0 =
-
-* Initial release
+* Please refer to [the changelog](https://github.com/WPCV/wpcv-woo-civi-integration/commits/main) at this plugin's [GitHub repo](https://github.com/WPCV/wpcv-woo-civi-integration).
