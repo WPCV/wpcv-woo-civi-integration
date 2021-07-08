@@ -2,7 +2,7 @@
 /**
  * Tax class.
  *
- * Handles integration of Tax when CiviCAmpaing is enabled.
+ * Handles integration of Tax when CiviCampaign is enabled.
  *
  * @package WPCV_Woo_Civi
  * @since 3.0
