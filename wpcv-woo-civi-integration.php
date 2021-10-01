@@ -2,9 +2,9 @@
 /**
  * Plugin Name: Integrate CiviCRM with WooCommerce
  * Plugin URI: https://github.com/WPCV/wpcv-woo-civi-integration
- * Description: Provides integration between CiviCRM with WooCommerce.
- * Author: Andrei Mondoc
- * Author URI: https://github.com/mecachisenros
+ * Description: Provides integration between CiviCRM and WooCommerce.
+ * Author: WPCV
+ * Author URI: https://github.com/WPCV
  * Version: 3.0
  * Requires at least: 5.7
  * Requires PHP: 7.1
