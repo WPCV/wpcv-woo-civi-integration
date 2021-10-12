@@ -37,6 +37,7 @@ defined( 'ABSPATH' ) || exit;
 		 * Used internally by:
 		 *
 		 * * WPCV_Woo_Civi_Membership::panel_add_markup() (Priority: 10)
+		 * * WPCV_Woo_Civi_Participant::panel_add_markup() (Priority: 20)
 		 *
 		 * @since 3.0
 		 */

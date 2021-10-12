@@ -176,7 +176,7 @@ class WPCV_Woo_Civi_Products {
 	 */
 	public function get_product_meta( $product_id ) {
 		$financial_type_id = get_post_meta( $product_id, $this->meta_key, true );
-		return (int) $financial_type_id;
+		return $financial_type_id;
 	}
 
 	/**
@@ -188,7 +188,7 @@ class WPCV_Woo_Civi_Products {
 	 * @param int $financial_type_id The numeric ID of the Financial Type.
 	 */
 	public function set_product_meta( $product_id, $financial_type_id ) {
-		update_post_meta( $product_id, $this->meta_key, (int) $financial_type_id );
+		update_post_meta( $product_id, $this->meta_key, $financial_type_id );
 	}
 
 	/**

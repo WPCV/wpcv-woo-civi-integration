@@ -110,7 +110,11 @@ class WPCV_Woo_Civi_Products_Tab {
 		// Always save the Financial Type ID.
 		if ( isset( $_POST[ WPCV_WCI()->products->meta_key ] ) ) {
 			$financial_type_id = sanitize_key( $_POST[ WPCV_WCI()->products->meta_key ] );
-			$product->add_meta_data( WPCV_WCI()->products->meta_key, (int) $financial_type_id, true );
+			if ( is_numeric( $financial_type_id ) ) {
+				$product->add_meta_data( WPCV_WCI()->products->meta_key, (int) $financial_type_id, true );
+			} elseif ( $financial_type_id === 'exclude' ) {
+				$product->add_meta_data( WPCV_WCI()->products->meta_key, $financial_type_id, true );
+			}
 		}
 
 		/**
@@ -119,6 +123,7 @@ class WPCV_Woo_Civi_Products_Tab {
 		 * Used internally by:
 		 *
 		 * * WPCV_Woo_Civi_Membership::panel_saved() (Priority: 10)
+		 * * WPCV_Woo_Civi_Participant::panel_saved() (Priority: 20)
 		 *
 		 * @since 3.0
 		 *

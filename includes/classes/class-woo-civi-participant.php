@@ -82,13 +82,13 @@ class WPCV_Woo_Civi_Participant {
 		}
 
 		// Add Participant Role select to the "CiviCRM Settings" Product Tab.
-		add_action( 'wpcv_woo_civi/product/panel/civicrm/after', [ $this, 'panel_add_markup' ] );
+		add_action( 'wpcv_woo_civi/product/panel/civicrm/after', [ $this, 'panel_add_markup' ], 20 );
 
 		// AJAX handler for Event searches.
 		add_action( 'wp_ajax_wpcv_woo_civi_search_events', [ $this, 'panel_search_events' ] );
 
 		// Save Participant Role on the "CiviCRM Settings" Product Tab.
-		add_action( 'wpcv_woo_civi/product/panel/saved', [ $this, 'panel_saved' ] );
+		add_action( 'wpcv_woo_civi/product/panel/saved', [ $this, 'panel_saved' ], 20 );
 
 		// Add Participant to Line Item.
 		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ], 30, 5 );
