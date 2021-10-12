@@ -115,14 +115,14 @@ class WPCV_Woo_Civi_Contact {
 	public function include_files() {
 
 		// Include Address class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contact-address.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact-address.php';
 		// Include Phone class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contact-phone.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact-phone.php';
 		// Include Email class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contact-email.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact-email.php';
 
 		// Include Contact Orders Tab class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contact-orders-tab.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact-orders-tab.php';
 
 	}
 

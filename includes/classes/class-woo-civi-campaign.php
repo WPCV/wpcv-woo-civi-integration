@@ -95,7 +95,7 @@ class WPCV_Woo_Civi_Campaign {
 	public function include_files() {
 
 		// Include UTM class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-campaign-utm.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-campaign-utm.php';
 
 	}
 
