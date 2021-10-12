@@ -214,7 +214,7 @@ class WPCV_Woo_Civi_Membership {
 			return $membership_types;
 		}
 
-		// Bail early if the CiviCampaign component is not active.
+		// Bail early if the CiviMember component is not active.
 		if ( ! $this->active ) {
 			return [];
 		}
@@ -406,7 +406,7 @@ class WPCV_Woo_Civi_Membership {
 			return $optionvalue_membership_signup;
 		}
 
-		// Bail early if the CiviCampaign component is not active.
+		// Bail early if the CiviMember component is not active.
 		if ( ! $this->active ) {
 			return false;
 		}
