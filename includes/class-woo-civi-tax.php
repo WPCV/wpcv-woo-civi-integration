@@ -229,6 +229,9 @@ class WPCV_Woo_Civi_Tax {
 			return $line_item;
 		}
 
+		// Preserve the Line Item params.
+		$line_item_params = $line_item['params'];
+
 		// Grab the Line Item data.
 		$line_item_data = array_pop( $line_item['line_item'] );
 
@@ -236,6 +239,7 @@ class WPCV_Woo_Civi_Tax {
 
 		// Apply Tax to Line Item.
 		$line_item = [
+			//'params' => $line_item_params,
 			'line_item' => [
 				$line_item_data,
 			],
