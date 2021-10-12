@@ -162,6 +162,11 @@ class WPCV_Woo_Civi_Membership {
 			return $line_item;
 		}
 
+		$default_price_set_data = $this->get_default_price_set_data();
+		if ( empty( $default_price_set_data ) ) {
+			return $line_item;
+		}
+
 		// Grab the Line Item data.
 		$line_item_data = array_pop( $line_item['line_item'] );
 
@@ -174,6 +179,7 @@ class WPCV_Woo_Civi_Membership {
 		];
 
 		$membership_line_item_data = [
+			'price_field_id' => $default_price_set_data['price_field']['id'],
 			'entity_table' => 'civicrm_membership',
 			'membership_type_id' => $product_membership_type_id,
 		];
@@ -443,6 +449,74 @@ class WPCV_Woo_Civi_Membership {
 		}
 
 		return $optionvalue_membership_signup;
+
+	}
+
+	/**
+	 * Get the Membership amount data from default Price Set.
+	 *
+	 * Values retrieved are: price set, price_field, and price field value.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $default_price_set_data The default Membership Price Set data.
+	 */
+	public function get_default_price_set_data() {
+
+		static $default_price_set_data;
+		if ( isset( $default_price_set_data ) ) {
+			return $default_price_set_data;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
+
+		$params = [
+			'name' => 'default_membership_type_amount',
+			'is_reserved' => true,
+			'api.PriceField.getsingle' => [
+				'price_set_id' => "\$value.id",
+				'options' => [
+					'limit' => 1,
+					'sort' => 'id ASC',
+				],
+			],
+		];
+
+		try {
+
+			$result = civicrm_api3( 'PriceSet', 'getsingle', $params );
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Membership Price Set', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
+			return [];
+
+		}
+
+		$price_field = $result['api.PriceField.getsingle'];
+		unset( $result['api.PriceField.getsingle'] );
+
+		$default_price_set_data = [
+			'price_set' => $result,
+			'price_field' => $price_field,
+		];
+
+		return $default_price_set_data;
 
 	}
 

@@ -297,8 +297,9 @@ class WPCV_Woo_Civi_Products {
 			 *
 			 * Used internally by:
 			 *
-			 * * WPCV_Woo_Civi_Tax::line_item_filter() (Priority: 10)
+			 * * WPCV_Woo_Civi_Tax::line_item_tax_add() (Priority: 10)
 			 * * WPCV_Woo_Civi_Membership::line_item_filter() (Priority: 20)
+			 * * WPCV_Woo_Civi_Participant::line_item_filter() (Priority: 30)
 			 *
 			 * @since 3.0
 			 *
@@ -463,12 +464,12 @@ class WPCV_Woo_Civi_Products {
 
 		try {
 
-			$price_set = civicrm_api3( 'PriceSet', 'getsingle', $params );
+			$result = civicrm_api3( 'PriceSet', 'getsingle', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 
 			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Price Set', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Contribution Price Set', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
@@ -484,11 +485,11 @@ class WPCV_Woo_Civi_Products {
 
 		}
 
-		$price_field = $price_set['api.PriceField.getsingle'];
-		unset( $price_set['api.PriceField.getsingle'] );
+		$price_field = $result['api.PriceField.getsingle'];
+		unset( $result['api.PriceField.getsingle'] );
 
 		$default_price_set_data = [
-			'price_set' => $price_set,
+			'price_set' => $result,
 			'price_field' => $price_field,
 		];
 
