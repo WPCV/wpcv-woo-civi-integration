@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Urchin Tracking Module class.
+ * Tax class.
  *
  * @since 2.0
  */
