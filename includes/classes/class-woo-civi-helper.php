@@ -64,6 +64,61 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
+	 * Get a CiviCRM Setting.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $name The name of the CiviCRM Setting.
+	 * @return mixed $setting The value of the CiviCRM Setting, or false on failure.
+	 */
+	public function get_civicrm_setting( $name ) {
+
+		$setting = false;
+
+		// Init CiviCRM or bail.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $setting;
+		}
+
+		$params = [
+			'version' => 3,
+			'sequential' => 1,
+			'name' => $name,
+		];
+
+		try {
+
+			$setting = civicrm_api3( 'Setting', 'getvalue', $params );
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+			/* translators: %s: The name of the requested CiviCRM Setting */
+			$human_readable = sprintf( __( 'Unable to fetch the "%s" setting.', 'wpcv-woo-civi-integration' ), $name );
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( $human_readable );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+			// Write extra details to PHP log.
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'error' => $human_readable,
+				'message' => $e->getMessage(),
+				'params' => $params,
+				'setting' => $setting,
+				'backtrace' => $e->getTraceAsString(),
+			], true ) );
+
+			return false;
+
+		}
+
+		// --<
+		return $setting;
+
+	}
+
+	/**
 	 * Get mapping between WooCommerce and CiviCRM Location Types.
 	 *
 	 * @since 2.0
