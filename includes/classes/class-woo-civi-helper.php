@@ -245,6 +245,326 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
+	 * Gets the active CiviCRM Price Sets.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $price_sets The array of Price Sets, or false on failure.
+	 */
+	public function get_price_sets() {
+
+		// Init CiviCRM or bail.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		// Define Price Set query params.
+		$params = [
+			'sequential' => 1,
+			'is_active' => 1,
+			'is_reserved' => 0,
+			'options' => [ 'limit' => 0 ],
+			'api.PriceField.get' => [
+				'sequential' => 0,
+				'price_set_id' => "\$value.id",
+				'is_active' => 1,
+				'options' => [ 'limit' => 0 ],
+			],
+		];
+
+		try {
+
+			$result = civicrm_api3( 'PriceSet', 'get', $params );
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Price Sets', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
+			return false;
+
+		}
+
+		// Bail if no Price Sets.
+		if ( ! $result['count'] ) {
+			return false;
+		}
+
+		// We want the result set.
+		$price_sets = $result['values'];
+
+		return $price_sets;
+
+	}
+
+	/**
+	 * Gets the active CiviCRM Price Field Values.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $price_field_values The array of Price Field Values, or false on failure.
+	 */
+	public function get_price_field_values() {
+
+		// Init CiviCRM or bail.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		// Define Price Field Value query params.
+		$params = [
+			'sequential' => 0,
+			'is_active' => 1,
+			'options' => [
+				'limit' => 0,
+				'sort' => 'weight ASC'
+			],
+		];
+
+		try {
+
+			$result = civicrm_api3( 'PriceFieldValue', 'get', $params );
+
+		} catch ( CiviCRM_API3_Exception $e ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Price Field Values', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $e->getMessage() );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
+			return false;
+
+		}
+
+		// Bail if no Price Field Values.
+		if ( ! $result['count'] ) {
+			return false;
+		}
+
+		// We want the result set.
+		$price_field_values = $result['values'];
+
+		return $price_field_values;
+
+	}
+
+	/**
+	 * Gets the data for the active CiviCRM Price Sets.
+	 *
+	 * The return array also includes nested arrays for the corresponding Price
+	 * Fields and Price Field Values for each Price Set.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $price_set_data The array of Price Set data, or false on failure.
+	 */
+	public function get_price_sets_populated() {
+
+		// Return early if already built.
+		static $price_set_data;
+		if ( isset( $price_set_data ) ) {
+			return $price_set_data;
+		}
+
+		// Get the active Price Sets.
+		$price_sets = $this->get_price_sets();
+		if ( empty( $price_sets ) ) {
+			return false;
+		}
+
+		// Get the active Price Field Values.
+		$price_field_values = $this->get_price_field_values();
+		if ( empty( $price_field_values ) ) {
+			return false;
+		}
+
+		// Get the CiviCRM Tax Rates.
+		$tax_rates = WPCV_WCI()->tax->rates_get();
+		if ( empty( $tax_rates ) ) {
+			return false;
+		}
+
+		// Get "Tax Enabled" status.
+		$tax_enabled = WPCV_WCI()->tax->is_tax_enabled();
+
+		$price_sets_data = [];
+
+		foreach ( $price_sets as $key => $price_set ) {
+
+			// Add renamed ID.
+			$price_set['price_set_id'] = $price_set_id = $price_set['id'];
+
+			// Let's give the chained API result array a nicer name.
+			$price_set['price_fields'] = $price_set['api.PriceField.get']['values'];
+
+			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+
+				// Add renamed ID.
+				$price_set['price_fields'][ $price_field_id ]['price_field_id'] = $price_field_id;
+
+				foreach ( $price_field_values as $value_id => $price_field_value ) {
+
+					// Add renamed ID.
+					$price_field_value['price_field_value_id'] = $value_id;
+
+					// Skip unless matching item.
+					if ( $price_field_id != $price_field_value['price_field_id'] ) {
+						continue;
+					}
+
+					// Add Tax data if necessary.
+					if ( $tax_enabled && $tax_rates && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
+						$price_field_value['tax_rate'] = $tax_rates[$price_field_value['financial_type_id']];
+						$price_field_value['tax_amount'] = $this->percentage( $price_field_value['amount'], $price_field_value['tax_rate'] );
+					}
+
+					// Nest the Price Field Value keyed by its ID.
+					$price_set['price_fields'][ $price_field_id ]['price_field_values'][ $value_id ] = $price_field_value;
+
+				}
+
+			}
+
+			// We don't need the chained API array.
+			unset( $price_set['api.PriceField.get'] );
+
+			// Add Price Set data to return.
+			$price_sets_data[ $price_set_id ] = $price_set;
+
+		}
+
+		return $price_sets_data;
+
+	}
+
+	/**
+	 * Calculate the percentage for a given amount.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $amount The amount.
+	 * @param string $percentage The percentage.
+	 * @return string $amount The calculated percentage amount.
+	 */
+	public function percentage( $amount, $percentage ) {
+		return ( $percentage / 100 ) * $amount;
+	}
+
+	/**
+	 * Gets the Price Set data for a given Price Field Value ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @param integer $price_field_value_id The numeric ID of the Price Field Value.
+	 * @return array|bool $price_set The array of Price Set data, or false on failure.
+	 */
+	public function get_price_set_by_price_field_value_id( $price_field_value_id ) {
+
+		// Get the nested Price Set data.
+		$price_sets = $this->get_price_sets_populated();
+
+		// Drill down to find the matching Price Field Value ID.
+		foreach ( $price_sets as $price_set ) {
+			foreach ( $price_set['price_fields'] as $price_field ) {
+				foreach ( $price_field['price_field_values'] as  $price_field_value ) {
+
+					// If it matches, return the enclosing Price Set data array.
+					if ( $price_field_value_id == $price_field_value['id'] ) {
+						return $price_set;
+					}
+
+				}
+			}
+		}
+
+		// Fallback.
+		return false;
+
+	}
+
+	/**
+	 * Gets the Price Field data for a given Price Field Value ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @param integer $price_field_value_id The numeric ID of the Price Field Value.
+	 * @return array|bool $price_field The array of Price Field data, or false on failure.
+	 */
+	public function get_price_field_by_price_field_value_id( $price_field_value_id ) {
+
+		// Get the nested Price Set data.
+		$price_sets = $this->get_price_sets_populated();
+
+		// Drill down to find the matching Price Field Value ID.
+		foreach ( $price_sets as $price_set ) {
+			foreach ( $price_set['price_fields'] as $price_field ) {
+				foreach ( $price_field['price_field_values'] as  $price_field_value ) {
+
+					// If it matches, return the enclosing Price Field data array.
+					if ( $price_field_value_id == $price_field_value['id'] ) {
+						return $price_field;
+					}
+
+				}
+			}
+		}
+
+		// Fallback.
+		return false;
+
+	}
+
+	/**
+	 * Gets the Price Field Value data for a given Price Field Value ID.
+	 *
+	 * @since 3.0
+	 *
+	 * @param integer $price_field_value_id The numeric ID of the Price Field Value.
+	 * @return array|bool $price_field_value The array of Price Field Value data, or false on failure.
+	 */
+	public function get_price_field_value_by_id( $price_field_value_id ) {
+
+		// Get the nested Price Set data.
+		$price_sets = $this->get_price_sets_populated();
+
+		// Drill down to find the matching Price Field Value ID.
+		foreach ( $price_sets as $price_set ) {
+			foreach ( $price_set['price_fields'] as $price_field ) {
+				foreach ( $price_field['price_field_values'] as  $price_field_value ) {
+
+					// If it matches, return the Price Field Value data array.
+					if ( $price_field_value_id == $price_field_value['id'] ) {
+						return $price_field_value;
+					}
+
+				}
+			}
+		}
+
+		// Fallback.
+		return false;
+
+	}
+
+	/**
 	 * Gets the CiviCRM Decimal Separator.
 	 *
 	 * @since 3.0
