@@ -19,7 +19,7 @@ A WordPress plugin that integrates CiviCRM with WooCommerce.
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 5.39* and *WooCommerce 5.2.2+*.
+This plugin requires a minimum of *CiviCRM 5.41.2* and *WooCommerce 5.2.2+*.
 
 ### Configuration
 
@@ -33,7 +33,7 @@ Configure settings for a Product in the *CiviCRM Settings* Tab.
 
 Configure settings for an Order in the *General* section of the "New Order" and "Edit Order" screens.
 
-<img src="screenshots/wpcv-woo-order.jpg" alt="Settings for integrating CiviCRM with anOrder" width="153" />
+<img src="screenshots/wpcv-woo-order.jpg" alt="Settings for integrating CiviCRM with an Order" width="153" />
 
 
 ## Developers
@@ -44,7 +44,9 @@ Documentation in progress.
 
 ## Know Issues
 
-This plugin currently relies on the `Order.create` and `Payment.create` API in CiviCRM to register WooCommerce Orders as CiviCRM Contributions. There is currently a push in CiviCRM to fix various aspects of this API, which is why this plugin should ideally be used with CiviCRM 5.39 or greater. The biggest outstanding issue is for Orders with a mix of Contribution, Membership and/or Participant in the same Order. The plugin works well if you are able to avoid these kinds of mixed Orders.
+This plugin currently relies on the `Order.create` and `Payment.create` API in CiviCRM to register WooCommerce Orders as CiviCRM Contributions. There is currently a push in CiviCRM to fix various aspects of this API, which is why this plugin should ideally be used with CiviCRM 5.41.2 or greater.
+
+The biggest outstanding issue is for Orders with a mix of Contribution, Membership and/or Participant in the same Order. The plugin works well if you are able to avoid these kinds of mixed Orders.
 
 Creating Orders in WooCommerce admin is not fully supported. It is best to create Orders via the Checkout.
 

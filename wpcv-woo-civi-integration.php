@@ -2,9 +2,9 @@
 /**
  * Plugin Name: Integrate CiviCRM with WooCommerce
  * Plugin URI: https://github.com/WPCV/wpcv-woo-civi-integration
- * Description: Provides integration between CiviCRM with WooCommerce.
- * Author: Andrei Mondoc
- * Author URI: https://github.com/mecachisenros
+ * Description: Provides integration between CiviCRM and WooCommerce.
+ * Author: WPCV
+ * Author URI: https://github.com/WPCV
  * Version: 3.0
  * Requires at least: 5.7
  * Requires PHP: 7.1
@@ -252,15 +252,15 @@ class WPCV_Woo_Civi {
 	private function migrate() {
 
 		// Include Helper class and init.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-helper.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-helper.php';
 		$this->helper = new WPCV_Woo_Civi_Helper();
 
 		// Include Contribution class and init.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contribution.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contribution.php';
 		$this->contribution = new WPCV_Woo_Civi_Contribution();
 
 		// Include Admin Migrate class and init.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-admin-migrate.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-admin-migrate.php';
 		$this->migrate = new WPCV_Woo_Civi_Admin_Migrate();
 
 	}
@@ -273,38 +273,38 @@ class WPCV_Woo_Civi {
 	private function include_files() {
 
 		// Include Helper class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-helper.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-helper.php';
 
 		// Include Network Settings class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-settings-network.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-settings-network.php';
 		// Include WooCommerce Settings Tab class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-settings-tab.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-settings-tab.php';
 		// Include States class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-states.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-states.php';
 
 		// Include Contact class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contact.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact.php';
 
 		// Include Contribution class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-contribution.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contribution.php';
 		// Include Order class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-order.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-order.php';
 		// Include Source class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-source.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-source.php';
 		// Include Tax/VAT class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-tax.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-tax.php';
 
 		// Include Products class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-products.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products.php';
 		// Include Products Tab class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-products-tab.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products-tab.php';
 
 		// Include Campaign class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-campaign.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-campaign.php';
 		// Include Membership class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-membership.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-membership.php';
 		// Include Participant class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-participant.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-participant.php';
 
 	}
 

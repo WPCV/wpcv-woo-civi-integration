@@ -95,7 +95,7 @@ class WPCV_Woo_Civi_Campaign {
 	public function include_files() {
 
 		// Include UTM class.
-		include WPCV_WOO_CIVI_PATH . 'includes/class-woo-civi-campaign-utm.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-campaign-utm.php';
 
 	}
 
@@ -802,7 +802,7 @@ class WPCV_Woo_Civi_Campaign {
 			return;
 		}
 
-		$campaign_list = WPCV_WCI()->campaign->get_all_campaigns();
+		$campaign_list = $this->get_all_campaigns();
 
 		if ( $campaign_list && ! empty( $campaign_list ) && is_array( $campaign_list ) ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_campaign_id', FILTER_VALIDATE_INT );

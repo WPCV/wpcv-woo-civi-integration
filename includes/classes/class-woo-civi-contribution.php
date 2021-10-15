@@ -401,15 +401,13 @@ class WPCV_Woo_Civi_Contribution {
 			CRM_Core_Error::debug_log_message( __( 'Unable to create an Order via the CiviCRM Order API', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 			CRM_Core_Error::debug_log_message( $e->getErrorCode() );
-			CRM_Core_Error::debug_log_message( $e->getExtraParams() );
 
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
+			// Write extra details to PHP log.
 			error_log( print_r( [
 				'method' => __METHOD__,
 				'params' => $params,
-				'backtrace' => $trace,
+				'extra_params' => $e->getExtraParams(),
+				'backtrace' => $e->getTraceAsString(),
 			], true ) );
 
 			return false;
