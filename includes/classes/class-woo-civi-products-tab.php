@@ -147,21 +147,30 @@ class WPCV_Woo_Civi_Products_Tab {
 			return;
 		}
 
-		$default_contribution_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
-		$product_contribution_type_id = WPCV_WCI()->products->get_product_meta( $post_id );
+		// Get the Financial Type for the Product.
+		$product_financial_type_id = WPCV_WCI()->products->get_product_meta( $post_id );
+
+		// Show if it's excluded.
+		if ( ! empty( $product_financial_type_id ) && $product_financial_type_id === 'exclude' ) {
+			echo '<br>';
+			echo esc_html__( 'Excluded', 'wpcv-woo-civi-integration' );
+			return;
+		}
+
+		// Get the Financial Types.
 		$financial_types = WPCV_WCI()->helper->get_financial_types();
 
-		echo '<br>';
-
 		// If there's a specific Financial Type for this Product, use it.
-		if ( $product_contribution_type_id !== 0 && isset( $financial_types[ $product_contribution_type_id ] ) ) {
-			echo esc_html( $financial_types[ $product_contribution_type_id ] );
+		if ( $product_financial_type_id !== 0 && array_key_exists( $product_financial_type_id, $financial_types ) ) {
+			echo '<br>';
+			echo esc_html( $financial_types[ $product_financial_type_id ] );
 			return;
 		}
 
 		// Fall back to the default Financial Type.
-		$default = isset( $financial_types[ $default_contribution_type_id ] )
-			? $financial_types[ $default_contribution_type_id ]
+		$default_financial_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
+		$default = isset( $financial_types[ $default_financial_type_id ] )
+			? $financial_types[ $default_financial_type_id ]
 			: __( 'Not set', 'wpcv-woo-civi-integration' );
 
 		/* translators: %s: The default Financial Type */
