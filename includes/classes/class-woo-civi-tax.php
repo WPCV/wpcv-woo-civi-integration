@@ -73,57 +73,23 @@ class WPCV_Woo_Civi_Tax {
 	 *
 	 * @since 3.0
 	 *
-	 * @return bool $enabled True if enabled, false otherwise.
+	 * @return bool $setting True if enabled, false otherwise.
 	 */
 	public function is_tax_enabled() {
 
 		// Return early if already found.
-		static $tax_enabled;
-		if ( isset( $tax_enabled ) ) {
-			return $tax_enabled;
+		static $setting;
+		if ( isset( $setting ) ) {
+			return $setting;
 		}
 
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return false;
-		}
-
-		$params = [
-			'sequential' => 1,
-			'name' => 'invoicing',
-		];
-
-		try {
-
-			$result = civicrm_api3( 'Setting', 'getvalue', $params );
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to fetch "Enable Tax and Invoicing" setting.', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'message' => $e->getMessage(),
-				'params' => $params,
-				'backtrace' => $trace,
-			], true ) );
-
-			return false;
-
-		}
-
-		$tax_enabled = false;
-
+		$setting = false;
+		$result = WPCV_WCI()->helper->get_civicrm_setting( 'invoicing' );
 		if ( ! empty( $result ) ) {
-			$tax_enabled = $result;
+			$setting = $result;
 		}
 
-		return $tax_enabled;
+		return $setting;
 
 	}
 
@@ -246,6 +212,130 @@ class WPCV_Woo_Civi_Tax {
 		];
 
 		return $line_item;
+
+	}
+
+	/**
+	 * Gets the CiviCRM Tax Rates.
+	 *
+	 * The array of Tax Rates has the form: [ <financial_type_id> => <tax_rate> ]
+	 *
+	 * @since 3.0
+	 *
+	 * @return array|bool The array of Tax Rates, or false on failure.
+	 */
+	public function rates_get() {
+
+		// Return early if already found.
+		static $tax_rates;
+		if ( isset( $tax_rates ) ) {
+			return $tax_rates;
+		}
+
+		// Init CiviCRM or bail.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		$params = [
+			'return' => [
+				'id',
+				'entity_table',
+				'entity_id',
+				'account_relationship',
+				'financial_account_id',
+				'financial_account_id.financial_account_type_id',
+				'financial_account_id.tax_rate'
+			],
+			'financial_account_id.is_active' => 1,
+			'financial_account_id.is_tax' => 1,
+			'options' => [
+				'limit' => 0,
+			],
+		];
+
+		// Call the CiviCRM API.
+		$result = civicrm_api3( 'EntityFinancialAccount', 'get', $params );
+
+		// Return early if something went wrong.
+		if ( ! empty( $result['error'] ) ) {
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'result' => $result,
+				'backtrace' => $trace,
+			], true ) );
+
+			return false;
+
+		}
+
+		// Return early if there's nothing to see.
+		if ( $result['count'] == 0 ) {
+			return false;
+		}
+
+		// Build tax rates.
+		$tax_rates = array_reduce( $result['values'], function( $tax_rates, $financial_account ) {
+			$tax_rates[ $financial_account['entity_id'] ] = $financial_account['financial_account_id.tax_rate'];
+			return $tax_rates;
+		}, [] );
+
+		return $tax_rates;
+
+	}
+
+	/**
+	 * Gets the CiviCRM "Tax Term" setting.
+	 *
+	 * @since 3.0
+	 *
+	 * @return string $setting The Tax Term, empty otherwise.
+	 */
+	public function term_get() {
+
+		// Return early if already found.
+		static $setting;
+		if ( isset( $setting ) ) {
+			return $setting;
+		}
+
+		$setting = '';
+		$result = WPCV_WCI()->helper->get_civicrm_setting( 'tax_term' );
+		if ( ! empty( $result ) ) {
+			$setting = $result;
+		}
+
+		return $setting;
+
+	}
+
+	/**
+	 * Gets the CiviCRM "Tax Display Settings" setting.
+	 *
+	 * @since 3.0
+	 *
+	 * @return string $tax_display_settings The Tax Display Settings, empty otherwise.
+	 */
+	public function display_settings_get() {
+
+		// Return early if already found.
+		static $setting;
+		if ( isset( $setting ) ) {
+			return $setting;
+		}
+
+		$setting = '';
+		$result = WPCV_WCI()->helper->get_civicrm_setting( 'tax_display_settings' );
+		if ( ! empty( $result ) ) {
+			$setting = $result;
+		}
+
+		return $setting;
 
 	}
 
