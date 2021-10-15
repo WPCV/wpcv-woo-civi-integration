@@ -237,8 +237,8 @@ class WPCV_Woo_Civi_Products {
 			return $params;
 		}
 
-		$default_price_set_data = $this->get_default_price_set_data();
-		if ( empty( $default_price_set_data ) ) {
+		$default_price_field_id = $this->get_default_price_field_id();
+		if ( empty( $default_price_field_id ) ) {
 			return $params;
 		}
 
@@ -258,7 +258,7 @@ class WPCV_Woo_Civi_Products {
 			}
 
 			$line_item_data = [
-				'price_field_id' => $default_price_set_data['price_field']['id'],
+				'price_field_id' => $default_price_field_id,
 				'unit_price' => WPCV_WCI()->helper->get_civicrm_float( $product->get_price() ),
 				'qty' => $item->get_quantity(),
 				// The "line_total" must equal the unit_price × qty.
@@ -365,8 +365,8 @@ class WPCV_Woo_Civi_Products {
 			return $params;
 		}
 
-		$default_price_set_data = $this->get_default_price_set_data();
-		if ( empty( $default_price_set_data ) ) {
+		$default_price_field_id = $this->get_default_price_field_id();
+		if ( empty( $default_price_field_id ) ) {
 			return $params;
 		}
 
@@ -415,7 +415,7 @@ class WPCV_Woo_Civi_Products {
 		$params['line_items'][0] = [
 			'line_item' => [
 				[
-					'price_field_id' => $default_price_set_data['price_field']['id'],
+					'price_field_id' => $default_price_field_id,
 					'qty' => 1,
 					'line_total' => $shipping_cost,
 					'unit_price' => $shipping_cost,
@@ -430,46 +430,40 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
-	 * Get the Contribution amount data from default Price Set.
+	 * Get the default Contribution Price Field ID.
 	 *
-	 * Values retrieved are: price set, price_field, and price field value.
+	 * @since 3.0
 	 *
-	 * @since 2.4
-	 *
-	 * @return array $default_price_set_data The default Price Set data.
+	 * @return array|bool $price_field_id The default Contribution Price Field ID, or false on failure.
 	 */
-	public function get_default_price_set_data() {
+	public function get_default_price_field_id() {
 
-		static $default_price_set_data;
-		if ( isset( $default_price_set_data ) ) {
-			return $default_price_set_data;
+		static $price_field_id;
+		if ( isset( $price_field_id ) ) {
+			return $price_field_id;
 		}
 
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
-			return [];
+			return false;
 		}
 
 		$params = [
-			'name' => 'default_contribution_amount',
-			'is_reserved' => true,
-			'api.PriceField.getsingle' => [
-				'price_set_id' => "\$value.id",
-				'options' => [
-					'limit' => 1,
-					'sort' => 'id ASC',
-				],
+			'sequential' => 1,
+			'price_set_id' => 'default_contribution_amount',
+			'options' => [
+				'limit' => 1,
 			],
 		];
 
 		try {
 
-			$result = civicrm_api3( 'PriceSet', 'getsingle', $params );
+			$result = civicrm_api3( 'PriceField', 'get', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 
 			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Contribution Price Set', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Contribution Price Field ID', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
@@ -481,19 +475,18 @@ class WPCV_Woo_Civi_Products {
 				'backtrace' => $trace,
 			], true ) );
 
-			return [];
+			return false;
 
 		}
 
-		$price_field = $result['api.PriceField.getsingle'];
-		unset( $result['api.PriceField.getsingle'] );
+		// Bail if something's amiss.
+		if ( empty( $result['id'] ) ) {
+			return false;
+		}
 
-		$default_price_set_data = [
-			'price_set' => $result,
-			'price_field' => $price_field,
-		];
+		$price_field_id = $result['id'];
 
-		return $default_price_set_data;
+		return $price_field_id;
 
 	}
 

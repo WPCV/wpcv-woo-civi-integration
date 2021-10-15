@@ -39,6 +39,15 @@ class WPCV_Woo_Civi_Membership {
 	public $meta_key = '_woocommerce_civicrm_membership_type_id';
 
 	/**
+	 * WooCommerce Product meta key holding the CiviCRM Membership Price Field Value ID.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $pfv_key The CiviCRM Membership Price Field Value ID meta key.
+	 */
+	public $pfv_key = '_woocommerce_civicrm_membership_pfv_id';
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 3.0
@@ -109,38 +118,28 @@ class WPCV_Woo_Civi_Membership {
 	}
 
 	/**
-	 * Adds Membership Type select to the "CiviCRM Settings" Product Tab.
+	 * Gets the Membership Price Field Value ID from WooCommerce Product meta.
 	 *
 	 * @since 3.0
+	 *
+	 * @param int $product_id The Product ID.
+	 * @return int|bool $membership_pfv_id The Membership Price Field Value ID, false otherwise.
 	 */
-	public function panel_add_markup() {
-
-		woocommerce_wp_select( [
-			'id' => $this->meta_key,
-			'name' => $this->meta_key,
-			'label' => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
-			'description' => __( 'Select a Membership Type if you would like this Product to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
-			'options' => $this->get_membership_types_options(),
-		] );
-
+	public function get_pfv_meta( $product_id ) {
+		$membership_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );
+		return $membership_pfv_id;
 	}
 
 	/**
-	 * Adds the CiviCRM Membership setting as meta to the Product.
+	 * Sets the CiviCRM Membership Price Field Value ID as meta data on a WooCommerce Product.
 	 *
-	 * @since 2.4
+	 * @since 3.0
 	 *
-	 * @param WC_Product $product The Product object.
+	 * @param int $product_id The Product ID.
+	 * @param int $membership_type_id The numeric ID of the Membership Price Field Value.
 	 */
-	public function panel_saved( $product ) {
-
-		// Save the Membership Type ID.
-		if ( isset( $_POST[$this->meta_key] ) ) {
-			$membership_type_id = sanitize_key( $_POST[$this->meta_key] );
-			$product->add_meta_data( $this->meta_key, (int) $membership_type_id, true );
-		}
-
+	public function set_pfv_meta( $product_id, $membership_pfv_id ) {
+		update_post_meta( $product_id, $this->pfv_key, $membership_pfv_id );
 	}
 
 	/**
@@ -162,8 +161,15 @@ class WPCV_Woo_Civi_Membership {
 			return $line_item;
 		}
 
-		$default_price_set_data = $this->get_default_price_set_data();
-		if ( empty( $default_price_set_data ) ) {
+		// Get Membership Price Field Value ID from Product meta.
+		$price_field_value_id = $product->get_meta( $this->pfv_key );
+		if ( empty( $price_field_value_id ) ) {
+			return $line_item;
+		}
+
+		// Get Membership Price Field ID.
+		$default_price_field_id = $this->get_default_price_field_id();
+		if ( empty( $default_price_field_id ) ) {
 			return $line_item;
 		}
 
@@ -179,9 +185,9 @@ class WPCV_Woo_Civi_Membership {
 		];
 
 		$membership_line_item_data = [
-			'price_field_id' => $default_price_set_data['price_field']['id'],
 			'entity_table' => 'civicrm_membership',
-			'membership_type_id' => $product_membership_type_id,
+			'price_field_id' => $default_price_field_id,
+			'price_field_value_id' => $price_field_value_id,
 		];
 
 		// Apply Membership to Line Item.
@@ -256,7 +262,7 @@ class WPCV_Woo_Civi_Membership {
 				'backtrace' => $trace,
 			], true ) );
 
-			return $this->membership_types;
+			return [];
 
 		}
 
@@ -354,7 +360,7 @@ class WPCV_Woo_Civi_Membership {
 	 * @param int $id The numeric ID of the CiviCRM Membership Type.
 	 * @return array|null $membership_type The CiviCRM Membership Type data, or null on failure.
 	 */
-	public function get_membership_type( int $id ) {
+	public function get_membership_type( $id ) {
 
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
@@ -387,28 +393,23 @@ class WPCV_Woo_Civi_Membership {
 			], true ) );
 
 			return null;
+
 		}
 
 	}
 
 	/**
-	 * Get the CiviCRM Membership Signup OptionValue.
+	 * Get the default Membership Price Field ID.
 	 *
-	 * @since 2.0
+	 * @since 3.0
 	 *
-	 * @return array|bool $result The CiviCRM Membership Signup OptionValue, or false on failure.
+	 * @return array|bool $price_field_id The default Membership Price Field ID, or false on failure.
 	 */
-	public function get_membership_signup_optionvalue() {
+	public function get_default_price_field_id() {
 
-		// Return early if already calculated.
-		static $optionvalue_membership_signup;
-		if ( isset( $optionvalue_membership_signup ) ) {
-			return $optionvalue_membership_signup;
-		}
-
-		// Bail early if the CiviMember component is not active.
-		if ( ! $this->active ) {
-			return false;
+		static $price_field_id;
+		if ( isset( $price_field_id ) ) {
+			return $price_field_id;
 		}
 
 		// Bail if we can't initialise CiviCRM.
@@ -418,81 +419,20 @@ class WPCV_Woo_Civi_Membership {
 
 		$params = [
 			'sequential' => 1,
-			'return' => [ 'value' ],
-			'name' => 'Membership Signup',
-		];
-
-		$result = civicrm_api3( 'OptionValue', 'get', $params );
-
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
-				'backtrace' => $trace,
-			], true ) );
-
-			return false;
-
-		}
-
-		$optionvalue_membership_signup = false;
-
-		// Sanity check.
-		if ( ! empty( $result['values'][0]['value'] ) ) {
-			$optionvalue_membership_signup = $result['values'][0]['value'];
-		}
-
-		return $optionvalue_membership_signup;
-
-	}
-
-	/**
-	 * Get the Membership amount data from default Price Set.
-	 *
-	 * Values retrieved are: price set, price_field, and price field value.
-	 *
-	 * @since 3.0
-	 *
-	 * @return array $default_price_set_data The default Membership Price Set data.
-	 */
-	public function get_default_price_set_data() {
-
-		static $default_price_set_data;
-		if ( isset( $default_price_set_data ) ) {
-			return $default_price_set_data;
-		}
-
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return [];
-		}
-
-		$params = [
-			'name' => 'default_membership_type_amount',
-			'is_reserved' => true,
-			'api.PriceField.getsingle' => [
-				'price_set_id' => "\$value.id",
-				'options' => [
-					'limit' => 1,
-					'sort' => 'id ASC',
-				],
+			'price_set_id' => 'default_membership_type_amount',
+			'options' => [
+				'limit' => 1,
 			],
 		];
 
 		try {
 
-			$result = civicrm_api3( 'PriceSet', 'getsingle', $params );
+			$result = civicrm_api3( 'PriceField', 'get', $params );
 
 		} catch ( CiviCRM_API3_Exception $e ) {
 
 			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Membership Price Set', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Membership Price Field ID', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
@@ -504,19 +444,100 @@ class WPCV_Woo_Civi_Membership {
 				'backtrace' => $trace,
 			], true ) );
 
-			return [];
+			return false;
 
 		}
 
-		$price_field = $result['api.PriceField.getsingle'];
-		unset( $result['api.PriceField.getsingle'] );
+		// Bail if something's amiss.
+		if ( empty( $result['id'] ) ) {
+			return false;
+		}
 
-		$default_price_set_data = [
-			'price_set' => $result,
-			'price_field' => $price_field,
-		];
+		$price_field_id = $result['id'];
 
-		return $default_price_set_data;
+		return $price_field_id;
+
+	}
+
+	/**
+	 * Adds the CiviCRM Membership and Price Field Value settings as meta to the Product.
+	 *
+	 * @since 2.4
+	 *
+	 * @param WC_Product $product The Product object.
+	 */
+	public function panel_saved( $product ) {
+
+		// Save the Membership Type ID.
+		if ( isset( $_POST[$this->meta_key] ) ) {
+			$membership_type_id = sanitize_key( $_POST[$this->meta_key] );
+			$product->add_meta_data( $this->meta_key, (int) $membership_type_id, true );
+		}
+
+		// Save the Membership Price Field Value ID.
+		if ( isset( $_POST[$this->pfv_key] ) ) {
+			$membership_pfv_id = sanitize_key( $_POST[$this->pfv_key] );
+			$product->add_meta_data( $this->pfv_key, (int) $membership_pfv_id, true );
+		}
+
+	}
+
+	/**
+	 * Adds Membership Type select to the "CiviCRM Settings" Product Tab.
+	 *
+	 * @since 3.0
+	 */
+	public function panel_add_markup() {
+
+		global $thepostid, $post;
+
+		$product_id = empty( $thepostid ) ? $post->ID : $thepostid;
+
+		?>
+
+		<div class="options_group">
+
+			<?php
+
+			woocommerce_wp_select( [
+				'id' => $this->meta_key,
+				'name' => $this->meta_key,
+				'label' => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
+				'desc_tip' => 'true',
+				'description' => __( 'Select a Membership Type if you would like this Product to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
+				'options' => $this->get_membership_types_options(),
+			] );
+
+			// Bail if there aren't any Price Sets.
+			$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
+			if ( empty( $price_sets ) ) {
+				return;
+			}
+
+			// Get Price Field Value.
+			$pfv_id = $this->get_pfv_meta( $product_id );
+
+			?>
+
+			<p class="form-field">
+				<label for="<?php echo $this->pfv_key; ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
+				<select name="<?php echo $this->pfv_key; ?>" id="<?php echo $this->pfv_key; ?>" class="select short">
+					<option value="0"><?php _e( 'Select a Price Field', 'cf-civicrm' ); ?></option>
+					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
+						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
+							<optgroup label="<?php esc_attr_e( sprintf( __( 'CiviCRM Price Set: %1$s - Price Field:  %2$s', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
+								<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
+									<option value="<?php esc_attr_e( $price_field_value_id ); ?>" <?php selected( $price_field_value_id, $pfv_id ); ?>><?php esc_html_e( $price_field_value['label'] ); ?></option>
+								<?php endforeach; ?>
+							</optgroup>
+						<?php endforeach; ?>
+					<?php endforeach; ?>
+				</select> <?php echo wc_help_tip( __( 'Select The Price Field for the Membership.', 'wpcv-woo-civi-integration' ) ); ?>
+			</p>
+
+		</div>
+
+		<?php
 
 	}
 

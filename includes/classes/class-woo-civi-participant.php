@@ -48,6 +48,15 @@ class WPCV_Woo_Civi_Participant {
 	public $role_key = '_woocommerce_civicrm_participant_role_id';
 
 	/**
+	 * WooCommerce Product meta key holding the CiviCRM Participant Price Field Value ID.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $pfv_key The CiviCRM Participant Price Field Value ID meta key.
+	 */
+	public $pfv_key = '_woocommerce_civicrm_participant_pfv_id';
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 3.0
@@ -146,113 +155,28 @@ class WPCV_Woo_Civi_Participant {
 	}
 
 	/**
-	 * Adds Participant Role select to the "CiviCRM Settings" Product Tab.
+	 * Gets the Participant Price Field Value ID from WooCommerce Product meta.
 	 *
 	 * @since 3.0
+	 *
+	 * @param int $product_id The Product ID.
+	 * @return int|bool $membership_pfv_id The Participant Price Field Value ID, false otherwise.
 	 */
-	public function panel_add_markup() {
-
-		global $thepostid, $post;
-
-		$product_id = empty( $thepostid ) ? $post->ID : $thepostid;
-
-		?>
-
-		<p class="form-field">
-			<label for="<?php echo $this->event_key; ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
-			<select class="wc-product-search" id="<?php echo $this->event_key; ?>" name="<?php echo $this->event_key; ?>" style="width: 50%;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
-				<option value=""><?php esc_html_e( 'None', 'wpcv-woo-civi-integration' ); ?></option>
-				<?php $options = $this->get_event_options(); ?>
-				<?php $selected = $this->get_event_meta( $product_id ); ?>
-				<?php foreach ( $options as $event_id => $event_name ) : ?>
-					<option value="<?php echo esc_attr( $event_id ); ?>" <?php selected( $selected, $event_id ); ?>>
-						<?php echo esc_attr( $event_name ); ?>
-					</option>
-				<?php endforeach; ?>
-			</select> <?php echo wc_help_tip( __( 'Select an Event if you would like this Product to create an Event Participant in CiviCRM.', 'wpcv-woo-civi-integration' ) ); // WPCS: XSS ok. ?>
-		</p>
-
-		<?php
-
-		// Show Participant Role.
-		woocommerce_wp_select( [
-			'id' => $this->role_key,
-			'name' => $this->role_key,
-			'label' => __( 'Participant Role', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
-			'description' => __( 'Select a Participant Role for the Event Participant.', 'wpcv-woo-civi-integration' ),
-			'options' => $this->get_participant_roles_options(),
-		] );
-
+	public function get_pfv_meta( $product_id ) {
+		$membership_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );
+		return $membership_pfv_id;
 	}
 
 	/**
-	 * Adds the CiviCRM Event and  Participant Role settings as meta to the Product.
+	 * Sets the CiviCRM Participant Price Field Value ID as meta data on a WooCommerce Product.
 	 *
 	 * @since 3.0
 	 *
-	 * @param WC_Product $product The Product object.
+	 * @param int $product_id The Product ID.
+	 * @param int $membership_type_id The numeric ID of the Participant Price Field Value.
 	 */
-	public function panel_search_events() {
-
-		check_ajax_referer( 'search-products', 'security' );
-
-		$term = '';
-		if ( isset( $_GET['term'] ) ) {
-			$term = (string) wc_clean( wp_unslash( $_GET['term'] ) );
-		}
-
-		if ( empty( $term ) ) {
-			wp_die();
-		}
-
-		// Get Events.
-		$events = $this->get_by_search_string( $term );
-
-		// Maybe append results.
-		$results = [];
-		if ( ! empty( $events ) ) {
-			foreach( $events AS $event ) {
-
-				// Add Event Date if present.
-				$title = $event['label'];
-				if ( ! empty( $event['description'][0] ) ) {
-					$title .= '<br><em>' . $event['description'][0] . '</em>';
-				}
-
-				// TODO: Permission to view Event?
-
-				// Append to results.
-				$results[ $event['id'] ] = $title;
-
-			}
-		}
-
-		wp_send_json( $results );
-
-	}
-
-	/**
-	 * Adds the CiviCRM Event and Participant Role settings as meta to the Product.
-	 *
-	 * @since 3.0
-	 *
-	 * @param WC_Product $product The Product object.
-	 */
-	public function panel_saved( $product ) {
-
-		// Save the Event ID.
-		if ( isset( $_POST[$this->event_key] ) ) {
-			$event_id = sanitize_key( $_POST[$this->event_key] );
-			$product->add_meta_data( $this->event_key, (int) $event_id, true );
-		}
-
-		// Save the Participant Role ID.
-		if ( isset( $_POST[$this->role_key] ) ) {
-			$participant_role_id = sanitize_key( $_POST[$this->role_key] );
-			$product->add_meta_data( $this->role_key, (int) $participant_role_id, true );
-		}
-
+	public function set_pfv_meta( $product_id, $membership_pfv_id ) {
+		update_post_meta( $product_id, $this->pfv_key, $membership_pfv_id );
 	}
 
 	/**
@@ -268,15 +192,33 @@ class WPCV_Woo_Civi_Participant {
 	 */
 	public function line_item_filter( $line_item, $item, $product, $order, $params ) {
 
+		// Get Event ID from Product meta.
+		$event_id = $product->get_meta( $this->event_key );
+		if ( empty( $event_id ) ) {
+			return $line_item;
+		}
+
 		// Get Participant Role ID from Product meta.
 		$participant_role_id = $product->get_meta( $this->role_key );
 		if ( empty( $participant_role_id ) ) {
 			return $line_item;
 		}
 
-		// Get Event ID from Product meta.
-		$event_id = $product->get_meta( $this->event_key );
-		if ( empty( $event_id ) ) {
+		// Get Price Field Value ID from Product meta.
+		$price_field_value_id = $product->get_meta( $this->pfv_key );
+		if ( empty( $price_field_value_id ) ) {
+			return $line_item;
+		}
+
+		// Get Price Field Value data.
+		$price_field_value = WPCV_WCI()->helper->get_price_field_value_by_id( $price_field_value_id );
+		if ( empty( $price_field_value ) ) {
+			return $line_item;
+		}
+
+		// Get Price Field Value data.
+		$price_field = WPCV_WCI()->helper->get_price_field_by_price_field_value_id( $price_field_value_id );
+		if ( empty( $price_field ) ) {
 			return $line_item;
 		}
 
@@ -288,9 +230,18 @@ class WPCV_Woo_Civi_Participant {
 			'event_id' => $event_id,
 			'contact_id' => $params['contact_id'],
 			'role_id' => $participant_role_id,
+			'price_set_id' => $price_field['price_set_id'],
+			'fee_level' => $price_field_value['label'],
+			'fee_amount' => $line_item_data['line_total'],
 		];
 
+		// Add Tax if set.
+		if ( ! empty( $line_item_data['tax_amount'] ) ) {
+			$line_item_params['fee_amount'] = (float) $line_item_params['fee_amount'] + (float) $line_item_data['tax_amount'];
+		}
+
 		// Set a descriptive source.
+		// NOTE: CiviCRM populates this with the Payment Method.
 		$line_item_params['source'] = sprintf(
 			__( '%1$s: %2$s' ),
 			WPCV_WCI()->source->source_generate(),
@@ -335,6 +286,9 @@ class WPCV_Woo_Civi_Participant {
 		// TODO: Are there other params for the Line Item data?
 		$participant_line_item_data = [
 			'entity_table' => 'civicrm_participant',
+			'price_field_id' => $price_field_value['price_field_id'],
+			'price_field_value_id' => $price_field_value_id,
+			'label' => $price_field_value['label'],
 		];
 
 		// Apply Participant to Line Item.
@@ -683,6 +637,154 @@ class WPCV_Woo_Civi_Participant {
 		}
 
 		return $participant_roles_options;
+
+	}
+
+	/**
+	 * Adds the CiviCRM Event and  Participant Role settings as meta to the Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param WC_Product $product The Product object.
+	 */
+	public function panel_search_events() {
+
+		check_ajax_referer( 'search-products', 'security' );
+
+		$term = '';
+		if ( isset( $_GET['term'] ) ) {
+			$term = (string) wc_clean( wp_unslash( $_GET['term'] ) );
+		}
+
+		if ( empty( $term ) ) {
+			wp_die();
+		}
+
+		// Get Events.
+		$events = $this->get_by_search_string( $term );
+
+		// Maybe append results.
+		$results = [];
+		if ( ! empty( $events ) ) {
+			foreach( $events AS $event ) {
+
+				// Add Event Date if present.
+				$title = $event['label'];
+				if ( ! empty( $event['description'][0] ) ) {
+					$title .= '<br><em>' . $event['description'][0] . '</em>';
+				}
+
+				// TODO: Permission to view Event?
+
+				// Append to results.
+				$results[ $event['id'] ] = $title;
+
+			}
+		}
+
+		wp_send_json( $results );
+
+	}
+
+	/**
+	 * Adds the CiviCRM Event, Participant Role and Price Field Value settings as meta to the Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param WC_Product $product The Product object.
+	 */
+	public function panel_saved( $product ) {
+
+		// Save the Event ID.
+		if ( isset( $_POST[$this->event_key] ) ) {
+			$event_id = sanitize_key( $_POST[$this->event_key] );
+			$product->add_meta_data( $this->event_key, (int) $event_id, true );
+		}
+
+		// Save the Participant Role ID.
+		if ( isset( $_POST[$this->role_key] ) ) {
+			$participant_role_id = sanitize_key( $_POST[$this->role_key] );
+			$product->add_meta_data( $this->role_key, (int) $participant_role_id, true );
+		}
+
+		// Save the Participant Price Field Value ID.
+		if ( isset( $_POST[$this->pfv_key] ) ) {
+			$participant_pfv_id = sanitize_key( $_POST[$this->pfv_key] );
+			$product->add_meta_data( $this->pfv_key, (int) $participant_pfv_id, true );
+		}
+
+	}
+	/**
+	 * Adds Participant Role select to the "CiviCRM Settings" Product Tab.
+	 *
+	 * @since 3.0
+	 */
+	public function panel_add_markup() {
+
+		global $thepostid, $post;
+
+		$product_id = empty( $thepostid ) ? $post->ID : $thepostid;
+
+		?>
+
+		<div class="options_group">
+
+			<p class="form-field">
+				<label for="<?php echo $this->event_key; ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
+				<select class="wc-product-search" id="<?php echo $this->event_key; ?>" name="<?php echo $this->event_key; ?>" style="width: 50%;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
+					<option value=""><?php esc_html_e( 'None', 'wpcv-woo-civi-integration' ); ?></option>
+					<?php $options = $this->get_event_options(); ?>
+					<?php $selected = $this->get_event_meta( $product_id ); ?>
+					<?php foreach ( $options as $event_id => $event_name ) : ?>
+						<option value="<?php echo esc_attr( $event_id ); ?>" <?php selected( $selected, $event_id ); ?>>
+							<?php echo esc_attr( $event_name ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select> <?php echo wc_help_tip( __( 'Select an Event if you would like this Product to create an Event Participant in CiviCRM.', 'wpcv-woo-civi-integration' ) ); ?>
+			</p>
+
+			<?php
+
+			// Show Participant Role.
+			woocommerce_wp_select( [
+				'id' => $this->role_key,
+				'name' => $this->role_key,
+				'label' => __( 'Participant Role', 'wpcv-woo-civi-integration' ),
+				'desc_tip' => 'true',
+				'description' => __( 'Select a Participant Role for the Event Participant.', 'wpcv-woo-civi-integration' ),
+				'options' => $this->get_participant_roles_options(),
+			] );
+
+			// Bail if there aren't any Price Sets.
+			$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
+			if ( empty( $price_sets ) ) {
+				return;
+			}
+
+			// Get Price Field Value.
+			$pfv_id = $this->get_pfv_meta( $product_id );
+
+			?>
+
+			<p class="form-field">
+				<label for="<?php echo $this->pfv_key; ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
+				<select name="<?php echo $this->pfv_key; ?>" id="<?php echo $this->pfv_key; ?>" class="select short">
+					<option value="0"><?php _e( 'Select a Price Field', 'cf-civicrm' ); ?></option>
+					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
+						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
+							<optgroup label="<?php esc_attr_e( sprintf( __( 'CiviCRM Price Set: %1$s - Price Field:  %2$s', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
+								<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
+									<option value="<?php esc_attr_e( $price_field_value_id ); ?>" <?php selected( $price_field_value_id, $pfv_id ); ?>><?php esc_html_e( $price_field_value['label'] ); ?></option>
+								<?php endforeach; ?>
+							</optgroup>
+						<?php endforeach; ?>
+					<?php endforeach; ?>
+				</select> <?php echo wc_help_tip( __( 'Select The Price Field for the Event Participant.', 'wpcv-woo-civi-integration' ) ); ?>
+			</p>
+
+		</div>
+
+		<?php
 
 	}
 
