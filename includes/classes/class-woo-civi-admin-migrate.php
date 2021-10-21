@@ -594,6 +594,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$query = new WP_Query( [
 			'post_type' => 'product',
 			'post_status' => 'any',
+			'nopaging' => true
 		] );
 
 		return $query->found_posts;
@@ -759,6 +760,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$query = new WP_Query( [
 			'post_type' => 'shop_order',
 			'post_status' => 'any',
+			'nopaging' => true,
 		] );
 
 		return $query->found_posts;
