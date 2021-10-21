@@ -827,7 +827,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			$data['from'] = (int) $offset;
 			$data['to'] = $data['from'] + $diff;
 
-			// Find out if CiviMember is active.
+			// Find out if CiviCampaign is active.
 			$campaign_active = false;
 			if ( WPCV_WCI()->boot_civi() ) {
 				$components = CRM_Core_Component::getEnabledComponents();
