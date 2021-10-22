@@ -87,6 +87,9 @@ class WPCV_Woo_Civi_Membership {
 		// Save Membership Type on the "CiviCRM Settings" Product Tab.
 		add_action( 'wpcv_woo_civi/product/panel/saved', [ $this, 'panel_saved' ] );
 
+		// Clear meta data from the "CiviCRM Settings" Product Tab.
+		add_action( 'wpcv_woo_civi/product/custom/panel/saved', [ $this, 'panel_clear_meta' ], 20 );
+
 		// Add Membership Type to Line Item.
 		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ], 20, 5 );
 
@@ -152,12 +155,13 @@ class WPCV_Woo_Civi_Membership {
 	 * @param object $product The WooCommerce Product object.
 	 * @param object $order The WooCommerce Order object.
 	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @return array $line_item The modified array of Line Item data.
 	 */
 	public function line_item_filter( $line_item, $item, $product, $order, $params ) {
 
 		// Get Membership Type ID from Product meta.
-		$product_membership_type_id = $product->get_meta( $this->meta_key );
-		if ( empty( $product_membership_type_id ) ) {
+		$membership_type_id = $product->get_meta( $this->meta_key );
+		if ( empty( $membership_type_id ) ) {
 			return $line_item;
 		}
 
@@ -166,6 +170,34 @@ class WPCV_Woo_Civi_Membership {
 		if ( empty( $price_field_value_id ) ) {
 			return $line_item;
 		}
+
+		// Make an array of the params.
+		$args = [
+			'item' => $item,
+			'product' => $product,
+			'order' => $order,
+			'params' => $params,
+			'membership_type_id' => $membership_type_id,
+			'price_field_value_id' => $price_field_value_id,
+		];
+
+		// Populate the Line Item.
+		$line_item = $this->line_item_populate( $line_item, $args );
+
+		return $line_item;
+
+	}
+
+	/**
+	 * Populates a Line Item to create a Membership.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $line_item The array of Line Item data.
+	 * @param array $args The array of collected params.
+	 * @return array $line_item The populated array of Line Item data.
+	 */
+	public function line_item_populate( $line_item, $args = [] ) {
 
 		// Get Membership Price Field ID.
 		$default_price_field_id = $this->get_default_price_field_id();
@@ -176,10 +208,15 @@ class WPCV_Woo_Civi_Membership {
 		// Grab the Line Item data.
 		$line_item_data = array_pop( $line_item['line_item'] );
 
+		// If a specific Financial Type ID is supplied, use it.
+		if ( ! empty( $args['financial_type_id'] ) ) {
+			$line_item_data['financial_type_id'] = $args['financial_type_id'];
+		}
+
 		$line_item_params = [
-			'membership_type_id' => $product_membership_type_id,
+			'membership_type_id' => $args['membership_type_id'],
 			'source' => __( 'Shop', 'wpcv-woo-civi-integration' ),
-			'contact_id' => $params['contact_id'],
+			'contact_id' => $args['params']['contact_id'],
 			'skipStatusCal' => 1,
 			'status_id' => 'Pending',
 		];
@@ -187,7 +224,7 @@ class WPCV_Woo_Civi_Membership {
 		$membership_line_item_data = [
 			'entity_table' => 'civicrm_membership',
 			'price_field_id' => $default_price_field_id,
-			'price_field_value_id' => $price_field_value_id,
+			'price_field_value_id' => $args['price_field_value_id'],
 		];
 
 		// Apply Membership to Line Item.
@@ -197,9 +234,6 @@ class WPCV_Woo_Civi_Membership {
 				array_merge( $line_item_data, $membership_line_item_data ),
 			],
 		];
-
-		// Store the fact that there's a Membership with this Product.
-		$this->has_membership[ $product->get_id() ] = $product_membership_type_id;
 
 		return $line_item;
 
@@ -483,6 +517,25 @@ class WPCV_Woo_Civi_Membership {
 	}
 
 	/**
+	 * Clears the metadata for this Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param WC_Product $product The Product object.
+	 */
+	public function panel_clear_meta( $product ) {
+
+		if ( ! $this->active ) {
+			return;
+		}
+
+		// Clear the current global Product Membership metadata.
+		$product->delete_meta_data( $this->meta_key );
+		$product->delete_meta_data( $this->pfv_key );
+
+	}
+
+	/**
 	 * Adds Membership Type select to the "CiviCRM Settings" Product Tab.
 	 *
 	 * @since 3.0
@@ -522,10 +575,10 @@ class WPCV_Woo_Civi_Membership {
 			<p class="form-field">
 				<label for="<?php echo $this->pfv_key; ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
 				<select name="<?php echo $this->pfv_key; ?>" id="<?php echo $this->pfv_key; ?>" class="select short">
-					<option value="0"><?php _e( 'Select a Price Field', 'cf-civicrm' ); ?></option>
+					<option value="0"><?php _e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
 					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
-							<optgroup label="<?php esc_attr_e( sprintf( __( 'CiviCRM Price Set: %1$s - Price Field:  %2$s', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
+							<optgroup label="<?php esc_attr_e( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
 								<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
 									<option value="<?php esc_attr_e( $price_field_value_id ); ?>" <?php selected( $price_field_value_id, $pfv_id ); ?>><?php esc_html_e( $price_field_value['label'] ); ?></option>
 								<?php endforeach; ?>

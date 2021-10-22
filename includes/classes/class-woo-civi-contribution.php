@@ -529,6 +529,10 @@ class WPCV_Woo_Civi_Contribution {
 		/**
 		 * Filter the Order params before calling the CiviCRM API.
 		 *
+		 * This filter is central to the way in which this plugin builds the Order.
+		 * The internal callbacks handle all the different tasks that are needed
+		 * to populate the CiviCRM Order API params.
+		 *
 		 * Used internally by:
 		 *
 		 * - WPCV_Woo_Civi_Source::source_get_for_order() (Priority: 10)

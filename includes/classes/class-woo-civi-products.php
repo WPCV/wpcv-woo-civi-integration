@@ -62,107 +62,35 @@ class WPCV_Woo_Civi_Products {
 		// Get Line Items for Payment.
 		//add_filter( 'wpcv_woo_civi/contribution/payment_create/params', [ $this, 'items_get_for_payment' ], 10, 3 );
 
-	}
-
-	/**
-	 * Filter the Payment params before calling the CiviCRM API.
-	 *
-	 * @since 3.0
-	 *
-	 * @param array $params The params to be passed to the CiviCRM API.
-	 * @param object $order The WooCommerce Order object.
-	 * @param array $contribution The CiviCRM Contribution data.
-	 */
-	public function items_get_for_payment( $params, $order, $contribution ) {
-
-		// Try and get the Line Items.
-		$items = $this->items_get_by_contribution_id( $contribution['id'] );
-		if ( empty( $items ) ) {
-			return $params;
-		}
-
-		/*
-		 * Build Line Item data. For example:
-		 *
-		 * 'line_item' => [
-		 *   '0' => [
-		 *     '1' => 10,
-		 *   ],
-		 *   '1' => [
-		 *     '2' => 40,
-		 *   ],
-		 * ],
-		 */
-		$items_data = [];
-		$count = 0;
-		foreach ( $items as $item ) {
-			$line_item = [ (string) $count ];
-			$count++;
-			$line_item[ (string) $count ] = (float) $item['line_total'] + (float) $item['tax_amount'];
-			$items_data[] = [ $line_item ];
-		}
-
-		$params['line_item'] = $items_data;
-
-		return $params;
+		// Get the Financial Type ID from WooCommerce Product meta.
+		add_filter( 'wpcv_woo_civi/product/query/financial_type_id', [ $this, 'financial_type_id_get' ], 10, 2 );
 
 	}
 
 	/**
-	 * Filter the Payment params before calling the CiviCRM API.
+	 * Gets the Financial Type ID from WooCommerce Product meta.
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $contribution_id The numeric ID of the CiviCRM Contribution.
-	 * @return array $result The CiviCRM Line Item data, or empty on failure.
+	 * @param int $financial_type_id The possibly found Financial Type ID.
+	 * @param int $product_id The Product ID.
+	 * @return int $financial_type_id The found Financial Type ID, passed through otherwise.
 	 */
-	public function items_get_by_contribution_id( $contribution_id ) {
+	public function financial_type_id_get( $financial_type_id, $product_id ) {
 
-		// Bail if we have no Contribution ID.
-		if ( empty( $contribution_id ) ) {
-			return [];
+		// Pass through if already found.
+		if ( $financial_type_id !== 0 ) {
+			return $financial_type_id;
 		}
 
-		// Bail if we can't initialise CiviCRM.
-		if ( ! WPCV_WCI()->boot_civi() ) {
-			return [];
+		// Return the contents of the "global" Financial Type ID if found.
+		$product_financial_type_id = get_post_meta( $product_id, $this->meta_key, true );
+		if ( ! empty( $product_financial_type_id ) ) {
+			return $product_financial_type_id;
 		}
 
-		// Construct API query.
-		$params = [
-			'version' => 3,
-			'contribution_id' => $contribution_id,
-		];
-
-		// Get Line Item details via API.
-		$result = civicrm_api( 'LineItem', 'get', $params );
-
-		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Error trying to find Line Items by Contribution ID', 'wpcv-woo-civi-integration' ) );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'backtrace' => $trace,
-			], true ) );
-
-			return [];
-
-		}
-
- 		// The result set is what we want.
-		$line_items = [];
-		if ( ! empty( $result['values'] ) ) {
-			$line_items = $result['values'];
-		}
-
-		return $line_items;
+		// Not found.
+		return 0;
 
 	}
 
@@ -223,7 +151,7 @@ class WPCV_Woo_Civi_Products {
 	 * @see https://docs.civicrm.org/dev/en/latest/financial/orderAPI/#step-1
 	 *
 	 * @since 2.2 Line Items added to CiviCRM Contribution.
-	 * @since 3.0 Logic moved to this method
+	 * @since 3.0 Logic moved to this method.
 	 *
 	 * @param array $params The existing array of params for the CiviCRM API.
 	 * @param object $order The Order object.
@@ -237,6 +165,7 @@ class WPCV_Woo_Civi_Products {
 			return $params;
 		}
 
+		// Bail if there isn't a default Price Field ID set in CiviCRM.
 		$default_price_field_id = $this->get_default_price_field_id();
 		if ( empty( $default_price_field_id ) ) {
 			return $params;
@@ -249,10 +178,22 @@ class WPCV_Woo_Civi_Products {
 
 			$product = $item->get_product();
 
-			// Does this Product have a Financial Type?
+			// Does this Product have a "global" Financial Type?
 			$product_financial_type_id = $product->get_meta( $this->meta_key );
 
-			// Skip if this Product should not be synced to CiviCRM.
+			/*
+			 * Skip if this Product should not be synced to CiviCRM.
+			 *
+			 * Our Custom Product Types should never have this set. The Product
+			 * meta data should be managed properly by the callbacks to the
+			 * following actions:
+			 *
+			 * * woocommerce_admin_process_product_object
+			 * * wpcv_woo_civi/product/custom/panel/saved
+			 * * wpcv_woo_civi/product/panel/saved
+			 *
+			 * Worth keeping an eye on.
+			 */
 			if ( 'exclude' === $product_financial_type_id ) {
 				continue;
 			}
@@ -286,7 +227,12 @@ class WPCV_Woo_Civi_Products {
 				$line_item_data['financial_type_id'] = $product_financial_type_id;
 			}
 
-			// Construct Line Item.
+			/*
+			 * Construct Line Item.
+			 *
+			 * We can safely prime all Line Items with a "params" array because the
+			 * Order API checks whether it is empty rather than whether it is set.
+			 */
 			$line_item = [
 				'params' => [],
 				'line_item' => [ $line_item_data ],
@@ -300,6 +246,7 @@ class WPCV_Woo_Civi_Products {
 			 * * WPCV_Woo_Civi_Tax::line_item_tax_add() (Priority: 10)
 			 * * WPCV_Woo_Civi_Membership::line_item_filter() (Priority: 20)
 			 * * WPCV_Woo_Civi_Participant::line_item_filter() (Priority: 30)
+			 * * WPCV_Woo_Civi_Products_Custom::line_item_filter() (Priority: 50)
 			 *
 			 * @since 3.0
 			 *
@@ -314,7 +261,12 @@ class WPCV_Woo_Civi_Products {
 			$params['line_items'][ $item_id ] = $line_item;
 
 			// Store (or overwrite) entry in Financial Types array.
-			$financial_types[ $product_financial_type_id ] = $product_financial_type_id;
+			if ( ! empty( $line_item['line_item'][0]['financial_type_id'] ) ) {
+				$financial_type = $line_item['line_item'][0]['financial_type_id'];
+				$financial_types[ $financial_type ] = $financial_type;
+			} else {
+				$financial_types[ $product_financial_type_id ] = $product_financial_type_id;
+			}
 
 		}
 
@@ -365,6 +317,7 @@ class WPCV_Woo_Civi_Products {
 			return $params;
 		}
 
+		// Bail if there isn't a default Price Field ID set in CiviCRM.
 		$default_price_field_id = $this->get_default_price_field_id();
 		if ( empty( $default_price_field_id ) ) {
 			return $params;
@@ -511,6 +464,112 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		return $str;
+
+	}
+
+	/**
+	 * Filter the Payment params before calling the CiviCRM API.
+	 *
+	 * Not used at present.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param object $order The WooCommerce Order object.
+	 * @param array $contribution The CiviCRM Contribution data.
+	 */
+	public function items_get_for_payment( $params, $order, $contribution ) {
+
+		// Try and get the Line Items.
+		$items = $this->items_get_by_contribution_id( $contribution['id'] );
+		if ( empty( $items ) ) {
+			return $params;
+		}
+
+		/*
+		 * Build Line Item data. For example:
+		 *
+		 * 'line_item' => [
+		 *   '0' => [
+		 *     '1' => 10,
+		 *   ],
+		 *   '1' => [
+		 *     '2' => 40,
+		 *   ],
+		 * ],
+		 */
+		$items_data = [];
+		$count = 0;
+		foreach ( $items as $item ) {
+			$line_item = [ (string) $count ];
+			$count++;
+			$line_item[ (string) $count ] = (float) $item['line_total'] + (float) $item['tax_amount'];
+			$items_data[] = [ $line_item ];
+		}
+
+		$params['line_item'] = $items_data;
+
+		return $params;
+
+	}
+
+	/**
+	 * Filter the Payment params before calling the CiviCRM API.
+	 *
+	 * Not used at present.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $contribution_id The numeric ID of the CiviCRM Contribution.
+	 * @return array $result The CiviCRM Line Item data, or empty on failure.
+	 */
+	public function items_get_by_contribution_id( $contribution_id ) {
+
+		// Bail if we have no Contribution ID.
+		if ( empty( $contribution_id ) ) {
+			return [];
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return [];
+		}
+
+		// Construct API query.
+		$params = [
+			'version' => 3,
+			'contribution_id' => $contribution_id,
+		];
+
+		// Get Line Item details via API.
+		$result = civicrm_api( 'LineItem', 'get', $params );
+
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Error trying to find Line Items by Contribution ID', 'wpcv-woo-civi-integration' ) );
+
+			// Write details to PHP log.
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'backtrace' => $trace,
+			], true ) );
+
+			return [];
+
+		}
+
+ 		// The result set is what we want.
+		$line_items = [];
+		if ( ! empty( $result['values'] ) ) {
+			$line_items = $result['values'];
+		}
+
+		return $line_items;
 
 	}
 

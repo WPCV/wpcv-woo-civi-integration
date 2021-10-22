@@ -151,24 +151,22 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Get CiviCRM Financial Types.
+	 * Gets the raw data for the CiviCRM Financial Types.
 	 *
 	 * @since 2.0
 	 *
-	 * @return array $financial_types The array of CiviCRM Financial Types keyed by ID.
+	 * @return array $financial_types The array of CiviCRM Financial Types data.
 	 */
-	public function get_financial_types() {
+	public function get_financial_types_raw() {
 
 		// Return early if already calculated.
 		if ( isset( $this->financial_types ) ) {
 			return $this->financial_types;
 		}
 
-		$this->financial_types = [];
-
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
-			return $this->financial_types;
+			return [];
 		}
 
 		$params = [
@@ -203,24 +201,46 @@ class WPCV_Woo_Civi_Helper {
 				'backtrace' => $trace,
 			], true ) );
 
-			return $this->financial_types;
+			return [];
 
 		}
 
-		foreach ( $result['values'] as $key => $value ) {
-			$this->financial_types[ $value['id'] ] = $value['name'];
-		}
+		// Assign result to property.
+		$this->financial_types = $result['values'];
 
 		return $this->financial_types;
 
 	}
 
 	/**
-	 * Get the formatted Financial Types options.
+	 * Get CiviCRM Financial Type names keyed by ID.
+	 *
+	 * @since 2.0
+	 *
+	 * @return array $financial_types The array of CiviCRM Financial Types keyed by ID.
+	 */
+	public function get_financial_types() {
+
+		$raw_financial_types = $this->get_financial_types_raw();
+		if ( empty( $raw_financial_types ) ) {
+			return [];
+		}
+
+		$financial_types = [];
+		foreach ( $raw_financial_types as $key => $value ) {
+			$financial_types[ $value['id'] ] = $value['name'];
+		}
+
+		return $financial_types;
+
+	}
+
+	/**
+	 * Gets the options for use in the global "CiviCRM Settings" Product Tab.
 	 *
 	 * @since 2.4
 	 *
-	 * @return array $financial_types The formatted Financial Types options.
+	 * @return array $options The formatted Financial Types options.
 	 */
 	public function get_financial_types_options() {
 

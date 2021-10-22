@@ -144,6 +144,15 @@ class WPCV_Woo_Civi {
 	public $products_tab;
 
 	/**
+	 * WooCommerce Custom Products object.
+	 *
+	 * @since 2.2
+	 * @access public
+	 * @var object $products_custom The WooCommerce Custom Products object.
+	 */
+	public $products_custom;
+
+	/**
 	 * Membership management object.
 	 *
 	 * @since 3.0
@@ -298,6 +307,8 @@ class WPCV_Woo_Civi {
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products.php';
 		// Include Products Tab class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products-tab.php';
+		// Include Custom Products class.
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products-custom.php';
 
 		// Include Campaign class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-campaign.php';
@@ -341,6 +352,8 @@ class WPCV_Woo_Civi {
 		$this->products = new WPCV_Woo_Civi_Products();
 		// Init Products Tab object.
 		$this->products_tab = new WPCV_Woo_Civi_Products_Tab();
+		// Init Custom Products object.
+		$this->products_custom = new WPCV_Woo_Civi_Products_Custom();
 
 		// Init Campaign object.
 		$this->campaign = new WPCV_Woo_Civi_Campaign();
