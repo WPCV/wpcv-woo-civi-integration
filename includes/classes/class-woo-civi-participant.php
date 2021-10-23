@@ -163,11 +163,11 @@ class WPCV_Woo_Civi_Participant {
 	 * @since 3.0
 	 *
 	 * @param int $product_id The Product ID.
-	 * @return int|bool $membership_pfv_id The Participant Price Field Value ID, false otherwise.
+	 * @return int|bool $participant_pfv_id The Participant Price Field Value ID, false otherwise.
 	 */
 	public function get_pfv_meta( $product_id ) {
-		$membership_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );
-		return $membership_pfv_id;
+		$participant_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );
+		return $participant_pfv_id;
 	}
 
 	/**
@@ -176,10 +176,10 @@ class WPCV_Woo_Civi_Participant {
 	 * @since 3.0
 	 *
 	 * @param int $product_id The Product ID.
-	 * @param int $membership_type_id The numeric ID of the Participant Price Field Value.
+	 * @param int $participant_type_id The numeric ID of the Participant Price Field Value.
 	 */
-	public function set_pfv_meta( $product_id, $membership_pfv_id ) {
-		update_post_meta( $product_id, $this->pfv_key, $membership_pfv_id );
+	public function set_pfv_meta( $product_id, $participant_pfv_id ) {
+		update_post_meta( $product_id, $this->pfv_key, $participant_pfv_id );
 	}
 
 	/**

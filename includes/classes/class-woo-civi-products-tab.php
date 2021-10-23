@@ -96,6 +96,20 @@ class WPCV_Woo_Civi_Products_Tab {
 	 */
 	public function panel_add() {
 
+		global $thepostid, $post;
+
+		// Try and get the ID of the Product.
+		$product_id = empty( $thepostid ) ? $post->ID : $thepostid;
+
+		// Bail if there aren't any Price Sets.
+		$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
+
+		// Get Price Field Value meta key.
+		$pfv_key = WPCV_WCI()->products->pfv_key;
+
+		// Get Price Field Value.
+		$pfv_id = WPCV_WCI()->products->get_pfv_meta( $product_id );
+
 		// Include template.
 		$directory = 'assets/templates/woocommerce/admin/meta-boxes/views/';
 		include WPCV_WOO_CIVI_PATH . $directory . 'html-product-data-panel-civicrm.php';
@@ -151,7 +165,7 @@ class WPCV_Woo_Civi_Products_Tab {
 
 		// Clear the current global Product Contribution metadata.
 		$product->delete_meta_data( WPCV_WCI()->products->meta_key );
-		//$product->delete_meta_data( WPCV_WCI()->products->pfv_key );
+		$product->delete_meta_data( WPCV_WCI()->products->pfv_key );
 
 	}
 

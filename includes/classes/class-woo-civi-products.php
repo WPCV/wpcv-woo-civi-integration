@@ -28,6 +28,15 @@ class WPCV_Woo_Civi_Products {
 	public $meta_key = '_woocommerce_civicrm_financial_type_id';
 
 	/**
+	 * WooCommerce Product meta key holding the CiviCRM Contribution Price Field Value ID.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $pfv_key The CiviCRM Contribution Price Field Value ID meta key.
+	 */
+	public $pfv_key = '_woocommerce_civicrm_contribution_pfv_id';
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 3.0
@@ -120,6 +129,31 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
+	 * Gets the Contribution Price Field Value ID from WooCommerce Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $product_id The Product ID.
+	 * @return int|bool $contribution_pfv_id The Contribution Price Field Value ID, false otherwise.
+	 */
+	public function get_pfv_meta( $product_id ) {
+		$contribution_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );
+		return $contribution_pfv_id;
+	}
+
+	/**
+	 * Sets the CiviCRM Contribution Price Field Value ID as meta data on a WooCommerce Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $product_id The Product ID.
+	 * @param int $contribution_type_id The numeric ID of the Contribution Price Field Value.
+	 */
+	public function set_pfv_meta( $product_id, $contribution_pfv_id ) {
+		update_post_meta( $product_id, $this->pfv_key, $contribution_pfv_id );
+	}
+
+	/**
 	 * Gets the Line Items for an Order.
 	 *
 	 * @since 3.0
@@ -199,6 +233,7 @@ class WPCV_Woo_Civi_Products {
 			}
 
 			$line_item_data = [
+				'entity_table' => 'civicrm_contribution',
 				'price_field_id' => $default_price_field_id,
 				'unit_price' => WPCV_WCI()->helper->get_civicrm_float( $product->get_price() ),
 				'qty' => $item->get_quantity(),
@@ -206,8 +241,12 @@ class WPCV_Woo_Civi_Products {
 				'line_total' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total() ),
 				'tax_amount' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total_tax() ),
 				'label' => $product->get_name(),
-				'entity_table' => 'civicrm_contribution',
 			];
+
+			// Does this Product have a "global" Price Field Value ID?
+			if ( ! empty( $product->get_meta( $this->pfv_key ) ) ) {
+				$line_item_data['price_field_value_id'] = $product->get_meta( $this->pfv_key );
+			}
 
 			/*
 			 * From the docs:
