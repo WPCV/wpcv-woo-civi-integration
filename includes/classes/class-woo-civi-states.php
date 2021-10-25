@@ -67,7 +67,7 @@ class WPCV_Woo_Civi_States {
 	 */
 	public function register_hooks() {
 
-		// Add CiviCRM settings tab.
+		// Replace the WooCommerce State/Provinces list with CiviCRM's list.
 		add_filter( 'woocommerce_states', [ $this, 'replace_woocommerce_states' ], 10, 1 );
 
 	}
