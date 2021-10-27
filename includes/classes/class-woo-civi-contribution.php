@@ -159,7 +159,24 @@ class WPCV_Woo_Civi_Contribution {
 	}
 
 	/**
-	 * Return the Order Number.
+	 * Gets the CiviCRM Contribution data for a given WooCommerce Order ID.
+	 *
+	 * @since 2.2
+	 *
+	 * @param int $order_id The numeric ID of the WooCommerce Order.
+	 * @return array $result The CiviCRM Contribution data, or empty on failure.
+	 */
+	public function get_by_order_id( $order_id ) {
+
+		$invoice_id = $this->get_invoice_id( $order_id );
+		$contribution = $this->get_by_invoice_id( $invoice_id );
+
+		return $contribution;
+
+	}
+
+	/**
+	 * Gets the Invoice ID aka the Order Number.
 	 *
 	 * @since 2.2
 	 *
@@ -613,8 +630,7 @@ class WPCV_Woo_Civi_Contribution {
 	public function payment_create( $order_id, $order ) {
 
 		// Get Contribution.
-		$invoice_id = $this->get_invoice_id( $order_id );
-		$contribution = $this->get_by_invoice_id( $invoice_id );
+		$contribution = $this->get_by_order_id( $order_id );
 		if ( empty( $contribution ) ) {
 			return false;
 		}
@@ -776,8 +792,7 @@ class WPCV_Woo_Civi_Contribution {
 	public function status_update( $order_id, $order, $new_status_id ) {
 
 		// Get Contribution.
-		$invoice_id = $this->get_invoice_id( $order_id );
-		$contribution = $this->get_by_invoice_id( $invoice_id );
+		$contribution = $this->get_by_order_id( $order_id );
 		if ( empty( $contribution ) ) {
 			return false;
 		}

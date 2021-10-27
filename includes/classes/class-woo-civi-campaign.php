@@ -698,10 +698,7 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		// Get Contribution.
-		$invoice_id = WPCV_WCI()->contribution->get_invoice_id( $order_id );
-		$contribution = WPCV_WCI()->contribution->get_by_invoice_id( $invoice_id );
-
-		// Bail on failure.
+		$contribution = WPCV_WCI()->contribution->get_by_order_id( $order_id );
 		if ( empty( $contribution ) ) {
 			return false;
 		}
