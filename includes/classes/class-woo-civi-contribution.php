@@ -797,7 +797,7 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @param int $order_id The Order ID.
 	 * @param object $order The Order object.
-	 * @param string $new_status The new status.
+	 * @param string $new_status_id The numeric ID of the new Status.
 	 * @return bool True on success, otherwise false.
 	 */
 	public function status_update( $order_id, $order, $new_status_id ) {

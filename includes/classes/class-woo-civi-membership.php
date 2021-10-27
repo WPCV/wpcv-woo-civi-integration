@@ -146,7 +146,7 @@ class WPCV_Woo_Civi_Membership {
 	 * @since 3.0
 	 *
 	 * @param int $product_id The Product ID.
-	 * @param int $membership_type_id The numeric ID of the Membership Price Field Value.
+	 * @param int $membership_pfv_id The numeric ID of the Membership Price Field Value.
 	 */
 	public function set_pfv_meta( $product_id, $membership_pfv_id ) {
 		update_post_meta( $product_id, $this->pfv_key, $membership_pfv_id );

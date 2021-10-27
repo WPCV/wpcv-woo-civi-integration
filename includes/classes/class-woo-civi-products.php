@@ -253,7 +253,7 @@ class WPCV_Woo_Civi_Products {
 	 * @since 3.0
 	 *
 	 * @param int $product_id The Product ID.
-	 * @param int $contribution_type_id The numeric ID of the Contribution Price Field Value.
+	 * @param int $contribution_pfv_id The numeric ID of the Contribution Price Field Value.
 	 */
 	public function set_pfv_meta( $product_id, $contribution_pfv_id ) {
 		update_post_meta( $product_id, $this->pfv_key, $contribution_pfv_id );
