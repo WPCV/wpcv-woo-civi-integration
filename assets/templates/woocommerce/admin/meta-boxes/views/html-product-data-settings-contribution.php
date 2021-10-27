@@ -58,12 +58,12 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 			<p class="form-field">
 				<label for="<?php echo $pfv_id_key; ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
 				<select name="<?php echo $pfv_id_key; ?>" id="<?php echo $pfv_id_key; ?>" class="select short">
-					<option value="0"><?php _e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
+					<option value="0"><?php esc_html_e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
 					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
-							<optgroup label="<?php esc_attr_e( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
+							<optgroup label="<?php echo esc_attr( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
 								<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
-									<option value="<?php esc_attr_e( $price_field_value_id ); ?>" <?php selected( $price_field_value_id, $pfv_id ); ?>><?php esc_html_e( $price_field_value['label'] ); ?></option>
+									<option value="<?php echo esc_attr( $price_field_value_id ); ?>" <?php selected( $price_field_value_id, $pfv_id ); ?>><?php echo esc_html( $price_field_value['label'] ); ?></option>
 								<?php endforeach; ?>
 							</optgroup>
 						<?php endforeach; ?>

@@ -1,10 +1,20 @@
 # Integrate CiviCRM with WooCommerce
 
-A WordPress plugin that integrates CiviCRM with WooCommerce.
+**Contributors:** [See full Contributor List](https://github.com/WPCV/wpcv-woo-civi-integration/graphs/contributors)<br/>
+**Donate link:** https://www.paypal.me/interactivist<br/>
+**Tags:** civicrm, woocommerce, contribution, sync<br/>
+**Requires at least:** 5.7<br/>
+**Tested up to:** 5.8<br/>
+**Stable tag:** 3.0<br/>
+**License:** GPLv3<br/>
+**License URI:** https://www.gnu.org/licenses/gpl-3.0.html
 
+A WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WordCommerce Orders and keeps WordCommerce Customer Accounts in sync with CiviCRM Contact data.
 
 
 ## Description
+
+*Integrate CiviCRM with WooCommerce* is a WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WordCommerce Orders and keeps WordCommerce Customer Accounts in sync with CiviCRM Contact data.
 
 1. WooCommerce Orders are created as Contributions in CiviCRM. Each Product in the Order is a Line Item in the Contribution.
 2. Sales Tax/VAT & Shipping Costs are configurable/mappable as CiviCRM Financial Types.
@@ -19,7 +29,7 @@ A WordPress plugin that integrates CiviCRM with WooCommerce.
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 5.41.2* and *WooCommerce 5.2.2+*.
+This plugin requires a minimum of *CiviCRM 5.42.1* and *WooCommerce 5.2.2+*.
 
 ### Configuration
 
@@ -44,7 +54,7 @@ Documentation in progress.
 
 ## Know Issues
 
-This plugin currently relies on the `Order.create` and `Payment.create` API in CiviCRM to register WooCommerce Orders as CiviCRM Contributions. There is currently a push in CiviCRM to fix various aspects of this API, which is why this plugin should ideally be used with CiviCRM 5.41.2 or greater.
+This plugin currently relies on the `Order.create` and `Payment.create` API in CiviCRM to register WooCommerce Orders as CiviCRM Contributions. There is currently a push in CiviCRM to fix various aspects of this API, which is why this plugin should ideally be used with CiviCRM 5.42.1 or greater.
 
 The biggest outstanding issue is for Orders with a mix of Contribution, Membership and/or Participant in the same Order. The plugin works well if you are able to avoid these kinds of mixed Orders.
 

@@ -151,8 +151,14 @@ class WPCV_Woo_Civi_Products_Custom {
 		// Filter the Line Item.
 		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ], 50, 5 );
 
+		// Get the Entity Type of a Custom Product Type.
+		add_filter( 'wpcv_woo_civi/product/query/entity_type', [ $this, 'entity_type_get' ], 20, 2 );
+
 		// Get the Financial Type ID from WooCommerce Product meta.
 		add_filter( 'wpcv_woo_civi/product/query/financial_type_id', [ $this, 'financial_type_id_get' ], 20, 2 );
+
+		// Get the Price Field Value ID from WooCommerce Product meta.
+		add_filter( 'wpcv_woo_civi/product/query/pfv_id', [ $this, 'pfv_id_get' ], 20, 2 );
 
 	}
 
@@ -440,6 +446,39 @@ class WPCV_Woo_Civi_Products_Custom {
 	}
 
 	/**
+	 * Gets the Entity Type from WooCommerce Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param str $entity_type The possibly found Entity Type.
+	 * @param int $product_id The Product ID.
+	 * @return str $entity_type The found Entity Type, passed through otherwise.
+	 */
+	public function entity_type_get( $entity_type, $product_id ) {
+
+		// Pass through if already found.
+		if ( $entity_type !== '' ) {
+			return $entity_type;
+		}
+
+		// Pass through if Product not found.
+		$product = wc_get_product( $product_id );
+		if ( empty( $product ) ) {
+			return $entity_type;
+		}
+
+		// Pass through if not one of our Product Types.
+		$product_type = $product->get_type();
+		if ( ! array_key_exists( $product_type, $this->product_types_meta ) ) {
+			return $entity_type;
+		}
+
+		// The Product Type is the same as the Entity Type.
+		return $product_type;
+
+	}
+
+	/**
 	 * Gets the Financial Type ID from WooCommerce Product meta.
 	 *
 	 * @since 3.0
@@ -471,6 +510,45 @@ class WPCV_Woo_Civi_Products_Custom {
 		$product_financial_type_id = $this->get_meta( $product_id, $product_type, 'financial_type_id' );
 		if ( ! empty( $product_financial_type_id ) ) {
 			return $product_financial_type_id;
+		}
+
+		// Not found.
+		return 0;
+
+	}
+
+	/**
+	 * Gets the Price Field Value ID from WooCommerce Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $pfv_id The possibly found Price Field Value ID.
+	 * @param int $product_id The Product ID.
+	 * @return int $pfv_id The found Price Field Value ID, passed through otherwise.
+	 */
+	public function pfv_id_get( $pfv_id, $product_id ) {
+
+		// Pass through if already found.
+		if ( $pfv_id !== 0 ) {
+			return $pfv_id;
+		}
+
+		// Pass through if Product not found.
+		$product = wc_get_product( $product_id );
+		if ( empty( $product ) ) {
+			return $pfv_id;
+		}
+
+		// Pass through if not one of our Product Types.
+		$product_type = $product->get_type();
+		if ( ! array_key_exists( $product_type, $this->product_types_meta ) ) {
+			return $pfv_id;
+		}
+
+		// Return the Price Field Value ID if found.
+		$product_pfv_id = $this->get_meta( $product_id, $product_type, 'pfv_id' );
+		if ( ! empty( $product_pfv_id ) ) {
+			return $product_pfv_id;
 		}
 
 		// Not found.

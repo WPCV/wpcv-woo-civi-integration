@@ -113,6 +113,10 @@ class WPCV_Woo_Civi_Tax {
 			return $params;
 		}
 
+		// Tax is recalculated by the Order API.
+		// TODO: Review when float issues are resolved.
+		return $params;
+
 		// Ensure number format is CiviCRM-compliant.
 		$params['tax_amount'] = WPCV_WCI()->helper->get_civicrm_float( $total_tax );
 

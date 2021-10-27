@@ -1,14 +1,14 @@
 === Integrate CiviCRM with WooCommerce ===
-Contributors: veda-consulting, mecachisenros, rajeshrhino, JoeMurray, kcristiano, cdhassell, bastho
+Contributors: needle, bastho, mecachisenros, rajeshrhino
 Tags: civicrm, woocommerce, integration
 Requires PHP: 7.1
 Requires at least: 5.7
 Tested up to: 5.8
-Stable tag: 2.0
+Stable tag: 3.0
 License: GPLv3
-License URI: http://www.gnu.org/licenses/gpl-3.0.html
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Integrates CiviCRM with WooCommerce.
+Creates CiviCRM Contributions, Memberships and Participants from WordCommerce Orders and keeps WordCommerce Customer Accounts in sync with CiviCRM Contact data.
 
 
 == Description ==
@@ -26,7 +26,7 @@ Integrates CiviCRM with WooCommerce.
 
 ### Requirements
 
-This plugin requires a minimum of *CiviCRM 5.41.2* and *WooCommerce 5.2.2+*.
+This plugin requires a minimum of *CiviCRM 5.42.1* and *WooCommerce 5.2.2+*.
 
 ### Configuration
 
@@ -46,7 +46,7 @@ Configure settings for an Order in the *General* section of the "New Order" and 
 
 == Known Issues ==
 
-This plugin currently relies on the `Order.create` and `Payment.create` API in CiviCRM to register WooCommerce Orders as CiviCRM Contributions. There is currently a push in CiviCRM to fix various aspects of this API, which is why this plugin should ideally be used with CiviCRM 5.41.2 or greater.
+This plugin currently relies on the `Order.create` and `Payment.create` API in CiviCRM to register WooCommerce Orders as CiviCRM Contributions. There is currently a push in CiviCRM to fix various aspects of this API, which is why this plugin should ideally be used with CiviCRM 5.42.1 or greater.
 
 The biggest outstanding issue is for Orders with a mix of Contribution, Membership and/or Participant in the same Order. The plugin works well if you are able to avoid these kinds of mixed Orders.
 

@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 2.0
  */
-class WPCV_Woo_Civi_States {
+class WPCV_Woo_Civi_Settings_States {
 
 	/**
 	 * CiviCRM Countries.

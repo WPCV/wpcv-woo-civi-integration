@@ -2,8 +2,8 @@
 /**
  * Admin Migrate class.
  *
- * Handles admin tasks for this plugin. particularly migrating from the old plugin
- * to the current one.
+ * Handles admin tasks for this plugin, particularly migrating from the old
+ * "WooCommerce CiviCRM" plugin to the current one.
  *
  * @package WPCV_Woo_Civi
  * @since 3.0
@@ -744,8 +744,19 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		if ( ! empty( $membership_type_id ) || $membership_type_id == 0 ) {
 			if ( $member_active ) {
 				update_post_meta( $product_id, '_woocommerce_civicrm_membership_type_id', $membership_type_id );
+				// Also set the Entity Type if applicable.
+				if ( $membership_type_id > 0 ) {
+					update_post_meta( $product_id, '_woocommerce_civicrm_entity_type', 'civicrm_membership' );
+				}
 			}
 			delete_post_meta( $product_id, 'woocommerce_civicrm_membership_type_id' );
+		}
+
+		// Maybe transfer "exclude" setting to Entity Type and clean up.
+		if ( $financial_type_id === 'exclude' ) {
+			update_post_meta( $product_id, '_woocommerce_civicrm_entity_type', 'civicrm_exclude' );
+			delete_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id' );
+			delete_post_meta( $product_id, '_woocommerce_civicrm_membership_type_id' );
 		}
 
 	}

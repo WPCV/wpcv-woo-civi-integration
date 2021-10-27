@@ -523,8 +523,14 @@ class WPCV_Woo_Civi_Contribution {
 		 * Since WooCommerce has already calculated this (including taxes), we can
 		 * maintain compatibility with versions of CiviCRM prior to 5.20 by adding
 		 * the CiviCRM-compliant total now.
+		 *
+		 * However, until the following issue is fixed, there is not much point
+		 * in sending the Total Amount to CiviCRM because it is recalculated on
+		 * submission and may fail because of this.
+		 *
+		 * @see https://lab.civicrm.org/dev/financial/-/issues/189
 		 */
-		$params['total_amount'] = WPCV_WCI()->helper->get_civicrm_float( $order->get_total() );
+		//$params['total_amount'] = WPCV_WCI()->helper->get_civicrm_float( $order->get_total() );
 
 		/**
 		 * Filter the Order params before calling the CiviCRM API.
@@ -547,6 +553,17 @@ class WPCV_Woo_Civi_Contribution {
 		 * @param object $order The WooCommerce Order object.
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/contribution/create_from_order/params', $params, $order );
+
+		/*
+		 * Do not create the Order if there are no Line Items.
+		 *
+		 * If this happens, it is because the Order consists entirely of Products
+		 * that are set NOT to sync with CiviCRM. In this case, there's no point
+		 * in creating the Order.
+		 */
+		if ( empty( $params['line_items'] ) ) {
+			return false;
+		}
 
 		// Go ahead.
 		$contribution = $this->order_create( $params );
@@ -602,6 +619,13 @@ class WPCV_Woo_Civi_Contribution {
 			return false;
 		}
 
+		// Bail early if the Order is 'free' (0 amount) and 0 amount setting is enabled.
+		$ignore = get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false );
+		$ignore_zero_orders = WPCV_WCI()->helper->check_yes_no_value( $ignore );
+		if ( $ignore_zero_orders && $order->get_total() === 0 ) {
+			return false;
+		}
+
 		$params = [
 			'contribution_id' => $contribution['id'],
 			'total_amount' => WPCV_WCI()->helper->get_civicrm_float( $order->get_total() ),
@@ -614,6 +638,10 @@ class WPCV_Woo_Civi_Contribution {
 		/**
 		 * Filter the Payment params before calling the CiviCRM API.
 		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Products::payment_total_filter() (Priority: 10)
+		 *
 		 * @since 3.0
 		 *
 		 * @param array $params The params to be passed to the CiviCRM API.
@@ -621,6 +649,20 @@ class WPCV_Woo_Civi_Contribution {
 		 * @param array $contribution The CiviCRM Contribution data.
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/contribution/payment_create/params', $params, $order, $contribution );
+
+		/*
+		 * Do not create the Payment if the Total Amount is 0.
+		 *
+		 * If this the Total Amount is 0 at this point, it is not because the Order
+		 * has a total of 0 but because the Order consists entirely of Products
+		 * that are set NOT to sync with CiviCRM.
+		 *
+		 * Furthermore, the Order will not have been created, so there's no point
+		 * in creating a Payment for it.
+		 */
+		if ( 0 === (float) $params['total_amount'] ) {
+			return false;
+		}
 
 		try {
 

@@ -127,7 +127,7 @@ class WPCV_Woo_Civi_Contact_Address {
 				}
 
 				$country = $order->{'get_' . $address_type . '_country'}();
-				$country_id = WPCV_WCI()->states->get_civicrm_country_id( $country );
+				$country_id = WPCV_WCI()->settings_states->get_civicrm_country_id( $country );
 				$state = $order->{'get_' . $address_type . '_state'}();
 
 				// Prime the Address data array.
@@ -139,7 +139,7 @@ class WPCV_Woo_Civi_Contact_Address {
 					'street_address'         => $address_1,
 					'supplemental_address_1' => $order->{'get_' . $address_type . '_address_2'}(),
 					'country'                => $country_id,
-					'state_province_id'      => WPCV_WCI()->states->get_civicrm_state_province_id( $state, $country_id ),
+					'state_province_id'      => WPCV_WCI()->settings_states->get_civicrm_state_province_id( $state, $country_id ),
 					'contact_id'             => $contact_id,
 				];
 
@@ -345,10 +345,10 @@ class WPCV_Woo_Civi_Contact_Address {
 
 				switch ( $civi_field ) {
 					case 'country_id':
-						update_user_meta( $cms_user['uf_id'], $wc_field, WPCV_WCI()->states->get_civicrm_country_iso_code( $object_ref->{$civi_field} ) );
+						update_user_meta( $cms_user['uf_id'], $wc_field, WPCV_WCI()->settings_states->get_civicrm_country_iso_code( $object_ref->{$civi_field} ) );
 						continue 2;
 					case 'state_province_id':
-						update_user_meta( $cms_user['uf_id'], $wc_field, WPCV_WCI()->states->get_civicrm_state_province_name( $object_ref->{$civi_field} ) );
+						update_user_meta( $cms_user['uf_id'], $wc_field, WPCV_WCI()->settings_states->get_civicrm_state_province_name( $object_ref->{$civi_field} ) );
 						continue 2;
 					default:
 						update_user_meta( $cms_user['uf_id'], $wc_field, $object_ref->{$civi_field} );
@@ -403,10 +403,10 @@ class WPCV_Woo_Civi_Contact_Address {
 		foreach ( $this->get_mapped_address( $load_address ) as $wc_field => $civi_field ) {
 			switch ( $civi_field ) {
 				case 'country_id':
-					$edited_address[ $civi_field ] = WPCV_WCI()->states->get_civicrm_country_id( $customer->{'get_' . $wc_field}() );
+					$edited_address[ $civi_field ] = WPCV_WCI()->settings_states->get_civicrm_country_id( $customer->{'get_' . $wc_field}() );
 					continue 2;
 				case 'state_province_id':
-					$edited_address[ $civi_field ] = WPCV_WCI()->states->get_civicrm_state_province_id( $customer->{'get_' . $wc_field}(), $edited_address['country_id'] );
+					$edited_address[ $civi_field ] = WPCV_WCI()->settings_states->get_civicrm_state_province_id( $customer->{'get_' . $wc_field}(), $edited_address['country_id'] );
 					continue 2;
 				default:
 					$edited_address[ $civi_field ] = $customer->{'get_' . $wc_field}();

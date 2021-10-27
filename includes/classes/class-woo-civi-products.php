@@ -19,11 +19,20 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Products {
 
 	/**
+	 * WooCommerce Product meta key holding the CiviCRM Entity Type.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $meta_key The CiviCRM Entity Type meta key.
+	 */
+	public $entity_key = '_woocommerce_civicrm_entity_type';
+
+	/**
 	 * WooCommerce Product meta key holding the CiviCRM Financial Type ID.
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $meta_key The WooCommerce Order meta key.
+	 * @var str $meta_key The CiviCRM Financial Type ID meta key.
 	 */
 	public $meta_key = '_woocommerce_civicrm_financial_type_id';
 
@@ -35,6 +44,15 @@ class WPCV_Woo_Civi_Products {
 	 * @var str $pfv_key The CiviCRM Contribution Price Field Value ID meta key.
 	 */
 	public $pfv_key = '_woocommerce_civicrm_contribution_pfv_id';
+
+	/**
+	 * Hold the Purchase Activity Details when building Line Items.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var str $purchase_activity The array of Purchase Activity Details.
+	 */
+	public $purchase_activity = [];
 
 	/**
 	 * Class constructor.
@@ -68,11 +86,47 @@ class WPCV_Woo_Civi_Products {
 		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'items_get_for_order' ], 30, 2 );
 		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'shipping_get_for_order' ], 40, 2 );
 
+		// Filter the Payment total.
+		add_filter( 'wpcv_woo_civi/contribution/payment_create/params', [ $this, 'payment_total_filter' ], 10, 3 );
+
 		// Get Line Items for Payment.
 		//add_filter( 'wpcv_woo_civi/contribution/payment_create/params', [ $this, 'items_get_for_payment' ], 10, 3 );
 
+		// Get the Entity Type of a Custom Product Type.
+		add_filter( 'wpcv_woo_civi/product/query/entity_type', [ $this, 'entity_type_get' ], 20, 2 );
+
 		// Get the Financial Type ID from WooCommerce Product meta.
 		add_filter( 'wpcv_woo_civi/product/query/financial_type_id', [ $this, 'financial_type_id_get' ], 10, 2 );
+
+		// Get the Price Field Value ID from WooCommerce Product meta.
+		add_filter( 'wpcv_woo_civi/product/query/pfv_id', [ $this, 'pfv_id_get' ], 20, 2 );
+
+	}
+
+	/**
+	 * Gets the Entity Type from WooCommerce Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param str $entity_type The possibly found Entity Type.
+	 * @param int $product_id The Product ID.
+	 * @return str $entity_type The found Entity Type, passed through otherwise.
+	 */
+	public function entity_type_get( $entity_type, $product_id ) {
+
+		// Pass through if already found.
+		if ( $entity_type !== '' ) {
+			return $entity_type;
+		}
+
+		// Return the contents of the "global" Financial Type ID if found.
+		$product_entity_type = get_post_meta( $product_id, $this->entity_key, true );
+		if ( ! empty( $product_entity_type ) ) {
+			return $product_entity_type;
+		}
+
+		// Not found.
+		return '';
 
 	}
 
@@ -101,6 +155,58 @@ class WPCV_Woo_Civi_Products {
 		// Not found.
 		return 0;
 
+	}
+
+	/**
+	 * Gets the Price Field Value ID from WooCommerce Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $pfv_id The possibly found Price Field Value ID.
+	 * @param int $product_id The Product ID.
+	 * @return int $pfv_id The found Price Field Value ID, passed through otherwise.
+	 */
+	public function pfv_id_get( $pfv_id, $product_id ) {
+
+		// Pass through if already found.
+		if ( $pfv_id !== 0 ) {
+			return $pfv_id;
+		}
+
+		// Return the contents of the "global" Price Field Value ID if found.
+		$product_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );
+		if ( ! empty( $product_pfv_id ) ) {
+			return $product_pfv_id;
+		}
+
+		// Not found.
+		return 0;
+
+	}
+
+	/**
+	 * Gets the CiviCRM Entity Type from WooCommerce Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $product_id The Product ID.
+	 * @return str|bool $entity_type The CiviCRM Entity Type, false otherwise.
+	 */
+	public function get_entity_meta( $product_id ) {
+		$entity_type = get_post_meta( $product_id, $this->entity_key, true );
+		return $entity_type;
+	}
+
+	/**
+	 * Sets the CiviCRM Entity Type as meta data on a WooCommerce Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $product_id The Product ID.
+	 * @param str $entity_type The CiviCRM Entity Type.
+	 */
+	public function set_entity_meta( $product_id, $entity_type ) {
+		update_post_meta( $product_id, $this->entity_key, $entity_type );
 	}
 
 	/**
@@ -166,14 +272,14 @@ class WPCV_Woo_Civi_Products {
 
 		$items = $order->get_items();
 
-		// Add note.
-		$params['note'] = $this->note_generate( $items );
-
-		// Init Line Items.
+		// Init Line Items for the CiviCRM Order API.
 		$params['line_items'] = [];
 
 		// Filter the params and add Line Items.
 		$params = $this->items_build_for_order( $params, $order, $items );
+
+		// Add note after Line Items have been parsed.
+		$params['note'] = $this->note_generate();
 
 		return $params;
 
@@ -211,23 +317,19 @@ class WPCV_Woo_Civi_Products {
 		foreach ( $items as $item_id => $item ) {
 
 			$product = $item->get_product();
+			$product_type = $product->get_type();
 
-			// Does this Product have a "global" Financial Type?
+			// Skip/exclude if this Product should not be synced to CiviCRM.
+			$product_entity_type = $product->get_meta( $this->entity_key );
+			// Our Custom Product Types always sync.
+			if ( ! array_key_exists( $product_type, WPCV_WCI()->products_custom->product_types_meta ) ) {
+				if ( '' === $product_entity_type || 'civicrm_exclude' === $product_entity_type ) {
+					continue;
+				}
+			}
+
+			// Skip if this Product still has the legacy "exclude" setting.
 			$product_financial_type_id = $product->get_meta( $this->meta_key );
-
-			/*
-			 * Skip if this Product should not be synced to CiviCRM.
-			 *
-			 * Our Custom Product Types should never have this set. The Product
-			 * meta data should be managed properly by the callbacks to the
-			 * following actions:
-			 *
-			 * * woocommerce_admin_process_product_object
-			 * * wpcv_woo_civi/product/custom/panel/saved
-			 * * wpcv_woo_civi/product/panel/saved
-			 *
-			 * Worth keeping an eye on.
-			 */
 			if ( 'exclude' === $product_financial_type_id ) {
 				continue;
 			}
@@ -307,6 +409,13 @@ class WPCV_Woo_Civi_Products {
 				$financial_types[ $product_financial_type_id ] = $product_financial_type_id;
 			}
 
+			// Store the Purchase Activity Details.
+			$this->purchase_activity[] = sprintf(
+				__( '%1$s x %2$s', 'wpcv-woo-civi-integration' ),
+				$product->get_name(),
+				$item->get_quantity()
+			);
+
 		}
 
 		/*
@@ -326,7 +435,7 @@ class WPCV_Woo_Civi_Products {
 		 *
 		 * If only that worked. I thought it sounded too good to be true. Doing that
 		 * results in: "Mandatory key(s) missing from params array: financial_type_id"
-		 * so let's try the default and see what happens.
+		 * so let's set the default (from Settings) and see what happens.
 		 */
 		if ( 1 === count( $financial_types ) ) {
 			$params['financial_type_id'] = array_pop( $financial_types );
@@ -487,29 +596,104 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 2.0
 	 *
-	 * @param object $items The Order object.
 	 * @return string $str The Purchase Activity Details.
 	 */
-	public function note_generate( $items ) {
+	public function note_generate() {
 
 		$str = '';
-		$n = 1;
-		foreach ( $items as $item ) {
-			if ( $n > 1 ) {
-				$str .= ', ';
-			}
-			$str .= $item['name'] . ' x ' . $item['quantity'];
-			$n++;
+
+		// Bail if empty.
+		if ( empty( $this->purchase_activity ) ) {
+			return $str;
 		}
+
+		// Make human-readable.
+		$str =  implode( ', ', $this->purchase_activity );
 
 		return $str;
 
 	}
 
 	/**
+	 * Filters the Payment params before calling the CiviCRM API.
+	 *
+	 * Because there may be one or more Products in the Order that are not to be
+	 * synced to CiviCRM, we need to filter the "total_amount" so that the costs
+	 * of the Products that are not synced are deducted.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param object $order The WooCommerce Order object.
+	 * @param array $contribution The CiviCRM Contribution data.
+	 */
+	public function payment_total_filter( $params, $order, $contribution ) {
+
+		// Try and get the Order Items.
+		$items = $order->get_items();
+		if ( empty( $items ) ) {
+			return $params;
+		}
+
+		// Init array holding the deductions to be made.
+		$deductions = [];
+
+		foreach ( $items as $item_id => $item ) {
+
+			$product = $item->get_product();
+			$product_type = $product->get_type();
+
+			// Assume we should not deduct this Item because it syncs.
+			$deduct = false;
+
+			// Check if this Product should not be synced to CiviCRM.
+			$product_entity_type = $product->get_meta( $this->entity_key );
+			// Our Custom Product Types always sync.
+			if ( ! array_key_exists( $product_type, WPCV_WCI()->products_custom->product_types_meta ) ) {
+				if ( '' === $product_entity_type || 'civicrm_exclude' === $product_entity_type ) {
+					$deduct = true;
+				}
+			}
+
+			// Check if this Product still has the legacy "exclude" setting.
+			$product_financial_type_id = $product->get_meta( $this->meta_key );
+			if ( 'exclude' === $product_financial_type_id ) {
+				$deduct = true;
+			}
+
+			// Skip if we should not deduct this Item.
+			if ( $deduct === false ) {
+				continue;
+			}
+
+			// Add deductions.
+			$item_total = $item->get_total();
+			$item_tax = $item->get_total_tax();
+			if ( ! empty( $item_total ) ) {
+				$deductions[] = $item_total;
+				if ( ! empty( $item_tax ) ) {
+					$deductions[] = $item_tax;
+				}
+			}
+
+		}
+
+		// Do the deductions.
+		if ( ! empty( $deductions ) ) {
+			foreach ( $deductions as $deduction ) {
+				$params['total_amount'] = (float) $params['total_amount'] - (float) $deduction;
+			}
+		}
+
+		return $params;
+
+	}
+
+	/**
 	 * Filter the Payment params before calling the CiviCRM API.
 	 *
-	 * Not used at present.
+	 * Not used at present because there is no documentation on the Line Items
+	 * and how to build the array to be passed to the Payment API.
 	 *
 	 * @since 3.0
 	 *
@@ -553,14 +737,12 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
-	 * Filter the Payment params before calling the CiviCRM API.
-	 *
-	 * Not used at present.
+	 * Gets the Line Items for a given Contribution ID.
 	 *
 	 * @since 3.0
 	 *
 	 * @param int $contribution_id The numeric ID of the CiviCRM Contribution.
-	 * @return array $result The CiviCRM Line Item data, or empty on failure.
+	 * @return array $line_items The CiviCRM Line Item data, or empty on failure.
 	 */
 	public function items_get_by_contribution_id( $contribution_id ) {
 
@@ -595,6 +777,7 @@ class WPCV_Woo_Civi_Products {
 			error_log( print_r( [
 				'method' => __METHOD__,
 				'params' => $params,
+				'result' => $result,
 				'backtrace' => $trace,
 			], true ) );
 

@@ -51,11 +51,6 @@ class WPCV_Woo_Civi_Settings_Network {
 			return;
 		}
 
-		// Bail if this isn't WordPress admin.
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		$this->register_hooks();
 
 	}
@@ -63,7 +58,7 @@ class WPCV_Woo_Civi_Settings_Network {
 	/**
 	 * Register hooks.
 	 *
-	 * @since 2.0
+	 * @since 3.0
 	 */
 	public function register_hooks() {
 
@@ -106,6 +101,7 @@ class WPCV_Woo_Civi_Settings_Network {
 	 * Network settings.
 	 *
 	 * @since 2.0
+	 * @since 3.0 Moved to this class.
 	 */
 	public function network_settings_render() {
 
@@ -133,6 +129,7 @@ class WPCV_Woo_Civi_Settings_Network {
 	 * Registers the plugin settings.
 	 *
 	 * @since 2.0
+	 * @since 3.0 Moved to this class.
 	 */
 	public function register_settings() {
 
@@ -165,6 +162,7 @@ class WPCV_Woo_Civi_Settings_Network {
 	 * Settings section callback.
 	 *
 	 * @since 2.0
+	 * @since 3.0 Moved to this class.
 	 *
 	 * @param array $args Display arguments.
 	 */
@@ -176,6 +174,7 @@ class WPCV_Woo_Civi_Settings_Network {
 	 * Settings field select.
 	 *
 	 * @since 2.0
+	 * @since 3.0 Moved to this class.
 	 *
 	 * @param array $args The field params.
 	 */
@@ -202,6 +201,7 @@ class WPCV_Woo_Civi_Settings_Network {
 	 * Trigger network settings.
 	 *
 	 * @since 2.0
+	 * @since 3.0 Moved to this class.
 	 */
 	public function network_settings_save() {
 

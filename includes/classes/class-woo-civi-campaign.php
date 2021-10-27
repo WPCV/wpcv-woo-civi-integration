@@ -129,7 +129,7 @@ class WPCV_Woo_Civi_Campaign {
 		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'campaign_get_for_order' ], 20, 2 );
 
 		// Add Campaign ID to plugin settings fields.
-		add_filter( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', [ $this, 'campaign_settings_add' ] );
+		add_filter( 'wpcv_woo_civi/woo_settings/fields/order/settings', [ $this, 'campaign_settings_add' ] );
 
 		// Show Campaign on Orders listing screen.
 		add_filter( 'manage_shop_order_posts_columns', [ $this, 'columns_head' ], 20 );
@@ -908,7 +908,7 @@ class WPCV_Woo_Civi_Campaign {
 		?>
 		<p class="form-field form-field-wide wc-civicrmcampaign">
 			<label for="order_civicrmcampaign"><?php esc_html_e( 'CiviCRM Campaign:', 'wpcv-woo-civi-integration' ); ?></label>
-			<select id="order_civicrmcampaign" name="order_civicrmcampaign" data-placeholder="<?php esc_attr( __( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ) ); ?>">
+			<select id="order_civicrmcampaign" name="order_civicrmcampaign" data-placeholder="<?php esc_attr_e( 'CiviCRM Campaign', 'wpcv-woo-civi-integration' ); ?>">
 				<option value=""></option>
 				<?php foreach ( $campaign_list as $campaign_id => $campaign_name ) : ?>
 					<option value="<?php echo esc_attr( $campaign_id ); ?>" <?php selected( $order_campaign, $campaign_id ); ?>><?php echo esc_html( $campaign_name ); ?></option>
