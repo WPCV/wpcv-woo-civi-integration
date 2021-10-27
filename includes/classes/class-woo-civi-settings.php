@@ -1,8 +1,11 @@
 <?php
 /**
- * Settings Tab class.
+ * Settings class.
  *
- * Handles the "CiviCRM Settings" tab on the WooCommerce Settings screen.
+ * Handles admin functionality including:
+ *
+ * * Managing plugin settings and upgrade tasks.
+ * * The "CiviCRM Settings" tab on the WooCommerce Settings screen.
  *
  * @package WPCV_Woo_Civi
  * @since 2.0
@@ -12,11 +15,30 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Settings Tab class.
+ * Settings class.
  *
  * @since 2.0
+ * @since 3.0 Renamed.
  */
-class WPCV_Woo_Civi_Settings_Tab {
+class WPCV_Woo_Civi_Settings {
+
+	/**
+	 * The installed version of the plugin.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var string $plugin_version The plugin version.
+	 */
+	public $plugin_version;
+
+	/**
+	 * Upgrade management object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $upgrade The Upgrade management object.
+	 */
+	public $upgrade;
 
 	/**
 	 * Class constructor.
@@ -37,7 +59,54 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 */
 	public function initialise() {
 
+		$this->initialise_settings();
 		$this->register_hooks();
+
+	}
+
+	/**
+	 * Initialise settings.
+	 *
+	 * @since 3.0
+	 */
+	public function initialise_settings() {
+
+		// Assign installed plugin version.
+		$this->plugin_version = $this->option_get( 'wpcv_woo_civi_version', false );
+
+		// Do upgrade tasks.
+		$this->upgrade_tasks();
+
+		// Store version for later reference if there has been a change.
+		if ( $this->plugin_version != WPCV_WOO_CIVI_VERSION ) {
+			$this->option_set( 'wpcv_woo_civi_version', WPCV_WOO_CIVI_VERSION );
+		}
+
+	}
+
+	/**
+	 * Performs tasks when an upgrade is required.
+	 *
+	 * @since 3.0
+	 */
+	public function upgrade_tasks() {
+
+		// If this is a new install (or a migration from a version prior to 3.0).
+		if ( $this->plugin_version === false ) {
+			// Already handled by migration.
+		}
+
+		// If this is an upgrade.
+		if ( $this->plugin_version !== WPCV_WOO_CIVI_VERSION ) {
+			// Do something.
+		}
+
+		/*
+		// For future upgrades, use something like the following.
+		if ( version_compare( WPCV_WOO_CIVI_VERSION, '3.0.1', '>=' ) ) {
+			// Do something.
+		}
+		*/
 
 	}
 
@@ -47,6 +116,9 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @since 2.0
 	 */
 	public function register_hooks() {
+
+		// Register a select with optgroup.
+		add_action( 'woocommerce_admin_field_select_optgroup', [ $this, 'select_optgroup' ] );
 
 		// Add CiviCRM settings tab.
 		add_filter( 'woocommerce_settings_tabs_array', [ $this, 'tab_add' ], 50 );
@@ -68,11 +140,8 @@ class WPCV_Woo_Civi_Settings_Tab {
 	 * @return array $setting_tabs The modified setting tabs array.
 	 */
 	public function tab_add( $setting_tabs ) {
-
 		$setting_tabs['woocommerce_civicrm'] = __( 'CiviCRM', 'wpcv-woo-civi-integration' );
-
 		return $setting_tabs;
-
 	}
 
 	/**
@@ -103,10 +172,10 @@ class WPCV_Woo_Civi_Settings_Tab {
 	public function fields_define() {
 
 		// Define and combine plugin settings fields.
-		$contribution_fields = $this->fields_contribution();
+		$order_fields = $this->fields_order();
 		$address_fields = $this->fields_address();
 		$other_fields = $this->fields_other();
-		$fields = $contribution_fields + $address_fields + $other_fields;
+		$fields = $order_fields + $address_fields + $other_fields;
 
 		/**
 		 * Filter the plugin fields array.
@@ -118,58 +187,41 @@ class WPCV_Woo_Civi_Settings_Tab {
 		return apply_filters( 'wpcv_woo_civi/woo_settings/fields', $fields );
 
 		return $fields;
+
 	}
 
 	/**
-	 * Defines the Contribution settings fields.
+	 * Defines the Order settings fields.
 	 *
 	 * @since 3.0
 	 *
-	 * @return array $fields The array of Contribution settings fields.
+	 * @return array $fields The array of Order settings fields.
 	 */
-	public function fields_contribution() {
+	public function fields_order() {
 
 		// Init Contribution section.
 		$section_start = [
-			'contribution_title' => [
-				'title' => __( 'Contribution settings', 'wpcv-woo-civi-integration' ),
+			'order_title' => [
+				'title' => __( 'Order settings', 'wpcv-woo-civi-integration' ),
 				'type' => 'title',
-				'desc' => __( 'Below are the default settings that are used when creating Contributions in CiviCRM. It is recommended that you set the Financial Type on individual Products on the "CiviCRM Settings" tab.', 'wpcv-woo-civi-integration' ),
-				'id' => 'contribution_title',
+				'desc' => __( 'This plugin needs to know some information to configure the Orders that are created in CiviCRM.', 'wpcv-woo-civi-integration' ),
+				'id' => 'order_title',
 			],
 		];
 
 		/**
-		 * Filter the Contribution section array.
+		 * Filter the Order section array.
 		 *
 		 * This can be used to add settings directly after the title.
 		 *
 		 * @since 3.0
 		 *
-		 * @param array $section_start The Contribution section settings array.
+		 * @param array $section_start The Order section settings array.
 		 */
-		$section_start = apply_filters( 'wpcv_woo_civi/woo_settings/fields/contribution/title', $section_start );
+		$section_start = apply_filters( 'wpcv_woo_civi/woo_settings/fields/order/title', $section_start );
 
-		// Init Contribution settings.
+		// Init General settings.
 		$settings = [
-			'financial_type_id' => [
-				'title' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
-				'type' => 'select',
-				'options' => WPCV_WCI()->helper->get_financial_types(),
-				'id'   => 'woocommerce_civicrm_financial_type_id',
-			],
-			'financial_type_vat_id' => [
-				'title' => __( 'Tax/VAT Financial Type', 'wpcv-woo-civi-integration' ),
-				'type' => 'select',
-				'options' => WPCV_WCI()->helper->get_financial_types(),
-				'id'   => 'woocommerce_civicrm_financial_type_vat_id',
-			],
-			'financial_type_shipping_id' => [
-				'title' => __( 'Shipping Financial Type', 'wpcv-woo-civi-integration' ),
-				'type' => 'select',
-				'options' => WPCV_WCI()->helper->get_financial_types(),
-				'id'   => 'woocommerce_civicrm_financial_type_shipping_id',
-			],
 			'pay_later_gateways' => [
 				'title' => __( 'Pay Later Payment Methods', 'wpcv-woo-civi-integration' ),
 				'type' => 'multiselect',
@@ -185,12 +237,25 @@ class WPCV_Woo_Civi_Settings_Tab {
 				'desc' => __( 'Do not create Contributions for Orders with a total of 0, e.g. for free Products or when using a Coupon.', 'wpcv-woo-civi-integration' ),
 				'id'   => 'woocommerce_civicrm_ignore_0_amount_orders',
 			],
+			'financial_type_id' => [
+				'title' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
+				'type' => 'select',
+				'desc' => __( 'CiviCRM needs to know what Financial Type to assign to an Order when there are multiple Products in that Order. (Note: every Product that creates a Contribution in CiviCRM should have its Entity Type, Financial Type and Price Field specified in its "CiviCRM Settings" tab.)', 'wpcv-woo-civi-integration' ),
+				'options' => WPCV_WCI()->helper->get_financial_types(),
+				'id'   => 'woocommerce_civicrm_financial_type_id',
+			],
+			'financial_type_shipping_id' => [
+				'title' => __( 'Shipping Financial Type', 'wpcv-woo-civi-integration' ),
+				'type' => 'select',
+				'options' => WPCV_WCI()->helper->get_financial_types(),
+				'id'   => 'woocommerce_civicrm_financial_type_shipping_id',
+			],
 		];
 
 		/**
-		 * Filter the Contribution settings array.
+		 * Filter the General settings array.
 		 *
-		 * This can be used to add further Contribution settings.
+		 * This can be used to add further General settings.
 		 *
 		 * Used internally by:
 		 *
@@ -198,15 +263,15 @@ class WPCV_Woo_Civi_Settings_Tab {
 		 *
 		 * @since 3.0
 		 *
-		 * @param array $settings The Contribution settings array.
+		 * @param array $settings The General settings array.
 		 */
-		$settings = apply_filters( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', $settings );
+		$settings = apply_filters( 'wpcv_woo_civi/woo_settings/fields/order/settings', $settings );
 
 		// Declare section end.
 		$section_end = [
-			'contribution_section_end' => [
+			'order_section_end' => [
 				'type' => 'sectionend',
-				'id' => 'contribution_title',
+				'id' => 'order_title',
 			],
 		];
 
@@ -214,13 +279,13 @@ class WPCV_Woo_Civi_Settings_Tab {
 		$fields = $section_start + $settings + $section_end;
 
 		/**
-		 * Filter the Contribution fields array.
+		 * Filter the Order fields array.
 		 *
 		 * @since 3.0
 		 *
-		 * @param array $fields The Contribution fields array.
+		 * @param array $fields The Order fields array.
 		 */
-		return apply_filters( 'wpcv_woo_civi/woo_settings/fields/contribution', $fields );
+		return apply_filters( 'wpcv_woo_civi/woo_settings/fields/order', $fields );
 
 	}
 
@@ -266,6 +331,8 @@ class WPCV_Woo_Civi_Settings_Tab {
 			'shipping_location_type_id' => [
 				'title' => __( 'Shipping Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
+				/* translators: %1$s: Opening anchor tag, %2$s: Closing anchor tag */
+				'desc' => sprintf( __( 'Tip: you can manage your %1$sLocation Types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/locationType', 'reset=1' ) . '">', '</a>' ),
 				'options' => WPCV_WCI()->contact->address->get_address_location_types(),
 				'id'   => 'woocommerce_civicrm_shipping_location_type_id',
 			],
@@ -398,6 +465,99 @@ class WPCV_Woo_Civi_Settings_Tab {
 		 * @param array $fields The Other fields array.
 		 */
 		return apply_filters( 'wpcv_woo_civi/woo_settings/fields/other', $fields );
+
+	}
+
+	/**
+	 * Test existence of a specified option.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $option_name The name of the option.
+	 * @return bool $exists Whether or not the option exists.
+	 */
+	public function option_exists( $option_name = '' ) {
+		if ( $this->option_get( $option_name, 'fenfgehgefdfdjgrkj' ) == 'fenfgehgefdfdjgrkj' ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Return a value for a specified option.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $option_name The name of the option.
+	 * @param string $default The default value of the option if it has no value.
+	 * @return mixed $value the value of the option.
+	 */
+	public function option_get( $option_name = '', $default = false ) {
+		$value = get_site_option( $option_name, $default );
+		return $value;
+	}
+
+	/**
+	 * Set a value for a specified option.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $option_name The name of the option.
+	 * @param mixed $value The value to set the option to.
+	 * @return bool $success True if the value of the option was successfully updated.
+	 */
+	public function option_set( $option_name = '', $value = '' ) {
+		return update_site_option( $option_name, $value );
+	}
+
+	/**
+	 * Delete a specified option.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $option_name The name of the option.
+	 * @return bool $success True if the option was successfully deleted.
+	 */
+	public function option_delete( $option_name = '' ) {
+		return delete_site_option( $option_name );
+	}
+
+	/**
+	 * Create a select with option groups for a specified option value array.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $value The array of parsed values for the option.
+	 */
+	public function select_optgroup( $value = [] ) {
+
+		$description = '';
+		if ( ! empty( $value['desc'] ) ) {
+			$description = '<p class="description">' . wp_kses_post( $value['desc'] ) . '</p>';
+		}
+
+		?>
+		<tr valign="top">
+			<th scope="row" class="titledesc">
+				<label for="<?php echo esc_attr( $value['id'] ); ?>"><?php echo esc_html( $value['title'] ); ?></label>
+			</th>
+			<td class="forminp forminp-<?php echo esc_attr( sanitize_title( $value['type'] ) ); ?>">
+				<select name="<?php echo esc_attr( $value['id'] ); ?>" id="<?php echo esc_attr( $value['id'] ); ?>" style="<?php echo esc_attr( $value['css'] ); ?>" class="<?php echo esc_attr( $value['class'] ); ?>">
+					<?php foreach ( $value['options'] as $option_key => $option_value ) : ?>
+						<?php if ( is_array( $option_value ) ) : ?>
+							<optgroup label="<?php echo esc_attr( $option_key ); ?>">
+								<?php foreach ( $option_value as $option_key_inner => $option_value_inner ) : ?>
+									<option value="<?php echo esc_attr( $option_key_inner ); ?>" <?php selected( (string) $option_key_inner, (string) esc_attr( $value['value'] ) ); ?>><?php echo esc_html( $option_value_inner ); ?></option>
+								<?php endforeach; ?>
+							</optgroup>
+						<?php else : ?>
+							<option value="<?php echo esc_attr( $option_key ); ?>" <?php selected( (string) $option_key, (string) esc_attr( $value['value'] ) ); ?>><?php echo esc_html( $option_value ); ?></option>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				</select> <?php echo $description; ?>
+			</td>
+		</tr>
+		<?php
 
 	}
 

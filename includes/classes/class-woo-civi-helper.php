@@ -119,6 +119,40 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
+	 * Gets the array of options for CiviCRM Entity Types.
+	 *
+	 * @since 2.0
+	 *
+	 * @return array $entity_options The array of CiviCRM Entity Types.
+	 */
+	public function get_entity_type_options() {
+
+		// Init options array.
+		$entity_options = [];
+
+		// Build options for the Entity Types select.
+		$entity_options['civicrm_exclude'] = __( 'Do not sync to CiviCRM', 'wpcv-woo-civi-integration' );
+		$entity_options['civicrm_contribution'] =  __( 'CiviCRM Contribution', 'wpcv-woo-civi-integration' );
+
+		/**
+		 * Filters the Entity Types.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Membership::panel_entity_option_add() (Priority: 10)
+		 * * WPCV_Woo_Civi_Participant::panel_entity_option_add() (Priority: 20)
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $entity_options The array of CiviCRM Entity Types.
+		 */
+		$entity_options = apply_filters( 'wpcv_woo_civi/product/panel/entity_options', $entity_options );
+
+		return $entity_options;
+
+	}
+
+	/**
 	 * Get mapping between WooCommerce and CiviCRM Location Types.
 	 *
 	 * @since 2.0
@@ -151,24 +185,22 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
-	 * Get CiviCRM Financial Types.
+	 * Gets the raw data for the CiviCRM Financial Types.
 	 *
 	 * @since 2.0
 	 *
-	 * @return array $financial_types The array of CiviCRM Financial Types keyed by ID.
+	 * @return array $financial_types The array of CiviCRM Financial Types data.
 	 */
-	public function get_financial_types() {
+	public function get_financial_types_raw() {
 
 		// Return early if already calculated.
 		if ( isset( $this->financial_types ) ) {
 			return $this->financial_types;
 		}
 
-		$this->financial_types = [];
-
 		// Bail if we can't initialise CiviCRM.
 		if ( ! WPCV_WCI()->boot_civi() ) {
-			return $this->financial_types;
+			return [];
 		}
 
 		$params = [
@@ -203,44 +235,37 @@ class WPCV_Woo_Civi_Helper {
 				'backtrace' => $trace,
 			], true ) );
 
-			return $this->financial_types;
+			return [];
 
 		}
 
-		foreach ( $result['values'] as $key => $value ) {
-			$this->financial_types[ $value['id'] ] = $value['name'];
-		}
+		// Assign result to property.
+		$this->financial_types = $result['values'];
 
 		return $this->financial_types;
 
 	}
 
 	/**
-	 * Get the formatted Financial Types options.
+	 * Get CiviCRM Financial Type names keyed by ID.
 	 *
-	 * @since 2.4
+	 * @since 2.0
 	 *
-	 * @return array $financial_types The formatted Financial Types options.
+	 * @return array $financial_types The array of CiviCRM Financial Types keyed by ID.
 	 */
-	public function get_financial_types_options() {
+	public function get_financial_types() {
 
-		$default_financial_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
+		$raw_financial_types = $this->get_financial_types_raw();
+		if ( empty( $raw_financial_types ) ) {
+			return [];
+		}
 
-		$financial_types = $this->get_financial_types();
+		$financial_types = [];
+		foreach ( $raw_financial_types as $key => $value ) {
+			$financial_types[ $value['id'] ] = $value['name'];
+		}
 
-		$options = [
-			sprintf(
-				/* translators: %s: The Financial Type */
-				'-- ' . __( 'Default (%s)', 'wpcv-woo-civi-integration' ),
-				$financial_types[ $default_financial_type_id ] ?? __( 'Not set', 'wpcv-woo-civi-integration' )
-			),
-		]
-		+ $financial_types +
-		[
-			'exclude' => '-- ' . __( 'Exclude', 'wpcv-woo-civi-integration' ),
-		];
-
-		return $options;
+		return $financial_types;
 
 	}
 
@@ -466,6 +491,46 @@ class WPCV_Woo_Civi_Helper {
 	 */
 	public function percentage( $amount, $percentage ) {
 		return ( $percentage / 100 ) * $amount;
+	}
+
+	/**
+	 * Gets the formatted options array of the active CiviCRM Price Sets.
+	 *
+	 * The return array is formatted for the select with optgroups setting.
+	 *
+	 * @since 3.0
+	 *
+	 * @param bool $zero_option True adds the "Select a Price Field" option.
+	 * @return array $price_set_options The formatted options array of Price Set data.
+	 */
+	public function get_price_sets_options( $zero_option = true ) {
+
+		// Get the Price Sets array.
+		$price_sets = $this->get_price_sets_populated();
+		if ( empty( $price_sets ) ) {
+			return [];
+		}
+
+		// Init options array.
+		$price_set_options = [];
+		if ( $zero_option === true ) {
+			$price_set_options[0] = __( 'Select a Price Field', 'wpcv-woo-civi-integration' );
+		}
+
+		// Build the array for the select with optgroups.
+		foreach ( $price_sets as $price_set_id => $price_set ) {
+			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+				$optgroup_label = sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] );
+				$optgroup_content = [];
+				foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) {
+					$optgroup_content[ esc_attr( $price_field_value_id ) ] = esc_html( $price_field_value['label'] );
+				}
+				$price_set_options[ esc_attr( $optgroup_label ) ] = $optgroup_content;
+			}
+		}
+
+		return $price_set_options;
+
 	}
 
 	/**

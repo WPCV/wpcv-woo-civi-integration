@@ -44,6 +44,15 @@ class WPCV_Woo_Civi {
 	public $helper;
 
 	/**
+	 * The Settings object.
+	 *
+	 * @since 2.0
+	 * @access public
+	 * @var object $settings The Settings object.
+	 */
+	public $settings;
+
+	/**
 	 * The Network Settings object.
 	 *
 	 * @since 3.0
@@ -53,22 +62,22 @@ class WPCV_Woo_Civi {
 	public $settings_network;
 
 	/**
-	 * The Settings Tab object.
-	 *
-	 * @since 2.0
-	 * @access public
-	 * @var object $settings_tab The Settings Tab object.
-	 */
-	public $settings_tab;
-
-	/**
 	 * CiviCRM States/Provinces object.
 	 *
 	 * @since 2.0
 	 * @access public
 	 * @var object $states The States/Provinces object.
 	 */
-	public $states;
+	public $settings_states;
+
+	/**
+	 * WooCommerce Product Settings object.
+	 *
+	 * @since 2.2
+	 * @access public
+	 * @var object $settings_products The WooCommerce Product Settings object.
+	 */
+	public $settings_products;
 
 	/**
 	 * The Contact object.
@@ -117,15 +126,6 @@ class WPCV_Woo_Civi {
 	public $tax;
 
 	/**
-	 * Campaign management object.
-	 *
-	 * @since 3.0
-	 * @access public
-	 * @var object $campaign The Campaign management object.
-	 */
-	public $campaign;
-
-	/**
 	 * Products object.
 	 *
 	 * @since 3.0
@@ -135,13 +135,22 @@ class WPCV_Woo_Civi {
 	public $products;
 
 	/**
-	 * WooCommerce Product Tab object.
+	 * WooCommerce Custom Products object.
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var object $products_tab The WooCommerce Product Tab object.
+	 * @var object $products_custom The WooCommerce Custom Products object.
 	 */
-	public $products_tab;
+	public $products_custom;
+
+	/**
+	 * Campaign management object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $campaign The Campaign management object.
+	 */
+	public $campaign;
 
 	/**
 	 * Membership management object.
@@ -275,35 +284,28 @@ class WPCV_Woo_Civi {
 		// Include Helper class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-helper.php';
 
-		// Include Network Settings class.
+		// Include Settings classes.
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-settings.php';
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-settings-network.php';
-		// Include WooCommerce Settings Tab class.
-		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-settings-tab.php';
-		// Include States class.
-		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-states.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-settings-states.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-settings-products.php';
 
 		// Include Contact class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact.php';
 
-		// Include Contribution class.
+		// Include Financial classes.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contribution.php';
-		// Include Order class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-order.php';
-		// Include Source class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-source.php';
-		// Include Tax/VAT class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-tax.php';
 
-		// Include Products class.
+		// Include Product classes.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products.php';
-		// Include Products Tab class.
-		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products-tab.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products-custom.php';
 
-		// Include Campaign class.
+		// Include CiviCRM Component classes.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-campaign.php';
-		// Include Membership class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-membership.php';
-		// Include Participant class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-participant.php';
 
 	}
@@ -318,35 +320,28 @@ class WPCV_Woo_Civi {
 		// Init helper object.
 		$this->helper = new WPCV_Woo_Civi_Helper();
 
-		// Init Network Settings object.
+		// Init Settings objects.
+		$this->settings = new WPCV_Woo_Civi_Settings();
 		$this->settings_network = new WPCV_Woo_Civi_Settings_Network();
-		// Init Settings Tab object.
-		$this->settings_tab = new WPCV_Woo_Civi_Settings_Tab();
-		// Init States object.
-		$this->states = new WPCV_Woo_Civi_States();
+		$this->settings_states = new WPCV_Woo_Civi_Settings_States();
+		$this->settings_products = new WPCV_Woo_Civi_Settings_Products();
 
 		// Init Contact object.
 		$this->contact = new WPCV_Woo_Civi_Contact();
 
-		// Init Contribution object.
+		// Init Financial objects.
 		$this->contribution = new WPCV_Woo_Civi_Contribution();
-		// Init Order object.
 		$this->order = new WPCV_Woo_Civi_Order();
-		// Init Source object.
 		$this->source = new WPCV_Woo_Civi_Source();
-		// Init Tax/VAT object.
 		$this->tax = new WPCV_Woo_Civi_Tax();
 
-		// Init Products object.
+		// Init Product objects.
 		$this->products = new WPCV_Woo_Civi_Products();
-		// Init Products Tab object.
-		$this->products_tab = new WPCV_Woo_Civi_Products_Tab();
+		$this->products_custom = new WPCV_Woo_Civi_Products_Custom();
 
-		// Init Campaign object.
+		// Init CiviCRM Component objects.
 		$this->campaign = new WPCV_Woo_Civi_Campaign();
-		// Init Membership object.
 		$this->membership = new WPCV_Woo_Civi_Membership();
-		// Init Participant object.
 		$this->participant = new WPCV_Woo_Civi_Participant();
 
 	}

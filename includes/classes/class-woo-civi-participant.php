@@ -90,17 +90,27 @@ class WPCV_Woo_Civi_Participant {
 			return;
 		}
 
+		// Add Participant to Line Item.
+		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ], 30, 5 );
+
+		// Add Entity Type to the options for the "CiviCRM Settings" Product Tab.
+		add_action( 'wpcv_woo_civi/product/panel/entity_options', [ $this, 'panel_entity_option_add' ], 20 );
+
 		// Add Participant Role select to the "CiviCRM Settings" Product Tab.
 		add_action( 'wpcv_woo_civi/product/panel/civicrm/after', [ $this, 'panel_add_markup' ], 20 );
 
 		// AJAX handler for Event searches.
 		add_action( 'wp_ajax_wpcv_woo_civi_search_events', [ $this, 'panel_search_events' ] );
 
-		// Save Participant Role on the "CiviCRM Settings" Product Tab.
+		// Save meta data from the "CiviCRM Settings" Product Tab.
 		add_action( 'wpcv_woo_civi/product/panel/saved', [ $this, 'panel_saved' ], 20 );
 
-		// Add Participant to Line Item.
-		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ], 30, 5 );
+		// Clear meta data from the "CiviCRM Settings" Product Tab.
+		add_action( 'wpcv_woo_civi/product/custom/panel/saved', [ $this, 'panel_clear_meta' ], 30 );
+
+		// Add Membership data to the Product "Bulk Edit" and "Quick Edit" markup.
+		//add_action( 'wpcv_woo_civi/product/bulk_edit/after', [ $this, 'bulk_edit_add_markup' ] );
+		//add_action( 'wpcv_woo_civi/product/quick_edit/after', [ $this, 'quick_edit_add_markup' ] );
 
 	}
 
@@ -160,11 +170,11 @@ class WPCV_Woo_Civi_Participant {
 	 * @since 3.0
 	 *
 	 * @param int $product_id The Product ID.
-	 * @return int|bool $membership_pfv_id The Participant Price Field Value ID, false otherwise.
+	 * @return int|bool $participant_pfv_id The Participant Price Field Value ID, false otherwise.
 	 */
 	public function get_pfv_meta( $product_id ) {
-		$membership_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );
-		return $membership_pfv_id;
+		$participant_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );
+		return $participant_pfv_id;
 	}
 
 	/**
@@ -173,10 +183,10 @@ class WPCV_Woo_Civi_Participant {
 	 * @since 3.0
 	 *
 	 * @param int $product_id The Product ID.
-	 * @param int $membership_type_id The numeric ID of the Participant Price Field Value.
+	 * @param int $participant_pfv_id The numeric ID of the Participant Price Field Value.
 	 */
-	public function set_pfv_meta( $product_id, $membership_pfv_id ) {
-		update_post_meta( $product_id, $this->pfv_key, $membership_pfv_id );
+	public function set_pfv_meta( $product_id, $participant_pfv_id ) {
+		update_post_meta( $product_id, $this->pfv_key, $participant_pfv_id );
 	}
 
 	/**
@@ -189,6 +199,7 @@ class WPCV_Woo_Civi_Participant {
 	 * @param object $product The WooCommerce Product object.
 	 * @param object $order The WooCommerce Order object.
 	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @return array $line_item The modified array of Line Item data.
 	 */
 	public function line_item_filter( $line_item, $item, $product, $order, $params ) {
 
@@ -210,14 +221,43 @@ class WPCV_Woo_Civi_Participant {
 			return $line_item;
 		}
 
+		// Make an array of the params.
+		$args = [
+			'item' => $item,
+			'product' => $product,
+			'order' => $order,
+			'params' => $params,
+			'event_id' => $event_id,
+			'participant_role_id' => $participant_role_id,
+			'price_field_value_id' => $price_field_value_id,
+		];
+
+		// Populate the Line Item.
+		$line_item = $this->line_item_populate( $line_item, $args );
+
+		return $line_item;
+
+	}
+
+	/**
+	 * Populates a Line Item to create an Event Participant.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $line_item The array of Line Item data.
+	 * @param array $args The array of collected params.
+	 * @return array $line_item The populated array of Line Item data.
+	 */
+	public function line_item_populate( $line_item, $args = [] ) {
+
 		// Get Price Field Value data.
-		$price_field_value = WPCV_WCI()->helper->get_price_field_value_by_id( $price_field_value_id );
+		$price_field_value = WPCV_WCI()->helper->get_price_field_value_by_id( $args['price_field_value_id'] );
 		if ( empty( $price_field_value ) ) {
 			return $line_item;
 		}
 
-		// Get Price Field Value data.
-		$price_field = WPCV_WCI()->helper->get_price_field_by_price_field_value_id( $price_field_value_id );
+		// Get Price Field data.
+		$price_field = WPCV_WCI()->helper->get_price_field_by_price_field_value_id( $args['price_field_value_id'] );
 		if ( empty( $price_field ) ) {
 			return $line_item;
 		}
@@ -225,11 +265,16 @@ class WPCV_Woo_Civi_Participant {
 		// Grab the existing Line Item data.
 		$line_item_data = array_pop( $line_item['line_item'] );
 
+		// If a specific Financial Type ID is supplied, use it.
+		if ( ! empty( $args['financial_type_id'] ) ) {
+			$line_item_data['financial_type_id'] = $args['financial_type_id'];
+		}
+
 		// Init the params sub-array.
 		$line_item_params = [
-			'event_id' => $event_id,
-			'contact_id' => $params['contact_id'],
-			'role_id' => $participant_role_id,
+			'event_id' => $args['event_id'],
+			'contact_id' => $args['params']['contact_id'],
+			'role_id' => $args['participant_role_id'],
 			'price_set_id' => $price_field['price_set_id'],
 			'fee_level' => $price_field_value['label'],
 			'fee_amount' => $line_item_data['line_total'],
@@ -245,7 +290,7 @@ class WPCV_Woo_Civi_Participant {
 		$line_item_params['source'] = sprintf(
 			__( '%1$s: %2$s' ),
 			WPCV_WCI()->source->source_generate(),
-			$product->get_name()
+			$args['product']->get_name()
 		);
 
 		/*
@@ -279,7 +324,7 @@ class WPCV_Woo_Civi_Participant {
 
 		// Override with "Pay Later" status when necessary.
 		$pay_later_methods = get_option( 'woocommerce_civicrm_pay_later_gateways', [] );
-		if ( in_array( $order->get_payment_method(), $pay_later_methods ) ) {
+		if ( in_array( $args['order']->get_payment_method(), $pay_later_methods ) ) {
 			$line_item_params['status_id'] = 'Pending from pay later';
 		}
 
@@ -287,7 +332,7 @@ class WPCV_Woo_Civi_Participant {
 		$participant_line_item_data = [
 			'entity_table' => 'civicrm_participant',
 			'price_field_id' => $price_field_value['price_field_id'],
-			'price_field_value_id' => $price_field_value_id,
+			'price_field_value_id' => $args['price_field_value_id'],
 			'label' => $price_field_value['label'],
 		];
 
@@ -298,9 +343,6 @@ class WPCV_Woo_Civi_Participant {
 				array_merge( $line_item_data, $participant_line_item_data ),
 			],
 		];
-
-		// Store the fact that there's an Event Participant with this Product.
-		$this->has_participant[ $product->get_id() ] = [ $event_id, $participant_role_id ];
 
 		return $line_item;
 
@@ -628,16 +670,26 @@ class WPCV_Woo_Civi_Participant {
 			return [];
 		}
 
-		$participant_roles_options = [
-			0 => __( 'None', 'wpcv-woo-civi-integration' ),
-		];
-
+		$participant_roles_options = [];
 		foreach ( $roles as $key => $value ) {
 			$participant_roles_options[ $value['value'] ] = $value['name'];
 		}
 
 		return $participant_roles_options;
 
+	}
+
+	/**
+	 * Adds the Participant option to the select on the "global" CiviCRM Settings Product Tab.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $entity_options The array of CiviCRM Entity Types.
+	 * @return array $entity_options The modified array of CiviCRM Entity Types.
+	 */
+	public function panel_entity_option_add( $entity_options ) {
+		$entity_options['civicrm_participant'] = __( 'CiviCRM Participant', 'wpcv-woo-civi-integration' );
+		return $entity_options;
 	}
 
 	/**
@@ -714,6 +766,27 @@ class WPCV_Woo_Civi_Participant {
 		}
 
 	}
+
+	/**
+	 * Clears the metadata for this Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param WC_Product $product The Product object.
+	 */
+	public function panel_clear_meta( $product ) {
+
+		if ( ! $this->active ) {
+			return;
+		}
+
+		// Clear the current global Product Participant metadata.
+		$product->delete_meta_data( WPCV_WCI()->participant->event_key );
+		$product->delete_meta_data( WPCV_WCI()->participant->role_key );
+		$product->delete_meta_data( WPCV_WCI()->participant->pfv_key );
+
+	}
+
 	/**
 	 * Adds Participant Role select to the "CiviCRM Settings" Product Tab.
 	 *
@@ -725,9 +798,17 @@ class WPCV_Woo_Civi_Participant {
 
 		$product_id = empty( $thepostid ) ? $post->ID : $thepostid;
 
-		?>
+		// Bail if there aren't any Price Sets.
+		$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
+		if ( empty( $price_sets ) ) {
+			return;
+		}
 
-		<div class="options_group">
+		// Get Price Field Value.
+		$pfv_id = $this->get_pfv_meta( $product_id );
+
+		?>
+		<div class="options_group civicrm_participant">
 
 			<p class="form-field">
 				<label for="<?php echo $this->event_key; ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
@@ -745,6 +826,11 @@ class WPCV_Woo_Civi_Participant {
 
 			<?php
 
+			// Build Participant Roles options array.
+			$participant_roles = [
+			'' => __( 'Select a Participant Role', 'wpcv-woo-civi-integration' ),
+			] + WPCV_WCI()->participant->get_participant_roles_options();
+
 			// Show Participant Role.
 			woocommerce_wp_select( [
 				'id' => $this->role_key,
@@ -752,29 +838,20 @@ class WPCV_Woo_Civi_Participant {
 				'label' => __( 'Participant Role', 'wpcv-woo-civi-integration' ),
 				'desc_tip' => 'true',
 				'description' => __( 'Select a Participant Role for the Event Participant.', 'wpcv-woo-civi-integration' ),
-				'options' => $this->get_participant_roles_options(),
+				'options' => $participant_roles,
 			] );
-
-			// Bail if there aren't any Price Sets.
-			$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
-			if ( empty( $price_sets ) ) {
-				return;
-			}
-
-			// Get Price Field Value.
-			$pfv_id = $this->get_pfv_meta( $product_id );
 
 			?>
 
 			<p class="form-field">
 				<label for="<?php echo $this->pfv_key; ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
 				<select name="<?php echo $this->pfv_key; ?>" id="<?php echo $this->pfv_key; ?>" class="select short">
-					<option value="0"><?php _e( 'Select a Price Field', 'cf-civicrm' ); ?></option>
+					<option value="0"><?php esc_html_e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
 					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
-							<optgroup label="<?php esc_attr_e( sprintf( __( 'CiviCRM Price Set: %1$s - Price Field:  %2$s', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
+							<optgroup label="<?php echo esc_attr( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
 								<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
-									<option value="<?php esc_attr_e( $price_field_value_id ); ?>" <?php selected( $price_field_value_id, $pfv_id ); ?>><?php esc_html_e( $price_field_value['label'] ); ?></option>
+									<option value="<?php echo esc_attr( $price_field_value_id ); ?>" <?php selected( $price_field_value_id, $pfv_id ); ?>><?php echo esc_html( $price_field_value['label'] ); ?></option>
 								<?php endforeach; ?>
 							</optgroup>
 						<?php endforeach; ?>
@@ -783,7 +860,117 @@ class WPCV_Woo_Civi_Participant {
 			</p>
 
 		</div>
+		<?php
 
+	}
+
+	/**
+	 * Adds Participant data selects to the Product "Bulk Edit" markup.
+	 *
+	 * @since 3.0
+	 */
+	public function bulk_edit_add_markup() {
+
+		// Build Participant Roles options array.
+		$participant_roles = [
+			'' => __( '- No Change -', 'wpcv-woo-civi-integration' ),
+		] + WPCV_WCI()->participant->get_participant_roles_options();
+
+		// Get the Price Sets.
+		$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
+
+		?>
+		<label class="wpcv_woo_civi_event_id">
+			<span class="title"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></span>
+			<span class="input-text-wrap">
+				<?php esc_html_e( 'Edit the Product to set the Event', 'wpcv-woo-civi-integration' ); ?>
+			</span>
+		</label>
+
+		<label class="wpcv_woo_civi_bulk_participant_role_id">
+			<span class="title"><?php esc_html_e( 'Membership Type', 'wpcv-woo-civi-integration' ); ?></span>
+			<span class="input-text-wrap">
+				<select class="civicrm_bulk_participant_role_id" name="_civicrm_bulk_participant_role_id">
+					<?php foreach ( $participant_roles as $key => $value ) : ?>
+						<option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $value ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</span>
+		</label>
+
+		<?php if ( ! empty( $price_sets ) ) : ?>
+			<label class="wpcv_woo_civi_bulk_participant_pfv_id">
+				<span class="title"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></span>
+				<span class="input-text-wrap">
+					<select class="civicrm_bulk_participant_pfv_id" name="_civicrm_bulk_participant_pfv_id">
+						<option value=""><?php esc_html_e( '- No Change -', 'wpcv-woo-civi-integration' ); ?></option>
+						<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
+							<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
+								<optgroup label="<?php echo esc_attr( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
+									<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
+										<option value="<?php echo esc_attr( $price_field_value_id ); ?>"><?php echo esc_html( $price_field_value['label'] ); ?></option>
+									<?php endforeach; ?>
+								</optgroup>
+							<?php endforeach; ?>
+						<?php endforeach; ?>
+					</select>
+				</span>
+			</label>
+		<?php endif; ?>
+		<?php
+
+	}
+
+	/**
+	 * Adds Participant data selects to the Product "Quick Edit" markup.
+	 *
+	 * @since 3.0
+	 */
+	public function quick_edit_add_markup() {
+
+		// Build Participant Roles options array.
+		$participant_roles = [
+			'' => __( 'Not set', 'wpcv-woo-civi-integration' ),
+		] + WPCV_WCI()->participant->get_participant_roles_options();
+
+		// Get the Price Sets.
+		$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
+
+		?>
+		<div class="inline-edit-group wpcv_woo_civi_participant_event_id">
+			<span class="title"><?php esc_html_e( 'Edit the Product to set the Event', 'wpcv-woo-civi-integration' ); ?></span>
+		</div>
+
+		<div class="inline-edit-group wpcv_woo_civi_participant_role_id">
+			<span class="title"><?php esc_html_e( 'Participant Role', 'wpcv-woo-civi-integration' ); ?></span>
+			<span class="input-text-wrap">
+				<select class="civicrm_participant_role_id" name="_civicrm_participant_role_id">
+					<?php foreach ( $participant_roles as $key => $value ) : ?>
+						<option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $value ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</span>
+		</div>
+
+		<?php if ( ! empty( $price_sets ) ) : ?>
+			<div class="inline-edit-group wpcv_woo_civi_participant_pfv_id">
+				<span class="title"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></span>
+				<span class="input-text-wrap">
+					<select class="civicrm_participant_pfv_id" name="_civicrm_participant_pfv_id" id="_civicrm_participant_pfv_id" class="select short">
+						<option value=""><?php esc_html_e( 'Not set', 'wpcv-woo-civi-integration' ); ?></option>
+						<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
+							<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
+								<optgroup label="<?php echo esc_attr( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
+									<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
+										<option value="<?php echo esc_attr( $price_field_value_id ); ?>"><?php echo esc_html( $price_field_value['label'] ); ?></option>
+									<?php endforeach; ?>
+								</optgroup>
+							<?php endforeach; ?>
+						<?php endforeach; ?>
+					</select>
+				</span>
+			</div>
+		<?php endif; ?>
 		<?php
 
 	}

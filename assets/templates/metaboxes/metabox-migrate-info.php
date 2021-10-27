@@ -61,7 +61,7 @@
 
 	<h4><?php _e( 'Settings', 'wpcv-woo-civi-integration' ) ?></h4>
 
-	<p><?php _e( 'Luckily there is no uninstall routine in the WooCommerce CiviCRM plugin at present. This means that WooCommerce CiviCRM will not auto-delete its settings when it is deleted. This plugin can therefore use those settings unchanged and you should not notice any difference once you have deactivated WooCommerce CiviCRM. Nevertheless, you should only deactivate and delete WooCommerce CiviCRM when you are sure everything mentioned here has been attended to and you have clicked "Submit".', 'wpcv-woo-civi-integration' ); ?></p>
+	<p><?php _e( 'Luckily there is no uninstall routine in the WooCommerce CiviCRM plugin at present. This means that WooCommerce CiviCRM will not auto-delete its settings when it is deleted and this plugin can therefore use many of those legacy settings. There are some changes and additions to the CiviCRM settings on WooCommerce Products that cannot be automated - so you should only deactivate and delete WooCommerce CiviCRM when you are sure everything mentioned here has been attended to and you have clicked "Submit".', 'wpcv-woo-civi-integration' ); ?></p>
 
 <?php else : ?>
 
@@ -74,5 +74,7 @@
 		'<a href="' . admin_url( 'plugins.php' ) . '">',
 		'</a>'
 	); ?></p>
+
+	<p><?php _e( 'Reminder: When you have deactivated WooCommerce CiviCRM, make sure you visit the "CiviCRM" Settings Tab to configure Integrate CiviCRM with WooCommerce. You will also need to review the CiviCRM settings for every active Product in your Shop to ensure they are all properly configured.', 'wpcv-woo-civi-integration' ); ?></p>
 
 <?php endif; ?>
