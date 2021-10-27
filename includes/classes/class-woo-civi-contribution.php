@@ -164,12 +164,23 @@ class WPCV_Woo_Civi_Contribution {
 	 * @since 2.2
 	 *
 	 * @param int $order_id The numeric ID of the WooCommerce Order.
-	 * @return array $result The CiviCRM Contribution data, or empty on failure.
+	 * @return array $contribution The CiviCRM Contribution data, or empty on failure.
 	 */
 	public function get_by_order_id( $order_id ) {
 
-		$invoice_id = $this->get_invoice_id( $order_id );
-		$contribution = $this->get_by_invoice_id( $invoice_id );
+		$contribution = [];
+
+		// Try the Order meta first.
+		$contribution_id = $this->get_order_meta( $order_id );
+		if ( ! empty( $contribution_id ) ) {
+			$contribution = $this->get_by_id( $contribution_id );
+		}
+
+		// Fall back to the old method.
+		if ( empty( $contribution ) ) {
+			$invoice_id = $this->get_invoice_id( $order_id );
+			$contribution = $this->get_by_invoice_id( $invoice_id );
+		}
 
 		return $contribution;
 
@@ -201,7 +212,7 @@ class WPCV_Woo_Civi_Contribution {
 	 * @since 3.0
 	 *
 	 * @param string $invoice_id The Invoice ID.
-	 * @return array $result The CiviCRM Contribution data, or empty on failure.
+	 * @return array $contribution The CiviCRM Contribution data, or empty on failure.
 	 */
 	public function get_by_invoice_id( $invoice_id ) {
 
@@ -588,7 +599,7 @@ class WPCV_Woo_Civi_Contribution {
 			return false;
 		}
 
-		// Save Contribution ID in post meta.
+		// Save Contribution ID in the Order meta.
 		$this->set_order_meta( $order_id, $contribution['id'] );
 
 		/**
