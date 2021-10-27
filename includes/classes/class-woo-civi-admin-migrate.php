@@ -909,18 +909,20 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// If that fails, try and find the Contact ID via the Invoice ID.
 		if ( $contact_id === false ) {
-			$invoice_id = WPCV_WCI()->contribution->get_invoice_id( $order_id );
-			$contribution = WPCV_WCI()->contribution->get_by_invoice_id( $invoice_id );
+			$contribution = WPCV_WCI()->contribution->get_by_order_id( $order_id );
 			if ( ! empty( $contribution ) ) {
 				$contact_id = (int) $contribution['contact_id'];
-				// Fix Contribution ID meta while we're here.
-				update_post_meta( $order_id, '_woocommerce_civicrm_contribution_id', $contribution['id'] );
 			}
 		}
 
 		// If we find the Contact ID, create meta.
 		if ( $contact_id !== false ) {
 			update_post_meta( $order_id, '_woocommerce_civicrm_contact_id', $contact_id );
+		}
+
+		// Make sure Contribution ID meta is correct.
+		if ( ! empty( $contribution ) ) {
+			update_post_meta( $order_id, '_woocommerce_civicrm_contribution_id', $contribution['id'] );
 		}
 
 		// Remove Campaign meta if empty and component isn't active.
