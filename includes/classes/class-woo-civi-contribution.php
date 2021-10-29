@@ -662,6 +662,9 @@ class WPCV_Woo_Civi_Contribution {
 			'payment_instrument_id' => WPCV_WCI()->helper->payment_instrument_map( $order->get_payment_method() ),
 		];
 
+		// Assume that there are no synced Line Items.
+		$params['has_synced_line_items'] = false;
+
 		/**
 		 * Filter the Payment params before calling the CiviCRM API.
 		 *
@@ -678,18 +681,30 @@ class WPCV_Woo_Civi_Contribution {
 		$params = apply_filters( 'wpcv_woo_civi/contribution/payment_create/params', $params, $order, $contribution );
 
 		/*
-		 * Do not create the Payment if the Total Amount is 0.
+		 * Maybe skip creating the Payment if the Total Amount is 0.
 		 *
 		 * If this the Total Amount is 0 at this point, it is not because the Order
-		 * has a total of 0 but because the Order consists entirely of Products
-		 * that are set NOT to sync with CiviCRM.
+		 * has a total of 0 but because:
 		 *
-		 * Furthermore, the Order will not have been created, so there's no point
-		 * in creating a Payment for it.
-		 */
+		 * * The Order consists entirely of Products that are set NOT to sync to CiviCRM.
+		 * * The Order consists entirely of free Products that should sync to CiviCRM.
+		 * * A combination of the above.
+		 *
+		 * This should not really be necessary to check because a CiviCRM Order should
+		 * not have been created for this Order - and therefore a Contribution for this
+		 * Order should not have been found by get_by_order_id() above.
+ 		 */
 		if ( 0 === (float) $params['total_amount'] ) {
-			return false;
+
+			// Bail when there are no Products that should sync to CiviCRM.
+			if ( $params['has_synced_line_items'] === false ) {
+				return false;
+			}
+
 		}
+
+		// Clean up params array.
+		unset( $params['has_synced_line_items'] );
 
 		try {
 

@@ -621,6 +621,9 @@ class WPCV_Woo_Civi_Products {
 	 * synced to CiviCRM, we need to filter the "total_amount" so that the costs
 	 * of the Products that are not synced are deducted.
 	 *
+	 * Also flags when there are Line Items that should sync to CiviCRM so that
+	 * the Payment gets created even if the total is 0.
+	 *
 	 * @since 3.0
 	 *
 	 * @param array $params The params to be passed to the CiviCRM API.
@@ -643,7 +646,7 @@ class WPCV_Woo_Civi_Products {
 			$product = $item->get_product();
 			$product_type = $product->get_type();
 
-			// Assume we should not deduct this Item because it syncs.
+			// Assume we should not deduct this Item because it does sync to CiviCRM.
 			$deduct = false;
 
 			// Check if this Product should not be synced to CiviCRM.
@@ -661,19 +664,21 @@ class WPCV_Woo_Civi_Products {
 				$deduct = true;
 			}
 
-			// Skip if we should not deduct this Item.
+			// Skip if we should not deduct this Item regardless of total and tax.
 			if ( $deduct === false ) {
+				// Also flag that there are synced Line Items.
+				$params['has_synced_line_items'] = true;
 				continue;
 			}
 
 			// Add deductions.
 			$item_total = $item->get_total();
-			$item_tax = $item->get_total_tax();
-			if ( ! empty( $item_total ) ) {
+			if ( 0 < (float) $item_total ) {
 				$deductions[] = $item_total;
-				if ( ! empty( $item_tax ) ) {
-					$deductions[] = $item_tax;
-				}
+			}
+			$item_tax = $item->get_total_tax();
+			if ( 0 < (float) $item_tax ) {
+				$deductions[] = $item_tax;
 			}
 
 		}
