@@ -66,7 +66,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var object $states The States/Provinces object.
+	 * @var object $settings_states The States/Provinces object.
 	 */
 	public $settings_states;
 

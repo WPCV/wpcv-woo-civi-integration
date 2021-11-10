@@ -159,7 +159,35 @@ class WPCV_Woo_Civi_Contribution {
 	}
 
 	/**
-	 * Return the Order Number.
+	 * Gets the CiviCRM Contribution data for a given WooCommerce Order ID.
+	 *
+	 * @since 2.2
+	 *
+	 * @param int $order_id The numeric ID of the WooCommerce Order.
+	 * @return array $contribution The CiviCRM Contribution data, or empty on failure.
+	 */
+	public function get_by_order_id( $order_id ) {
+
+		$contribution = [];
+
+		// Try the Order meta first.
+		$contribution_id = $this->get_order_meta( $order_id );
+		if ( ! empty( $contribution_id ) ) {
+			$contribution = $this->get_by_id( $contribution_id );
+		}
+
+		// Fall back to the old method.
+		if ( empty( $contribution ) ) {
+			$invoice_id = $this->get_invoice_id( $order_id );
+			$contribution = $this->get_by_invoice_id( $invoice_id );
+		}
+
+		return $contribution;
+
+	}
+
+	/**
+	 * Gets the Invoice ID aka the Order Number.
 	 *
 	 * @since 2.2
 	 *
@@ -184,7 +212,7 @@ class WPCV_Woo_Civi_Contribution {
 	 * @since 3.0
 	 *
 	 * @param string $invoice_id The Invoice ID.
-	 * @return array $result The CiviCRM Contribution data, or empty on failure.
+	 * @return array $contribution The CiviCRM Contribution data, or empty on failure.
 	 */
 	public function get_by_invoice_id( $invoice_id ) {
 
@@ -571,7 +599,7 @@ class WPCV_Woo_Civi_Contribution {
 			return false;
 		}
 
-		// Save Contribution ID in post meta.
+		// Save Contribution ID in the Order meta.
 		$this->set_order_meta( $order_id, $contribution['id'] );
 
 		/**
@@ -613,8 +641,7 @@ class WPCV_Woo_Civi_Contribution {
 	public function payment_create( $order_id, $order ) {
 
 		// Get Contribution.
-		$invoice_id = $this->get_invoice_id( $order_id );
-		$contribution = $this->get_by_invoice_id( $invoice_id );
+		$contribution = $this->get_by_order_id( $order_id );
 		if ( empty( $contribution ) ) {
 			return false;
 		}
@@ -635,6 +662,9 @@ class WPCV_Woo_Civi_Contribution {
 			'payment_instrument_id' => WPCV_WCI()->helper->payment_instrument_map( $order->get_payment_method() ),
 		];
 
+		// Assume that there are no synced Line Items.
+		$params['has_synced_line_items'] = false;
+
 		/**
 		 * Filter the Payment params before calling the CiviCRM API.
 		 *
@@ -651,18 +681,30 @@ class WPCV_Woo_Civi_Contribution {
 		$params = apply_filters( 'wpcv_woo_civi/contribution/payment_create/params', $params, $order, $contribution );
 
 		/*
-		 * Do not create the Payment if the Total Amount is 0.
+		 * Maybe skip creating the Payment if the Total Amount is 0.
 		 *
 		 * If this the Total Amount is 0 at this point, it is not because the Order
-		 * has a total of 0 but because the Order consists entirely of Products
-		 * that are set NOT to sync with CiviCRM.
+		 * has a total of 0 but because:
 		 *
-		 * Furthermore, the Order will not have been created, so there's no point
-		 * in creating a Payment for it.
-		 */
+		 * * The Order consists entirely of Products that are set NOT to sync to CiviCRM.
+		 * * The Order consists entirely of free Products that should sync to CiviCRM.
+		 * * A combination of the above.
+		 *
+		 * This should not really be necessary to check because a CiviCRM Order should
+		 * not have been created for this Order - and therefore a Contribution for this
+		 * Order should not have been found by get_by_order_id() above.
+ 		 */
 		if ( 0 === (float) $params['total_amount'] ) {
-			return false;
+
+			// Bail when there are no Products that should sync to CiviCRM.
+			if ( $params['has_synced_line_items'] === false ) {
+				return false;
+			}
+
 		}
+
+		// Clean up params array.
+		unset( $params['has_synced_line_items'] );
 
 		try {
 
@@ -770,14 +812,13 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @param int $order_id The Order ID.
 	 * @param object $order The Order object.
-	 * @param string $new_status The new status.
+	 * @param string $new_status_id The numeric ID of the new Status.
 	 * @return bool True on success, otherwise false.
 	 */
 	public function status_update( $order_id, $order, $new_status_id ) {
 
 		// Get Contribution.
-		$invoice_id = $this->get_invoice_id( $order_id );
-		$contribution = $this->get_by_invoice_id( $invoice_id );
+		$contribution = $this->get_by_order_id( $order_id );
 		if ( empty( $contribution ) ) {
 			return false;
 		}

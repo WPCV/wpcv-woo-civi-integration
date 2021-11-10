@@ -13,6 +13,10 @@ Creates CiviCRM Contributions, Memberships and Participants from WordCommerce Or
 
 == Description ==
 
+*Integrate CiviCRM with WooCommerce* creates CiviCRM Contributions, Memberships and Participants from WordCommerce Orders and keeps WordCommerce Customer Accounts in sync with CiviCRM Contact data.
+
+### Features
+
 1. WooCommerce Orders are created as Contributions in CiviCRM. Each Product in the Order is a Line Item in the Contribution.
 2. Sales Tax/VAT & Shipping Costs are configurable/mappable as CiviCRM Financial Types.
 3. A default Campaign can be defined for each Contribution, but Campaigns can be customized per Order.
@@ -28,27 +32,52 @@ Creates CiviCRM Contributions, Memberships and Participants from WordCommerce Or
 
 This plugin requires a minimum of *CiviCRM 5.42.1* and *WooCommerce 5.2.2+*.
 
-### Configuration
+### General Settings
 
 Configure general integration settings in *WooCommerce* &rarr; *Settings* &rarr; *CiviCRM* Tab
 
-<img src="https://raw.githubusercontent.com/WPCV/wpcv-woo-civi-integration/main/screenshots/wpcv-woo-settings.jpg" alt="General settings for integrating CiviCRM with WooCommerce" width="600" />
+<img src="https://raw.githubusercontent.com/WPCV/wpcv-woo-civi-integration/main/docs/screenshots/wpcv-woo-settings.jpg" alt="General settings for integrating CiviCRM with WooCommerce" width="800" />
+
+### Individual Product Settings
 
 Configure settings for a Product in the *CiviCRM Settings* Tab.
 
-<img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/screenshots/wpcv-woo-product.jpg" alt="Settings for integrating CiviCRM with a Product" width="470" />
+#### Product that creates a CiviCRM Contribution
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/docs/screenshots/wpcv-woo-product-tab-contribution.jpg" alt="Settings for integrating a Product with a CiviCRM Contribution" width="500" />
+
+#### Product that creates a CiviCRM Membership
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/docs/screenshots/wpcv-woo-product-tab-membership.jpg" alt="Settings for integrating a Product with a CiviCRM Membership" width="500" />
+
+#### Product that creates a CiviCRM Participant
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/docs/screenshots/wpcv-woo-product-tab-participant.jpg" alt="Settings for integrating a Product with a CiviCRM Participant" width="500" />
+
+### Product Bulk and Quick Edit
+
+The Products Listing table shows information about how each Product is configured with respect to CiviCRM.
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/docs/screenshots/wpcv-woo-products-list.jpg" alt="CiviCRM information shown in the Products Listing table" width="800" />
+
+You can use Bulk Edit and Quick Edit functionality to edit the "Entity Type" and "Financial Type" of a Product. More granular settings must be made on the *CiviCRM Settings* Tab on the individual "Edit Product" page.
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/docs/screenshots/wpcv-woo-products-list-bulk-edit.jpg" alt="CiviCRM information shown in the Product Bulk Edit UI" width="800" />
+
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/docs/screenshots/wpcv-woo-products-list-quick-edit.jpg" alt="CiviCRM information shown in the Product Quick Edit UI" width="800" />
+
+### Individual Order Settings
 
 Configure settings for an Order in the *General* section of the "New Order" and "Edit Order" screens.
 
-<img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/screenshots/wpcv-woo-order.jpg" alt="Settings for integrating CiviCRM with an Order" width="153" />
-
+<img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/docs/screenshots/wpcv-woo-order-panel.jpg" alt="Settings for integrating CiviCRM with an Order" width="500" />
 
 
 == Known Issues ==
 
 This plugin currently relies on the `Order.create` and `Payment.create` API in CiviCRM to register WooCommerce Orders as CiviCRM Contributions. There is currently a push in CiviCRM to fix various aspects of this API, which is why this plugin should ideally be used with CiviCRM 5.42.1 or greater.
 
-The biggest outstanding issue is for Orders with a mix of Contribution, Membership and/or Participant in the same Order. The plugin works well if you are able to avoid these kinds of mixed Orders.
+The biggest outstanding issue is for Orders with a number of taxable Products in the same Order. The plugin works well if you are able to avoid taxable Products.
 
 Creating Orders in WooCommerce admin is not fully supported. It is best to create Orders via the Checkout.
 

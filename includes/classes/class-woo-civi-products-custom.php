@@ -600,7 +600,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	 * @since 3.0
 	 *
 	 * @param str $type The name of the WooCommerce Product Type.
-	 * @param str $type The shorthand for the meta key.
+	 * @param str $key The shorthand for the meta key.
 	 * @return str The requested meta key.
 	 */
 	public function get_meta_key( $type, $key ) {

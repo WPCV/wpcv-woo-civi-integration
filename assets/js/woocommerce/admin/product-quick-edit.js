@@ -107,15 +107,10 @@
 
 			// Store passed-in data.
 			me.classes_all = WPCV_WCI_Quick_Edit_Settings.get_setting( 'classes_all' ).join(', ');
-			//console.log( 'classes_all', me.classes_all );
 			me.class_br = WPCV_WCI_Quick_Edit_Settings.get_setting( 'class_br' );
-			//console.log( 'class_br', me.class_br );
 			me.class_title = WPCV_WCI_Quick_Edit_Settings.get_setting( 'class_title' );
-			//console.log( 'class_title', me.class_title );
 			me.class_entity = WPCV_WCI_Quick_Edit_Settings.get_setting( 'class_entity' );
-			//console.log( 'class_entity', me.class_entity );
 			me.class_financial = WPCV_WCI_Quick_Edit_Settings.get_setting( 'class_financial' );
-			//console.log( 'class_financial', me.class_financial );
 			me.class_contribution = WPCV_WCI_Quick_Edit_Settings.get_setting( 'class_contribution' );
 			me.classes_membership = WPCV_WCI_Quick_Edit_Settings.get_setting( 'classes_membership' ).join(', ');
 			me.classes_participant = WPCV_WCI_Quick_Edit_Settings.get_setting( 'classes_participant' ).join(', ');
@@ -154,7 +149,6 @@
 
 				// Hide for excluded WooCommerce Product Types.
 				product_type = wc_inline_data.find( '.product_type' ).text();
-				//console.log( 'product_type', product_type );
 				if ( 'grouped' === product_type || 'external' === product_type ) {
 					return;
 				}
@@ -164,11 +158,8 @@
 
 				// Get the Product data that we need.
 				entity_type = wpcv_inline_data.find( '.entity_type' ).text();
-				//console.log( 'entity_type', entity_type );
 				financial_type_id = wpcv_inline_data.find( '.financial_type_id' ).text();
-				//console.log( 'financial_type_id', financial_type_id );
 				//pfv_id = wpcv_inline_data.find( '.pfv_id' ).text();
-				//console.log( 'pfv_id', pfv_id );
 
 				// Set the selects that we can.
 				$(me.class_entity + ' select').val( entity_type );
@@ -230,8 +221,6 @@
 			$(me.class_entity + ' select').on( 'change', function( event ) {
 
 				var value = $(this).val(), wc_inline_data, wpcv_inline_data;
-				//console.log( 'value', value );
-				//console.log( 'me.post_id', me.post_id );
 
 				// Get the references to the inline data stores.
 				//wc_inline_data = $('#woocommerce_inline_' + me.post_id);
@@ -239,9 +228,7 @@
 
 				// Get the Product data that we need.
 				//product_type = wc_inline_data.find( '.product_type' ).text();
-				//console.log( 'product_type', product_type );
 				//entity_type = wpcv_inline_data.find( '.entity_type' ).text();
-				//console.log( 'entity_type', entity_type );
 
 				// Bail if empty or excluding.
 				if ( '' === value || 'civicrm_exclude' === value ) {
