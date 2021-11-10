@@ -160,6 +160,13 @@ class WPCV_Woo_Civi_Products_Custom {
 		// Get the Price Field Value ID from WooCommerce Product meta.
 		add_filter( 'wpcv_woo_civi/product/query/pfv_id', [ $this, 'pfv_id_get' ], 20, 2 );
 
+		// Ensure Custom Product Types have "Add to Cart" button.
+		foreach ( $this->product_names as $type => $name ) {
+			add_action( "woocommerce_{$type}_add_to_cart", function() {
+				do_action( 'woocommerce_simple_add_to_cart' );
+			} );
+		}
+
 	}
 
 	/**
