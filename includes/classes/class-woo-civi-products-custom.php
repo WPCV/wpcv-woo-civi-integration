@@ -162,9 +162,7 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// Ensure Custom Product Types have "Add to Cart" button.
 		foreach ( $this->product_names as $type => $name ) {
-			add_action( "woocommerce_{$type}_add_to_cart", function() {
-				do_action( 'woocommerce_simple_add_to_cart' );
-			} );
+			add_action( "woocommerce_{$type}_add_to_cart", [ $this, 'buttons_add' ] );
 		}
 
 	}
@@ -450,6 +448,17 @@ class WPCV_Woo_Civi_Products_Custom {
 			}
 		}
 
+	}
+
+	/**
+	 * Adds the "Add to cart" button to our Custom Product Type Product pages.
+	 *
+	 * @see woocommerce_template_single_add_to_cart()
+	 *
+	 * @since 3.0
+	 */
+	public function buttons_add() {
+		do_action( 'woocommerce_simple_add_to_cart' );
 	}
 
 	/**
