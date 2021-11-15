@@ -421,13 +421,8 @@ class WPCV_Woo_Civi_Helper {
 			return false;
 		}
 
-		// Get the CiviCRM Tax Rates.
+		// Get the CiviCRM Tax Rates and "Tax Enabled" status.
 		$tax_rates = WPCV_WCI()->tax->rates_get();
-		if ( empty( $tax_rates ) ) {
-			return false;
-		}
-
-		// Get "Tax Enabled" status.
 		$tax_enabled = WPCV_WCI()->tax->is_tax_enabled();
 
 		$price_sets_data = [];
@@ -456,8 +451,8 @@ class WPCV_Woo_Civi_Helper {
 					}
 
 					// Add Tax data if necessary.
-					if ( $tax_enabled && $tax_rates && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
-						$price_field_value['tax_rate'] = $tax_rates[$price_field_value['financial_type_id']];
+					if ( $tax_enabled && empty( $tax_rates ) && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
+						$price_field_value['tax_rate'] = $tax_rates[ $price_field_value['financial_type_id'] ];
 						$price_field_value['tax_amount'] = $this->percentage( $price_field_value['amount'], $price_field_value['tax_rate'] );
 					}
 
