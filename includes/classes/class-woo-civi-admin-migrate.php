@@ -673,7 +673,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			// Loop and set up post.
 			while ( $query->have_posts() ) { $query->the_post();
 
-				// Grat Product ID.
+				// Grab Product ID.
 				$product_id = get_the_ID();
 
 				// Process this Product.
@@ -850,7 +850,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			// Loop and set up post.
 			while ( $query->have_posts() ) { $query->the_post();
 
-				// Grat Order ID.
+				// Grab Order ID.
 				$order_id = get_the_ID();
 
 				// Process this Order.
