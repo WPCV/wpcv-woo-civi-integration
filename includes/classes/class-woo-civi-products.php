@@ -800,4 +800,96 @@ class WPCV_Woo_Civi_Products {
 
 	}
 
+	/**
+	 * Creates a WooCommerce Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $params The set of data to create the WooCommerce Product.
+	 * @return array $product The array of WooCommerce Product data, or empty on failure.
+	 */
+	public function create_product( $params ) {
+
+		// Build request.
+		$request = new WP_REST_Request( 'POST' );
+		$request->set_body_params( $params );
+
+		// Maybe initialise the Products Controller.
+		if ( ! isset( $this->products_controller ) ) {
+			$this->products_controller = new WC_REST_Products_Controller();
+		}
+
+		// Create the Product.
+		$result = $this->products_controller->create_item( $request );
+
+		// The Product data is what we want.
+		$product = isset( $result->data ) ? $result->data : false;
+
+		return $product;
+
+	}
+
+	/**
+	 * Updates a WooCommerce Product.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $params The set of data to update the WooCommerce Product.
+	 * @return array $product The array of WooCommerce Product data, or empty on failure.
+	 */
+	public function update_product( $params ) {
+
+		// Bail if there is no Product ID.
+		if ( empty( $params['id'] ) ) {
+			return false;
+		}
+
+		// Build request.
+		$request = new WP_REST_Request( 'PUT' );
+		$request->set_body_params( $params );
+
+		// Maybe initialise the Products Controller.
+		if ( ! isset( $this->products_controller ) ) {
+			$this->products_controller = new WC_REST_Products_Controller();
+		}
+
+		// Update the Product.
+		$result = $this->products_controller->update_item( $request );
+
+		// The Product data is what we want.
+		$product = isset( $result->data ) ? $result->data : false;
+
+		return $product;
+
+	}
+
+	/**
+	 * Creates a WooCommerce Product Variation.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $params The set of data to create the WooCommerce Product Variation.
+	 * @return array $variation The array of WooCommerce Product Variation data, or empty on failure.
+	 */
+	public function create_variation( $params ) {
+
+		// Build request.
+		$request = new WP_REST_Request( 'POST' );
+		$request->set_body_params( $params );
+
+		// Maybe initialise the Variations Controller.
+		if ( ! isset( $this->variations_controller ) ) {
+			$this->variations_controller = new WC_REST_Product_Variations_Controller();
+		}
+
+		// Create the Product Variation.
+		$result = $this->variations_controller->create_item( $request );
+
+		// The Product Variation data is what we want.
+		$variation = isset( $result->data ) ? $result->data : false;
+
+		return $variation;
+
+	}
+
 }
