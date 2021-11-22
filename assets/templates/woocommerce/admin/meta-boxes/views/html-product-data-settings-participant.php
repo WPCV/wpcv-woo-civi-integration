@@ -18,6 +18,23 @@ $pfv_id_key = $this->get_meta_key( $product_type_name, 'pfv_id' );
 $event_id_key = $this->get_meta_key( $product_type_name, 'event_id' );
 $role_id_key = $this->get_meta_key( $product_type_name, 'role_id' );
 
+// Get an initial set of Events.
+$options = WPCV_WCI()->participant->get_event_options();
+
+// Get Event ID.
+$event_id = $this->get_meta( $product_id, $product_type_name, 'event_id' );
+
+// Get the Event data if set.
+$event = false;
+if ( ! empty( $event_id ) ) {
+	$event = WPCV_WCI()->participant->get_event_by_id( $event_id );
+}
+
+// Maybe add to options.
+if ( $event !== false ) {
+	$options[ $event_id ] = $event['title'];
+}
+
 // Get the Price Field Value ID.
 $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 
@@ -59,7 +76,6 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 			<label for="<?php echo $event_id_key; ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
 			<select class="wc-product-search" id="<?php echo $event_id_key; ?>" name="<?php echo $event_id_key; ?>" style="width: 50%;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
 				<option value=""><?php esc_html_e( 'None', 'wpcv-woo-civi-integration' ); ?></option>
-				<?php $options = WPCV_WCI()->participant->get_event_options(); ?>
 				<?php $selected = $this->get_meta( $product_id, $product_type_name, 'event_id' ); ?>
 				<?php foreach ( $options as $event_id => $event_name ) : ?>
 					<option value="<?php echo esc_attr( $event_id ); ?>" <?php selected( $selected, $event_id ); ?>>

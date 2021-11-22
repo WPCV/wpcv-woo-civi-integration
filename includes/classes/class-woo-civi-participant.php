@@ -349,6 +349,86 @@ class WPCV_Woo_Civi_Participant {
 	}
 
 	/**
+	 * Get the CiviCRM Event data for a given set of parameters.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $args The arguments to query CiviCRM Events by.
+	 * @return array|boolean $events_data An array of Events data, or empty on failure.
+	 */
+	public function get_events_by( $args = [] ) {
+
+		// Init return.
+		$events_data = [];
+
+		// Bail if we have no args.
+		if ( empty( $args ) ) {
+			return $events_data;
+		}
+
+		// Try and init CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $events_data;
+		}
+
+		// Define params query Events.
+		$params = [
+			'version' => 3,
+			'is_public' => 1,
+			'is_template' => 0,
+			'options' => [
+				'limit' => 0, // No limit.
+				'sort' => [
+					'start_date ASC', // Earliest Events first.
+				],
+			],
+		] + $args;
+
+		// Maybe merge in the options.
+		$options = $params['options'];
+		if ( ! empty( $args['options'] ) ) {
+			$options = array_merge( $params['options'], $args['options'] );
+		}
+
+		// Merge in the arguments.
+		$params = array_merge( $params, $args );
+
+		// Add options.
+		$params['options'] = $options;
+
+		// Call the API.
+		$result = civicrm_api( 'Event', 'get', $params );
+
+		/*
+		$e = new \Exception();
+		$trace = $e->getTraceAsString();
+		error_log( print_r( [
+			'method' => __METHOD__,
+			'params' => $params,
+			'result' => $result,
+			//'backtrace' => $trace,
+		], true ) );
+		*/
+
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+			return $events_data;
+		}
+
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return $events_data;
+		}
+
+		// The result set it what we want.
+		$events_data = $result['values'];
+
+		// --<
+		return $events_data;
+
+	}
+
+	/**
 	 * Get the CiviCRM Event data for a given ID.
 	 *
 	 * @since 3.0
@@ -747,21 +827,64 @@ class WPCV_Woo_Civi_Participant {
 	 */
 	public function panel_saved( $product ) {
 
+		/*
+		$e = new \Exception();
+		$trace = $e->getTraceAsString();
+		error_log( print_r( [
+			'method' => __METHOD__,
+			'_POST' => $_POST,
+			//'backtrace' => $trace,
+		], true ) );
+		*/
+
 		// Save the Event ID.
 		if ( isset( $_POST[$this->event_key] ) ) {
 			$event_id = sanitize_key( $_POST[$this->event_key] );
+
+			///*
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'event_id' => $event_id,
+				//'backtrace' => $trace,
+			], true ) );
+			//*/
+
 			$product->add_meta_data( $this->event_key, (int) $event_id, true );
 		}
 
 		// Save the Participant Role ID.
 		if ( isset( $_POST[$this->role_key] ) ) {
 			$participant_role_id = sanitize_key( $_POST[$this->role_key] );
+
+			///*
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'participant_role_id' => $participant_role_id,
+				//'backtrace' => $trace,
+			], true ) );
+			//*/
+
 			$product->add_meta_data( $this->role_key, (int) $participant_role_id, true );
 		}
 
 		// Save the Participant Price Field Value ID.
 		if ( isset( $_POST[$this->pfv_key] ) ) {
 			$participant_pfv_id = sanitize_key( $_POST[$this->pfv_key] );
+
+			///*
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'participant_pfv_id' => $participant_pfv_id,
+				//'backtrace' => $trace,
+			], true ) );
+			//*/
+
 			$product->add_meta_data( $this->pfv_key, (int) $participant_pfv_id, true );
 		}
 
@@ -804,6 +927,35 @@ class WPCV_Woo_Civi_Participant {
 			return;
 		}
 
+		// Get an initial set of Events.
+		$options = $this->get_event_options();
+
+		// Get Event ID.
+		$event_id = $this->get_event_meta( $product_id );
+
+		// Get the Event data if set.
+		$event = false;
+		if ( ! empty( $event_id ) ) {
+			$event = $this->get_event_by_id( $event_id );
+		}
+
+		// Maybe add to options.
+		if ( $event !== false ) {
+			$options[ $event_id ] = $event['title'];
+		}
+
+		///*
+		$e = new \Exception();
+		$trace = $e->getTraceAsString();
+		error_log( print_r( [
+			'method' => __METHOD__,
+			'event_id' => $event_id,
+			'event' => $event,
+			'options' => $options,
+			//'backtrace' => $trace,
+		], true ) );
+		//*/
+
 		// Get Price Field Value.
 		$pfv_id = $this->get_pfv_meta( $product_id );
 
@@ -814,7 +966,6 @@ class WPCV_Woo_Civi_Participant {
 				<label for="<?php echo $this->event_key; ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
 				<select class="wc-product-search" id="<?php echo $this->event_key; ?>" name="<?php echo $this->event_key; ?>" style="width: 50%;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
 					<option value=""><?php esc_html_e( 'None', 'wpcv-woo-civi-integration' ); ?></option>
-					<?php $options = $this->get_event_options(); ?>
 					<?php $selected = $this->get_event_meta( $product_id ); ?>
 					<?php foreach ( $options as $event_id => $event_name ) : ?>
 						<option value="<?php echo esc_attr( $event_id ); ?>" <?php selected( $selected, $event_id ); ?>>
