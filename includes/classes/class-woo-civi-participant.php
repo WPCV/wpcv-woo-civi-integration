@@ -827,64 +827,21 @@ class WPCV_Woo_Civi_Participant {
 	 */
 	public function panel_saved( $product ) {
 
-		/*
-		$e = new \Exception();
-		$trace = $e->getTraceAsString();
-		error_log( print_r( [
-			'method' => __METHOD__,
-			'_POST' => $_POST,
-			//'backtrace' => $trace,
-		], true ) );
-		*/
-
 		// Save the Event ID.
 		if ( isset( $_POST[$this->event_key] ) ) {
 			$event_id = sanitize_key( $_POST[$this->event_key] );
-
-			///*
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'event_id' => $event_id,
-				//'backtrace' => $trace,
-			], true ) );
-			//*/
-
 			$product->add_meta_data( $this->event_key, (int) $event_id, true );
 		}
 
 		// Save the Participant Role ID.
 		if ( isset( $_POST[$this->role_key] ) ) {
 			$participant_role_id = sanitize_key( $_POST[$this->role_key] );
-
-			///*
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'participant_role_id' => $participant_role_id,
-				//'backtrace' => $trace,
-			], true ) );
-			//*/
-
 			$product->add_meta_data( $this->role_key, (int) $participant_role_id, true );
 		}
 
 		// Save the Participant Price Field Value ID.
 		if ( isset( $_POST[$this->pfv_key] ) ) {
 			$participant_pfv_id = sanitize_key( $_POST[$this->pfv_key] );
-
-			///*
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'participant_pfv_id' => $participant_pfv_id,
-				//'backtrace' => $trace,
-			], true ) );
-			//*/
-
 			$product->add_meta_data( $this->pfv_key, (int) $participant_pfv_id, true );
 		}
 
@@ -943,18 +900,6 @@ class WPCV_Woo_Civi_Participant {
 		if ( $event !== false ) {
 			$options[ $event_id ] = $event['title'];
 		}
-
-		///*
-		$e = new \Exception();
-		$trace = $e->getTraceAsString();
-		error_log( print_r( [
-			'method' => __METHOD__,
-			'event_id' => $event_id,
-			'event' => $event,
-			'options' => $options,
-			//'backtrace' => $trace,
-		], true ) );
-		//*/
 
 		// Get Price Field Value.
 		$pfv_id = $this->get_pfv_meta( $product_id );
