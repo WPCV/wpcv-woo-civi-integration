@@ -19,6 +19,17 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Contribution {
 
 	/**
+	 * CiviCRM Contribution component status.
+	 *
+	 * True if the CiviContribute component is active, false by default.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var array $active The status of the CiviContribute component.
+	 */
+	public $active = false;
+
+	/**
 	 * WooCommerce Order meta key holding the CiviCRM Contribution ID.
 	 *
 	 * @since 3.0
@@ -45,7 +56,15 @@ class WPCV_Woo_Civi_Contribution {
 	 * @since 3.0
 	 */
 	public function initialise() {
+
+		// Bail early if the CiviContribute component is not active.
+		$this->active = WPCV_WCI()->helper->is_component_enabled( 'CiviContribute' );
+		if ( ! $this->active ) {
+			return;
+		}
+
 		$this->register_hooks();
+
 	}
 
 	/**

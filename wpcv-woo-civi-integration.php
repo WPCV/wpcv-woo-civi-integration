@@ -153,6 +153,15 @@ class WPCV_Woo_Civi {
 	public $products_custom;
 
 	/**
+	 * WooCommerce Variable Products object.
+	 *
+	 * @since 2.2
+	 * @access public
+	 * @var object $products_variable The WooCommerce Variable Products object.
+	 */
+	public $products_variable;
+
+	/**
 	 * Campaign management object.
 	 *
 	 * @since 3.0
@@ -313,6 +322,7 @@ class WPCV_Woo_Civi {
 
 		// Include Product classes.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products-variable.php';
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products-custom.php';
 
 		// Include CiviCRM Component classes.
@@ -349,6 +359,7 @@ class WPCV_Woo_Civi {
 
 		// Init Product objects.
 		$this->products = new WPCV_Woo_Civi_Products();
+		$this->products_variable = new WPCV_Woo_Civi_Products_Variable();
 		$this->products_custom = new WPCV_Woo_Civi_Products_Custom();
 
 		// Init CiviCRM Component objects.

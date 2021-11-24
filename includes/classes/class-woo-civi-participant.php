@@ -96,19 +96,23 @@ class WPCV_Woo_Civi_Participant {
 		// Add Entity Type to the options for the "CiviCRM Settings" Product Tab.
 		add_action( 'wpcv_woo_civi/product/panel/entity_options', [ $this, 'panel_entity_option_add' ], 20 );
 
-		// Add Participant Role select to the "CiviCRM Settings" Product Tab.
+		// Add Event and Participant Role to the "CiviCRM Settings" Product Tab.
 		add_action( 'wpcv_woo_civi/product/panel/civicrm/after', [ $this, 'panel_add_markup' ], 20 );
 
 		// AJAX handler for Event searches.
 		add_action( 'wp_ajax_wpcv_woo_civi_search_events', [ $this, 'panel_search_events' ] );
 
 		// Save meta data from the "CiviCRM Settings" Product Tab.
-		add_action( 'wpcv_woo_civi/product/panel/saved', [ $this, 'panel_saved' ], 20 );
+		add_action( 'wpcv_woo_civi/product/panel/saved/after', [ $this, 'panel_saved' ], 20 );
 
 		// Clear meta data from the "CiviCRM Settings" Product Tab.
-		add_action( 'wpcv_woo_civi/product/custom/panel/saved', [ $this, 'panel_clear_meta' ], 30 );
+		add_action( 'wpcv_woo_civi/product/variable/panel/saved/before', [ $this, 'panel_clear_meta' ], 30 );
+		add_action( 'wpcv_woo_civi/product/custom/panel/saved/before', [ $this, 'panel_clear_meta' ], 30 );
 
-		// Add Membership data to the Product "Bulk Edit" and "Quick Edit" markup.
+		// Add Event and Participant Role to the Product Variation "CiviCRM Settings".
+		add_action( 'wpcv_woo_civi/product/variation/block/middle', [ $this, 'attributes_add_markup' ], 20, 4 );
+
+		// Add Participant data to the Product "Bulk Edit" and "Quick Edit" markup.
 		//add_action( 'wpcv_woo_civi/product/bulk_edit/after', [ $this, 'bulk_edit_add_markup' ] );
 		//add_action( 'wpcv_woo_civi/product/quick_edit/after', [ $this, 'quick_edit_add_markup' ] );
 
@@ -398,17 +402,6 @@ class WPCV_Woo_Civi_Participant {
 
 		// Call the API.
 		$result = civicrm_api( 'Event', 'get', $params );
-
-		/*
-		$e = new \Exception();
-		$trace = $e->getTraceAsString();
-		error_log( print_r( [
-			'method' => __METHOD__,
-			'params' => $params,
-			'result' => $result,
-			//'backtrace' => $trace,
-		], true ) );
-		*/
 
 		// Bail if there's an error.
 		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
@@ -868,7 +861,7 @@ class WPCV_Woo_Civi_Participant {
 	}
 
 	/**
-	 * Adds Participant Role select to the "CiviCRM Settings" Product Tab.
+	 * Adds Event and Participant Role to the "CiviCRM Settings" Product Tab.
 	 *
 	 * @since 3.0
 	 */
@@ -961,6 +954,95 @@ class WPCV_Woo_Civi_Participant {
 	}
 
 	/**
+	 * Adds Event and Participant Role to the Product Variation "CiviCRM Settings".
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $loop The position in the loop.
+	 * @param array $variation_data The Product Variation data.
+	 * @param WP_Post $variation The WordPress Post data.
+	 * @param string $entity The CiviCRM Entity that this Product Variation is mapped to.
+	 */
+	public function attributes_add_markup( $loop, $variation_data, $variation, $entity ) {
+
+		// TODO: We nay still want to include these for Product Type switching.
+
+		// Bail if this is not a CiviCRM Participant.
+		if ( $entity !== 'civicrm_participant' ) {
+			return;
+		}
+
+		// Get the meta keys.
+		$event_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'event_id' );
+		$role_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' );
+
+		// Get an initial set of Events.
+		$options = $this->get_event_options();
+
+		// Get the Event ID.
+		$event_id = WPCV_WCI()->products_variable->get_meta( $variation->ID, $entity, 'event_id' );
+
+		// Get the Event data if set.
+		$event = false;
+		if ( ! empty( $event_id ) ) {
+			$event = $this->get_event_by_id( $event_id );
+		}
+
+		// Maybe add to options.
+		if ( $event !== false ) {
+			$options[ $event_id ] = $event['title'];
+		}
+
+		// Build Participant Roles options array.
+		$participant_roles = [
+		'' => __( 'Select a Participant Role', 'wpcv-woo-civi-integration' ),
+		] + WPCV_WCI()->participant->get_participant_roles_options();
+
+		// Get the Participant Role ID.
+		$role_id = WPCV_WCI()->products_variable->get_meta( $variation->ID, $entity, 'role_id' );
+
+		?>
+		<p class="form-row form-row-full variable_civicrm_event_id">
+			<label for="<?php echo $event_key; ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
+			<?php echo wc_help_tip( __( 'Select an Event if you would like this Product Variation to create an Event Participant in CiviCRM.', 'wpcv-woo-civi-integration' ) ); ?>
+			<br>
+			<style>
+				.variable_civicrm_event_id .select2-container {
+					width: 100% !important;
+				}
+			</style>
+			<select class="wc-product-search" id="<?php echo $event_key; ?>" name="<?php echo $event_key; ?>" style="clear: left;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
+				<option value=""><?php esc_html_e( 'None', 'wpcv-woo-civi-integration' ); ?></option>
+				<?php $selected = WPCV_WCI()->products_variable->get_meta( $variation->ID, $entity, 'event_id' ); ?>
+				<?php foreach ( $options as $event_id => $event_name ) : ?>
+					<option value="<?php echo esc_attr( $event_id ); ?>" <?php selected( $selected, $event_id ); ?>>
+						<?php echo esc_attr( $event_name ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+		</p>
+
+		<?php
+
+		// Show Participant Role.
+		woocommerce_wp_select( [
+			'id' => $role_key,
+			'name' => $role_key,
+			'value' => $role_id,
+			'label' => __( 'Participant Role', 'wpcv-woo-civi-integration' ),
+			'desc_tip' => 'true',
+			'description' => __( 'Select a Participant Role for the Event Participant.', 'wpcv-woo-civi-integration' ),
+			'wrapper_class' => 'form-row form-row-full variable_civicrm_role_id',
+			'options' => $participant_roles,
+		] );
+
+		?>
+
+		<?php
+
+	}
+
+	/**
 	 * Adds Participant data selects to the Product "Bulk Edit" markup.
 	 *
 	 * @since 3.0
@@ -984,7 +1066,7 @@ class WPCV_Woo_Civi_Participant {
 		</label>
 
 		<label class="wpcv_woo_civi_bulk_participant_role_id">
-			<span class="title"><?php esc_html_e( 'Membership Type', 'wpcv-woo-civi-integration' ); ?></span>
+			<span class="title"><?php esc_html_e( 'Participant Role', 'wpcv-woo-civi-integration' ); ?></span>
 			<span class="input-text-wrap">
 				<select class="civicrm_bulk_participant_role_id" name="_civicrm_bulk_participant_role_id">
 					<?php foreach ( $participant_roles as $key => $value ) : ?>

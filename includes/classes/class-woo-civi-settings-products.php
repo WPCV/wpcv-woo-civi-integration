@@ -57,7 +57,8 @@ class WPCV_Woo_Civi_Settings_Products {
 		add_action( 'woocommerce_admin_process_product_object', [ $this, 'panel_saved' ] );
 
 		// Clear meta data from the "CiviCRM Settings" Product Tab.
-		add_action( 'wpcv_woo_civi/product/custom/panel/saved', [ $this, 'panel_clear_meta' ] );
+		add_action( 'wpcv_woo_civi/product/variable/panel/saved/before', [ $this, 'panel_clear_meta' ] );
+		add_action( 'wpcv_woo_civi/product/custom/panel/saved/before', [ $this, 'panel_clear_meta' ] );
 
 		// Append Contribution Type to Product Cat.
 		add_action( 'manage_product_posts_custom_column', [ $this, 'columns_content' ], 90, 2 );
@@ -83,13 +84,18 @@ class WPCV_Woo_Civi_Settings_Products {
 	 */
 	public function tab_add( $tabs ) {
 
+		$classes = [];
+		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
+		if ( ! empty( $product_types_with_panel ) )	{
+			foreach ( $product_types_with_panel as $product_type ) {
+				$classes[] = 'show_if_' . $product_type;
+			}
+		}
+
 		$tabs['woocommerce_civicrm'] = [
 			'label' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
 			'target' => 'woocommerce_civicrm',
-			'class' => [
-				'hide_if_grouped',
-				'hide_if_external',
-			],
+			'class' => $classes,
 		];
 
 		return $tabs;
@@ -160,6 +166,32 @@ class WPCV_Woo_Civi_Settings_Products {
 	 */
 	public function panel_saved( $product ) {
 
+		// Clear the "global" meta if it's an excluded Product Type.
+		$product_type = $product->get_type();
+		if ( 'grouped' === $product_type || 'external' === $product_type ) {
+			$this->panel_clear_meta( $product );
+		}
+
+		// Bail if not an allowed Product Type.
+		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
+		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
+			return;
+		}
+
+		/**
+		 * Fires before the settings from the "CiviCRM Settings" Product Tab have been saved.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Products_Variable::panel_clear_meta() (Priority: 40)
+		 * * WPCV_Woo_Civi_Products_Custom::panel_clear_meta() (Priority: 50)
+		 *
+		 * @since 3.0
+		 *
+		 * @param WC_Product $product The Product object.
+		 */
+		do_action( 'wpcv_woo_civi/product/panel/saved/before', $product );
+
 		// Save the Entity Type.
 		if ( isset( $_POST[ WPCV_WCI()->products->entity_key ] ) ) {
 			$entity_type = sanitize_key( $_POST[ WPCV_WCI()->products->entity_key ] );
@@ -167,10 +199,10 @@ class WPCV_Woo_Civi_Settings_Products {
 		}
 
 		// Save the Financial Type ID.
-		if ( isset( $_POST[ WPCV_WCI()->products->meta_key ] ) ) {
-			$financial_type_id = sanitize_key( $_POST[ WPCV_WCI()->products->meta_key ] );
+		if ( isset( $_POST[ WPCV_WCI()->products->financial_type_key ] ) ) {
+			$financial_type_id = sanitize_key( $_POST[ WPCV_WCI()->products->financial_type_key ] );
 			if ( is_numeric( $financial_type_id ) ) {
-				$product->add_meta_data( WPCV_WCI()->products->meta_key, (int) $financial_type_id, true );
+				$product->add_meta_data( WPCV_WCI()->products->financial_type_key, (int) $financial_type_id, true );
 			}
 		}
 
@@ -182,12 +214,6 @@ class WPCV_Woo_Civi_Settings_Products {
 			}
 		}
 
-		// Clear the "global" meta if it's an excluded Product Type.
-		$product_type = $product->get_type();
-		if ( 'grouped' === $product_type || 'external' === $product_type ) {
-			$this->panel_clear_meta( $product );
-		}
-
 		/**
 		 * Fires when the settings from the "CiviCRM Settings" Product Tab have been saved.
 		 *
@@ -195,13 +221,12 @@ class WPCV_Woo_Civi_Settings_Products {
 		 *
 		 * * WPCV_Woo_Civi_Membership::panel_saved() (Priority: 10)
 		 * * WPCV_Woo_Civi_Participant::panel_saved() (Priority: 20)
-		 * * WPCV_Woo_Civi_Products_Custom::panel_clear_meta() (Priority: 50)
 		 *
 		 * @since 3.0
 		 *
 		 * @param WC_Product $product The Product object.
 		 */
-		do_action( 'wpcv_woo_civi/product/panel/saved', $product );
+		do_action( 'wpcv_woo_civi/product/panel/saved/after', $product );
 
 	}
 
@@ -216,7 +241,7 @@ class WPCV_Woo_Civi_Settings_Products {
 
 		// Clear the current global Product Contribution metadata.
 		$product->delete_meta_data( WPCV_WCI()->products->entity_key );
-		$product->delete_meta_data( WPCV_WCI()->products->meta_key );
+		$product->delete_meta_data( WPCV_WCI()->products->financial_type_key );
 		$product->delete_meta_data( WPCV_WCI()->products->pfv_key );
 
 	}
@@ -257,8 +282,9 @@ class WPCV_Woo_Civi_Settings_Products {
 		 *
 		 * @param int Numeric 0 because we are querying the Entity.
 		 * @param int $post_id The WordPress Post ID.
+		 * @param object $product The WooCommerce Product object.
 		 */
-		$entity_type = apply_filters( 'wpcv_woo_civi/product/query/entity_type', '', $post_id );
+		$entity_type = apply_filters( 'wpcv_woo_civi/product/query/entity_type', '', $post_id, $product );
 
 		/**
 		 * Query the Financial Type ID for the Product.
@@ -267,8 +293,9 @@ class WPCV_Woo_Civi_Settings_Products {
 		 *
 		 * @param int Numeric 0 because we are querying the Financial Type ID.
 		 * @param int $post_id The WordPress Post ID.
+		 * @param object $product The WooCommerce Product object.
 		 */
-		$financial_type_id = apply_filters( 'wpcv_woo_civi/product/query/financial_type_id', 0, $post_id );
+		$financial_type_id = apply_filters( 'wpcv_woo_civi/product/query/financial_type_id', 0, $post_id, $product );
 
 		/**
 		 * Query the Price Field Value ID for the Product.
@@ -277,55 +304,59 @@ class WPCV_Woo_Civi_Settings_Products {
 		 *
 		 * @param int Numeric 0 because we are querying the Price Field Value ID.
 		 * @param int $post_id The WordPress Post ID.
+		 * @param object $product The WooCommerce Product object.
 		 */
-		$pfv_id = apply_filters( 'wpcv_woo_civi/product/query/pfv_id', 0, $post_id );
+		$pfv_id = apply_filters( 'wpcv_woo_civi/product/query/pfv_id', 0, $post_id, $product );
 
 		// Build the CiviCRM Product data.
-		$data = $this->columns_data( $post_id, $entity_type, $financial_type_id, $pfv_id );
+		$data = $this->columns_data( $post_id, $product_type, $entity_type, $financial_type_id, $pfv_id );
 
 		// Get the Entity Types and Financial Types.
 		$entity_types = WPCV_WCI()->helper->get_entity_type_options();
 		$financial_types = WPCV_WCI()->helper->get_financial_types();
 
 		// Init feedback.
-		$entity_type_feedback = '';
-		$financial_type_feedback = '';
+		$feedback = [];
 
 		// Show if this Product needs its Entity Type set.
 		if ( empty( $entity_type ) ) {
-			$entity_type_feedback = esc_html_e( 'Entity Type not set', 'wpcv-woo-civi-integration' );
+			$feedback['entity_type'] = esc_html__( 'Excluded', 'wpcv-woo-civi-integration' );
 		// Show if this Product should not be synced to CiviCRM.
 		} elseif ( $entity_type === 'civicrm_exclude' ) {
-			$entity_type_feedback = esc_html_e( 'Excluded', 'wpcv-woo-civi-integration' );
+			$feedback['entity_type'] = esc_html__( 'Excluded', 'wpcv-woo-civi-integration' );
 		// If there's a specific Entity Type for this Product, use it.
 		} elseif ( array_key_exists( $entity_type, $entity_types ) ) {
-			$entity_type_feedback = esc_html( $entity_types[ $entity_type ] );
+			$feedback['entity_type'] = esc_html( $entity_types[ $entity_type ] );
 		// Fall back to "Not found".
 		} else {
-			$entity_type_feedback = esc_html_e( 'Not found', 'wpcv-woo-civi-integration' );
+			$feedback['entity_type'] = esc_html__( 'Entity Type not found', 'wpcv-woo-civi-integration' );
 		}
 
 		// Show if it has the legacy excluded setting.
 		if ( ! empty( $financial_type_id ) && $financial_type_id === 'exclude' ) {
-			$financial_type_feedback = esc_html_e( 'Excluded (legacy)', 'wpcv-woo-civi-integration' );
+			$feedback['financial_type'] = esc_html__( 'Excluded (legacy)', 'wpcv-woo-civi-integration' );
 		// If there's a specific Financial Type for this Product, use it.
 		} elseif ( $financial_type_id !== 0 && array_key_exists( $financial_type_id, $financial_types ) ) {
-			$financial_type_feedback = esc_html( $financial_types[ $financial_type_id ] );
+			$feedback['financial_type'] = esc_html( $financial_types[ $financial_type_id ] );
 		// Fall back to "Not found".
 		} else {
-			$financial_type_feedback = esc_html_e( 'Not found', 'wpcv-woo-civi-integration' );
+			$feedback['financial_type'] = esc_html__( 'Financial Type not found', 'wpcv-woo-civi-integration' );
 		}
 
 		// Clear Financial Type when Product is excluded.
-		if ( $entity_type === 'civicrm_exclude' ) {
-			$financial_type_feedback = '';
+		if ( empty( $entity_type ) || $entity_type === 'civicrm_exclude' ) {
+			unset( $feedback['financial_type'] );
+		}
+
+		// Clear Financial Type when it's a Variable Product.
+		if ( $product_type === 'variable' && isset( $feedback['financial_type'] ) ) {
+			unset( $feedback['financial_type'] );
 		}
 
 		// Show feedback.
-		echo $entity_type_feedback;
-		if ( ! empty( $financial_type_feedback ) ) {
-			echo '<br>' . "\n" . $financial_type_feedback;
-		}
+		echo implode( '<br>' . "\n", array_values( $feedback ) );
+
+		// Write hidden data.
 		echo $data;
 
 	}
@@ -336,16 +367,18 @@ class WPCV_Woo_Civi_Settings_Products {
 	 * @since 3.0
 	 *
 	 * @param int $post_id The WordPress Post ID.
+	 * @param string $$product_type The WooCommerce Product Type.
 	 * @param string $entity_type The CiviCRM Entity Type.
 	 * @param int $financial_type_id The CiviCRM Financial Type ID.
 	 * @param int $pfv_id The CiviCRM Price Field Value ID.
 	 * @return str $markup The CiviCRM Product data markup.
 	 */
-	public function columns_data( $post_id, $entity_type, $financial_type_id, $pfv_id ) {
+	public function columns_data( $post_id, $product_type, $entity_type, $financial_type_id, $pfv_id ) {
 
 		// Build the data markup.
 		$markup = '';
 		$markup .= "\n" . '<div class="hidden" id="wpcv_woo_civi_inline_' . $post_id . '">' . "\n";
+		//$markup .= "\t" . '<div class="product_type">' . $product_type . '</div>' . "\n";
 		$markup .= "\t" . '<div class="entity_type">' . $entity_type . '</div>' . "\n";
 		$markup .= "\t" . '<div class="financial_type_id">' . $financial_type_id . '</div>' . "\n";
 		//$markup .= "\t" . '<div class="pfv_id">' . $pfv_id . '</div>' . "\n";
@@ -470,11 +503,8 @@ class WPCV_Woo_Civi_Settings_Products {
 	 */
 	public function bulk_edit_save( $product ) {
 
-		// Grab Post ID and Product Type.
-		$post_id = $product->get_id();
-		$product_type = $product->get_type();
-
 		// Bail if it's an excluded Product Type.
+		$product_type = $product->get_type();
 		if ( 'grouped' === $product_type || 'external' === $product_type ) {
 			return;
 		}
@@ -482,19 +512,50 @@ class WPCV_Woo_Civi_Settings_Products {
 		// Maybe save Entity Type.
 		if ( ! empty( $_REQUEST['_civicrm_bulk_entity_type'] ) ) {
 			$entity_type = sanitize_text_field( $_REQUEST['_civicrm_bulk_entity_type'] );
-			if ( ! array_key_exists( $product_type, WPCV_WCI()->products_custom->product_types_meta ) ) {
-				WPCV_WCI()->products->set_entity_meta( $post_id, $entity_type );
-			}
+
+			/**
+			 * Fires to inform classes to save the Entity Type.
+			 *
+			 * Used internally by:
+			 *
+			 * * WPCV_Woo_Civi_Products::entity_type_save() (Priority: 10)
+			 * * WPCV_Woo_Civi_Products_Variable::entity_type_save() (Priority: 20)
+			 *
+			 * Custom Product Types do not have a callback for this because the
+			 * Entity Type is identical to the Product Type.
+			 *
+			 * @since 3.0
+			 *
+			 * @param object $product The WooCommerce Product object being saved.
+			 * @param string $entity_type The CiviCRM Entity Type.
+			 */
+			do_action( 'wpcv_woo_civi/product/save/entity_type', $product, $entity_type );
+
 		}
 
 		// Maybe save Financial Type.
 		if ( isset( $_REQUEST['_civicrm_bulk_financial_type_id'] ) && '' !== $_REQUEST['_civicrm_bulk_financial_type_id'] ) {
 			$financial_type_id = sanitize_text_field( $_REQUEST['_civicrm_bulk_financial_type_id'] );
-			if ( array_key_exists( $product_type, WPCV_WCI()->products_custom->product_types_meta ) ) {
-				WPCV_WCI()->products_custom->set_meta( $post_id, $product_type, 'financial_type_id', $financial_type_id );
-			} else {
-				WPCV_WCI()->products->set_product_meta( $post_id, $financial_type_id );
-			}
+
+			/**
+			 * Fires to inform classes to save the Financial Type.
+			 *
+			 * Used internally by:
+			 *
+			 * * WPCV_Woo_Civi_Products::financial_type_id_save() (Priority: 10)
+			 * * WPCV_Woo_Civi_Products_Custom::financial_type_id_save() (Priority: 30)
+			 *
+			 * Variable Products do not have a callback for this because the
+			 * Financial Type ID is stored in the Product Variation. Priority 20
+			 * is skipped in case the callback for Product Variations is enabled.
+			 *
+			 * @since 3.0
+			 *
+			 * @param object $product The WooCommerce Product object being saved.
+			 * @param int $financial_type_id The CiviCRM Financial Type ID.
+			 */
+			do_action( 'wpcv_woo_civi/product/save/financial_type_id', $product, $financial_type_id );
+
 		}
 
 		/*
@@ -542,11 +603,8 @@ class WPCV_Woo_Civi_Settings_Products {
 	 */
 	public function quick_edit_save( $product ) {
 
-		// Grab Post ID and Product Type.
-		$post_id = $product->get_id();
-		$product_type = $product->get_type();
-
 		// Bail if it's an excluded Product Type.
+		$product_type = $product->get_type();
 		if ( 'grouped' === $product_type || 'external' === $product_type ) {
 			return;
 		}
@@ -554,19 +612,19 @@ class WPCV_Woo_Civi_Settings_Products {
 		// Maybe save Entity Type.
 		if ( ! empty( $_REQUEST['_civicrm_entity_type'] ) ) {
 			$entity_type = sanitize_text_field( $_REQUEST['_civicrm_entity_type'] );
-			if ( ! array_key_exists( $product_type, WPCV_WCI()->products_custom->product_types_meta ) ) {
-				WPCV_WCI()->products->set_entity_meta( $post_id, $entity_type );
-			}
+
+			// This action is documented in WPCV_Woo_Civi_Settings_Products::bulk_edit_save()
+			do_action( 'wpcv_woo_civi/product/save/entity_type', $product, $entity_type );
+
 		}
 
 		// Maybe save Financial Type.
 		if ( isset( $_REQUEST['_civicrm_financial_type_id'] ) && '' !== $_REQUEST['_civicrm_financial_type_id'] ) {
 			$financial_type_id = sanitize_text_field( $_REQUEST['_civicrm_financial_type_id'] );
-			if ( array_key_exists( $product_type, WPCV_WCI()->products_custom->product_types_meta ) ) {
-				WPCV_WCI()->products_custom->set_meta( $post_id, $product_type, 'financial_type_id', $financial_type_id );
-			} else {
-				WPCV_WCI()->products->set_product_meta( $post_id, $financial_type_id );
-			}
+
+			// This action is documented in WPCV_Woo_Civi_Settings_Products::bulk_edit_save()
+			do_action( 'wpcv_woo_civi/product/save/financial_type_id', $product, $financial_type_id );
+
 		}
 
 		/*

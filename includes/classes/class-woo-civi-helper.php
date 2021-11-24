@@ -764,6 +764,37 @@ class WPCV_Woo_Civi_Helper {
 	}
 
 	/**
+	 * Gets the WooCommerce Product Types as options.
+	 *
+	 * @since 3.0
+	 *
+	 * @param bool $raw Pass true if all Product Types are required.
+	 * @return array $gateways The array of WooCommerce Product Types.
+	 */
+	public function get_product_types_options( $raw = true ) {
+
+		$all_product_types = wc_get_product_types();
+
+		/**
+		 * Filter the WooCommerce Product Types.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Products::product_types_filter() (Priority: 10)
+		 * * WPCV_Woo_Civi_Products_Variable::product_types_filter() (Priority: 20)
+		 * * WPCV_Woo_Civi_Products_Custom::product_types_filter() (Priority: 30)
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $all_product_types The array of all WooCommerce Product Types.
+		 */
+		$all_product_types = apply_filters( 'wpcv_woo_civi/product_types/get/options', $all_product_types );
+
+		return $all_product_types;
+
+	}
+
+	/**
 	 * Gets the WooCommerce Payment Gateways.
 	 *
 	 * @since 3.0

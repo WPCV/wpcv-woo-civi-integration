@@ -19,11 +19,11 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Products_Custom {
 
 	/**
-	 * WooCommerce Product Types meta keys.
+	 * WooCommerce Custom Product Types meta keys.
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var array $product_types The CiviCRM Custom Product Types meta keys.
+	 * @var array $product_types_meta The CiviCRM Custom Product Types meta keys.
 	 */
 	public $product_types_meta = [
 		'civicrm_contribution' => [
@@ -44,13 +44,13 @@ class WPCV_Woo_Civi_Products_Custom {
 	];
 
 	/**
-	 * WooCommerce Product Type names.
+	 * WooCommerce Custom Product Type names.
 	 *
 	 * These are defined in the class constructor so that they can be translated.
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var array $product_names The CiviCRM Custom Product Type names.
+	 * @var array $product_names The WooCommerce Custom Product Type names.
 	 */
 	public $product_names = [];
 
@@ -80,7 +80,7 @@ class WPCV_Woo_Civi_Products_Custom {
 			'civicrm_participant' => __( 'CiviCRM Participant', 'wpcv-woo-civi-integration' ),
 		];
 
-		// Set up Product Types.
+		// Set up Custom Product Types.
 		$this->include_files();
 		$this->check_setup();
 		$this->register_hooks();
@@ -95,9 +95,15 @@ class WPCV_Woo_Civi_Products_Custom {
 	private function include_files() {
 
 		// Include the Custom Product Type class files.
-		include WPCV_WOO_CIVI_PATH . 'includes/products/class-woo-civi-product-contribution.php';
-		include WPCV_WOO_CIVI_PATH . 'includes/products/class-woo-civi-product-membership.php';
-		include WPCV_WOO_CIVI_PATH . 'includes/products/class-woo-civi-product-participant.php';
+		if ( WPCV_WCI()->helper->is_component_enabled( 'CiviContribute' ) ) {
+			include WPCV_WOO_CIVI_PATH . 'includes/products/class-woo-civi-product-contribution.php';
+		}
+		if ( WPCV_WCI()->membership->active ) {
+			include WPCV_WOO_CIVI_PATH . 'includes/products/class-woo-civi-product-membership.php';
+		}
+		if ( WPCV_WCI()->participant->active ) {
+			include WPCV_WOO_CIVI_PATH . 'includes/products/class-woo-civi-product-participant.php';
+		}
 
 	}
 
@@ -110,13 +116,73 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// TODO: Prevent this running on every page load.
 
-		// Add the Product Type terms.
+		// Add the Custom Product Type terms.
 		foreach ( $this->product_names as $type => $name ) {
-			if ( ! get_term_by( 'slug', $type, 'product_type' ) ) {
-				wp_insert_term( $type, 'product_type' );
+
+			// Handle CiviCRM Contribution.
+			if ( $name === 'civicrm_contribution' ) {
+				if ( ! WPCV_WCI()->helper->is_component_enabled( 'CiviContribute' ) ) {
+					$this->term_delete( $type );
+					unset( $this->product_names['civicrm_contribution'] );
+					unset( $this->product_types_meta['civicrm_contribution'] );
+				} else {
+					$this->term_add( $type );
+				}
+				continue;
 			}
+
+			// Handle CiviCRM Membership.
+			if ( $name === 'civicrm_membership' ) {
+				if ( ! WPCV_WCI()->membership->active ) {
+					$this->term_delete( $type );
+					unset( $this->product_names['civicrm_membership'] );
+					unset( $this->product_types_meta['civicrm_membership'] );
+				} else {
+					$this->term_add( $type );
+				}
+				continue;
+			}
+
+			// Handle CiviCRM Participant.
+			if ( $name === 'civicrm_participant' ) {
+				if ( ! WPCV_WCI()->participant->active ) {
+					$this->term_delete( $type );
+					unset( $this->product_names['civicrm_participant'] );
+					unset( $this->product_types_meta['civicrm_participant'] );
+				} else {
+					$this->term_add( $type );
+				}
+				continue;
+			}
+
 		}
 
+	}
+
+	/**
+	 * Adds the Custom Product Type Term.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $type The Product Type.
+	 */
+	private function term_add( $type ) {
+		if ( ! get_term_by( 'slug', $type, 'product_type' ) ) {
+			wp_insert_term( $type, 'product_type' );
+		}
+	}
+
+	/**
+	 * Deletes the Custom Product Type Term.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $type The Product Type.
+	 */
+	private function term_delete( $type ) {
+		if ( get_term_by( 'slug', $type, 'product_type' ) ) {
+			wp_delete_term( $type, 'product_type' );
+		}
 	}
 
 	/**
@@ -126,49 +192,64 @@ class WPCV_Woo_Civi_Products_Custom {
 	 */
 	private function register_hooks() {
 
-		// Register our Custom WooCommerce Product Types.
+		// Bail if we have no Components enabled.
+		if ( empty( $this->product_names ) ) {
+			return;
+		}
+
+		// Register our Custom Product Types.
 		add_filter( 'product_type_selector', [ $this, 'types_add' ] );
 
-		// Add CiviCRM tab to the Product Settings tabs.
+		// Add CiviCRM tab to the Custom Product Settings tabs.
 		add_filter( 'woocommerce_product_data_tabs', [ $this, 'tabs_add' ], 20 );
 
 		// Filter the visible Tabs.
 		add_filter( 'woocommerce_product_data_tabs', [ $this, 'tabs_filter' ], 20 );
 
-		// Add CiviCRM Product panel template.
+		// Add "CiviCRM Settings" panel template.
 		add_action( 'woocommerce_product_data_panels', [ $this, 'panels_add' ], 20 );
 
-		// Save metadata from the Custom Product "CiviCRM Settings" Tab.
+		// Save metadata from the "CiviCRM Settings" Tab.
 		add_action( 'woocommerce_admin_process_product_object', [ $this, 'panel_saved' ], 50 );
 
-		// Clear meta data from the "CiviCRM Settings" Product Tab.
-		add_action( 'wpcv_woo_civi/product/panel/saved', [ $this, 'panel_clear_meta' ], 50 );
+		// Clear meta data from the "CiviCRM Settings" Tab.
+		add_action( 'wpcv_woo_civi/product/panel/saved/before', [ $this, 'panel_clear_meta' ], 50 );
+		add_action( 'wpcv_woo_civi/product/variable/saved/before', [ $this, 'panel_clear_meta' ], 50 );
 
 		// Re-enable the "General" panel.
 		add_action( 'woocommerce_product_options_general_product_data', [ $this, 'panel_general_enable' ] );
 		add_action( 'admin_footer', [ $this, 'panel_general_enable_js' ] );
 
+		// Determine if the Line Item should be skipped.
+		add_filter( 'wpcv_woo_civi/products/line_item/skip', [ $this, 'line_item_skip' ], 30, 5 );
+
 		// Filter the Line Item.
 		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_filter' ], 50, 5 );
 
 		// Get the Entity Type of a Custom Product Type.
-		add_filter( 'wpcv_woo_civi/product/query/entity_type', [ $this, 'entity_type_get' ], 20, 2 );
+		add_filter( 'wpcv_woo_civi/product/query/entity_type', [ $this, 'entity_type_get' ], 30, 3 );
 
-		// Get the Financial Type ID from WooCommerce Product meta.
-		add_filter( 'wpcv_woo_civi/product/query/financial_type_id', [ $this, 'financial_type_id_get' ], 20, 2 );
+		// Get the Financial Type ID of a Custom Product Type.
+		add_filter( 'wpcv_woo_civi/product/query/financial_type_id', [ $this, 'financial_type_id_get' ], 30, 3 );
 
-		// Get the Price Field Value ID from WooCommerce Product meta.
-		add_filter( 'wpcv_woo_civi/product/query/pfv_id', [ $this, 'pfv_id_get' ], 20, 2 );
+		// Save the Financial Type ID of a Custom Product Type.
+		add_action( 'wpcv_woo_civi/product/save/financial_type_id', [ $this, 'financial_type_id_save' ], 30, 2 );
+
+		// Get the Price Field Value ID from Product meta.
+		add_filter( 'wpcv_woo_civi/product/query/pfv_id', [ $this, 'pfv_id_get' ], 30, 3 );
 
 		// Ensure Custom Product Types have "Add to Cart" button.
 		foreach ( $this->product_names as $type => $name ) {
 			add_action( "woocommerce_{$type}_add_to_cart", [ $this, 'buttons_add' ] );
 		}
 
+		// Filter the Product Type options to exclude Custom Product Types.
+		add_filter( 'wpcv_woo_civi/product_types/get/options', [ $this, 'product_types_filter' ], 30 );
+
 	}
 
 	/**
-	 * Adds the CiviCRM Product Types to WooCommerce.
+	 * Adds the Custom Product Types to WooCommerce.
 	 *
 	 * @since 3.0
 	 *
@@ -247,6 +328,10 @@ class WPCV_Woo_Civi_Products_Custom {
 				$tabs['woocommerce_civicrm']['class'][] = 'hide_if_' . $type;
 			}
 
+			if ( ! empty( $tabs['civicrm_variable'] ) ) {
+				$tabs['civicrm_variable']['class'][] = 'hide_if_' . $type;
+			}
+
 		}
 
 		return $tabs;
@@ -254,7 +339,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	}
 
 	/**
-	 * Includes the CiviCRM Settings panels on the New & Edit Product screens.
+	 * Includes the "CiviCRM Settings" panels on the New & Edit Product screens.
 	 *
 	 * @since 3.0
 	 */
@@ -373,18 +458,27 @@ class WPCV_Woo_Civi_Products_Custom {
 	 */
 	public function panel_saved( $product ) {
 
-		// Clear the current metadata in case the Product Type has changed.
-		foreach ( $this->product_types_meta as $type => $meta ) {
-			foreach ( $meta as $code => $meta_key ) {
-				$product->delete_meta_data( $meta_key );
-			}
-		}
-
 		// Bail if not one of our Product Types.
 		$product_type = $product->get_type();
 		if ( ! array_key_exists( $product_type, $this->product_types_meta ) ) {
 			return;
 		}
+
+		/**
+		 * Fires before the settings from the "CiviCRM Settings" Product Tab have been saved.
+		 *
+		 * Used internally by:
+		 *
+		 * * WPCV_Woo_Civi_Settings_Products::panel_clear_meta() (Priority: 10)
+		 * * WPCV_Woo_Civi_Membership::panel_clear_meta() (Priority: 20)
+		 * * WPCV_Woo_Civi_Participant::panel_clear_meta() (Priority: 30)
+		 * * WPCV_Woo_Civi_Products_Variable::panel_clear_meta() (Priority: 40)
+		 *
+		 * @since 3.0
+		 *
+		 * @param WC_Product $product The Product object.
+		 */
+		do_action( 'wpcv_woo_civi/product/custom/panel/saved/before', $product );
 
 		// Save relevant metadata for this Product Type.
 		foreach ( $this->product_types_meta[ $product_type ] as $code => $meta_key ) {
@@ -395,34 +489,28 @@ class WPCV_Woo_Civi_Products_Custom {
 		}
 
 		/**
-		 * Fires when the settings from the Custom Product "CiviCRM Settings" Tab have been saved.
+		 * Fires after the settings from the Custom Product "CiviCRM Settings" Tab have been saved.
 		 *
 		 * Dynamic action to target a specific Custom Product Type, e.g.
 		 *
-		 * * wpcv_woo_civi/product/civicrm_contribution/panel/saved
-		 * * wpcv_woo_civi/product/civicrm_membership/panel/saved
-		 * * wpcv_woo_civi/product/civicrm_participant/panel/saved
+		 * * wpcv_woo_civi/product/civicrm_contribution/panel/saved/after
+		 * * wpcv_woo_civi/product/civicrm_membership/panel/saved/after
+		 * * wpcv_woo_civi/product/civicrm_participant/panel/saved/after
 		 *
 		 * @since 3.0
 		 *
 		 * @param WC_Product $product The Product object.
 		 */
-		do_action( 'wpcv_woo_civi/product/' . $product_type . '/panel/saved', $product );
+		do_action( 'wpcv_woo_civi/product/' . $product_type . '/panel/saved/after', $product );
 
 		/**
-		 * Fires when the settings from the "CiviCRM Settings" Product Tab have been saved.
-		 *
-		 * Used internally by:
-		 *
-		 * * WPCV_Woo_Civi_Products::panel_clear_meta() (Priority: 10)
-		 * * WPCV_Woo_Civi_Membership::panel_clear_meta() (Priority: 20)
-		 * * WPCV_Woo_Civi_Participant::panel_clear_meta() (Priority: 30)
+		 * Fires after the settings from the "CiviCRM Settings" Product Tab have been saved.
 		 *
 		 * @since 3.0
 		 *
 		 * @param WC_Product $product The Product object.
 		 */
-		do_action( 'wpcv_woo_civi/product/custom/panel/saved', $product );
+		do_action( 'wpcv_woo_civi/product/custom/panel/saved/after', $product );
 
 	}
 
@@ -462,95 +550,28 @@ class WPCV_Woo_Civi_Products_Custom {
 	}
 
 	/**
-	 * Gets the Entity Type from WooCommerce Product meta.
-	 *
-	 * @since 3.0
-	 *
-	 * @param str $entity_type The possibly found Entity Type.
-	 * @param int $product_id The Product ID.
-	 * @return str $entity_type The found Entity Type, passed through otherwise.
-	 */
-	public function entity_type_get( $entity_type, $product_id ) {
-
-		// Pass through if already found.
-		if ( $entity_type !== '' ) {
-			return $entity_type;
-		}
-
-		// Pass through if Product not found.
-		$product = wc_get_product( $product_id );
-		if ( empty( $product ) ) {
-			return $entity_type;
-		}
-
-		// Pass through if not one of our Product Types.
-		$product_type = $product->get_type();
-		if ( ! array_key_exists( $product_type, $this->product_types_meta ) ) {
-			return $entity_type;
-		}
-
-		// The Product Type is the same as the Entity Type.
-		return $product_type;
-
-	}
-
-	/**
-	 * Gets the Financial Type ID from WooCommerce Product meta.
-	 *
-	 * @since 3.0
-	 *
-	 * @param int $financial_type_id The possibly found Financial Type ID.
-	 * @param int $product_id The Product ID.
-	 * @return int $financial_type_id The found Financial Type ID, passed through otherwise.
-	 */
-	public function financial_type_id_get( $financial_type_id, $product_id ) {
-
-		// Pass through if already found.
-		if ( $financial_type_id !== 0 ) {
-			return $financial_type_id;
-		}
-
-		// Pass through if Product not found.
-		$product = wc_get_product( $product_id );
-		if ( empty( $product ) ) {
-			return $financial_type_id;
-		}
-
-		// Pass through if not one of our Product Types.
-		$product_type = $product->get_type();
-		if ( ! array_key_exists( $product_type, $this->product_types_meta ) ) {
-			return $financial_type_id;
-		}
-
-		// Return the Financial Type ID if found.
-		$product_financial_type_id = $this->get_meta( $product_id, $product_type, 'financial_type_id' );
-		if ( ! empty( $product_financial_type_id ) ) {
-			return $product_financial_type_id;
-		}
-
-		// Not found.
-		return 0;
-
-	}
-
-	/**
-	 * Gets the Price Field Value ID from WooCommerce Product meta.
+	 * Gets the Price Field Value ID from Product meta.
 	 *
 	 * @since 3.0
 	 *
 	 * @param int $pfv_id The possibly found Price Field Value ID.
 	 * @param int $product_id The Product ID.
+	 * @param object $product The WooCommerce Product object.
 	 * @return int $pfv_id The found Price Field Value ID, passed through otherwise.
 	 */
-	public function pfv_id_get( $pfv_id, $product_id ) {
+	public function pfv_id_get( $pfv_id, $product_id, $product = null ) {
 
 		// Pass through if already found.
 		if ( $pfv_id !== 0 ) {
 			return $pfv_id;
 		}
 
+		// Get the Product if not supplied.
+		if ( empty( $product ) ) {
+			$product = wc_get_product( $product_id );
+		}
+
 		// Pass through if Product not found.
-		$product = wc_get_product( $product_id );
 		if ( empty( $product ) ) {
 			return $pfv_id;
 		}
@@ -573,7 +594,24 @@ class WPCV_Woo_Civi_Products_Custom {
 	}
 
 	/**
-	 * Gets the metadata from WooCommerce Product meta.
+	 * Gets the requested meta key for the Custom Product Type.
+	 *
+	 * This method does not check for the existence of an entry in the array
+	 * because it needs to be called correctly and will produce log entries
+	 * when it is not.
+	 *
+	 * @since 3.0
+	 *
+	 * @param str $type The name of the Custom Product Type.
+	 * @param str $key The shorthand for the meta key.
+	 * @return str The requested meta key.
+	 */
+	public function get_meta_key( $type, $key ) {
+		return $this->product_types_meta[ $type ][ $key ];
+	}
+
+	/**
+	 * Gets the metadata from Product meta.
 	 *
 	 * @since 3.0
 	 *
@@ -591,7 +629,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	}
 
 	/**
-	 * Sets the metadata on a WooCommerce Product.
+	 * Sets the metadata on a Product.
 	 *
 	 * @since 3.0
 	 *
@@ -607,20 +645,26 @@ class WPCV_Woo_Civi_Products_Custom {
 	}
 
 	/**
-	 * Gets the requested meta key for the Product Type.
-	 *
-	 * This method does not check for the existence of an entry in the array
-	 * because it needs to be called correctly and will produce log entries
-	 * when it is not.
+	 * Determines if a Line Item should be skipped.
 	 *
 	 * @since 3.0
 	 *
-	 * @param str $type The name of the WooCommerce Product Type.
-	 * @param str $key The shorthand for the meta key.
-	 * @return str The requested meta key.
+	 * @param bool $skip The possibly set "skip" flag.
+	 * @param object $item The WooCommerce Item object.
+	 * @param object $product The WooCommerce Product object.
+	 * @param string $product_type The WooCommerce Product Type.
+	 * @param string $entity The mapped CiviCRM Entity.
+	 * @return bool $skip The determined "skip" flag.
 	 */
-	public function get_meta_key( $type, $key ) {
-		return $this->product_types_meta[ $type ][ $key ];
+	public function line_item_skip( $skip, $item, $product, $product_type, $entity ) {
+
+		// Our Custom Product Types always sync.
+		if ( array_key_exists( $product_type, $this->product_types_meta ) ) {
+			$skip = false;
+		}
+
+		return $skip;
+
 	}
 
 	/**
@@ -661,7 +705,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	}
 
 	/**
-	 * Filters a Line Item to add a Contribution Type.
+	 * Filters a Line Item to add a Contribution.
 	 *
 	 * @since 3.0
 	 *
@@ -731,7 +775,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	}
 
 	/**
-	 * Filters a Line Item to add a Membership Type.
+	 * Filters a Line Item to add a Membership.
 	 *
 	 * This method is a modified clone of the global Membership Line Item filter
 	 * except that the source of the data is the Custom Product Type.
@@ -866,6 +910,135 @@ class WPCV_Woo_Civi_Products_Custom {
 		$line_item = WPCV_WCI()->participant->line_item_populate( $line_item, $args );
 
 		return $line_item;
+
+	}
+
+	/**
+	 * Gets the Entity Type from Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param str $entity_type The possibly found Entity Type.
+	 * @param int $product_id The Product ID.
+	 * @param object $product The WooCommerce Product object.
+	 * @return str $entity_type The found Entity Type, passed through otherwise.
+	 */
+	public function entity_type_get( $entity_type, $product_id, $product = null ) {
+
+		// Pass through if already found.
+		if ( $entity_type !== '' ) {
+			return $entity_type;
+		}
+
+		// Get the Product if not supplied.
+		if ( empty( $product ) ) {
+			$product = wc_get_product( $product_id );
+		}
+
+		// Pass through if Product not found.
+		if ( empty( $product ) ) {
+			return $entity_type;
+		}
+
+		// Pass through if not one of our Product Types.
+		$product_type = $product->get_type();
+		if ( ! array_key_exists( $product_type, $this->product_types_meta ) ) {
+			return $entity_type;
+		}
+
+		// The Product Type is the same as the Entity Type.
+		return $product_type;
+
+	}
+
+	/**
+	 * Gets the Financial Type ID from Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $financial_type_id The possibly found Financial Type ID.
+	 * @param int $product_id The Product ID.
+	 * @param object $product The WooCommerce Product object.
+	 * @return int $financial_type_id The found Financial Type ID, passed through otherwise.
+	 */
+	public function financial_type_id_get( $financial_type_id, $product_id, $product = null ) {
+
+		// Pass through if already found.
+		if ( $financial_type_id !== 0 ) {
+			return $financial_type_id;
+		}
+
+		// Get the Product if not supplied.
+		if ( empty( $product ) ) {
+			$product = wc_get_product( $product_id );
+		}
+
+		// Pass through if Product not found.
+		if ( empty( $product ) ) {
+			return $financial_type_id;
+		}
+
+		// Pass through if not one of our Product Types.
+		$product_type = $product->get_type();
+		if ( ! array_key_exists( $product_type, $this->product_types_meta ) ) {
+			return $financial_type_id;
+		}
+
+		// Return the Financial Type ID if found.
+		$product_financial_type_id = $this->get_meta( $product_id, $product_type, 'financial_type_id' );
+		if ( ! empty( $product_financial_type_id ) ) {
+			return $product_financial_type_id;
+		}
+
+		// Not found.
+		return 0;
+
+	}
+
+	/**
+	 * Saves the Financial Type ID to WooCommerce Product meta.
+	 *
+	 * @since 3.0
+	 *
+	 * @param object $product The WooCommerce Product object.
+	 * @param int $financial_type_id The Financial Type ID.
+	 */
+	public function financial_type_id_save( $product, $financial_type_id ) {
+
+		// Bail if no Product passed in.
+		if ( empty( $product ) ) {
+			return;
+		}
+
+		// Bail if not a Custom Product Type.
+		$product_type = $product->get_type();
+		if ( ! array_key_exists( $product_type, $this->product_types_meta ) ) {
+			return;
+		}
+
+		// Save Financial Type ID to meta.
+		$this->set_meta( $product->get_id(), $product_type, 'financial_type_id', $financial_type_id );
+
+	}
+
+	/**
+	 * Filters the Product Type options to exclude Custom Product Types.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $product_types The existing array of WooCommerce Product Types.
+	 * @return array $product_types The modified array of WooCommerce Product Types.
+	 */
+	public function product_types_filter( $product_types ) {
+
+		// Remove the Custom Product Types.
+		foreach ( $this->product_names as $type => $name ) {
+			if ( array_key_exists( $type, $product_types ) ) {
+				unset( $product_types[ $type ] );
+			}
+		}
+
+		return $product_types;
 
 	}
 
