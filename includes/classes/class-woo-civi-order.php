@@ -246,7 +246,7 @@ class WPCV_Woo_Civi_Order {
 			WPCV_WCI()->contribution->payment_create( $order_id, $order );
 		} else {
 			// No - just set the status of the Contribution.
-			WPCV_WCI()->contribution->status_update( $order_id, $new_status_id );
+			WPCV_WCI()->contribution->status_update( $order_id, $order, $new_status_id );
 		}
 
 	}

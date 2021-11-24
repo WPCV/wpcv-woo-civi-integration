@@ -873,9 +873,9 @@ class WPCV_Woo_Civi_Contribution {
 		 * @param array $contribution The CiviCRM Contribution data.
 		 * @param int $order_id The WooCommerce Order ID.
 		 * @param object $order The WooCommerce Order object.
-		 * @param string $new_status The new status.
+		 * @param string $new_status_id The numeric ID of the new Status.
 		 */
-		do_action( 'wpcv_woo_civi/contribution/status_update', $contribution, $order );
+		do_action( 'wpcv_woo_civi/contribution/status_update', $contribution, $order_id, $order, $new_status_id );
 
 		// Success.
 		return $contribution;
