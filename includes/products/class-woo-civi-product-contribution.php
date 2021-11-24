@@ -33,10 +33,10 @@ class WC_Product_CiviCRM_Contribution extends WC_Product_Simple {
 	 * @since 3.0
 	 *
 	 * @param WC_Product|int $product Product instance or ID.
+	 */
 	public function __construct( $product = 0 ) {
 		parent::__construct( $product );
 	}
-	 */
 
 	/**
 	 * Gets the internal Product Type name.

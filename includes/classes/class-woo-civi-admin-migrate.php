@@ -611,6 +611,9 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		// Set a stepper key.
 		$key = 'products';
 
+		// Init data.
+		$data = [];
+
 		// If this is an AJAX request, check security.
 		$result = true;
 		if ( wp_doing_ajax() ) {
@@ -787,6 +790,9 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Set a stepper key.
 		$key = 'orders';
+
+		// Init data.
+		$data = [];
 
 		// If this is an AJAX request, check security.
 		$result = true;

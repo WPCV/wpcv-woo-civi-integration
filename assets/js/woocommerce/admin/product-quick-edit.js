@@ -165,6 +165,13 @@
 				$(me.class_entity + ' select').val( entity_type );
 				$(me.class_financial + ' select').val( financial_type_id );
 
+				// Show elements for Variable Products.
+				if ( 'variable' === product_type ) {
+					me.show_section();
+					$(me.class_entity).show();
+					return;
+				}
+
 				// Show elements for our Custom Product Types.
 				if ( 'civicrm_contribution' === product_type ) {
 					me.show_section();
@@ -223,15 +230,21 @@
 				var value = $(this).val(), wc_inline_data, wpcv_inline_data;
 
 				// Get the references to the inline data stores.
-				//wc_inline_data = $('#woocommerce_inline_' + me.post_id);
+				wc_inline_data = $('#woocommerce_inline_' + me.post_id);
 				//wpcv_inline_data = $('#wpcv_woo_civi_inline_' + me.post_id);
 
 				// Get the Product data that we need.
-				//product_type = wc_inline_data.find( '.product_type' ).text();
+				product_type = wc_inline_data.find( '.product_type' ).text();
 				//entity_type = wpcv_inline_data.find( '.entity_type' ).text();
 
 				// Bail if empty or excluding.
 				if ( '' === value || 'civicrm_exclude' === value ) {
+					$(me.class_financial).hide();
+					return;
+				}
+
+				// Bail if Variable Product.
+				if ( 'variable' === product_type ) {
 					$(me.class_financial).hide();
 					return;
 				}

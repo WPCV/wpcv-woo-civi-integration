@@ -129,6 +129,9 @@ class WPCV_Woo_Civi_Settings {
 		// Update settings for this plugin.
 		add_action( 'woocommerce_update_options_woocommerce_civicrm', [ $this, 'fields_update' ] );
 
+		// Always enable CiviCRM Settings panel on Simple Products.
+		add_filter( 'default_option_woocommerce_civicrm_product_types_with_panel', [ $this, 'option_panel_default' ], 10, 3 );
+
 	}
 
 	/**
@@ -173,9 +176,10 @@ class WPCV_Woo_Civi_Settings {
 
 		// Define and combine plugin settings fields.
 		$order_fields = $this->fields_order();
+		$product_fields = $this->fields_product();
 		$address_fields = $this->fields_address();
 		$other_fields = $this->fields_other();
-		$fields = $order_fields + $address_fields + $other_fields;
+		$fields = $order_fields + $product_fields + $address_fields + $other_fields;
 
 		/**
 		 * Filter the plugin fields array.
@@ -199,7 +203,7 @@ class WPCV_Woo_Civi_Settings {
 	 */
 	public function fields_order() {
 
-		// Init Contribution section.
+		// Init Order section.
 		$section_start = [
 			'order_title' => [
 				'title' => __( 'Order settings', 'wpcv-woo-civi-integration' ),
@@ -220,7 +224,7 @@ class WPCV_Woo_Civi_Settings {
 		 */
 		$section_start = apply_filters( 'wpcv_woo_civi/woo_settings/fields/order/title', $section_start );
 
-		// Init General settings.
+		// Init Order settings.
 		$settings = [
 			'pay_later_gateways' => [
 				'title' => __( 'Pay Later Payment Methods', 'wpcv-woo-civi-integration' ),
@@ -253,9 +257,9 @@ class WPCV_Woo_Civi_Settings {
 		];
 
 		/**
-		 * Filter the General settings array.
+		 * Filter the Order settings array.
 		 *
-		 * This can be used to add further General settings.
+		 * This can be used to add further Order settings.
 		 *
 		 * Used internally by:
 		 *
@@ -263,7 +267,7 @@ class WPCV_Woo_Civi_Settings {
 		 *
 		 * @since 3.0
 		 *
-		 * @param array $settings The General settings array.
+		 * @param array $settings The Order settings array.
 		 */
 		$settings = apply_filters( 'wpcv_woo_civi/woo_settings/fields/order/settings', $settings );
 
@@ -286,6 +290,82 @@ class WPCV_Woo_Civi_Settings {
 		 * @param array $fields The Order fields array.
 		 */
 		return apply_filters( 'wpcv_woo_civi/woo_settings/fields/order', $fields );
+
+	}
+
+	/**
+	 * Defines the Product settings fields.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $fields The array of Product settings fields.
+	 */
+	public function fields_product() {
+
+		// Init Product section.
+		$section_start = [
+			'product_title' => [
+				'title' => __( 'Product settings', 'wpcv-woo-civi-integration' ),
+				'type' => 'title',
+				//'desc' => __( 'This plugin needs to know some information to configure WooCommerce Products.', 'wpcv-woo-civi-integration' ),
+				'id' => 'product_title',
+			],
+		];
+
+		// Init Product settings.
+		$settings = [
+			'product_types_with_panel' => [
+				'title' => __( 'Product Types to show CiviCRM Settings on', 'wpcv-woo-civi-integration' ),
+				'type' => 'multiselect',
+				'options' => WPCV_WCI()->helper->get_product_types_options( $raw = false ),
+				'id'   => 'woocommerce_civicrm_product_types_with_panel',
+				'autoload' => false,
+				'desc' => __( 'Select the WooCommerce Product Types to show the CiviCRM Settings panel on.', 'wpcv-woo-civi-integration' ),
+				'class' => 'wc-enhanced-select',
+			],
+		];
+
+		/**
+		 * Filter the Product settings array.
+		 *
+		 * This can be used to add further Product settings.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $settings The Product settings array.
+		 */
+		$settings = apply_filters( 'wpcv_woo_civi/woo_settings/fields/product/settings', $settings );
+
+		/**
+		 * Filter the Product section array.
+		 *
+		 * This can be used to add settings directly after the title.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $section_start The Product section settings array.
+		 */
+		$section_start = apply_filters( 'wpcv_woo_civi/woo_settings/fields/product/title', $section_start );
+
+		// Declare section end.
+		$section_end = [
+			'product_section_end' => [
+				'type' => 'sectionend',
+				'id' => 'product_title',
+			],
+		];
+
+		// Combine these fields.
+		$fields = $section_start + $settings + $section_end;
+
+		/**
+		 * Filter the Product fields array.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $fields The Product fields array.
+		 */
+		return apply_filters( 'wpcv_woo_civi/woo_settings/fields/product', $fields );
 
 	}
 
@@ -520,6 +600,27 @@ class WPCV_Woo_Civi_Settings {
 	 */
 	public function option_delete( $option_name = '' ) {
 		return delete_site_option( $option_name );
+	}
+
+	/**
+	 * Enable CiviCRM Settings panel on Simple Products by default.
+	 *
+	 * @since 3.0
+	 *
+	 * @param mixed $default The default value to return if the option does not exist.
+	 * @param string $option The option name.
+	 * @param bool $passed_default Was `get_option()` passed a default value?
+	 * @return mixed $default The default value when the option does not exist.
+	 */
+	public function option_panel_default( $default, $option, $passed_default ) {
+
+		// Add Simple Product if there's nothing else.
+		if ( empty( $default ) ) {
+			$default = [ 'simple' ];
+		}
+
+		return $default;
+
 	}
 
 	/**

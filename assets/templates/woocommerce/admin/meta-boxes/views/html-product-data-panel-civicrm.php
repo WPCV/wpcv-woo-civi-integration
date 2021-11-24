@@ -47,8 +47,8 @@ defined( 'ABSPATH' ) || exit;
 
 		// Always render the Financial Type select.
 		woocommerce_wp_select( [
-			'id' => WPCV_WCI()->products->meta_key,
-			'name' => WPCV_WCI()->products->meta_key,
+			'id' => WPCV_WCI()->products->financial_type_key,
+			'name' => WPCV_WCI()->products->financial_type_key,
 			'label' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
 			'desc_tip' => 'true',
 			'description' => __( 'The CiviCRM Financial Type for this Product.', 'wpcv-woo-civi-integration' ),

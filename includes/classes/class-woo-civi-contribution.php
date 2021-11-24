@@ -19,6 +19,17 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Contribution {
 
 	/**
+	 * CiviCRM Contribution component status.
+	 *
+	 * True if the CiviContribute component is active, false by default.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var array $active The status of the CiviContribute component.
+	 */
+	public $active = false;
+
+	/**
 	 * WooCommerce Order meta key holding the CiviCRM Contribution ID.
 	 *
 	 * @since 3.0
@@ -45,7 +56,15 @@ class WPCV_Woo_Civi_Contribution {
 	 * @since 3.0
 	 */
 	public function initialise() {
+
+		// Bail early if the CiviContribute component is not active.
+		$this->active = WPCV_WCI()->helper->is_component_enabled( 'CiviContribute' );
+		if ( ! $this->active ) {
+			return;
+		}
+
 		$this->register_hooks();
+
 	}
 
 	/**
@@ -873,9 +892,9 @@ class WPCV_Woo_Civi_Contribution {
 		 * @param array $contribution The CiviCRM Contribution data.
 		 * @param int $order_id The WooCommerce Order ID.
 		 * @param object $order The WooCommerce Order object.
-		 * @param string $new_status The new status.
+		 * @param string $new_status_id The numeric ID of the new Status.
 		 */
-		do_action( 'wpcv_woo_civi/contribution/status_update', $contribution, $order );
+		do_action( 'wpcv_woo_civi/contribution/status_update', $contribution, $order_id, $order, $new_status_id );
 
 		// Success.
 		return $contribution;

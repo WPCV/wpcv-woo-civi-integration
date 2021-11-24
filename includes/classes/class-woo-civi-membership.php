@@ -91,10 +91,14 @@ class WPCV_Woo_Civi_Membership {
 		add_action( 'wpcv_woo_civi/product/panel/civicrm/after', [ $this, 'panel_add_markup' ] );
 
 		// Save Membership Type on the "CiviCRM Settings" Product Tab.
-		add_action( 'wpcv_woo_civi/product/panel/saved', [ $this, 'panel_saved' ] );
+		add_action( 'wpcv_woo_civi/product/panel/saved/after', [ $this, 'panel_saved' ] );
 
 		// Clear meta data from the "CiviCRM Settings" Product Tab.
-		add_action( 'wpcv_woo_civi/product/custom/panel/saved', [ $this, 'panel_clear_meta' ], 20 );
+		add_action( 'wpcv_woo_civi/product/variable/panel/saved/before', [ $this, 'panel_clear_meta' ], 20 );
+		add_action( 'wpcv_woo_civi/product/custom/panel/saved/before', [ $this, 'panel_clear_meta' ], 20 );
+
+		// Add Membership Type to the Product Variation "CiviCRM Settings".
+		add_action( 'wpcv_woo_civi/product/variation/block/middle', [ $this, 'attributes_add_markup' ], 10, 4 );
 
 		// Add Membership data to the Product "Bulk Edit" and "Quick Edit" markup.
 		//add_action( 'wpcv_woo_civi/product/bulk_edit/after', [ $this, 'bulk_edit_add_markup' ] );
@@ -610,6 +614,50 @@ class WPCV_Woo_Civi_Membership {
 
 		</div>
 		<?php
+
+	}
+
+	/**
+	 * Adds Membership to the Product Variation "CiviCRM Settings".
+	 *
+	 * @since 3.0
+	 *
+	 * @param int $loop The position in the loop.
+	 * @param array $variation_data The Product Variation data.
+	 * @param WP_Post $variation The WordPress Post data.
+	 * @param string $entity The CiviCRM Entity that this Product Variation is mapped to.
+	 */
+	public function attributes_add_markup( $loop, $variation_data, $variation, $entity ) {
+
+		// TODO: We nay still want to include these for Product Type switching.
+
+		// Bail if this is not a CiviCRM Membership.
+		if ( $entity !== 'civicrm_membership' ) {
+			return;
+		}
+
+		// Get the meta key.
+		$type_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'type_id' );
+
+		// Build Membership Types options array.
+		$membership_types = [
+			'' => __( 'Select a Membership Type', 'wpcv-woo-civi-integration' ),
+		] + WPCV_WCI()->membership->get_membership_types_options();
+
+		// Get the Participant Role ID.
+		$role_id = WPCV_WCI()->products_variable->get_meta( $variation->ID, $entity, 'role_id' );
+
+		// Show Participant Role.
+		woocommerce_wp_select( [
+			'id' => $type_key,
+			'name' => $type_key,
+			'value' => $type_id,
+			'label' => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
+			'desc_tip' => 'true',
+			'description' => __( 'Select a Membership Type if you would like this Product Variation to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
+			'wrapper_class' => 'form-row form-row-full variable_civicrm_type_id',
+			'options' => $membership_types,
+		] );
 
 	}
 
