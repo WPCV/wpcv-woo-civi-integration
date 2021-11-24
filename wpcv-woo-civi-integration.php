@@ -35,6 +35,15 @@ class WPCV_Woo_Civi {
 	private static $instance;
 
 	/**
+	 * The Migrate object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $migrate The Migrate object.
+	 */
+	public $migrate;
+
+	/**
 	 * The Helper object.
 	 *
 	 * @since 2.0
