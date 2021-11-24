@@ -44,6 +44,15 @@ class WPCV_Woo_Civi {
 	public $migrate;
 
 	/**
+	 * The Admin object.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $admin The Admin object.
+	 */
+	public $admin;
+
+	/**
 	 * The Helper object.
 	 *
 	 * @since 2.0
@@ -302,6 +311,9 @@ class WPCV_Woo_Civi {
 	 */
 	private function include_files() {
 
+		// Include Admin class.
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-admin.php';
+
 		// Include Helper class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-helper.php';
 
@@ -338,6 +350,9 @@ class WPCV_Woo_Civi {
 	 * @since 2.0
 	 */
 	public function setup_objects() {
+
+		// Init Admin object.
+		$this->admin = new WPCV_Woo_Civi_Admin();
 
 		// Init helper object.
 		$this->helper = new WPCV_Woo_Civi_Helper();
