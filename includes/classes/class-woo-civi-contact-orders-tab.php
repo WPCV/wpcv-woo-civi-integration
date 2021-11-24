@@ -111,66 +111,8 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 	 */
 	public function register_hooks() {
 
-		// Register custom PHP directory.
-		add_action( 'civicrm_config', [ $this, 'register_custom_php_directory' ], 10, 1 );
-		// Register custom template directory.
-		add_action( 'civicrm_config', [ $this, 'register_custom_template_directory' ], 10, 1 );
-		// Register menu callback.
-		add_filter( 'civicrm_xmlMenu', [ $this, 'register_callback' ], 10, 1 );
 		// Add CiviCRM settings tab.
 		add_filter( 'civicrm_tabset', [ $this, 'add_orders_contact_tab' ], 10, 3 );
-
-	}
-
-	/**
-	 * Register PHP directory.
-	 *
-	 * @since 2.0
-	 *
-	 * @param object $config The CiviCRM config object.
-	 */
-	public function register_custom_php_directory( &$config ) {
-
-		$this->fix_site();
-		$custom_path = WPCV_WOO_CIVI_PATH . 'assets/civicrm/custom_php';
-		$include_path = $custom_path . PATH_SEPARATOR . get_include_path();
-		// phpcs:ignore
-		set_include_path( $include_path );
-		$this->unfix_site();
-
-	}
-
-	/**
-	 * Register template directory.
-	 *
-	 * @since 2.0
-	 *
-	 * @param object $config The CiviCRM config object.
-	 */
-	public function register_custom_template_directory( &$config ) {
-
-		$this->fix_site();
-		$custom_path = WPCV_WOO_CIVI_PATH . 'assets/civicrm/custom_tpl';
-		$template = CRM_Core_Smarty::singleton()->addTemplateDir( $custom_path );
-		$include_template_path = $custom_path . PATH_SEPARATOR . get_include_path();
-		// phpcs:ignore
-		set_include_path( $include_template_path );
-		$this->unfix_site();
-
-	}
-
-	/**
-	 * Register XML file.
-	 *
-	 * @since 2.0
-	 *
-	 * @param array $files The array for files used to build the menu.
-	 */
-	public function register_callback( &$files ) {
-
-		$this->fix_site();
-		$files[] = WPCV_WOO_CIVI_PATH . 'assets/civicrm/xml/menu.xml';
-		$this->unfix_site();
 
 	}
 

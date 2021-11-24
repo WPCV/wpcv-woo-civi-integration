@@ -194,6 +194,9 @@ class WPCV_Woo_Civi {
 			// Always define constants.
 			self::define_constants();
 
+			// Register CiviCRM configuration.
+			self::register_config_hooks();
+
 			// Enable translation first.
 			add_action( 'plugins_loaded', [ self::$instance, 'enable_translation' ] );
 
@@ -419,6 +422,80 @@ class WPCV_Woo_Civi {
 		CRM_Core_Config::clearDBCache();
 		CRM_Utils_System::flushCache();
 
+	}
+
+	/**
+	 * Register CiviCRM hooks early.
+	 *
+	 * These callbacks need to be registered as early as possible because we do
+	 * not know how early other plugins may try and bootstrap CiviCRM.
+	 *
+	 * @since 3.0
+	 */
+	public static function register_config_hooks() {
+
+		// Register custom PHP directory.
+		add_action( 'civicrm_config', [ self::$instance, 'register_custom_php_directory' ], 10 );
+
+		// Register custom template directory.
+		add_action( 'civicrm_config', [ self::$instance, 'register_custom_template_directory' ], 10 );
+
+		// Register menu callback.
+		add_filter( 'civicrm_xmlMenu', [ self::$instance, 'register_menu_callback' ], 10 );
+
+	}
+
+	/**
+	 * Register PHP directory.
+	 *
+	 * @since 2.0
+	 *
+	 * @param object $config The CiviCRM config object.
+	 */
+	public function register_custom_php_directory( &$config ) {
+
+		// Define our custom path.
+		$custom_path = WPCV_WOO_CIVI_PATH . 'assets/civicrm/custom_php';
+
+		// Add to include path.
+		$include_path = $custom_path . PATH_SEPARATOR . get_include_path();
+		// phpcs:ignore
+		set_include_path( $include_path );
+
+	}
+
+	/**
+	 * Register template directory.
+	 *
+	 * @since 2.0
+	 *
+	 * @param object $config The CiviCRM config object.
+	 */
+	public function register_custom_template_directory( &$config ) {
+
+		// Get template instance.
+		$template = CRM_Core_Smarty::singleton();
+
+		// Add our custom template directory.
+		$custom_path = WPCV_WOO_CIVI_PATH . 'assets/civicrm/custom_tpl';
+		$template->addTemplateDir( $custom_path );
+
+		// Add to include path.
+		$template_include_path = $custom_path . PATH_SEPARATOR . get_include_path();
+		// phpcs:ignore
+		set_include_path( $template_include_path );
+
+	}
+
+	/**
+	 * Register XML file.
+	 *
+	 * @since 2.0
+	 *
+	 * @param array $files The array for files used to build the menu.
+	 */
+	public function register_menu_callback( &$files ) {
+		$files[] = WPCV_WOO_CIVI_PATH . 'assets/civicrm/xml/menu.xml';
 	}
 
 	/**
