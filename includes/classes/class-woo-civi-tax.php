@@ -117,8 +117,8 @@ class WPCV_Woo_Civi_Tax {
 		// TODO: Review when float issues are resolved.
 		return $params;
 
-		// Ensure number format is CiviCRM-compliant.
-		$params['tax_amount'] = WPCV_WCI()->helper->get_civicrm_float( $total_tax );
+		// Assign Tax to CiviCRM API params.
+		$params['tax_amount'] = $total_tax;
 
 		/*
 		 * Some notes on overriding the Financial Type.
@@ -205,7 +205,7 @@ class WPCV_Woo_Civi_Tax {
 		// Grab the Line Item data.
 		$line_item_data = array_pop( $line_item['line_item'] );
 
-		$line_item_data['tax_amount'] = WPCV_WCI()->helper->get_civicrm_float( $item->get_total_tax() );
+		$line_item_data['tax_amount'] = $item->get_total_tax();
 
 		// Apply Tax to Line Item.
 		$line_item = [

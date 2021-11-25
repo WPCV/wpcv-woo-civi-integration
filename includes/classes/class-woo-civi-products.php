@@ -259,11 +259,11 @@ class WPCV_Woo_Civi_Products {
 			$line_item_data = [
 				'entity_table' => 'civicrm_contribution',
 				'price_field_id' => $default_price_field_id,
-				'unit_price' => WPCV_WCI()->helper->get_civicrm_float( $product->get_price() ),
+				'unit_price' => $product->get_price(),
 				'qty' => $item->get_quantity(),
 				// The "line_total" must equal the unit_price × qty.
-				'line_total' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total() ),
-				'tax_amount' => WPCV_WCI()->helper->get_civicrm_float( $item->get_total_tax() ),
+				'line_total' => $item->get_total(),
+				'tax_amount' => $item->get_total_tax(),
 				'label' => $product->get_name(),
 			];
 
@@ -472,8 +472,7 @@ class WPCV_Woo_Civi_Products {
 			$shipping_cost = 0;
 		}
 
-		// Ensure number format is CiviCRM-compliant.
-		$shipping_cost = WPCV_WCI()->helper->get_civicrm_float( $shipping_cost );
+		// Bail if no Shipping.
 		if ( ! ( floatval( $shipping_cost ) > 0 ) ) {
 			return $params;
 		}

@@ -577,7 +577,7 @@ class WPCV_Woo_Civi_Contribution {
 		 *
 		 * @see https://lab.civicrm.org/dev/financial/-/issues/189
 		 */
-		//$params['total_amount'] = WPCV_WCI()->helper->get_civicrm_float( $order->get_total() );
+		//$params['total_amount'] = $order->get_total();
 
 		/**
 		 * Filter the Order params before calling the CiviCRM API.
@@ -674,7 +674,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		$params = [
 			'contribution_id' => $contribution['id'],
-			'total_amount' => WPCV_WCI()->helper->get_civicrm_float( $order->get_total() ),
+			'total_amount' => $order->get_total(),
 			'trxn_date' => $order->get_date_paid()->date( 'Y-m-d H:i:s' ),
 			/* translators: %d: The numeric ID of the WooCommerce Order */
 			'trxn_id' => sprintf( __( 'WooCommerce Order - %d', 'wpcv-woo-civi-integration' ), (int) $order_id ),
