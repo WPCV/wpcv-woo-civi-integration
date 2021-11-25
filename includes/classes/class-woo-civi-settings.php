@@ -132,6 +132,9 @@ class WPCV_Woo_Civi_Settings {
 		// Always enable CiviCRM Settings panel on Simple Products.
 		add_filter( 'default_option_woocommerce_civicrm_product_types_with_panel', [ $this, 'option_panel_default' ], 10, 3 );
 
+		// Use the "Individual" CiviCRM Contact Type by default.
+		add_filter( 'default_option_woocommerce_civicrm_contact_type', [ $this, 'option_contact_type_default' ], 10, 3 );
+
 	}
 
 	/**
@@ -177,9 +180,10 @@ class WPCV_Woo_Civi_Settings {
 		// Define and combine plugin settings fields.
 		$order_fields = $this->fields_order();
 		$product_fields = $this->fields_product();
+		$contact_fields = $this->fields_contact();
 		$address_fields = $this->fields_address();
 		$other_fields = $this->fields_other();
-		$fields = $order_fields + $product_fields + $address_fields + $other_fields;
+		$fields = $order_fields + $product_fields + $contact_fields + $address_fields + $other_fields;
 
 		/**
 		 * Filter the plugin fields array.
@@ -366,6 +370,95 @@ class WPCV_Woo_Civi_Settings {
 		 * @param array $fields The Product fields array.
 		 */
 		return apply_filters( 'wpcv_woo_civi/woo_settings/fields/product', $fields );
+
+	}
+
+	/**
+	 * Defines the Contact settings fields.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $fields The array of Contact settings fields.
+	 */
+	public function fields_contact() {
+
+		// Init Contact section.
+		$section_start = [
+			'contact_title' => [
+				'title' => __( 'Contact settings', 'wpcv-woo-civi-integration' ),
+				'type' => 'title',
+				//'desc' => __( 'This plugin needs to know some information to configure WooCommerce Contacts.', 'wpcv-woo-civi-integration' ),
+				'id' => 'contact_title',
+			],
+		];
+
+		// Init Contact settings.
+		$settings = [
+			'dedupe_rule' => [
+				'title' => __( 'Dedupe Rule', 'wpcv-woo-civi-integration' ),
+				'type' => 'select_optgroup',
+				'desc' => __( 'Select the Dedupe Rule to use when matching Users to Contacts.', 'wpcv-woo-civi-integration' ),
+				'options' => WPCV_WCI()->contact->dedupe_rules_get(),
+				'id'   => 'woocommerce_civicrm_dedupe_rule',
+			],
+			'contact_type' => [
+				'title' => __( 'Contact Type', 'wpcv-woo-civi-integration' ),
+				'type' => 'select_optgroup',
+				'desc' => __( 'Select the type of Contact that is created when an Order is processed.', 'wpcv-woo-civi-integration' ),
+				'options' => WPCV_WCI()->contact->types_get(),
+				'id'   => 'woocommerce_civicrm_contact_type',
+			],
+			'contact_subtype' => [
+				'title' => __( 'Contact Sub-type', 'wpcv-woo-civi-integration' ),
+				'type' => 'select_optgroup',
+				/* translators: %1$s: Opening anchor tag, %2$s: Closing anchor tag */
+				'desc' => sprintf( __( 'Select the Contact Sub-type that is created when an Order is processed. Leave this set to "No Sub-type selected" if you do not want new Contacts to have a Sub-type. Tip: you can manage your %1$sContact Sub-types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/options/subtype', 'reset=1' ) . '">', '</a>' ),
+				'options' => WPCV_WCI()->contact->subtypes_get_options(),
+				'id'   => 'woocommerce_civicrm_contact_subtype',
+			],
+		];
+
+		/**
+		 * Filter the Contact settings array.
+		 *
+		 * This can be used to add further Contact settings.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $settings The Contact settings array.
+		 */
+		$settings = apply_filters( 'wpcv_woo_civi/woo_settings/fields/contact/settings', $settings );
+
+		/**
+		 * Filter the Contact section array.
+		 *
+		 * This can be used to add settings directly after the title.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $section_start The Contact section settings array.
+		 */
+		$section_start = apply_filters( 'wpcv_woo_civi/woo_settings/fields/contact/title', $section_start );
+
+		// Declare section end.
+		$section_end = [
+			'contact_section_end' => [
+				'type' => 'sectionend',
+				'id' => 'contact_title',
+			],
+		];
+
+		// Combine these fields.
+		$fields = $section_start + $settings + $section_end;
+
+		/**
+		 * Filter the Contact fields array.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $fields The Contact fields array.
+		 */
+		return apply_filters( 'wpcv_woo_civi/woo_settings/fields/contact', $fields );
 
 	}
 
@@ -617,6 +710,27 @@ class WPCV_Woo_Civi_Settings {
 		// Add Simple Product if there's nothing else.
 		if ( empty( $default ) ) {
 			$default = [ 'simple' ];
+		}
+
+		return $default;
+
+	}
+
+	/**
+	 * Use the "Individual" CiviCRM Contact Type by default.
+	 *
+	 * @since 3.0
+	 *
+	 * @param mixed $default The default value to return if the option does not exist.
+	 * @param string $option The option name.
+	 * @param bool $passed_default Was `get_option()` passed a default value?
+	 * @return mixed $default The default value when the option does not exist.
+	 */
+	public function option_contact_type_default( $default, $option, $passed_default ) {
+
+		// Use "Individual" if there's nothing else.
+		if ( empty( $default ) ) {
+			$default = 'Individual';
 		}
 
 		return $default;
