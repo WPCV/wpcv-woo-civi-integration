@@ -394,17 +394,10 @@ class WPCV_Woo_Civi_Settings {
 
 		// Init Contact settings.
 		$settings = [
-			'dedupe_rule' => [
-				'title' => __( 'Dedupe Rule', 'wpcv-woo-civi-integration' ),
-				'type' => 'select_optgroup',
-				'desc' => __( 'Select the Dedupe Rule to use when matching Users to Contacts.', 'wpcv-woo-civi-integration' ),
-				'options' => WPCV_WCI()->contact->dedupe_rules_get(),
-				'id'   => 'woocommerce_civicrm_dedupe_rule',
-			],
 			'contact_type' => [
 				'title' => __( 'Contact Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select_optgroup',
-				'desc' => __( 'Select the type of Contact that is created when an Order is processed.', 'wpcv-woo-civi-integration' ),
+				'desc' => __( 'Select the type of Contact that is created when an Order is processed. The most common (and recommended) configuration is to have this set to "Individual". Stick with the default unless you have a good reason to change it.', 'wpcv-woo-civi-integration' ),
 				'options' => WPCV_WCI()->contact->types_get(),
 				'id'   => 'woocommerce_civicrm_contact_type',
 			],
@@ -412,9 +405,16 @@ class WPCV_Woo_Civi_Settings {
 				'title' => __( 'Contact Sub-type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select_optgroup',
 				/* translators: %1$s: Opening anchor tag, %2$s: Closing anchor tag */
-				'desc' => sprintf( __( 'Select the Contact Sub-type that is created when an Order is processed. Leave this set to "No Sub-type selected" if you do not want new Contacts to have a Sub-type. Tip: you can manage your %1$sContact Sub-types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/options/subtype', 'reset=1' ) . '">', '</a>' ),
+				'desc' => sprintf( __( 'Select the sub-type that is assigned to Contacts created (or updated) when an Order is processed. Leave this set to "No Sub-type selected" if you do not want new Contacts to have a sub-type. Tip: you can manage your %1$sContact Sub-types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/options/subtype', 'reset=1' ) . '">', '</a>' ),
 				'options' => WPCV_WCI()->contact->subtypes_get_options(),
 				'id'   => 'woocommerce_civicrm_contact_subtype',
+			],
+			'dedupe_rule' => [
+				'title' => __( 'Dedupe Rule', 'wpcv-woo-civi-integration' ),
+				'type' => 'select_optgroup',
+				'desc' => __( 'Select the Dedupe Rule to use when matching Users to Contacts.', 'wpcv-woo-civi-integration' ),
+				'options' => WPCV_WCI()->contact->dedupe_rules_get(),
+				'id'   => 'woocommerce_civicrm_dedupe_rule',
 			],
 		];
 
@@ -717,7 +717,7 @@ class WPCV_Woo_Civi_Settings {
 	}
 
 	/**
-	 * Use the "Individual" CiviCRM Contact Type by default.
+	 * Use the "Individual" CiviCRM Contact Type if the option does not exist.
 	 *
 	 * @since 3.0
 	 *
