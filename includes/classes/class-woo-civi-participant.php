@@ -821,20 +821,20 @@ class WPCV_Woo_Civi_Participant {
 	public function panel_saved( $product ) {
 
 		// Save the Event ID.
-		if ( isset( $_POST[$this->event_key] ) ) {
-			$event_id = sanitize_key( $_POST[$this->event_key] );
+		if ( isset( $_POST[ $this->event_key ] ) ) {
+			$event_id = sanitize_key( $_POST[ $this->event_key ] );
 			$product->add_meta_data( $this->event_key, (int) $event_id, true );
 		}
 
 		// Save the Participant Role ID.
-		if ( isset( $_POST[$this->role_key] ) ) {
-			$participant_role_id = sanitize_key( $_POST[$this->role_key] );
+		if ( isset( $_POST[ $this->role_key ] ) ) {
+			$participant_role_id = sanitize_key( $_POST[ $this->role_key ] );
 			$product->add_meta_data( $this->role_key, (int) $participant_role_id, true );
 		}
 
 		// Save the Participant Price Field Value ID.
-		if ( isset( $_POST[$this->pfv_key] ) ) {
-			$participant_pfv_id = sanitize_key( $_POST[$this->pfv_key] );
+		if ( isset( $_POST[ $this->pfv_key ] ) ) {
+			$participant_pfv_id = sanitize_key( $_POST[ $this->pfv_key ] );
 			$product->add_meta_data( $this->pfv_key, (int) $participant_pfv_id, true );
 		}
 

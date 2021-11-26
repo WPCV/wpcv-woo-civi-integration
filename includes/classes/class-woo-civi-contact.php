@@ -1224,7 +1224,7 @@ class WPCV_Woo_Civi_Contact {
 		$contact_type_data = array_pop( $result['values'] );
 
 		// Maybe add to pseudo-cache.
-		if ( ! isset( $pseudocache[ $mode ][$contact_type ] ) ) {
+		if ( ! isset( $pseudocache[ $mode ][ $contact_type ] ) ) {
 			$pseudocache[ $mode ][ $contact_type ] = $contact_type_data;
 		}
 
