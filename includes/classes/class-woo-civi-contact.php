@@ -419,7 +419,7 @@ class WPCV_Woo_Civi_Contact {
 	 * @since 3.0
 	 *
 	 * @param array $contact The array of CiviCRM Contact data.
-	 * @param string $contact_type The Contact Type.
+	 * @param string $contact_type The Contact Type. Defaults to "Individual".
 	 * @return int|boolean $contact_id The suggested Contact ID, or false on failure.
 	 */
 	public function get_by_dedupe_unsupervised( $contact, $contact_type = 'Individual' ) {
@@ -459,7 +459,7 @@ class WPCV_Woo_Civi_Contact {
 	 * @since 3.0
 	 *
 	 * @param array $contact The array of Contact data.
-	 * @param string $contact_type The Contact Type.
+	 * @param string $contact_type The Contact Type. Defaults to "Individual".
 	 * @param int $dedupe_rule_id The Dedupe Rule ID.
 	 * @return int|bool $contact_id The numeric Contact ID, or false on failure.
 	 */
@@ -515,13 +515,13 @@ class WPCV_Woo_Civi_Contact {
 
 		$dedupe_rules = [];
 
-		// Add the Dedupe rules for all Contact Types.
-		$types = [ 'Organization', 'Household', 'Individual' ];
-		foreach( $types AS $type ) {
+		// Add the Dedupe Rules for all Contact Types.
+		$types = $this->types_get();
+		foreach( $types AS $type => $name ) {
 			if ( empty( $contact_type ) ) {
-				$dedupe_rules[$type] = CRM_Dedupe_BAO_RuleGroup::getByType( $type );
+				$dedupe_rules[ $type ] = CRM_Dedupe_BAO_RuleGroup::getByType( $type );
 			} elseif ( $contact_type == $type ) {
-				$dedupe_rules[$type] = CRM_Dedupe_BAO_RuleGroup::getByType( $type );
+				$dedupe_rules[ $type ] = CRM_Dedupe_BAO_RuleGroup::getByType( $type );
 			}
 		}
 
@@ -761,8 +761,16 @@ class WPCV_Woo_Civi_Contact {
 		unset( $contact['email'] );
 
 		// We need a default Contact Type.
-		// TODO: Maybe this should be a setting? With Sub-type as well perhaps?
-		$contact['contact_type'] = 'Individual';
+		$contact['contact_type'] = get_option( 'woocommerce_civicrm_contact_type', 'Individual' );
+
+		// Maybe add Contact Sub-type.
+		$contact_sub_type_id = get_option( 'woocommerce_civicrm_contact_subtype', '' );
+		if ( ! empty( $contact_sub_type_id ) ) {
+			$contact_sub_type = $this->type_get( $contact_sub_type_id, 'id' );
+			if ( ! empty( $contact_sub_type ) ) {
+				$contact['contact_sub_type'] = $contact_sub_type['name'];
+			}
+		}
 
 		/*
 		 * The CiviCRM API requires at least a Display Name when creating a Contact.
@@ -834,21 +842,64 @@ class WPCV_Woo_Civi_Contact {
 
 		// Try and find the Contact.
 		$contact = $this->get_by_id( $contact_id );
-
-		// Sanity check.
 		if ( $contact === false ) {
 			return false;
 		}
 
-		// Prime the Contact array if empty.
-		if ( empty( $contact ) ) {
-			$contact = [
-				'contact_type' => 'Individual',
-			];
-		}
-
-		// Prime a Contact data array.
+		// Get the primed Contact data from the Order.
 		$prepared_contact = $this->prepare_from_order( $order );
+
+		/*
+		 * We need to ensure any existing Contact Sub-types are retained.
+		 *
+		 * However, the Contact Sub-type could be:
+		 *
+		 * * Empty.
+		 * * The "name" of a Sub-type. (Hmm, check this.)
+		 * * An array of Sub-type "names".
+		 *
+		 * The following handles all possibilities.
+		 */
+		$contact_sub_type_id = get_option( 'woocommerce_civicrm_contact_subtype', '' );
+		if ( ! empty( $contact_sub_type_id ) ) {
+
+			// Convert to "name".
+			$contact_sub_type_name = '';
+			$contact_sub_type = $this->type_get( $contact_sub_type_id, 'id' );
+			if ( ! empty( $contact_sub_type ) ) {
+				$contact_sub_type_name = $contact_sub_type['name'];
+			}
+
+			// If we didn't get an error fetching the name.
+			if ( ! empty( $contact_sub_type ) ) {
+
+				// When there is already an existing Sub-type.
+				if ( is_array( $contact['contact_sub_type'] ) ) {
+
+					// Add default if it's not present.
+					if ( ! in_array( $contact_sub_type_name, $contact['contact_sub_type'] ) ) {
+						$contact['contact_sub_type'][] = $contact_sub_type_name;
+					}
+
+				} else {
+
+					// Make an array of both when the existing is different.
+					if ( ! empty( $contact['contact_sub_type'] ) ) {
+						if ( $contact_sub_type_name !== $contact['contact_sub_type'] ) {
+							$new_contact_sub_types = [ $contact['contact_sub_type'] ];
+							$new_contact_sub_types[] = $contact_sub_type_name;
+							$contact['contact_sub_type'] = $new_contact_sub_types;
+						}
+					} else {
+						// Apply default.
+						$contact['contact_sub_type'] = $contact_sub_type_name;
+					}
+
+				}
+
+			}
+
+		}
 
 		// FIXME: Shouldn't the following depend on if there is existing data?
 
@@ -958,13 +1009,226 @@ class WPCV_Woo_Civi_Contact {
 		// Prime a Contact to dedupe.
 		$contact = $this->prepare_from_order( $order );
 
-		// TODO: Create setting to choose a Dedupe Rule.
-		// @see self::get_by_dedupe_rule()
+		// Get the chosen Dedupe Rule.
+		$dedupe_rule_id = get_option( 'woocommerce_civicrm_dedupe_rule', '' );
 
-		// Fetch the suggested CiviCRM Contact ID using dedupe.
-		$contact_id = $this->get_by_dedupe_unsupervised( $contact );
+		// Use the default Contact Type for deduping.
+		$contact_type = get_option( 'woocommerce_civicrm_contact_type', 'Individual' );
+
+		// If a Dedupe Rule is selected, use it.
+		if ( ! empty( $dedupe_rule_id ) ) {
+			$contact_id = $this->get_by_dedupe_rule( $contact, $contact_type, $dedupe_rule_id );
+		} else {
+			// Use the default unsupervised rule.
+			$contact_id = $this->get_by_dedupe_unsupervised( $contact, $contact_type );
+		}
 
 		return $contact_id;
+
+	}
+
+	/**
+	 * Gets the array of top-level CiviCRM Contact Types.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $contact_types The array of top-level CiviCRM Contact Types.
+	 */
+	public function types_get() {
+
+		$contact_types = [
+			'Individual' => __( 'Individual', 'wpcv-woo-civi-integration' ),
+			'Household' => __( 'Household', 'wpcv-woo-civi-integration' ),
+			'Organization' => __( 'Organization', 'wpcv-woo-civi-integration' ),
+		];
+
+		return $contact_types;
+
+	}
+
+	/**
+	 * Get all CiviCRM Contact Types, nested by parent.
+	 *
+	 * CiviCRM only allows one level of nesting, so we can parse the results
+	 * into a nested array to return.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $nested The nested CiviCRM Contact Types.
+	 */
+	public function types_get_nested() {
+
+		// Only do this once.
+		static $nested;
+		if ( ! empty( $nested ) ) {
+			return $nested;
+		}
+
+		// Init return.
+		$nested = [];
+
+		// Try and init CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $nested;
+		}
+
+		// Define params to get all Contact Types.
+		$params = [
+			'version' => 3,
+			'sequential' => 1,
+			'is_active' => 1,
+			'options' => [
+				'limit' => 0, // No limit.
+			],
+		];
+
+		// Call API.
+		$result = civicrm_api( 'ContactType', 'get', $params );
+
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) && $result['is_error'] == 1 ) {
+			return $nested;
+		}
+
+		// Populate Contact Types array.
+		$contact_types = [];
+		if ( isset( $result['values'] ) && count( $result['values'] ) > 0 ) {
+			$contact_types = $result['values'];
+		}
+
+		// Let's get the top level types.
+		$top_level = [];
+		foreach ( $contact_types as $contact_type ) {
+			if ( empty( $contact_type['parent_id'] ) ) {
+				$top_level[] = $contact_type;
+			}
+		}
+
+		// Build a nested array.
+		foreach ( $top_level as $item ) {
+			$item['children'] = [];
+			foreach ( $contact_types as $contact_type ) {
+				if ( isset( $contact_type['parent_id'] ) && $contact_type['parent_id'] == $item['id'] ) {
+					$item['children'][] = $contact_type;
+				}
+			}
+			$nested[] = $item;
+		}
+
+		return $nested;
+
+	}
+
+	/**
+	 * Gets the CiviCRM Contact Types as options.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $options The options array.
+	 */
+	public function subtypes_get_options() {
+
+		// Init return.
+		$options = [
+			'' => __( 'No Sub-type selected', 'wpcv-woo-civi-integration' ),
+		];
+
+		// Get all Contact Types.
+		$contact_types = $this->types_get_nested();
+		if ( empty( $contact_types ) ) {
+			return $options;
+		}
+
+		// Add entries for each CiviCRM Contact Sub-type.
+		foreach ( $contact_types as $contact_type ) {
+
+			// Skip if there aren't any Sub-types.
+			if ( empty( $contact_type['children'] ) ) {
+				continue;
+			}
+
+			// Top level Contact Types are enclosing keys.
+			$options[ $contact_type['label'] ] = [];
+
+			// Add children.
+			foreach ( $contact_type['children'] as $contact_subtype ) {
+				$options[ $contact_type['label'] ][ $contact_subtype['id'] ] = $contact_subtype['label'];
+			}
+
+		}
+
+		return $options;
+
+	}
+
+	/**
+	 * Get the CiviCRM Contact Type data for a given ID or name.
+	 *
+	 * @since 3.0
+	 *
+	 * @param string|integer $contact_type The name or ID of the CiviCRM Contact Type to query.
+	 * @param string $mode The param to query by: 'name' or 'id'.
+	 * @return array|bool $contact_type_data An array of Contact Type data, or false on failure.
+	 */
+	public function type_get( $contact_type, $mode = 'name' ) {
+
+		// Only do this once per Contact Type and mode.
+		static $pseudocache;
+		if ( isset( $pseudocache[ $mode ][ $contact_type ] ) ) {
+			return $pseudocache[ $mode ][ $contact_type ];
+		}
+
+		// Init return.
+		$contact_type_data = false;
+
+		// Bail if we have no Contact Type.
+		if ( empty( $contact_type ) ) {
+			return $contact_type_data;
+		}
+
+		// Try and init CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $contact_type_data;
+		}
+
+		// Define params to get queried Contact Type.
+		$params = [
+			'version' => 3,
+			'sequential' => 1,
+			'options' => [
+				'limit' => 0, // No limit.
+			],
+		];
+
+		// Add param to query by.
+		if ( $mode == 'name' ) {
+			$params['name'] = $contact_type;
+		} elseif ( $mode == 'id' ) {
+			$params['id'] = $contact_type;
+		}
+
+		// Call the API.
+		$result = civicrm_api( 'ContactType', 'get', $params );
+
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) && $result['is_error'] == 1 ) {
+			return $contact_type_data;
+		}
+
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return $contact_type_data;
+		}
+
+		// The result set should contain only one item.
+		$contact_type_data = array_pop( $result['values'] );
+
+		// Maybe add to pseudo-cache.
+		if ( ! isset( $pseudocache[ $mode ][ $contact_type ] ) ) {
+			$pseudocache[ $mode ][ $contact_type ] = $contact_type_data;
+		}
+
+		return $contact_type_data;
 
 	}
 

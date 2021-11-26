@@ -524,14 +524,14 @@ class WPCV_Woo_Civi_Membership {
 	public function panel_saved( $product ) {
 
 		// Save the Membership Type ID.
-		if ( isset( $_POST[$this->meta_key] ) ) {
-			$membership_type_id = sanitize_key( $_POST[$this->meta_key] );
+		if ( isset( $_POST[ $this->meta_key ] ) ) {
+			$membership_type_id = sanitize_key( $_POST[ $this->meta_key ] );
 			$product->add_meta_data( $this->meta_key, (int) $membership_type_id, true );
 		}
 
 		// Save the Membership Price Field Value ID.
-		if ( isset( $_POST[$this->pfv_key] ) ) {
-			$membership_pfv_id = sanitize_key( $_POST[$this->pfv_key] );
+		if ( isset( $_POST[ $this->pfv_key ] ) ) {
+			$membership_pfv_id = sanitize_key( $_POST[ $this->pfv_key ] );
 			$product->add_meta_data( $this->pfv_key, (int) $membership_pfv_id, true );
 		}
 

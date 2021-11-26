@@ -209,9 +209,9 @@ class WPCV_Woo_Civi_Settings_Network {
 			wp_die( __( 'Cheating uh?', 'wpcv-woo-civi-integration' ) );
 		}
 
-		if ( ! empty( $_POST[$this->settings_key]['wc_blog_id'] ) ) {
+		if ( ! empty( $_POST[ $this->settings_key ]['wc_blog_id'] ) ) {
 			$settings = [
-				'wc_blog_id' => sanitize_text_field( $_POST[$this->settings_key]['wc_blog_id'] ),
+				'wc_blog_id' => sanitize_text_field( $_POST[ $this->settings_key ]['wc_blog_id'] ),
 			];
 			update_site_option( $this->settings_key, $settings );
 			wp_safe_redirect(
