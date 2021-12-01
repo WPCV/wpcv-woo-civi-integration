@@ -121,7 +121,7 @@ class WPCV_Woo_Civi_Products_Variable {
 		add_action( 'woocommerce_product_after_variable_attributes', [ $this, 'variation_attributes_render' ], 10, 3 );
 
 		// Add metadata to the Product Variation before it is saved.
-		//add_action( 'woocommerce_admin_process_variation_object', [ $this, 'variation_attributes_add' ], 10, 2 );
+		add_action( 'woocommerce_admin_process_variation_object', [ $this, 'variation_saved' ], 10, 2 );
 
 	}
 
@@ -235,8 +235,6 @@ class WPCV_Woo_Civi_Products_Variable {
 	/**
 	 * Renders the CiviCRM Settings on the Product Variation.
 	 *
-	 * Not built yet.
-	 *
 	 * @since 3.0
 	 *
 	 * @param int $loop The position in the loop.
@@ -251,6 +249,11 @@ class WPCV_Woo_Civi_Products_Variable {
 		// Get parent CiviCRM Entity Type.
 		$entity = $parent->get_meta( $this->entity_key );
 
+		// Bail there isn't one or it's excluded from sync.
+		if ( empty( $entity ) || $entity === 'civicrm_exclude' ) {
+			return;
+		}
+
 		// Construct the Financial Type options.
 		$financial_type_options = [
 			'' => __( 'Select a Financial Type', 'wpcv-woo-civi-integration' ),
@@ -262,6 +265,10 @@ class WPCV_Woo_Civi_Products_Variable {
 		// Get common meta keys for the form elements.
 		$financial_type_id_key = $this->get_meta_key( $entity, 'financial_type_id' );
 		$pfv_id_key = $this->get_meta_key( $entity, 'pfv_id' );
+
+		// Add loop item.
+		$financial_type_id_key .= '-' . $loop;
+		$pfv_id_key .= '-' . $loop;
 
 		// Get common metadata.
 		$financial_type_id = $this->get_meta( $variation->ID, $entity, 'financial_type_id' );
@@ -281,20 +288,20 @@ class WPCV_Woo_Civi_Products_Variable {
 	 * @param WC_Product_Variation $variation The Product Variation object.
 	 * @param int $loop The position in the loop.
 	 */
-	public function variation_attributes_add( $variation, $loop ) {
+	public function variation_saved( $variation, $loop ) {
 
-		///*
-		$e = new \Exception();
-		$trace = $e->getTraceAsString();
-		error_log( print_r( [
-			'method' => __METHOD__,
-			'variation' => $variation,
-			'loop' => $loop,
-			//'backtrace' => $trace,
-		], true ) );
-		//*/
+		/**
+		 * Fires before the Product Variation properties have been saved.
+		 *
+		 * @since 3.0
+		 *
+		 * @param WC_Product_Variation $variation The Product Variation object.
+		 * @param int $loop The position in the loop.
+		 */
+		do_action( 'wpcv_woo_civi/product/variation/attributes/saved/before', $variation, $loop );
 
 		// Clear existing Product Variation metadata.
+		// TODO: Maybe move this to a "before" callback.
 		foreach ( $this->product_variation_meta as $entity => $data ) {
 			foreach ( $data as $shorthand => $meta_key ) {
 				$variation->delete_meta_data( $meta_key );
@@ -302,7 +309,7 @@ class WPCV_Woo_Civi_Products_Variable {
 		}
 
 		// Get CiviCRM Entity Type.
-		$entity_type = $this->entity_type_get_from_parent( $product );
+		$entity_type = $this->entity_type_get_from_parent( $variation );
 
 		// Bail there isn't one or it's excluded from sync.
 		if ( empty( $entity_type ) || $entity_type === 'civicrm_exclude' ) {
@@ -313,15 +320,19 @@ class WPCV_Woo_Civi_Products_Variable {
 		$financial_type_key = $this->get_meta_key( $entity_type, 'financial_type_id' );
 		$pfv_key = $this->get_meta_key( $entity_type, 'pfv_id' );
 
+		// Add loop item.
+		$financial_type_loop_key = $financial_type_key . '-' . $loop;
+		$pfv_loop_key = $pfv_key . '-' . $loop;
+
 		// Save the Financial Type.
-		if ( isset( $_POST[ $financial_type_key ] ) ) {
-			$value = sanitize_key( $financial_type_key );
+		if ( isset( $_POST[ $financial_type_loop_key ] ) ) {
+			$value = sanitize_key( $_POST[ $financial_type_loop_key ] );
 			$variation->add_meta_data( $financial_type_key, $value, true );
 		}
 
 		// Save the Price Field Value.
-		if ( isset( $_POST[ $pfv_key ] ) ) {
-			$value = sanitize_key( $pfv_key );
+		if ( isset( $_POST[ $pfv_loop_key ] ) ) {
+			$value = sanitize_key( $_POST[ $pfv_loop_key ] );
 			$variation->add_meta_data( $pfv_key, $value, true );
 		}
 
@@ -330,14 +341,16 @@ class WPCV_Woo_Civi_Products_Variable {
 		 *
 		 * Used internally by:
 		 *
-		 * * WPCV_Woo_Civi_Membership::variation_attributes_save() (Priority: 10)
-		 * * WPCV_Woo_Civi_Participant::variation_attributes_save() (Priority: 20)
+		 * * WPCV_Woo_Civi_Membership::variation_saved() (Priority: 10)
+		 * * WPCV_Woo_Civi_Participant::variation_saved() (Priority: 20)
 		 *
 		 * @since 3.0
 		 *
-		 * @param WC_Product $product The Product object.
+		 * @param WC_Product_Variation $variation The Product Variation object.
+		 * @param int $loop The position in the loop.
+		 * @param str $entity_type The CiviCRM Entity Type.
 		 */
-		do_action( 'wpcv_woo_civi/product/variation/attributes/added', $product );
+		do_action( 'wpcv_woo_civi/product/variation/attributes/saved/after', $variation, $loop, $entity_type );
 
 	}
 
@@ -627,7 +640,21 @@ class WPCV_Woo_Civi_Products_Variable {
 	 * @return str The requested meta key.
 	 */
 	public function get_meta_key( $type, $key ) {
+
+		// Log when incorrectly called.
+		if ( empty( $this->product_variation_meta[ $type ][ $key ] ) ) {
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'type' => $type,
+				'key' => $key,
+				//'backtrace' => $trace,
+			], true ) );
+		}
+
 		return $this->product_variation_meta[ $type ][ $key ];
+
 	}
 
 	/**

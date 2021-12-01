@@ -100,6 +100,9 @@ class WPCV_Woo_Civi_Membership {
 		// Add Membership Type to the Product Variation "CiviCRM Settings".
 		add_action( 'wpcv_woo_civi/product/variation/block/middle', [ $this, 'attributes_add_markup' ], 10, 4 );
 
+		// Save Membership Type for the Product Variation.
+		add_action( 'wpcv_woo_civi/product/variation/attributes/saved/after', [ $this, 'variation_saved' ], 10, 3 );
+
 		// Add Membership data to the Product "Bulk Edit" and "Quick Edit" markup.
 		//add_action( 'wpcv_woo_civi/product/bulk_edit/after', [ $this, 'bulk_edit_add_markup' ] );
 		//add_action( 'wpcv_woo_civi/product/quick_edit/after', [ $this, 'quick_edit_add_markup' ] );
@@ -629,7 +632,7 @@ class WPCV_Woo_Civi_Membership {
 	 */
 	public function attributes_add_markup( $loop, $variation_data, $variation, $entity ) {
 
-		// TODO: We nay still want to include these for Product Type switching.
+		// TODO: We may still want to include these for Product Type switching.
 
 		// Bail if this is not a CiviCRM Membership.
 		if ( $entity !== 'civicrm_membership' ) {
@@ -639,13 +642,16 @@ class WPCV_Woo_Civi_Membership {
 		// Get the meta key.
 		$type_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'type_id' );
 
+		// Add loop item.
+		$type_key .= '-' . $loop;
+
 		// Build Membership Types options array.
 		$membership_types = [
 			'' => __( 'Select a Membership Type', 'wpcv-woo-civi-integration' ),
 		] + WPCV_WCI()->membership->get_membership_types_options();
 
-		// Get the Participant Role ID.
-		$role_id = WPCV_WCI()->products_variable->get_meta( $variation->ID, $entity, 'role_id' );
+		// Get the Membership Type ID.
+		$type_id = WPCV_WCI()->products_variable->get_meta( $variation->ID, $entity, 'type_id' );
 
 		// Show Participant Role.
 		woocommerce_wp_select( [
@@ -658,6 +664,36 @@ class WPCV_Woo_Civi_Membership {
 			'wrapper_class' => 'form-row form-row-full variable_civicrm_type_id',
 			'options' => $membership_types,
 		] );
+
+	}
+
+	/**
+	 * Saves the Membership Type to the Product Variation "CiviCRM Settings".
+	 *
+	 * @since 3.0
+	 *
+	 * @param WC_Product_Variation $variation The Product Variation object.
+	 * @param int $loop The position in the loop.
+	 * @param str $entity The CiviCRM Entity Type.
+	 */
+	public function variation_saved( $loop, $variation, $entity ) {
+
+		// Bail if this is not a CiviCRM Membership.
+		if ( $entity !== 'civicrm_membership' ) {
+			return;
+		}
+
+		// Get the meta key.
+		$type_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'type_id' );
+
+		// Add loop item.
+		$type_loop_key = $type_key . '-' . $loop;
+
+		// Save the Membership Type.
+		if ( isset( $_POST[ $type_loop_key ] ) ) {
+			$value = sanitize_key( $_POST[ $type_loop_key ] );
+			$variation->add_meta_data( $type_key, $value, true );
+		}
 
 	}
 

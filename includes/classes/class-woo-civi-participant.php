@@ -976,6 +976,10 @@ class WPCV_Woo_Civi_Participant {
 		$event_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'event_id' );
 		$role_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' );
 
+		// Add loop item.
+		$event_key .= '-' . $loop;
+		$role_key .= '-' . $loop;
+
 		// Get an initial set of Events.
 		$options = $this->get_event_options();
 
@@ -1039,6 +1043,44 @@ class WPCV_Woo_Civi_Participant {
 		?>
 
 		<?php
+
+	}
+
+	/**
+	 * Saves the Event and Participant Role to the Product Variation "CiviCRM Settings".
+	 *
+	 * @since 3.0
+	 *
+	 * @param WC_Product_Variation $variation The Product Variation object.
+	 * @param int $loop The position in the loop.
+	 * @param str $entity The CiviCRM Entity Type.
+	 */
+	public function variation_saved( $loop, $variation, $entity ) {
+
+		// Bail if this is not a CiviCRM Participant.
+		if ( $entity !== 'civicrm_participant' ) {
+			return;
+		}
+
+		// Get the meta keys.
+		$event_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'event_id' );
+		$role_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' );
+
+		// Add loop item.
+		$event_loop_key = $event_key . '-' . $loop;
+		$role_loop_key = $role_key . '-' . $loop;
+
+		// Save the Event ID.
+		if ( isset( $_POST[ $event_loop_key ] ) ) {
+			$event_id = sanitize_key( $_POST[ $event_loop_key ] );
+			$variation->add_meta_data( $event_key, (int) $event_id, true );
+		}
+
+		// Save the Participant Role ID.
+		if ( isset( $_POST[ $role_loop_key ] ) ) {
+			$participant_role_id = sanitize_key( $_POST[ $role_loop_key ] );
+			$variation->add_meta_data( $role_key, (int) $participant_role_id, true );
+		}
 
 	}
 
