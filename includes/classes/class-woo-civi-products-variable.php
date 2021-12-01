@@ -136,7 +136,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	public function tab_add( $tabs ) {
 
 		$tabs['civicrm_variable'] = [
-			'label' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
+			'label' => __( 'CiviCRM Entity', 'wpcv-woo-civi-integration' ),
 			'target' => 'civicrm_variable',
 			'class' => [
 				'show_if_variable',

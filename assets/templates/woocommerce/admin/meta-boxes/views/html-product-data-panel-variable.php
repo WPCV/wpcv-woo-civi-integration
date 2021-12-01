@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
 			'name' => $this->entity_key,
 			'label' => __( 'Entity Type', 'wpcv-woo-civi-integration' ),
 			'desc_tip' => 'true',
-			'description' => __( 'The CiviCRM Entity Type for this Product. Other CiviCRM settings are set in the Variations.', 'wpcv-woo-civi-integration' ),
+			'description' => __( 'The CiviCRM Entity Type for this Product. Other CiviCRM settings are applied in the Variations.', 'wpcv-woo-civi-integration' ),
 			'options' => $entity_options,
 		] );
 
