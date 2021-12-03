@@ -367,7 +367,7 @@ class WPCV_Woo_Civi_Settings_Products {
 	 * @since 3.0
 	 *
 	 * @param int $post_id The WordPress Post ID.
-	 * @param string $$product_type The WooCommerce Product Type.
+	 * @param string $product_type The WooCommerce Product Type.
 	 * @param string $entity_type The CiviCRM Entity Type.
 	 * @param int $financial_type_id The CiviCRM Financial Type ID.
 	 * @param int $pfv_id The CiviCRM Price Field Value ID.

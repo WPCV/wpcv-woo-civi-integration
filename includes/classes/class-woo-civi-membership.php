@@ -672,8 +672,8 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 *
-	 * @param WC_Product_Variation $variation The Product Variation object.
 	 * @param int $loop The position in the loop.
+	 * @param WC_Product_Variation $variation The Product Variation object.
 	 * @param str $entity The CiviCRM Entity Type.
 	 */
 	public function variation_saved( $loop, $variation, $entity ) {
