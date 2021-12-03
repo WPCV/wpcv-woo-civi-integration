@@ -23,7 +23,7 @@ class WC_Product_CiviCRM_Participant extends WC_Product_Simple {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $product_type The WooCommerce Product Type.
+	 * @var string $product_type The WooCommerce Product Type.
 	 */
 	public $product_type = 'civicrm_participant';
 
@@ -43,7 +43,7 @@ class WC_Product_CiviCRM_Participant extends WC_Product_Simple {
 	 *
 	 * @since 3.0
 	 *
-	 * @param str $product_type The internal Product Type name.
+	 * @return string $product_type The internal Product Type name.
 	 */
 	public function get_type() {
 		return $this->product_type;
@@ -58,12 +58,12 @@ class WC_Product_CiviCRM_Participant extends WC_Product_Simple {
 	 */
 	public function set_manage_stock( $manage_stock ) {
 		$this->set_prop( 'manage_stock', false );
- 		if ( true === $manage_stock ) {
- 			$this->error(
+		if ( true === $manage_stock ) {
+			$this->error(
 				'product_' . $this->product_type . '_invalid_manage_stock',
 				__( 'CiviCRM Participants cannot be stock managed.', 'wpcv-woo-civi-integration' )
 			);
- 		}
+		}
 	}
 
 	/**
@@ -76,7 +76,7 @@ class WC_Product_CiviCRM_Participant extends WC_Product_Simple {
 	public function set_stock_status( $stock_status = '' ) {
 		$this->set_prop( 'stock_status', 'instock' );
 		if ( 'instock' !== $stock_status ) {
- 			$this->error(
+			$this->error(
 				'product_' . $this->product_type . '_invalid_stock_status',
 				__( 'CiviCRM Participants cannot be stock managed.', 'wpcv-woo-civi-integration' )
 			);

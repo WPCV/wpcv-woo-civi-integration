@@ -34,7 +34,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $event_key The WooCommerce Product meta key.
+	 * @var string $event_key The WooCommerce Product meta key.
 	 */
 	public $event_key = '_woocommerce_civicrm_event_id';
 
@@ -43,7 +43,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $role_key The WooCommerce Product meta key.
+	 * @var string $role_key The WooCommerce Product meta key.
 	 */
 	public $role_key = '_woocommerce_civicrm_participant_role_id';
 
@@ -52,7 +52,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $pfv_key The CiviCRM Participant Price Field Value ID meta key.
+	 * @var string $pfv_key The CiviCRM Participant Price Field Value ID meta key.
 	 */
 	public $pfv_key = '_woocommerce_civicrm_participant_pfv_id';
 
@@ -123,7 +123,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
+	 * @param integer $product_id The Product ID.
 	 * @return int|bool $event_id The CiviCRM Event ID, false otherwise.
 	 */
 	public function get_event_meta( $product_id ) {
@@ -136,8 +136,8 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
-	 * @param int $event_id The numeric ID of the CiviCRM Event.
+	 * @param integer $product_id The Product ID.
+	 * @param integer $event_id The numeric ID of the CiviCRM Event.
 	 */
 	public function set_event_meta( $product_id, $event_id ) {
 		update_post_meta( $product_id, $this->event_key, (int) $event_id );
@@ -148,7 +148,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
+	 * @param integer $product_id The Product ID.
 	 * @return int|bool $participant_role_id The Participant Role ID, false otherwise.
 	 */
 	public function get_role_meta( $product_id ) {
@@ -161,8 +161,8 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
-	 * @param int $participant_role_id The numeric ID of the Participant Role.
+	 * @param integer $product_id The Product ID.
+	 * @param integer $participant_role_id The numeric ID of the Participant Role.
 	 */
 	public function set_role_meta( $product_id, $participant_role_id ) {
 		update_post_meta( $product_id, $this->role_key, (int) $participant_role_id );
@@ -173,7 +173,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
+	 * @param integer $product_id The Product ID.
 	 * @return int|bool $participant_pfv_id The Participant Price Field Value ID, false otherwise.
 	 */
 	public function get_pfv_meta( $product_id ) {
@@ -186,8 +186,8 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
-	 * @param int $participant_pfv_id The numeric ID of the Participant Price Field Value.
+	 * @param integer $product_id The Product ID.
+	 * @param integer $participant_pfv_id The numeric ID of the Participant Price Field Value.
 	 */
 	public function set_pfv_meta( $product_id, $participant_pfv_id ) {
 		update_post_meta( $product_id, $this->pfv_key, $participant_pfv_id );
@@ -198,11 +198,11 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $line_item The array of Line Item data.
+	 * @param array  $line_item The array of Line Item data.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
 	 * @param object $order The WooCommerce Order object.
-	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param array  $params The params to be passed to the CiviCRM API.
 	 * @return array $line_item The modified array of Line Item data.
 	 */
 	public function line_item_filter( $line_item, $item, $product, $order, $params ) {
@@ -292,7 +292,8 @@ class WPCV_Woo_Civi_Participant {
 		// Set a descriptive source.
 		// NOTE: CiviCRM populates this with the Payment Method.
 		$line_item_params['source'] = sprintf(
-			__( '%1$s: %2$s' ),
+			/* translators: 1: Source text, 2: Product name */
+			__( '%1$s: %2$s', 'wpcv-woo-civi-integration' ),
 			WPCV_WCI()->source->source_generate(),
 			$args['product']->get_name()
 		);
@@ -404,7 +405,7 @@ class WPCV_Woo_Civi_Participant {
 		$result = civicrm_api( 'Event', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $events_data;
 		}
 
@@ -458,7 +459,7 @@ class WPCV_Woo_Civi_Participant {
 		$result = civicrm_api( 'Event', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $event_data;
 		}
 
@@ -480,7 +481,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $limit A number to limit the Event query to.
+	 * @param integer $limit A number to limit the Event query to.
 	 * @return array|boolean $event_data An array of Event data, or false on failure.
 	 */
 	public function get_events( $limit = 25 ) {
@@ -508,7 +509,7 @@ class WPCV_Woo_Civi_Participant {
 		$result = civicrm_api( 'Event', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $event_data;
 		}
 
@@ -605,7 +606,7 @@ class WPCV_Woo_Civi_Participant {
 		$result = civicrm_api( 'Event', 'getlist', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $event_data;
 		}
 
@@ -646,8 +647,8 @@ class WPCV_Woo_Civi_Participant {
 
 		// First, get Participant Role Option Group ID.
 		$params = [
-			'version' =>'3',
-			'name' =>'participant_role'
+			'version' => 3,
+			'name' => 'participant_role',
 		];
 
 		try {
@@ -675,7 +676,7 @@ class WPCV_Woo_Civi_Participant {
 
 		// Now get the values for that Option Group.
 		$params = [
-			'version' =>'3',
+			'version' => 3,
 			'is_active' => 1,
 			'option_group_id' => $option_group['id'],
 			'options' => [
@@ -766,11 +767,9 @@ class WPCV_Woo_Civi_Participant {
 	}
 
 	/**
-	 * Adds the CiviCRM Event and  Participant Role settings as meta to the Product.
+	 * Adds the CiviCRM Event and Participant Role settings as meta to the Product.
 	 *
 	 * @since 3.0
-	 *
-	 * @param WC_Product $product The Product object.
 	 */
 	public function panel_search_events() {
 
@@ -791,7 +790,7 @@ class WPCV_Woo_Civi_Participant {
 		// Maybe append results.
 		$results = [];
 		if ( ! empty( $events ) ) {
-			foreach( $events AS $event ) {
+			foreach ( $events as $event ) {
 
 				// Add Event Date if present.
 				$title = $event['label'];
@@ -958,10 +957,10 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $loop The position in the loop.
-	 * @param array $variation_data The Product Variation data.
+	 * @param integer $loop The position in the loop.
+	 * @param array   $variation_data The Product Variation data.
 	 * @param WP_Post $variation The WordPress Post data.
-	 * @param string $entity The CiviCRM Entity that this Product Variation is mapped to.
+	 * @param string  $entity The CiviCRM Entity that this Product Variation is mapped to.
 	 */
 	public function attributes_add_markup( $loop, $variation_data, $variation, $entity ) {
 
@@ -1051,9 +1050,9 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $loop The position in the loop.
+	 * @param integer              $loop The position in the loop.
 	 * @param WC_Product_Variation $variation The Product Variation object.
-	 * @param str $entity The CiviCRM Entity Type.
+	 * @param string               $entity The CiviCRM Entity Type.
 	 */
 	public function variation_saved( $loop, $variation, $entity ) {
 

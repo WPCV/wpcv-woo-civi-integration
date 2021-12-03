@@ -24,7 +24,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $migrate_page The Migration Page reference.
+	 * @var string $migrate_page The Migration Page reference.
 	 */
 	public $migrate_page;
 
@@ -33,7 +33,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $migrate_page_slug The slug of the Migration Page.
+	 * @var string $migrate_page_slug The slug of the Migration Page.
 	 */
 	public $migrate_page_slug = 'wpcv_woocivi_migrate';
 
@@ -42,7 +42,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var int $step_count The number of Products to process per AJAX request.
+	 * @var integer $step_count The number of Products to process per AJAX request.
 	 */
 	public $step_count = 10;
 
@@ -118,7 +118,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// Bail if we are on our "Migration" page.
-		if ( $screen->id == 'civicrm_page_' . $this->migrate_page_slug ) {
+		if ( $screen->id === 'civicrm_page_' . $this->migrate_page_slug ) {
 			return;
 		}
 
@@ -127,20 +127,25 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 			// Show general "Call to Action".
 			$message = sprintf(
+				/* translators: 1: Opening strong tag, 2: Closing strong tag */
 				__( 'You can now deactivate %1$sWooCommerce CiviCRM%2$s.', 'wpcv-woo-civi-integration' ),
-				'<strong>', '</strong>'
+				'<strong>',
+				'</strong>'
 			);
 
 			// Add a link if we are not on the "Plugins" page.
 			if ( $screen->id !== 'plugins' ) {
 
-				//Add link.
+				// Add link.
 				$link = sprintf(
+					/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
 					__( 'Please visit the %1$sPlugins Page%2$s to deactivate it.', 'wpcv-woo-civi-integration' ),
-					'<a href="' . admin_url( 'plugins.php' ) . '">', '</a>'
+					'<a href="' . admin_url( 'plugins.php' ) . '">',
+					'</a>'
 				);
 
 				// Merge.
+				/* translators: 1: Message, 2: Link */
 				$message = sprintf( __( '%1$s %2$s', 'wpcv-woo-civi-integration' ), $message, $link );
 
 			}
@@ -149,10 +154,12 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 			// Show general "Call to Action".
 			$message = sprintf(
-				__( '%1$sWooCommerce CiviCRM%2$s has become %3$sIntegrate CiviCRM with WooCommerce%4$s. Please visit the %5$sMigration Page%6$s to switch over.', 'wpcv-woo-civi-integration' ),
-				'<strong>', '</strong>',
-				'<strong>', '</strong>',
-				'<a href="' . menu_page_url( 'wpcv_woocivi_migrate', false ) . '">', '</a>'
+				/* translators: 1: Opening strong tag, 2: Closing strong tag, 3: Opening anchor tag, 4: Closing anchor tag */
+				__( '%1$sWooCommerce CiviCRM%2$s has become %1$sIntegrate CiviCRM with WooCommerce%2$s. Please visit the %5$sMigration Page%6$s to switch over.', 'wpcv-woo-civi-integration' ),
+				'<strong>',
+				'</strong>',
+				'<a href="' . menu_page_url( 'wpcv_woocivi_migrate', false ) . '">',
+				'</a>'
 			);
 
 		}
@@ -172,7 +179,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	public function admin_menu() {
 
 		// We must be network admin in Multisite.
-		if ( is_multisite() AND ! is_super_admin() ) {
+		if ( is_multisite() && ! is_super_admin() ) {
 			return;
 		}
 
@@ -195,8 +202,10 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		// Register our form submit hander.
 		add_action( 'load-' . $this->migrate_page, [ $this, 'form_submitted' ] );
 
-		// Add styles and scripts only on our "Migration Page".
-		// @see wp-admin/admin-header.php
+		/*
+		 * Add styles and scripts only on our "Migration Page".
+		 * @see wp-admin/admin-header.php
+		 */
 		add_action( 'admin_head-' . $this->migrate_page, [ $this, 'admin_head' ] );
 		add_action( 'admin_print_styles-' . $this->migrate_page, [ $this, 'admin_styles' ] );
 		add_action( 'admin_print_scripts-' . $this->migrate_page, [ $this, 'admin_scripts' ] );
@@ -231,7 +240,8 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			$handle,
 			plugins_url( 'assets/js/pages/page-admin-migrate.js', WPCV_WOO_CIVI_FILE ),
 			[ 'jquery', 'jquery-ui-core', 'jquery-ui-progressbar' ],
-			WPCV_WOO_CIVI_VERSION // Version.
+			WPCV_WOO_CIVI_VERSION, // Version.
+			false
 		);
 
 		$localisation = [
@@ -299,13 +309,13 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	public function page_migrate() {
 
 		// We must be network admin in Multisite.
-		if ( is_multisite() AND ! is_super_admin() ) {
-			wp_die( __( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
+		if ( is_multisite() && ! is_super_admin() ) {
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
 		}
 
 		// Check user permissions.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
 		}
 
 		// Get current screen.
@@ -323,7 +333,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		do_action( 'add_meta_boxes', $screen->id, null );
 
 		// Grab columns.
-		$columns = ( 1 == $screen->get_columns() ? '1' : '2' );
+		$columns = ( 1 === $screen->get_columns() ? '1' : '2' );
 
 		// Include template file.
 		include WPCV_WOO_CIVI_PATH . 'assets/templates/pages/page-admin-migrate.php';
@@ -339,9 +349,9 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 */
 	public function page_submit_url_get() {
 
-		// Sanitise admin page url.
-		$target_url = $_SERVER['REQUEST_URI'];
-		$url_array = explode( '&', $target_url );
+		// Sanitise admin page URL.
+		$target_url = ! empty( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+		$url_array = explode( '&', wp_unslash( $target_url ) );
 
 		// Strip flag, if present, and rebuild.
 		if ( ! empty( $url_array ) ) {
@@ -467,7 +477,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 * @param mixed $unused Unused param.
 	 * @param array $metabox Array containing id, title, callback, and args elements.
 	 */
-	public function meta_box_submit_render( $unused = NULL, $metabox ) {
+	public function meta_box_submit_render( $unused = null, $metabox ) {
 
 		// Include template file.
 		include WPCV_WOO_CIVI_PATH . 'assets/templates/metaboxes/metabox-migrate-submit.php';
@@ -482,7 +492,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 * @param mixed $unused Unused param.
 	 * @param array $metabox Array containing id, title, callback, and args elements.
 	 */
-	public function meta_box_migrate_render( $unused = NULL, $metabox ) {
+	public function meta_box_migrate_render( $unused = null, $metabox ) {
 
 		// Include template file.
 		include WPCV_WOO_CIVI_PATH . 'assets/templates/metaboxes/metabox-migrate-info.php';
@@ -564,7 +574,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 *
 	 * @since 3.0
 	 *
-	 * @param str $mode Pass 'updated' to append the extra param.
+	 * @param string $mode Pass 'updated' to append the extra param.
 	 */
 	private function form_redirect( $mode = '' ) {
 
@@ -591,11 +601,13 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 */
 	public function products_get_count() {
 
-		$query = new WP_Query( [
+		$args = [
 			'post_type' => 'product',
 			'post_status' => 'any',
-			'nopaging' => true
-		] );
+			'nopaging' => true,
+		];
+
+		$query = new WP_Query( $args );
 
 		return $query->found_posts;
 
@@ -674,7 +686,8 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			}
 
 			// Loop and set up post.
-			while ( $query->have_posts() ) { $query->the_post();
+			while ( $query->have_posts() ) {
+				$query->the_post();
 
 				// Grab Product ID.
 				$product_id = get_the_ID();
@@ -717,8 +730,8 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The numeric ID of the Product.
-	 * @param bool $member_active True if the CiviMember Component is active.
+	 * @param integer $product_id The numeric ID of the Product.
+	 * @param bool    $member_active True if the CiviMember Component is active.
 	 */
 	public function product_process( $product_id, $member_active ) {
 
@@ -726,7 +739,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$duplicate = get_post_meta( $product_id, '_civicrm_contribution_type', true );
 
 		// When it does, update the proper meta and remove duplicate.
-		if ( ! empty( $duplicate ) || $duplicate == 0 ) {
+		if ( ! empty( $duplicate ) || $duplicate === 0 ) {
 			update_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id', $duplicate );
 			delete_post_meta( $product_id, '_civicrm_contribution_type' );
 		}
@@ -735,7 +748,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$financial_type_id = get_post_meta( $product_id, 'woocommerce_civicrm_financial_type_id', true );
 
 		// When it does, update the proper meta and remove old.
-		if ( ! empty( $financial_type_id ) || $financial_type_id == 0 ) {
+		if ( ! empty( $financial_type_id ) || $financial_type_id === 0 ) {
 			update_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id', $financial_type_id );
 			delete_post_meta( $product_id, 'woocommerce_civicrm_financial_type_id' );
 		}
@@ -744,7 +757,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$membership_type_id = get_post_meta( $product_id, 'woocommerce_civicrm_membership_type_id', true );
 
 		// When it does, update the proper meta and remove old.
-		if ( ! empty( $membership_type_id ) || $membership_type_id == 0 ) {
+		if ( ! empty( $membership_type_id ) || $membership_type_id === 0 ) {
 			if ( $member_active ) {
 				update_post_meta( $product_id, '_woocommerce_civicrm_membership_type_id', $membership_type_id );
 				// Also set the Entity Type if applicable.
@@ -771,11 +784,13 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 */
 	public function orders_get_count() {
 
-		$query = new WP_Query( [
+		$args = [
 			'post_type' => 'shop_order',
 			'post_status' => 'any',
 			'nopaging' => true,
-		] );
+		];
+
+		$query = new WP_Query( $args );
 
 		return $query->found_posts;
 
@@ -854,7 +869,8 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			}
 
 			// Loop and set up post.
-			while ( $query->have_posts() ) { $query->the_post();
+			while ( $query->have_posts() ) {
+				$query->the_post();
 
 				// Grab Order ID.
 				$order_id = get_the_ID();
@@ -897,8 +913,8 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The numeric ID of the Order.
-	 * @param bool $campaign_active True if the CiviCampaign Component is active.
+	 * @param integer $order_id The numeric ID of the Order.
+	 * @param bool    $campaign_active True if the CiviCampaign Component is active.
 	 */
 	public function order_process( $order_id, $campaign_active ) {
 
@@ -947,7 +963,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 * @since 3.0
 	 *
 	 * @param string $key The unique identifier for the stepper.
-	 * @param int $offset The unique identifier for the stepper.
+	 * @return integer $offset The unique identifier for the stepper.
 	 */
 	public function stepped_offset_init( $key ) {
 
@@ -955,7 +971,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$option = '_wpcv_woo_civi_migrate_' . $key . '_offset';
 
 		// If the offset value doesn't exist.
-		if ( 'fgffgs' == get_option( $option, 'fgffgs' ) ) {
+		if ( 'fgffgs' === get_option( $option, 'fgffgs' ) ) {
 
 			// Start at the beginning.
 			$offset = 0;
@@ -986,7 +1002,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$option = '_wpcv_woo_civi_migrate_' . $key . '_offset';
 
 		// If the offset value doesn't exist.
-		if ( 'fgffgs' == get_option( $option, 'fgffgs' ) ) {
+		if ( 'fgffgs' === get_option( $option, 'fgffgs' ) ) {
 			return false;
 		}
 

@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Admin {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $admin_page The Admin Page reference.
+	 * @var string $admin_page The Admin Page reference.
 	 */
 	public $admin_page;
 
@@ -32,7 +32,7 @@ class WPCV_Woo_Civi_Admin {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $admin_page_slug The slug of the Admin Page.
+	 * @var string $admin_page_slug The slug of the Admin Page.
 	 */
 	public $admin_page_slug = 'wpcv_admin';
 
@@ -89,241 +89,7 @@ class WPCV_Woo_Civi_Admin {
 		// Add AJAX handlers.
 		add_action( 'wp_ajax_wpcv_process_event', [ $this, 'event_process' ] );
 
-		return;
-
-		add_action( 'civicrm_buildForm', [ $this, 'form_event_edit' ], 10, 2 );
-		add_action( 'civicrm_buildForm', [ $this, 'form_event_snippet' ], 10, 2 );
-	    add_action( 'wpcv_woo_civi_product_create', [ $this, 'form_event_product_create' ] );
-
 	}
-
-	/**
-	 * Add Javascript on page load.
-	 *
-	 * The "CRM_Event_Form_ManageEvent_EventInfo" form is loaded twice: firstly
-	 * when the page is loaded and secondly as a "snippet" that is AJAX-loaded
-	 * into the tab container. The WordPress Media scripts need to be loaded on
-	 * page load, while the template needs to be loaded into the snippet.
-	 *
-	 * @since 0.6.3
-	 *
-	 * @param string $formName The CiviCRM form name.
-	 * @param object $form The CiviCRM form object.
-	public function form_event_edit( $formName, &$form ) {
-
-		// Is this the Event Info form?
-		if ( $formName != 'CRM_Event_Form_ManageEvent_EventInfo' ) {
-			return;
-		}
-
-		// We want the page, so grab "Print" var from form controller.
-		$controller = $form->getVar( 'controller' );
-        if ( ! empty( $controller->_print ) ) {
-        	return;
-        }
-
-		// Disallow users without upload permissions.
-		if ( ! current_user_can( 'upload_files' ) ) {
-			return;
-		}
-
-		// We *must* have a CiviCRM Event ID.
-		$event_id = $form->getVar( '_id' );
-        if ( empty( $event_id ) ) {
-        	return;
-        }
-
-		// Get the Post ID that this Event is mapped to.
-		$post_id = $this->plugin->db->get_eo_event_id_by_civi_event_id( $event_id );
-		if ( $post_id === false ) {
-			return;
-		}
-
-		// Enqueue the WordPress media scripts.
-		wp_enqueue_media();
-
-		// Enqueue our Javascript in footer.
-		wp_enqueue_script(
-			'ceo-feature-image',
-			CIVICRM_WP_EVENT_ORGANISER_URL . 'assets/js/civi-eo-feature-image.js',
-			[ 'jquery' ],
-			CIVICRM_WP_EVENT_ORGANISER_VERSION,
-			true // In footer.
-		);
-
-		// Init localisation.
-		$localisation = [
-			'title' => __( 'Choose Feature Image', 'civicrm-event-organiser' ),
-			'button' => __( 'Set Feature Image', 'civicrm-event-organiser' ),
-		];
-
-		/// Init settings.
-		$settings = [
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'loading' => CIVICRM_WP_EVENT_ORGANISER_URL . 'assets/images/loading.gif',
-		];
-
-		// Localisation array.
-		$vars = [
-			'localisation' => $localisation,
-			'settings' => $settings,
-		];
-
-		// Localise the WordPress way.
-		wp_localize_script(
-			'ceo-feature-image',
-			'CEO_Feature_Image_Settings',
-			$vars
-		);
-
-	}
-	 */
-
-	/**
-	 * Inject template into AJAX-loaded snippet.
-	 *
-	 * @see self::form_event_edit()
-	 *
-	 * @since 0.6.3
-	 *
-	 * @param string $formName The CiviCRM form name.
-	 * @param object $form The CiviCRM form object.
-	public function form_event_snippet( $formName, &$form ) {
-
-		// Is this the Event Info form?
-		if ( $formName != 'CRM_Event_Form_ManageEvent_EventInfo' ) {
-			return;
-		}
-
-		// We want the snippet, so grab "Print" var from form controller.
-		$controller = $form->getVar( 'controller' );
-        if ( empty( $controller->_print ) OR $controller->_print !== 'json' ) {
-        	return;
-        }
-
-		// Disallow users without upload permissions.
-		if ( ! current_user_can( 'upload_files' ) ) {
-			return;
-		}
-
-		// We need the CiviCRM Event ID.
-		$event_id = $form->getVar( '_id' );
-        if ( empty( $event_id ) ) {
-        	return;
-        }
-
-		// Get the Post ID that this Event is mapped to.
-		$post_id = $this->plugin->db->get_eo_event_id_by_civi_event_id( $event_id );
-		if ( $post_id === false ) {
-			return;
-		}
-
-		// Does this Event have a Feature Image?
-		$attachment_id = '';
-		if ( has_post_thumbnail( $post_id ) ) {
-			$attachment_id = get_post_thumbnail_id( $post_id );
-		}
-
-		// Add hidden field to hold the Attachment ID.
-		$hidden_field = $form->add( 'hidden', 'ceo_attachment_id', $attachment_id );
-
-		// Get the image markup.
-		$placeholder_url = CIVICRM_WP_EVENT_ORGANISER_URL . 'assets/images/placeholder.gif';
-		$markup = '<img src="' . $placeholder_url . '" class="wp-post-image" style="display: none;">';
-		if ( ! empty( $attachment_id ) ) {
-			$markup = get_the_post_thumbnail( $post_id, 'medium' );
-		}
-
-		// Add image markup.
-		$form->assign(
-			'ceo_attachment_markup',
-			$markup
-		);
-
-		// Add button ID.
-		$form->assign(
-			'ceo_attachment_id_button_id',
-			'ceo-feature-image-switcher-' . $post_id
-		);
-
-		// Add button text.
-		$form->assign(
-			'ceo_attachment_id_button',
-			__( 'Choose Feature Image', 'civicrm-event-organiser' )
-		);
-
-		// Add help text.
-		$form->assign(
-			'ceo_attachment_id_help',
-			__( 'If you would like to add a Feature Image to the Event Organiser Event, choose one here.', 'civicrm-event-organiser' )
-		);
-
-		// Insert template block into the page.
-		CRM_Core_Region::instance('page-body')->add([
-			'template' => 'ceo-featured-image.tpl'
-		]);
-
-	}
-	 */
-
-	/**
-	 * AJAX handler for Feature Image calls.
-	 *
-	 * @since 0.6.3
-	public function form_event_image() {
-
-		// Init response.
-		$data = [
-			'success' => 'false',
-		];
-
-		// Disallow users without upload permissions.
-		if ( ! current_user_can( 'upload_files' ) ) {
-			return $data;
-		}
-
-		// Get Attachment ID.
-		$attachment_id = isset( $_POST['attachment_id'] ) ? (int) trim( $_POST['attachment_id'] ) : 0;
-		if ( ! is_numeric( $attachment_id ) OR $attachment_id === 0 ) {
-			return $data;
-		}
-
-		// Handle Feature Image if there is a Post ID.
-		$post_id = isset( $_POST['post_id'] ) ? (int) trim( $_POST['post_id'] ) : 0;
-		if ( is_numeric( $post_id ) AND $post_id !== 0 ) {
-
-			// Set Feature Image.
-			set_post_thumbnail( $post_id, $attachment_id );
-
-			// Get the Feature Image markup.
-			$markup = get_the_post_thumbnail( $post_id, 'medium' );
-
-		} else {
-
-			// Filter the image class.
-			add_filter( 'wp_get_attachment_image_attributes', [ $this, 'form_event_image_filter' ], 10, 1 );
-
-			// Get the Attachment Image markup.
-			$markup = wp_get_attachment_image( $attachment_id, 'medium', false );
-
-			// Remove filter.
-			remove_filter( 'wp_get_attachment_image_attributes', [ $this, 'form_event_image_filter' ] );
-
-		}
-
-		// Add to data.
-		$data['markup'] = $markup;
-
-		// Overwrite flag.
-		$data['success'] = 'true';
-
-		// Send data to browser.
-		wp_send_json( $data );
-
-	}
-	 */
-
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Add our admin page(s) to the WordPress admin menu.
@@ -333,7 +99,7 @@ class WPCV_Woo_Civi_Admin {
 	public function admin_menu() {
 
 		// We must be network admin in Multisite.
-		if ( is_multisite() AND ! is_super_admin() ) {
+		if ( is_multisite() && ! is_super_admin() ) {
 			return;
 		}
 
@@ -401,7 +167,8 @@ class WPCV_Woo_Civi_Admin {
 			$handle,
 			plugins_url( 'assets/js/pages/page-admin.js', WPCV_WOO_CIVI_FILE ),
 			[ 'jquery', 'jquery-ui-core', 'jquery-ui-progressbar' ],
-			WPCV_WOO_CIVI_VERSION // Version.
+			WPCV_WOO_CIVI_VERSION, // Version.
+			false
 		);
 
 		$localisation = [
@@ -483,7 +250,7 @@ class WPCV_Woo_Civi_Admin {
 	public function page_admin() {
 
 		// We must be network admin in Multisite.
-		if ( is_multisite() AND ! is_super_admin() ) {
+		if ( is_multisite() && ! is_super_admin() ) {
 			wp_die( __( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
 		}
 
@@ -527,8 +294,8 @@ class WPCV_Woo_Civi_Admin {
 	 */
 	public function page_submit_url_get() {
 
-		// Sanitise admin page url.
-		$target_url = $_SERVER['REQUEST_URI'];
+		// Sanitise admin page URL.
+		$target_url = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
 		$url_array = explode( '&', $target_url );
 
 		// Strip flag, if present, and rebuild.
@@ -814,7 +581,7 @@ class WPCV_Woo_Civi_Admin {
 	 *
 	 * @since 3.0
 	 *
-	 * @param str $mode Pass 'updated' to append the extra param.
+	 * @param string $mode Pass 'updated' to append the extra param.
 	 */
 	private function form_redirect( $mode = '' ) {
 
@@ -1028,7 +795,9 @@ class WPCV_Woo_Civi_Admin {
 		// Append to the Product title.
 		$params['name'] = sprintf(
 			/* translators: %1$s: Event Title, %2$s: Price Field Value label */
-			__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $params['name'], $pfv['label']
+			__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
+			$params['name'],
+			$pfv['label']
 		);
 
 		// Create the Participant Product.
@@ -1105,7 +874,9 @@ class WPCV_Woo_Civi_Admin {
 		// Append to the Product title.
 		$params['name'] = sprintf(
 			/* translators: %1$s: Event Title, %2$s: Price Field Value label */
-			__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $params['name'], $pfv['label']
+			__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
+			$params['name'],
+			$pfv['label']
 		);
 
 		// Create the Participant Product.
@@ -1231,7 +1002,6 @@ class WPCV_Woo_Civi_Admin {
 
 			// Init Product Variation meta data.
 			$variant['meta_data'] = [];
-
 
 			// Add Financial Type ID.
 			$variant['meta_data'][] = [

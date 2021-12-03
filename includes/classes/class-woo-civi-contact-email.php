@@ -63,7 +63,7 @@ class WPCV_Woo_Civi_Contact_Email {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contact The CiviCRM Contact data.
+	 * @param array  $contact The CiviCRM Contact data.
 	 * @param object $order The WooCommerce Order object.
 	 */
 	public function entities_create( $contact, $order ) {
@@ -78,7 +78,7 @@ class WPCV_Woo_Civi_Contact_Email {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contact The CiviCRM Contact data.
+	 * @param array  $contact The CiviCRM Contact data.
 	 * @param object $order The WooCommerce Order object.
 	 */
 	public function entities_update( $contact, $order ) {
@@ -123,8 +123,8 @@ class WPCV_Woo_Civi_Contact_Email {
 
 					civicrm_api3( 'Email', 'create', $email );
 
-					/* translators: %1$s: Location Type, %2$s: Email Address */
 					$note = sprintf(
+						/* translators: 1: Location Type, 2: Email Address */
 						__( 'Created new CiviCRM Email of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
 						$location_type,
 						$email['email']
@@ -169,10 +169,10 @@ class WPCV_Woo_Civi_Contact_Email {
 	 *
 	 * @since 2.0
 	 *
-	 * @param string $op The operation being performed.
-	 * @param string $object_name The entity name.
-	 * @param int $object_id The entity id.
-	 * @param object $object_ref The entity object.
+	 * @param string  $op The operation being performed.
+	 * @param string  $object_name The entity name.
+	 * @param integer $object_id The entity id.
+	 * @param object  $object_ref The entity object.
 	 */
 	public function sync_civi_contact_email( $op, $object_name, $object_id, $object_ref ) {
 
@@ -219,7 +219,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		 *
 		 * @since 2.0
 		 *
-		 * @param int $user_id The WordPress User ID.
+		 * @param integer $user_id The WordPress User ID.
 		 * @param string $email_type The WooCommerce Email Type. Either 'billing' or 'shipping'.
 		 */
 		do_action( 'wpcv_woo_civi/wc_email/updated', $cms_user['uf_id'], $email_type );
@@ -233,8 +233,8 @@ class WPCV_Woo_Civi_Contact_Email {
 	 *
 	 * @since 2.0
 	 *
-	 * @param int $user_id The WordPress User ID.
-	 * @param string $load_address The Address Type. Either 'shipping' or 'billing'.
+	 * @param integer $user_id The WordPress User ID.
+	 * @param string  $load_address The Address Type. Either 'shipping' or 'billing'.
 	 * @return bool True on success, false on failure.
 	 */
 	public function sync_wp_user_woocommerce_email( $user_id, $load_address ) {
@@ -334,7 +334,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		 *
 		 * @since 2.0
 		 *
-		 * @param int $contact_id The CiviCRM Contact ID.
+		 * @param integer $contact_id The CiviCRM Contact ID.
 		 * @param array $email The CiviCRM Email that has been edited.
 		 */
 		do_action( 'wpcv_woo_civi/civi_email/updated', $contact['contact_id'], $create_email );
@@ -417,7 +417,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		$result = civicrm_api( 'Email', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $email_data;
 		}
 

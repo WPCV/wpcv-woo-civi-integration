@@ -98,7 +98,7 @@ class WPCV_Woo_Civi_UTM {
 		 *
 		 * @since 2.2
 		 *
-		 * @param int The duration of the cookie. Default 0.
+		 * @param integer The duration of the cookie. Default 0.
 		 */
 		$expire = apply_filters( 'wpcv_woo_civi/utm_cookie/expire', 0 );
 		$secure = ( 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ) );
@@ -155,8 +155,9 @@ class WPCV_Woo_Civi_UTM {
 	 * @since 2.2
 	 * @since 3.0 Used only on new Orders.
 	 *
-	 * @param array $campaign_id The calculated Campaign ID.
-	 * @param object $order The WooCommerce Order object.
+	 * @param integer $campaign_id The calculated Campaign ID.
+	 * @param object  $order The WooCommerce Order object.
+	 * @return integer $campaign_id The possibly overridden Campaign ID.
 	 */
 	public function utm_to_order( $campaign_id, $order ) {
 
@@ -181,8 +182,8 @@ class WPCV_Woo_Civi_UTM {
 	 *
 	 * @since 3.0
 	 *
-	 * @param str $source The existing Contribution Source string.
-	 * @return str $source The modified Contribution Source string.
+	 * @param string $source The existing Contribution Source string.
+	 * @return string $source The modified Contribution Source string.
 	 */
 	public function utm_filter_source( $source ) {
 

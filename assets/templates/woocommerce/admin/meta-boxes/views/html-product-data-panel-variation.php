@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $loop The position in the loop.
+	 * @param integer $loop The position in the loop.
 	 * @param array $variation_data The Product Variation data.
 	 * @param WP_Post $variation The WordPress Post data.
 	 */
@@ -55,7 +55,7 @@ defined( 'ABSPATH' ) || exit;
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $loop The position in the loop.
+	 * @param integer $loop The position in the loop.
 	 * @param array $variation_data The Product Variation data.
 	 * @param WP_Post $variation The WordPress Post data.
 	 * @param string $entity The CiviCRM Entity that this Product Variation is mapped to.
@@ -92,7 +92,7 @@ defined( 'ABSPATH' ) || exit;
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $loop The position in the loop.
+	 * @param integer $loop The position in the loop.
 	 * @param array $variation_data The Product Variation data.
 	 * @param WP_Post $variation The WordPress Post data.
 	 */

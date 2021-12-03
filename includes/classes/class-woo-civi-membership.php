@@ -34,7 +34,7 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $meta_key The WooCommerce Product meta key.
+	 * @var string $meta_key The WooCommerce Product meta key.
 	 */
 	public $meta_key = '_woocommerce_civicrm_membership_type_id';
 
@@ -43,7 +43,7 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $pfv_key The CiviCRM Membership Price Field Value ID meta key.
+	 * @var string $pfv_key The CiviCRM Membership Price Field Value ID meta key.
 	 */
 	public $pfv_key = '_woocommerce_civicrm_membership_pfv_id';
 
@@ -114,7 +114,7 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
+	 * @param integer $product_id The Product ID.
 	 * @return int|bool $membership_type_id The Membership Type ID, false otherwise.
 	 */
 	public function get_product_meta( $product_id ) {
@@ -127,8 +127,8 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
-	 * @param int $membership_type_id The numeric ID of the Membership Type.
+	 * @param integer $product_id The Product ID.
+	 * @param integer $membership_type_id The numeric ID of the Membership Type.
 	 */
 	public function set_product_meta( $product_id, $membership_type_id ) {
 		update_post_meta( $product_id, $this->meta_key, $membership_type_id );
@@ -139,7 +139,7 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
+	 * @param integer $product_id The Product ID.
 	 * @return int|bool $membership_pfv_id The Membership Price Field Value ID, false otherwise.
 	 */
 	public function get_pfv_meta( $product_id ) {
@@ -152,8 +152,8 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
-	 * @param int $membership_pfv_id The numeric ID of the Membership Price Field Value.
+	 * @param integer $product_id The Product ID.
+	 * @param integer $membership_pfv_id The numeric ID of the Membership Price Field Value.
 	 */
 	public function set_pfv_meta( $product_id, $membership_pfv_id ) {
 		update_post_meta( $product_id, $this->pfv_key, $membership_pfv_id );
@@ -164,11 +164,11 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $line_item The array of Line Item data.
+	 * @param array  $line_item The array of Line Item data.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
 	 * @param object $order The WooCommerce Order object.
-	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param array  $params The params to be passed to the CiviCRM API.
 	 * @return array $line_item The modified array of Line Item data.
 	 */
 	public function line_item_filter( $line_item, $item, $product, $order, $params ) {
@@ -402,7 +402,7 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 2.4
 	 *
-	 * @param int $id The numeric ID of the CiviCRM Membership Type.
+	 * @param integer $id The numeric ID of the CiviCRM Membership Type.
 	 * @return array|null $membership_type The CiviCRM Membership Type data, or null on failure.
 	 */
 	public function get_membership_type( $id ) {
@@ -625,10 +625,10 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $loop The position in the loop.
-	 * @param array $variation_data The Product Variation data.
+	 * @param integer $loop The position in the loop.
+	 * @param array   $variation_data The Product Variation data.
 	 * @param WP_Post $variation The WordPress Post data.
-	 * @param string $entity The CiviCRM Entity that this Product Variation is mapped to.
+	 * @param string  $entity The CiviCRM Entity that this Product Variation is mapped to.
 	 */
 	public function attributes_add_markup( $loop, $variation_data, $variation, $entity ) {
 
@@ -672,9 +672,9 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $loop The position in the loop.
+	 * @param integer              $loop The position in the loop.
 	 * @param WC_Product_Variation $variation The Product Variation object.
-	 * @param str $entity The CiviCRM Entity Type.
+	 * @param string               $entity The CiviCRM Entity Type.
 	 */
 	public function variation_saved( $loop, $variation, $entity ) {
 

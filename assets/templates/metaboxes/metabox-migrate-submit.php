@@ -3,7 +3,7 @@
 	<div id="minor-publishing">
 		<div id="misc-publishing-actions">
 			<div class="misc-pub-section">
-				<span><?php _e( 'I have checked everything mentioned here and I am ready to migrate.', 'wpcv-woo-civi-integration' ); ?></span>
+				<span><?php esc_html_e( 'I have checked everything mentioned here and I am ready to migrate.', 'wpcv-woo-civi-integration' ); ?></span>
 			</div>
 		</div>
 		<div class="clear"></div>

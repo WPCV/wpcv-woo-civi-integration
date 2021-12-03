@@ -78,7 +78,7 @@ class WPCV_Woo_Civi_Settings {
 		$this->upgrade_tasks();
 
 		// Store version for later reference if there has been a change.
-		if ( $this->plugin_version != WPCV_WOO_CIVI_VERSION ) {
+		if ( $this->plugin_version !== WPCV_WOO_CIVI_VERSION ) {
 			$this->option_set( 'wpcv_woo_civi_version', WPCV_WOO_CIVI_VERSION );
 		}
 
@@ -192,7 +192,7 @@ class WPCV_Woo_Civi_Settings {
 		 *
 		 * @param array $fields The plugin fields array.
 		 */
-		return apply_filters( 'wpcv_woo_civi/woo_settings/fields', $fields );
+		$fields = apply_filters( 'wpcv_woo_civi/woo_settings/fields', $fields );
 
 		return $fields;
 
@@ -650,7 +650,7 @@ class WPCV_Woo_Civi_Settings {
 	 * @return bool $exists Whether or not the option exists.
 	 */
 	public function option_exists( $option_name = '' ) {
-		if ( $this->option_get( $option_name, 'fenfgehgefdfdjgrkj' ) == 'fenfgehgefdfdjgrkj' ) {
+		if ( $this->option_get( $option_name, 'fenfgehgefdfdjgrkj' ) === 'fenfgehgefdfdjgrkj' ) {
 			return false;
 		}
 		return true;
@@ -676,7 +676,7 @@ class WPCV_Woo_Civi_Settings {
 	 * @since 3.0
 	 *
 	 * @param string $option_name The name of the option.
-	 * @param mixed $value The value to set the option to.
+	 * @param mixed  $value The value to set the option to.
 	 * @return bool $success True if the value of the option was successfully updated.
 	 */
 	public function option_set( $option_name = '', $value = '' ) {
@@ -700,9 +700,9 @@ class WPCV_Woo_Civi_Settings {
 	 *
 	 * @since 3.0
 	 *
-	 * @param mixed $default The default value to return if the option does not exist.
+	 * @param mixed  $default The default value to return if the option does not exist.
 	 * @param string $option The option name.
-	 * @param bool $passed_default Was `get_option()` passed a default value?
+	 * @param bool   $passed_default True if `get_option()` was passed a default value.
 	 * @return mixed $default The default value when the option does not exist.
 	 */
 	public function option_panel_default( $default, $option, $passed_default ) {
@@ -721,9 +721,9 @@ class WPCV_Woo_Civi_Settings {
 	 *
 	 * @since 3.0
 	 *
-	 * @param mixed $default The default value to return if the option does not exist.
+	 * @param mixed  $default The default value to return if the option does not exist.
 	 * @param string $option The option name.
-	 * @param bool $passed_default Was `get_option()` passed a default value?
+	 * @param bool   $passed_default True if `get_option()` was passed a default value.
 	 * @return mixed $default The default value when the option does not exist.
 	 */
 	public function option_contact_type_default( $default, $option, $passed_default ) {

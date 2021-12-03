@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Settings_Network {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $settings_key The Network Settings key.
+	 * @var string $settings_key The Network Settings key.
 	 */
 	public $settings_key = 'woocommerce_civicrm_network_settings';
 
@@ -206,7 +206,7 @@ class WPCV_Woo_Civi_Settings_Network {
 	public function network_settings_save() {
 
 		if ( ! wp_verify_nonce( filter_input( INPUT_POST, 'woocommerce-civicrm-settings', FILTER_SANITIZE_STRING ), 'woocommerce-civicrm-settings' ) ) {
-			wp_die( __( 'Cheating uh?', 'wpcv-woo-civi-integration' ) );
+			wp_die( esc_html__( 'Cheating uh?', 'wpcv-woo-civi-integration' ) );
 		}
 
 		if ( ! empty( $_POST[ $this->settings_key ]['wc_blog_id'] ) ) {

@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $entity_key The CiviCRM Entity Type meta key.
+	 * @var string $entity_key The CiviCRM Entity Type meta key.
 	 */
 	public $entity_key = '_woocommerce_civicrm_entity_type';
 
@@ -32,7 +32,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $financial_type_key The CiviCRM Financial Type ID meta key.
+	 * @var string $financial_type_key The CiviCRM Financial Type ID meta key.
 	 */
 	public $financial_type_key = '_woocommerce_civicrm_financial_type_id';
 
@@ -41,7 +41,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $pfv_key The CiviCRM Contribution Price Field Value ID meta key.
+	 * @var string $pfv_key The CiviCRM Contribution Price Field Value ID meta key.
 	 */
 	public $pfv_key = '_woocommerce_civicrm_contribution_pfv_id';
 
@@ -50,7 +50,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $purchase_activity The array of Purchase Activity Details.
+	 * @var string $purchase_activity The array of Purchase Activity Details.
 	 */
 	public $purchase_activity = [];
 
@@ -120,7 +120,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
+	 * @param integer $product_id The Product ID.
 	 * @return str|bool $entity_type The CiviCRM Entity Type, false otherwise.
 	 */
 	public function get_entity_meta( $product_id ) {
@@ -133,8 +133,8 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
-	 * @param str $entity_type The CiviCRM Entity Type.
+	 * @param integer $product_id The Product ID.
+	 * @param string  $entity_type The CiviCRM Entity Type.
 	 */
 	public function set_entity_meta( $product_id, $entity_type ) {
 		update_post_meta( $product_id, $this->entity_key, $entity_type );
@@ -145,7 +145,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
+	 * @param integer $product_id The Product ID.
 	 * @return int|bool $financial_type_id The Financial Type ID, false otherwise.
 	 */
 	public function get_product_meta( $product_id ) {
@@ -158,8 +158,8 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
-	 * @param int $financial_type_id The numeric ID of the Financial Type.
+	 * @param integer $product_id The Product ID.
+	 * @param integer $financial_type_id The numeric ID of the Financial Type.
 	 */
 	public function set_product_meta( $product_id, $financial_type_id ) {
 		update_post_meta( $product_id, $this->financial_type_key, $financial_type_id );
@@ -170,7 +170,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
+	 * @param integer $product_id The Product ID.
 	 * @return int|bool $contribution_pfv_id The Contribution Price Field Value ID, false otherwise.
 	 */
 	public function get_pfv_meta( $product_id ) {
@@ -183,8 +183,8 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
-	 * @param int $contribution_pfv_id The numeric ID of the Contribution Price Field Value.
+	 * @param integer $product_id The Product ID.
+	 * @param integer $contribution_pfv_id The numeric ID of the Contribution Price Field Value.
 	 */
 	public function set_pfv_meta( $product_id, $contribution_pfv_id ) {
 		update_post_meta( $product_id, $this->pfv_key, $contribution_pfv_id );
@@ -195,7 +195,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $params The existing array of params for the CiviCRM API.
+	 * @param array  $params The existing array of params for the CiviCRM API.
 	 * @param object $order The Order object.
 	 * @return array $params The modified array of params for the CiviCRM API.
 	 */
@@ -224,9 +224,9 @@ class WPCV_Woo_Civi_Products {
 	 * @since 2.2 Line Items added to CiviCRM Contribution.
 	 * @since 3.0 Logic moved to this method.
 	 *
-	 * @param array $params The existing array of params for the CiviCRM API.
+	 * @param array  $params The existing array of params for the CiviCRM API.
 	 * @param object $order The Order object.
-	 * @param array $items The array of Items in the Order.
+	 * @param array  $items The array of Items in the Order.
 	 * @return array $params The modified array of params for the CiviCRM API.
 	 */
 	public function items_build_for_order( $params, $order, $items ) {
@@ -334,6 +334,7 @@ class WPCV_Woo_Civi_Products {
 
 			// Store the Purchase Activity Details.
 			$this->purchase_activity[] = sprintf(
+				/* translators: 1: Product Name, 2: Quantity */
 				__( '%1$s x %2$s', 'wpcv-woo-civi-integration' ),
 				$product->get_name(),
 				$item->get_quantity()
@@ -396,8 +397,8 @@ class WPCV_Woo_Civi_Products {
 		 *
 		 * @since 3.0
 		 *
-		 * @param int Numeric 0 because we are querying the Entity.
-		 * @param int $product_id The WooCommerce Product ID.
+		 * @param integer Numeric 0 because we are querying the Entity.
+		 * @param integer $product_id The WooCommerce Product ID.
 		 * @param object $product The WooCommerce Product object.
 		 */
 		$entity = apply_filters( 'wpcv_woo_civi/product/query/entity_type', '', $product->get_id(), $product );
@@ -407,7 +408,7 @@ class WPCV_Woo_Civi_Products {
 		 *
 		 * @since 3.0
 		 *
-		 * @param bool $skip False because we assume that Products should not be skipped.
+		 * @param bool   $skip False because we assume that Products should not be skipped.
 		 * @param object $item The WooCommerce Item object.
 		 * @param object $product The WooCommerce Product object.
 		 * @param string $product_type The WooCommerce Product Type.
@@ -424,7 +425,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param bool $skip The possibly set "skip" flag.
+	 * @param bool   $skip The possibly set "skip" flag.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
 	 * @param string $product_type The WooCommerce Product Type.
@@ -447,7 +448,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $params The existing array of params for the CiviCRM API.
+	 * @param array  $params The existing array of params for the CiviCRM API.
 	 * @param object $order The Order object.
 	 * @return array $params The modified array of params for the CiviCRM API.
 	 */
@@ -492,7 +493,7 @@ class WPCV_Woo_Civi_Products {
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
 				'method' => __METHOD__,
-				'message' =>  $message,
+				'message' => $message,
 				'params' => $params,
 				'backtrace' => $trace,
 			], true ) );
@@ -516,7 +517,7 @@ class WPCV_Woo_Civi_Products {
 					'unit_price' => $shipping_cost,
 					'label' => 'Shipping',
 					'financial_type_id' => $default_financial_type_shipping_id,
-				]
+				],
 			],
 		];
 
@@ -602,7 +603,7 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		// Make human-readable.
-		$str =  implode( ', ', $this->purchase_activity );
+		$str = implode( ', ', $this->purchase_activity );
 
 		return $str;
 
@@ -620,9 +621,10 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param array  $params The params to be passed to the CiviCRM API.
 	 * @param object $order The WooCommerce Order object.
-	 * @param array $contribution The CiviCRM Contribution data.
+	 * @param array  $contribution The CiviCRM Contribution data.
+	 * @return array $params The modified params to be passed to the CiviCRM API.
 	 */
 	public function payment_total_filter( $params, $order, $contribution ) {
 
@@ -685,9 +687,10 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param array  $params The params to be passed to the CiviCRM API.
 	 * @param object $order The WooCommerce Order object.
-	 * @param array $contribution The CiviCRM Contribution data.
+	 * @param array  $contribution The CiviCRM Contribution data.
+	 * @return array $params The modifed params to be passed to the CiviCRM API.
 	 */
 	public function items_get_for_payment( $params, $order, $contribution ) {
 
@@ -729,7 +732,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $contribution_id The numeric ID of the CiviCRM Contribution.
+	 * @param integer $contribution_id The numeric ID of the CiviCRM Contribution.
 	 * @return array $line_items The CiviCRM Line Item data, or empty on failure.
 	 */
 	public function items_get_by_contribution_id( $contribution_id ) {
@@ -754,7 +757,7 @@ class WPCV_Woo_Civi_Products {
 		$result = civicrm_api( 'LineItem', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Error trying to find Line Items by Contribution ID', 'wpcv-woo-civi-integration' ) );
@@ -773,7 +776,7 @@ class WPCV_Woo_Civi_Products {
 
 		}
 
- 		// The result set is what we want.
+		// The result set is what we want.
 		$line_items = [];
 		if ( ! empty( $result['values'] ) ) {
 			$line_items = $result['values'];
@@ -880,10 +883,10 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param str $entity_type The possibly found Entity Type.
-	 * @param int $product_id The Product ID.
-	 * @param object $product The WooCommerce Product object.
-	 * @return str $entity_type The found Entity Type, passed through otherwise.
+	 * @param string  $entity_type The possibly found Entity Type.
+	 * @param integer $product_id The Product ID.
+	 * @param object  $product The WooCommerce Product object.
+	 * @return string $entity_type The found Entity Type, passed through otherwise.
 	 */
 	public function entity_type_get( $entity_type, $product_id, $product = null ) {
 
@@ -922,7 +925,7 @@ class WPCV_Woo_Civi_Products {
 	 * @since 3.0
 	 *
 	 * @param object $product The WooCommerce Product object.
-	 * @param str $entity_type The CiviCRM Entity Type.
+	 * @param string $entity_type The CiviCRM Entity Type.
 	 */
 	public function entity_type_save( $product, $entity_type ) {
 
@@ -948,10 +951,10 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $financial_type_id The possibly found Financial Type ID.
-	 * @param int $product_id The Product ID.
-	 * @param object $product The WooCommerce Product object.
-	 * @return int $financial_type_id The found Financial Type ID, passed through otherwise.
+	 * @param integer $financial_type_id The possibly found Financial Type ID.
+	 * @param integer $product_id The Product ID.
+	 * @param object  $product The WooCommerce Product object.
+	 * @return integer $financial_type_id The found Financial Type ID, passed through otherwise.
 	 */
 	public function financial_type_id_get( $financial_type_id, $product_id, $product = null ) {
 
@@ -993,8 +996,8 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param object $product The WooCommerce Product object.
-	 * @param int $financial_type_id The Financial Type ID.
+	 * @param object  $product The WooCommerce Product object.
+	 * @param integer $financial_type_id The Financial Type ID.
 	 */
 	public function financial_type_id_save( $product, $financial_type_id ) {
 
@@ -1020,10 +1023,10 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $pfv_id The possibly found Price Field Value ID.
-	 * @param int $product_id The Product ID.
-	 * @param object $product The WooCommerce Product object.
-	 * @return int $pfv_id The found Price Field Value ID, passed through otherwise.
+	 * @param integer $pfv_id The possibly found Price Field Value ID.
+	 * @param integer $product_id The Product ID.
+	 * @param object  $product The WooCommerce Product object.
+	 * @return integer $pfv_id The found Price Field Value ID, passed through otherwise.
 	 */
 	public function pfv_id_get( $pfv_id, $product_id, $product = null ) {
 

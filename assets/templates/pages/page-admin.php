@@ -11,15 +11,20 @@
 ?><!-- assets/templates/pages/page-admin.php -->
 <div class="wrap">
 
-	<h1><?php _e( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ); ?></h1>
+	<h1><?php esc_html_e( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ); ?></h1>
 
-	<p><?php _e( 'Here are some utilities for creating Products from Entities in CiviCRM.', 'wpcv-woo-civi-integration' ); ?></p>
+	<p><?php esc_html_e( 'Here are some utilities for creating Products from Entities in CiviCRM.', 'wpcv-woo-civi-integration' ); ?></p>
 
-	<p><?php echo sprintf(
-		/* translators: %1$s: Opening anchor tag, %2$s: Closing anchor tag */
+	<p><?php
+
+	echo sprintf(
+		/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
 		__( 'If you are looking for the WooCommerce settings for this plugin, you can %1$sfind them here%2$s.', 'wpcv-woo-civi-integration' ),
-		'<a href="' . admin_url( 'admin.php?page=wc-settings&tab=woocommerce_civicrm' ) . '">', '</a>'
-	); ?></p>
+		'<a href="' . admin_url( 'admin.php?page=wc-settings&tab=woocommerce_civicrm' ) . '">',
+		'</a>'
+	);
+
+	?></p>
 
 	<form method="post" id="wpcv_woocivi_admin_form" action="<?php echo $this->page_submit_url_get(); ?>">
 
@@ -35,11 +40,11 @@
 			<div id="dashboard-widgets" class="metabox-holder<?php echo $columns_css; ?>">
 
 				<div id="postbox-container-1" class="postbox-container">
-					<?php do_meta_boxes($screen->id, 'normal', '');  ?>
+					<?php do_meta_boxes( $screen->id, 'normal', '' ); ?>
 				</div>
 
 				<div id="postbox-container-2" class="postbox-container">
-					<?php do_meta_boxes($screen->id, 'side', ''); ?>
+					<?php do_meta_boxes( $screen->id, 'side', '' ); ?>
 				</div>
 
 			</div><!-- #post-body -->
