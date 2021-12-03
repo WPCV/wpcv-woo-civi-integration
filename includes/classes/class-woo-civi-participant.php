@@ -124,7 +124,7 @@ class WPCV_Woo_Civi_Participant {
 	 * @since 3.0
 	 *
 	 * @param integer $product_id The Product ID.
-	 * @return int|bool $event_id The CiviCRM Event ID, false otherwise.
+	 * @return integer|bool $event_id The CiviCRM Event ID, false otherwise.
 	 */
 	public function get_event_meta( $product_id ) {
 		$event_id = get_post_meta( $product_id, $this->event_key, true );
@@ -149,7 +149,7 @@ class WPCV_Woo_Civi_Participant {
 	 * @since 3.0
 	 *
 	 * @param integer $product_id The Product ID.
-	 * @return int|bool $participant_role_id The Participant Role ID, false otherwise.
+	 * @return integer|bool $participant_role_id The Participant Role ID, false otherwise.
 	 */
 	public function get_role_meta( $product_id ) {
 		$participant_role_id = get_post_meta( $product_id, $this->role_key, true );
@@ -174,7 +174,7 @@ class WPCV_Woo_Civi_Participant {
 	 * @since 3.0
 	 *
 	 * @param integer $product_id The Product ID.
-	 * @return int|bool $participant_pfv_id The Participant Price Field Value ID, false otherwise.
+	 * @return integer|bool $participant_pfv_id The Participant Price Field Value ID, false otherwise.
 	 */
 	public function get_pfv_meta( $product_id ) {
 		$participant_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );

@@ -167,7 +167,7 @@ class WPCV_Woo_Civi_Contact {
 	 * @since 3.0
 	 *
 	 * @param integer $order_id The Order ID.
-	 * @return int|bool $contact_id The numeric ID of the CiviCRM Contact, false otherwise.
+	 * @return integer|bool $contact_id The numeric ID of the CiviCRM Contact, false otherwise.
 	 */
 	public function get_order_meta( $order_id ) {
 		$contact_id = get_post_meta( $order_id, $this->meta_key, true );
@@ -420,7 +420,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @param array  $contact The array of CiviCRM Contact data.
 	 * @param string $contact_type The Contact Type. Defaults to "Individual".
-	 * @return int|boolean $contact_id The suggested Contact ID, or false on failure.
+	 * @return integer|boolean $contact_id The suggested Contact ID, or false on failure.
 	 */
 	public function get_by_dedupe_unsupervised( $contact, $contact_type = 'Individual' ) {
 
@@ -461,7 +461,7 @@ class WPCV_Woo_Civi_Contact {
 	 * @param array   $contact The array of Contact data.
 	 * @param string  $contact_type The Contact Type. Defaults to "Individual".
 	 * @param integer $dedupe_rule_id The Dedupe Rule ID.
-	 * @return int|bool $contact_id The numeric Contact ID, or false on failure.
+	 * @return integer|bool $contact_id The numeric Contact ID, or false on failure.
 	 */
 	public function get_by_dedupe_rule( $contact, $contact_type = 'Individual', $dedupe_rule_id ) {
 
@@ -736,7 +736,7 @@ class WPCV_Woo_Civi_Contact {
 	 * @since 3.0
 	 *
 	 * @param object $order The Order object.
-	 * @return int|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
+	 * @return integer|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
 	 */
 	public function create_from_order( $order ) {
 
@@ -821,7 +821,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @param integer $contact_id The numeric ID if the CiviCRM Contact.
 	 * @param object  $order The Order object.
-	 * @return int|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
+	 * @return integer|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
 	 */
 	public function update_from_order( $contact_id, $order ) {
 
@@ -960,9 +960,9 @@ class WPCV_Woo_Civi_Contact {
 	 * @since 3.0
 	 *
 	 * @param object $order The WooCommerce Order object.
-	 * @return int|bool $contact_id The numeric ID of the CiviCRM Contact if found.
-	 *                              Returns 0 if a CiviCRM Contact cannot be found.
-	 *                              Returns boolean false on failure.
+	 * @return integer|bool $contact_id The numeric ID of the CiviCRM Contact if found.
+	 *                                  Returns 0 if a CiviCRM Contact cannot be found.
+	 *                                  Returns boolean false on failure.
 	 */
 	public function get_id_by_order( $order ) {
 

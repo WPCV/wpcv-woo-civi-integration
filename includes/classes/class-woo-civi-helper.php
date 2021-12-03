@@ -629,7 +629,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 3.0
 	 *
-	 * @return str|bool $decimal_separator The CiviCRM Decimal Separator, or false on failure.
+	 * @return string|bool $decimal_separator The CiviCRM Decimal Separator, or false on failure.
 	 */
 	public function get_decimal_separator() {
 
@@ -687,7 +687,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 3.0
 	 *
-	 * @return str|bool $thousand_separator The CiviCRM Thousand Separator, or false on failure.
+	 * @return string|bool $thousand_separator The CiviCRM Thousand Separator, or false on failure.
 	 */
 	public function get_thousand_separator() {
 
@@ -745,7 +745,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int|float $number The WooCommerce number.
+	 * @param integer|float $number The WooCommerce number.
 	 * @return float $civicrm_number The CiviCRM-compliant number.
 	 */
 	public function get_civicrm_float( $number ) {

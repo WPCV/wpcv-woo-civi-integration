@@ -32,7 +32,7 @@ class WC_Product_CiviCRM_Participant extends WC_Product_Simple {
 	 *
 	 * @since 3.0
 	 *
-	 * @param WC_Product|int $product Product instance or ID.
+	 * @param WC_Product|integer $product Product instance or ID.
 	 */
 	public function __construct( $product = 0 ) {
 		parent::__construct( $product );

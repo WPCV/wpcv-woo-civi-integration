@@ -121,7 +121,7 @@ class WPCV_Woo_Civi_Products {
 	 * @since 3.0
 	 *
 	 * @param integer $product_id The Product ID.
-	 * @return str|bool $entity_type The CiviCRM Entity Type, false otherwise.
+	 * @return string|bool $entity_type The CiviCRM Entity Type, false otherwise.
 	 */
 	public function get_entity_meta( $product_id ) {
 		$entity_type = get_post_meta( $product_id, $this->entity_key, true );
@@ -146,7 +146,7 @@ class WPCV_Woo_Civi_Products {
 	 * @since 3.0
 	 *
 	 * @param integer $product_id The Product ID.
-	 * @return int|bool $financial_type_id The Financial Type ID, false otherwise.
+	 * @return integer|bool $financial_type_id The Financial Type ID, false otherwise.
 	 */
 	public function get_product_meta( $product_id ) {
 		$financial_type_id = get_post_meta( $product_id, $this->financial_type_key, true );
@@ -171,7 +171,7 @@ class WPCV_Woo_Civi_Products {
 	 * @since 3.0
 	 *
 	 * @param integer $product_id The Product ID.
-	 * @return int|bool $contribution_pfv_id The Contribution Price Field Value ID, false otherwise.
+	 * @return integer|bool $contribution_pfv_id The Contribution Price Field Value ID, false otherwise.
 	 */
 	public function get_pfv_meta( $product_id ) {
 		$contribution_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );

@@ -151,7 +151,7 @@ class WPCV_Woo_Civi_Settings_States {
 	 * @since 2.0
 	 *
 	 * @param string $woo_country The WooCommerce Country ISO code.
-	 * @return int|bool $id The CiviCRM Country ID, or false on failure.
+	 * @return integer|bool $id The CiviCRM Country ID, or false on failure.
 	 */
 	public function get_civicrm_country_id( $woo_country ) {
 
@@ -199,7 +199,7 @@ class WPCV_Woo_Civi_Settings_States {
 	 * @since 2.0
 	 *
 	 * @param integer $country_id The numeric ID of the CiviCRM Country.
-	 * @return str|bool $iso_code The CiviCRM Country ISO Code, or false on failure.
+	 * @return string|bool $iso_code The CiviCRM Country ISO Code, or false on failure.
 	 */
 	public function get_civicrm_country_iso_code( $country_id ) {
 
@@ -289,7 +289,7 @@ class WPCV_Woo_Civi_Settings_States {
 	 *
 	 * @param string  $woo_state The WooCommerce State.
 	 * @param integer $country_id The numeric ID of the CiviCRM Country.
-	 * @return int|bool $id The numeric ID of the CiviCRM State/Province, or false on failure.
+	 * @return integer|bool $id The numeric ID of the CiviCRM State/Province, or false on failure.
 	 */
 	public function get_civicrm_state_province_id( $woo_state, $country_id ) {
 

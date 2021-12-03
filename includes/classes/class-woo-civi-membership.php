@@ -115,7 +115,7 @@ class WPCV_Woo_Civi_Membership {
 	 * @since 3.0
 	 *
 	 * @param integer $product_id The Product ID.
-	 * @return int|bool $membership_type_id The Membership Type ID, false otherwise.
+	 * @return integer|bool $membership_type_id The Membership Type ID, false otherwise.
 	 */
 	public function get_product_meta( $product_id ) {
 		$membership_type_id = get_post_meta( $product_id, $this->meta_key, true );
@@ -140,7 +140,7 @@ class WPCV_Woo_Civi_Membership {
 	 * @since 3.0
 	 *
 	 * @param integer $product_id The Product ID.
-	 * @return int|bool $membership_pfv_id The Membership Price Field Value ID, false otherwise.
+	 * @return integer|bool $membership_pfv_id The Membership Price Field Value ID, false otherwise.
 	 */
 	public function get_pfv_meta( $product_id ) {
 		$membership_pfv_id = get_post_meta( $product_id, $this->pfv_key, true );

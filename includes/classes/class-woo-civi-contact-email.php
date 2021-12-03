@@ -350,7 +350,7 @@ class WPCV_Woo_Civi_Contact_Email {
 	 * @since 3.0
 	 *
 	 * @param object $order The WooCommerce Order object.
-	 * @return str|bool $email The Email of the current User, or false if not found.
+	 * @return string|bool $email The Email of the current User, or false if not found.
 	 */
 	public function get_by_order( $order ) {
 

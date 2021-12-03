@@ -87,7 +87,7 @@ class WPCV_Woo_Civi_Source {
 	 * @since 3.0
 	 *
 	 * @param integer $order_id The Order ID.
-	 * @return str|bool $source The Source string, false otherwise.
+	 * @return string|bool $source The Source string, false otherwise.
 	 */
 	public function get_order_meta( $order_id ) {
 		$source = (string) get_post_meta( $order_id, $this->meta_key, true );

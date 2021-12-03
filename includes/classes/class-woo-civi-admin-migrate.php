@@ -994,7 +994,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 * @since 3.0
 	 *
 	 * @param string $key The unique identifier for the stepper.
-	 * @return int|bool $offset The numeric value of the stepper, or false otherwise.
+	 * @return integer|bool $offset The numeric value of the stepper, or false otherwise.
 	 */
 	public function stepped_offset_get( $key ) {
 

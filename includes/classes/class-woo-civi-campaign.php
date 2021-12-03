@@ -147,7 +147,7 @@ class WPCV_Woo_Civi_Campaign {
 	 * @since 3.0
 	 *
 	 * @param integer $order_id The Order ID.
-	 * @return int|bool $campaign_id The numeric ID of the CiviCRM Campaign, false otherwise.
+	 * @return integer|bool $campaign_id The numeric ID of the CiviCRM Campaign, false otherwise.
 	 */
 	public function get_order_meta( $order_id ) {
 		$campaign_id = get_post_meta( $order_id, $this->meta_key, true );
