@@ -11,6 +11,8 @@
  * Text Domain: wpcv-woo-civi-integration
  * Domain Path: /languages
  * Depends: CiviCRM
+ *
+ * @package WPCV_Woo_Civi
  */
 
 // Exit if accessed directly.
@@ -375,7 +377,11 @@ class WPCV_Woo_Civi {
 		// Init Product objects.
 		$this->products = new WPCV_Woo_Civi_Products();
 		$this->products_variable = new WPCV_Woo_Civi_Products_Variable();
-		$this->products_custom = new WPCV_Woo_Civi_Products_Custom();
+
+		// Maybe init Custom Products object.
+		if ( defined( 'WPCV_WOO_CIVI_PRODUCTS_CUSTOM' ) && WPCV_WOO_CIVI_PRODUCTS_CUSTOM ) {
+			$this->products_custom = new WPCV_Woo_Civi_Products_Custom();
+		}
 
 		// Init CiviCRM Component objects.
 		$this->campaign = new WPCV_Woo_Civi_Campaign();
@@ -538,7 +544,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 *
-	 * @param array $links The list of plugin links.
+	 * @param array  $links The list of plugin links.
 	 * @param string $file The plugin file.
 	 * @return string $links The modified list of plugin links.
 	 */
@@ -667,7 +673,8 @@ class WPCV_Woo_Civi {
 		$back = sprintf(
 			/* translators: %1$s: The opening anchor tag, %2$s: The closing anchor tag */
 			__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
-			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">', '</a>'
+			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">',
+			'</a>'
 		);
 
 		$message = '<h1>' . $heading . '</h1>';
@@ -707,7 +714,8 @@ class WPCV_Woo_Civi {
 		$back = sprintf(
 			/* translators: %1$s: The opening anchor tag, %2$s: The closing anchor tag */
 			__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
-			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">', '</a>'
+			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">',
+			'</a>'
 		);
 
 		$message = '<h1>' . $heading . '</h1>';
@@ -747,7 +755,8 @@ class WPCV_Woo_Civi {
 		$back = sprintf(
 			/* translators: %1$s: The opening anchor tag, %2$s: The closing anchor tag */
 			__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
-			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">', '</a>'
+			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">',
+			'</a>'
 		);
 
 		$message = '<h1>' . $heading . '</h1>';

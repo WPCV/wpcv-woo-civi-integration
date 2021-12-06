@@ -86,7 +86,7 @@ class WPCV_Woo_Civi_Settings_Products {
 
 		$classes = [];
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
-		if ( ! empty( $product_types_with_panel ) )	{
+		if ( ! empty( $product_types_with_panel ) ) {
 			foreach ( $product_types_with_panel as $product_type ) {
 				$classes[] = 'show_if_' . $product_type;
 			}
@@ -251,8 +251,8 @@ class WPCV_Woo_Civi_Settings_Products {
 	 *
 	 * @since 2.4
 	 *
-	 * @param string $column_name The column name.
-	 * @param int $post_id The WordPress Post ID.
+	 * @param string  $column_name The column name.
+	 * @param integer $post_id The WordPress Post ID.
 	 */
 	public function columns_content( $column_name, $post_id ) {
 
@@ -280,8 +280,8 @@ class WPCV_Woo_Civi_Settings_Products {
 		 *
 		 * @since 3.0
 		 *
-		 * @param int Numeric 0 because we are querying the Entity.
-		 * @param int $post_id The WordPress Post ID.
+		 * @param integer Numeric 0 because we are querying the Entity.
+		 * @param integer $post_id The WordPress Post ID.
 		 * @param object $product The WooCommerce Product object.
 		 */
 		$entity_type = apply_filters( 'wpcv_woo_civi/product/query/entity_type', '', $post_id, $product );
@@ -291,8 +291,8 @@ class WPCV_Woo_Civi_Settings_Products {
 		 *
 		 * @since 3.0
 		 *
-		 * @param int Numeric 0 because we are querying the Financial Type ID.
-		 * @param int $post_id The WordPress Post ID.
+		 * @param integer Numeric 0 because we are querying the Financial Type ID.
+		 * @param integer $post_id The WordPress Post ID.
 		 * @param object $product The WooCommerce Product object.
 		 */
 		$financial_type_id = apply_filters( 'wpcv_woo_civi/product/query/financial_type_id', 0, $post_id, $product );
@@ -302,8 +302,8 @@ class WPCV_Woo_Civi_Settings_Products {
 		 *
 		 * @since 3.0
 		 *
-		 * @param int Numeric 0 because we are querying the Price Field Value ID.
-		 * @param int $post_id The WordPress Post ID.
+		 * @param integer Numeric 0 because we are querying the Price Field Value ID.
+		 * @param integer $post_id The WordPress Post ID.
 		 * @param object $product The WooCommerce Product object.
 		 */
 		$pfv_id = apply_filters( 'wpcv_woo_civi/product/query/pfv_id', 0, $post_id, $product );
@@ -321,25 +321,25 @@ class WPCV_Woo_Civi_Settings_Products {
 		// Show if this Product needs its Entity Type set.
 		if ( empty( $entity_type ) ) {
 			$feedback['entity_type'] = esc_html__( 'Excluded', 'wpcv-woo-civi-integration' );
-		// Show if this Product should not be synced to CiviCRM.
 		} elseif ( $entity_type === 'civicrm_exclude' ) {
+			// Show if this Product should not be synced to CiviCRM.
 			$feedback['entity_type'] = esc_html__( 'Excluded', 'wpcv-woo-civi-integration' );
-		// If there's a specific Entity Type for this Product, use it.
 		} elseif ( array_key_exists( $entity_type, $entity_types ) ) {
+			// If there's a specific Entity Type for this Product, use it.
 			$feedback['entity_type'] = esc_html( $entity_types[ $entity_type ] );
-		// Fall back to "Not found".
 		} else {
+			// Fall back to "Not found".
 			$feedback['entity_type'] = esc_html__( 'Entity Type not found', 'wpcv-woo-civi-integration' );
 		}
 
 		// Show if it has the legacy excluded setting.
 		if ( ! empty( $financial_type_id ) && $financial_type_id === 'exclude' ) {
 			$feedback['financial_type'] = esc_html__( 'Excluded (legacy)', 'wpcv-woo-civi-integration' );
-		// If there's a specific Financial Type for this Product, use it.
 		} elseif ( $financial_type_id !== 0 && array_key_exists( $financial_type_id, $financial_types ) ) {
+			// If there's a specific Financial Type for this Product, use it.
 			$feedback['financial_type'] = esc_html( $financial_types[ $financial_type_id ] );
-		// Fall back to "Not found".
 		} else {
+			// Fall back to "Not found".
 			$feedback['financial_type'] = esc_html__( 'Financial Type not found', 'wpcv-woo-civi-integration' );
 		}
 
@@ -366,12 +366,12 @@ class WPCV_Woo_Civi_Settings_Products {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $post_id The WordPress Post ID.
-	 * @param string $$product_type The WooCommerce Product Type.
-	 * @param string $entity_type The CiviCRM Entity Type.
-	 * @param int $financial_type_id The CiviCRM Financial Type ID.
-	 * @param int $pfv_id The CiviCRM Price Field Value ID.
-	 * @return str $markup The CiviCRM Product data markup.
+	 * @param integer $post_id The WordPress Post ID.
+	 * @param string  $product_type The WooCommerce Product Type.
+	 * @param string  $entity_type The CiviCRM Entity Type.
+	 * @param integer $financial_type_id The CiviCRM Financial Type ID.
+	 * @param integer $pfv_id The CiviCRM Price Field Value ID.
+	 * @return string $markup The CiviCRM Product data markup.
 	 */
 	public function columns_data( $post_id, $product_type, $entity_type, $financial_type_id, $pfv_id ) {
 
@@ -552,7 +552,7 @@ class WPCV_Woo_Civi_Settings_Products {
 			 * @since 3.0
 			 *
 			 * @param object $product The WooCommerce Product object being saved.
-			 * @param int $financial_type_id The CiviCRM Financial Type ID.
+			 * @param integer $financial_type_id The CiviCRM Financial Type ID.
 			 */
 			do_action( 'wpcv_woo_civi/product/save/financial_type_id', $product, $financial_type_id );
 

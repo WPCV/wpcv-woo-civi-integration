@@ -55,13 +55,11 @@ class WPCV_Woo_Civi_Helper {
 	/**
 	 * Initialise this object.
 	 *
+	 * Empty since class properties are now populated on demand.
+	 *
 	 * @since 2.0
 	 */
-	public function initialise() {
-
-		// Empty since class properties are now populated on demand.
-
-	}
+	public function initialise() {}
 
 	/**
 	 * Get a CiviCRM Setting.
@@ -132,7 +130,7 @@ class WPCV_Woo_Civi_Helper {
 
 		// Build options for the Entity Types select.
 		$entity_options['civicrm_exclude'] = __( 'Do not sync to CiviCRM', 'wpcv-woo-civi-integration' );
-		$entity_options['civicrm_contribution'] =  __( 'CiviCRM Contribution', 'wpcv-woo-civi-integration' );
+		$entity_options['civicrm_contribution'] = __( 'CiviCRM Contribution', 'wpcv-woo-civi-integration' );
 
 		/**
 		 * Filters the Entity Types.
@@ -352,7 +350,7 @@ class WPCV_Woo_Civi_Helper {
 			'is_active' => 1,
 			'options' => [
 				'limit' => 0,
-				'sort' => 'weight ASC'
+				'sort' => 'weight ASC',
 			],
 		];
 
@@ -430,7 +428,8 @@ class WPCV_Woo_Civi_Helper {
 		foreach ( $price_sets as $key => $price_set ) {
 
 			// Add renamed ID.
-			$price_set['price_set_id'] = $price_set_id = $price_set['id'];
+			$price_set_id = (int) $price_set['id'];
+			$price_set['price_set_id'] = $price_set_id;
 
 			// Let's give the chained API result array a nicer name.
 			$price_set['price_fields'] = $price_set['api.PriceField.get']['values'];
@@ -446,7 +445,7 @@ class WPCV_Woo_Civi_Helper {
 					$price_field_value['price_field_value_id'] = $value_id;
 
 					// Skip unless matching item.
-					if ( $price_field_id != $price_field_value['price_field_id'] ) {
+					if ( (int) $price_field_id !== (int) $price_field_value['price_field_id'] ) {
 						continue;
 					}
 
@@ -515,6 +514,7 @@ class WPCV_Woo_Civi_Helper {
 		// Build the array for the select with optgroups.
 		foreach ( $price_sets as $price_set_id => $price_set ) {
 			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
+				/* translators: 1: Price Set title, 2: Price Field label */
 				$optgroup_label = sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] );
 				$optgroup_content = [];
 				foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) {
@@ -544,10 +544,10 @@ class WPCV_Woo_Civi_Helper {
 		// Drill down to find the matching Price Field Value ID.
 		foreach ( $price_sets as $price_set ) {
 			foreach ( $price_set['price_fields'] as $price_field ) {
-				foreach ( $price_field['price_field_values'] as  $price_field_value ) {
+				foreach ( $price_field['price_field_values'] as $price_field_value ) {
 
 					// If it matches, return the enclosing Price Set data array.
-					if ( $price_field_value_id == $price_field_value['id'] ) {
+					if ( (int) $price_field_value_id === (int) $price_field_value['id'] ) {
 						return $price_set;
 					}
 
@@ -576,10 +576,10 @@ class WPCV_Woo_Civi_Helper {
 		// Drill down to find the matching Price Field Value ID.
 		foreach ( $price_sets as $price_set ) {
 			foreach ( $price_set['price_fields'] as $price_field ) {
-				foreach ( $price_field['price_field_values'] as  $price_field_value ) {
+				foreach ( $price_field['price_field_values'] as $price_field_value ) {
 
 					// If it matches, return the enclosing Price Field data array.
-					if ( $price_field_value_id == $price_field_value['id'] ) {
+					if ( (int) $price_field_value_id === (int) $price_field_value['id'] ) {
 						return $price_field;
 					}
 
@@ -608,10 +608,10 @@ class WPCV_Woo_Civi_Helper {
 		// Drill down to find the matching Price Field Value ID.
 		foreach ( $price_sets as $price_set ) {
 			foreach ( $price_set['price_fields'] as $price_field ) {
-				foreach ( $price_field['price_field_values'] as  $price_field_value ) {
+				foreach ( $price_field['price_field_values'] as $price_field_value ) {
 
 					// If it matches, return the Price Field Value data array.
-					if ( $price_field_value_id == $price_field_value['id'] ) {
+					if ( (int) $price_field_value_id === (int) $price_field_value['id'] ) {
 						return $price_field_value;
 					}
 
@@ -629,7 +629,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 3.0
 	 *
-	 * @return str|bool $decimal_separator The CiviCRM Decimal Separator, or false on failure.
+	 * @return string|bool $decimal_separator The CiviCRM Decimal Separator, or false on failure.
 	 */
 	public function get_decimal_separator() {
 
@@ -687,7 +687,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 3.0
 	 *
-	 * @return str|bool $thousand_separator The CiviCRM Thousand Separator, or false on failure.
+	 * @return string|bool $thousand_separator The CiviCRM Thousand Separator, or false on failure.
 	 */
 	public function get_thousand_separator() {
 
@@ -745,7 +745,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int|float $number The WooCommerce number.
+	 * @param integer|float $number The WooCommerce number.
 	 * @return float $civicrm_number The CiviCRM-compliant number.
 	 */
 	public function get_civicrm_float( $number ) {
@@ -857,7 +857,7 @@ class WPCV_Woo_Civi_Helper {
 	 * @since 2.0
 	 *
 	 * @param string $payment_method The WooCommerce payment method.
-	 * @return int $id The CiviCRM payment processor ID.
+	 * @return integer $id The CiviCRM payment processor ID.
 	 */
 	public function payment_instrument_map( $payment_method ) {
 
@@ -997,7 +997,7 @@ class WPCV_Woo_Civi_Helper {
 	 * @since 3.0
 	 *
 	 * @return DateTimeZone $timezone The site timezone.
-	*/
+	 */
 	public function get_site_timezone() {
 
 		/*

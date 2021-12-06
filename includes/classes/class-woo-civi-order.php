@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Order {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $is_checkout True if in Checkout, false otherwise.
+	 * @var string $is_checkout True if in Checkout, false otherwise.
 	 */
 	public $is_checkout = false;
 
@@ -88,7 +88,7 @@ class WPCV_Woo_Civi_Order {
 	 * @since 3.0
 	 *
 	 * @param object $order The Order object.
-	 * @param array $data The Order data.
+	 * @param array  $data The Order data.
 	 */
 	public function checkout_create_order( $order, $data ) {
 
@@ -103,22 +103,22 @@ class WPCV_Woo_Civi_Order {
 	 * @since 2.0
 	 * @since 3.0 Renamed from "action_order".
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param array $posted_data The posted data.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param array   $posted_data The posted data.
+	 * @param object  $order The Order object.
 	 */
 	public function checkout_order_processed( $order_id, $posted_data, $order ) {
 
 		// Bail if Order is 'free' (0 amount) and 0 amount setting is enabled.
 		$ignore_zero_orders = WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false ) );
 		if ( $ignore_zero_orders && $order->get_total() === 0 ) {
-			return false;
+			return;
 		}
 
 		// Add the Contribution record.
 		$contribution = WPCV_WCI()->contribution->create_from_order( $order );
 		if ( $contribution === false ) {
-			return false;
+			return;
 		}
 
 		/**
@@ -128,7 +128,7 @@ class WPCV_Woo_Civi_Order {
 		 *
 		 * @since 3.0
 		 *
-		 * @param int $order_id The Order ID.
+		 * @param integer $order_id The Order ID.
 		 * @param object $order The Order object.
 		 * @param array $contribution The array of Contribution data, or false on failure.
 		 */
@@ -143,8 +143,8 @@ class WPCV_Woo_Civi_Order {
 	 * @since 3.0 Renamed from "save_order".
 	 * @since 3.0 Added $order param.
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
 	 */
 	public function order_new( $order_id, $order ) {
 
@@ -166,8 +166,8 @@ class WPCV_Woo_Civi_Order {
 		 *
 		 * @since 3.0
 		 *
-		 * @param int $order_id The Order ID.
-		 * @param object $order The Order object.
+		 * @param integer $order_id The Order ID.
+		 * @param object  $order The Order object.
 		 */
 		do_action( 'wpcv_woo_civi/order/new', $order_id, $order );
 
@@ -178,8 +178,8 @@ class WPCV_Woo_Civi_Order {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
 	 */
 	public function order_updated( $order_id, $order ) {
 
@@ -192,12 +192,11 @@ class WPCV_Woo_Civi_Order {
 	 * statuses from which the transition to "completed" can be made. Using the
 	 * "woocommerce_valid_order_statuses_for_payment" filter could solve this.
 	 *
-	 *
 	 * @since 3.0
 	 * @since WooCommerce 3.9.0
 	 *
-	 * @param int Order ID
-	 * @param WC_Order Order object
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
 	 */
 	public function order_status_changed_to_paid( $order_id, $order ) {
 
@@ -221,10 +220,10 @@ class WPCV_Woo_Civi_Order {
 	 * @since 3.0 Renamed from "update_order_status".
 	 * @since 3.0 Added $order param.
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param string $old_status The old status.
-	 * @param string $new_status The new status.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param string  $old_status The old status.
+	 * @param string  $new_status The new status.
+	 * @param object  $order The Order object.
 	 */
 	public function order_status_changed( $order_id, $old_status, $new_status, $order ) {
 
@@ -256,7 +255,7 @@ class WPCV_Woo_Civi_Order {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contribution The CiviCRM Contribution data.
+	 * @param array  $contribution The CiviCRM Contribution data.
 	 * @param object $order The WooCommerce Order object.
 	 */
 	public function note_add_contribution_created( $contribution, $order ) {
@@ -282,7 +281,7 @@ class WPCV_Woo_Civi_Order {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contact The CiviCRM Contact data.
+	 * @param array  $contact The CiviCRM Contact data.
 	 * @param object $order The WooCommerce Order object.
 	 */
 	public function note_add_contact_created( $contact, $order ) {
@@ -304,7 +303,7 @@ class WPCV_Woo_Civi_Order {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contact The CiviCRM Contact data.
+	 * @param array  $contact The CiviCRM Contact data.
 	 * @param object $order The WooCommerce Order object.
 	 */
 	public function note_add_contact_updated( $contact, $order ) {

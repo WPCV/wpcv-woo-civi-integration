@@ -61,7 +61,7 @@ class WPCV_Woo_Civi_Tax {
 	public function register_hooks() {
 
 		// Modify params when an Order has a tax value.
-		add_action( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'contribution_tax_add' ], 100, 2 );
+		//add_action( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'contribution_tax_add' ], 100, 2 );
 
 		// Add Tax to Line Item.
 		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_tax_add' ], 10, 5 );
@@ -101,7 +101,7 @@ class WPCV_Woo_Civi_Tax {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $params The existing array of params for the CiviCRM API.
+	 * @param array  $params The existing array of params for the CiviCRM API.
 	 * @param object $order The Order object.
 	 * @return array $params The modified array of params for the CiviCRM API.
 	 */
@@ -115,7 +115,6 @@ class WPCV_Woo_Civi_Tax {
 
 		// Tax is recalculated by the Order API.
 		// TODO: Review when float issues are resolved.
-		return $params;
 
 		// Assign Tax to CiviCRM API params.
 		$params['tax_amount'] = $total_tax;
@@ -148,37 +147,6 @@ class WPCV_Woo_Civi_Tax {
 		 */
 		return $params;
 
-		/*
-		// Get the default Tax/VAT Financial Type.
-		$default_financial_type_vat_id = get_option( 'woocommerce_civicrm_financial_type_vat_id' );
-
-		// Needs to be defined in Settings.
-		if ( empty( $default_financial_type_vat_id ) ) {
-
-			// Write message to CiviCRM log.
-			$message = __( 'There must be a default Tax/VAT Financial Type set.', 'wpcv-woo-civi-integration' );
-			CRM_Core_Error::debug_log_message( $message );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'message' =>  $message,
-				'params' => $params,
-				'backtrace' => $trace,
-			], true ) );
-
-			return $params;
-
-		}
-
-		// Override with the default VAT Financial Type.
-		$params['financial_type_id'] = $default_financial_type_vat_id;
-
-		return $params;
-		*/
-
 	}
 
 	/**
@@ -186,11 +154,12 @@ class WPCV_Woo_Civi_Tax {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $line_item The array of Line Item data.
+	 * @param array  $line_item The array of Line Item data.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
 	 * @param object $order The WooCommerce Order object.
-	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param array  $params The params to be passed to the CiviCRM API.
+	 * @return array $line_item The modified array of Line Item data.
 	 */
 	public function line_item_tax_add( $line_item, $item, $product, $order, $params ) {
 
@@ -249,7 +218,7 @@ class WPCV_Woo_Civi_Tax {
 				'account_relationship',
 				'financial_account_id',
 				'financial_account_id.financial_account_type_id',
-				'financial_account_id.tax_rate'
+				'financial_account_id.tax_rate',
 			],
 			'financial_account_id.is_active' => 1,
 			'financial_account_id.is_tax' => 1,
@@ -279,15 +248,19 @@ class WPCV_Woo_Civi_Tax {
 		}
 
 		// Return early if there's nothing to see.
-		if ( $result['count'] == 0 ) {
+		if ( 0 === (int) $result['count'] ) {
 			return false;
 		}
 
 		// Build tax rates.
-		$tax_rates = array_reduce( $result['values'], function( $tax_rates, $financial_account ) {
-			$tax_rates[ $financial_account['entity_id'] ] = $financial_account['financial_account_id.tax_rate'];
-			return $tax_rates;
-		}, [] );
+		$tax_rates = array_reduce(
+			$result['values'],
+			function( $tax_rates, $financial_account ) {
+				$tax_rates[ $financial_account['entity_id'] ] = $financial_account['financial_account_id.tax_rate'];
+				return $tax_rates;
+			},
+			[]
+		);
 
 		return $tax_rates;
 

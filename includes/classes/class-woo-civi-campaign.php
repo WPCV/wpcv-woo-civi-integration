@@ -34,7 +34,7 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $meta_key The WooCommerce Order meta key.
+	 * @var string $meta_key The WooCommerce Order meta key.
 	 */
 	public $meta_key = '_woocommerce_civicrm_campaign_id';
 
@@ -146,8 +146,8 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @return int|bool $campaign_id The numeric ID of the CiviCRM Campaign, false otherwise.
+	 * @param integer $order_id The Order ID.
+	 * @return integer|bool $campaign_id The numeric ID of the CiviCRM Campaign, false otherwise.
 	 */
 	public function get_order_meta( $order_id ) {
 		$campaign_id = get_post_meta( $order_id, $this->meta_key, true );
@@ -159,8 +159,8 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param int $campaign_id The numeric ID of the CiviCRM Campaign.
+	 * @param integer $order_id The Order ID.
+	 * @param integer $campaign_id The numeric ID of the CiviCRM Campaign.
 	 */
 	public function set_order_meta( $order_id, $campaign_id ) {
 		update_post_meta( $order_id, $this->meta_key, (int) $campaign_id );
@@ -340,7 +340,7 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $campaign_id The numeric ID of the CiviCRM Campaign.
+	 * @param integer $campaign_id The numeric ID of the CiviCRM Campaign.
 	 * @return array|bool $campaign The array of data for CiviCRM Campaign, or false on failure.
 	 */
 	public function get_campaign_by_id( $campaign_id ) {
@@ -399,7 +399,7 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $campaign_name The name of the CiviCRM Campaign.
+	 * @param integer $campaign_name The name of the CiviCRM Campaign.
 	 * @return array|bool $campaign The array of data for CiviCRM Campaign, or false on failure.
 	 */
 	public function get_campaign_by_name( $campaign_name ) {
@@ -554,7 +554,7 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $params The existing array of params for the CiviCRM API.
+	 * @param array  $params The existing array of params for the CiviCRM API.
 	 * @param object $order The Order object.
 	 * @return array $params The modified array of params for the CiviCRM API.
 	 */
@@ -598,8 +598,8 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
 	 */
 	public function order_new( $order_id, $order ) {
 
@@ -624,8 +624,8 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
 	 */
 	public function order_updated( $order_id, $order ) {
 
@@ -635,7 +635,7 @@ class WPCV_Woo_Civi_Campaign {
 
 		// This only needs to be done once.
 		static $done;
-		if ( isset( $done ) AND $done === true ) {
+		if ( isset( $done ) && $done === true ) {
 			return;
 		}
 
@@ -652,9 +652,9 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 2.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param string $old_campaign_id The old Campaign.
-	 * @param string $new_campaign_id The new Campaign.
+	 * @param integer $order_id The Order ID.
+	 * @param string  $old_campaign_id The old Campaign.
+	 * @param string  $new_campaign_id The new Campaign.
 	 * @return bool True if successful, or false on failure.
 	 */
 	public function campaign_update( $order_id, $old_campaign_id, $new_campaign_id ) {
@@ -665,7 +665,7 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		// Bail if the Campaign has not changed.
-		if ( (int) $old_campaign_id == (int) $new_campaign_id ) {
+		if ( (int) $old_campaign_id === (int) $new_campaign_id ) {
 			return true;
 		}
 
@@ -752,8 +752,8 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 2.0
 	 *
-	 * @param string $column_name The column name.
-	 * @param int $post_id The WordPress Post ID.
+	 * @param string  $column_name The column name.
+	 * @param integer $post_id The WordPress Post ID.
 	 */
 	public function columns_content( $column_name, $post_id ) {
 
@@ -892,7 +892,7 @@ class WPCV_Woo_Civi_Campaign {
 		 *
 		 * @since 2.2
 		 *
-		 * @param str The array of Campaigns to fetch. Default 'campaigns'.
+		 * @param string The array of Campaigns to fetch. Default 'campaigns'.
 		 */
 		$campaign_array = apply_filters( 'wpcv_woo_civi/campaign/campaign_list/get', 'campaigns' );
 

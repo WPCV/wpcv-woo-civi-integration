@@ -123,8 +123,8 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 	 *
 	 * @uses 'woocommerce_settings_tabs_array' filter.
 	 *
-	 * @param string $tabset_name The name of the screen or visual element.
-	 * @param array $tabs The array of tabs.
+	 * @param string       $tabset_name The name of the screen or visual element.
+	 * @param array        $tabs The array of tabs.
 	 * @param string|array $context Extra data about the screen.
 	 */
 	public function add_orders_contact_tab( $tabset_name, &$tabs, $context ) {
@@ -160,11 +160,12 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 	 * Get Customer raw Orders.
 	 *
 	 * @since 2.2
+	 * @since 3.0 Renamed.
 	 *
-	 * @param int $contact_id The Contact ID.
+	 * @param integer $contact_id The Contact ID.
 	 * @return array $customer_orders The array of raw Order data.
 	 */
-	private function _get_orders( $contact_id ) {
+	private function get_orders_raw( $contact_id ) {
 
 		$this->fix_site();
 		$uid = abs( CRM_Core_BAO_UFMatch::getUFId( $contact_id ) );
@@ -199,13 +200,13 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 		}
 
 		$order_statuses = [
-			'wc-pending'    => _x( 'Pending payment', 'Order status', 'woocommerce' ),
-			'wc-processing' => _x( 'Processing', 'Order status', 'woocommerce' ),
-			'wc-on-hold'    => _x( 'On hold', 'Order status', 'woocommerce' ),
-			'wc-completed'  => _x( 'Completed', 'Order status', 'woocommerce' ),
-			'wc-cancelled'  => _x( 'Cancelled', 'Order status', 'woocommerce' ),
-			'wc-refunded'   => _x( 'Refunded', 'Order status', 'woocommerce' ),
-			'wc-failed'     => _x( 'Failed', 'Order status', 'woocommerce' ),
+			'wc-pending'    => _x( 'Pending payment', 'Order status', 'wpcv-woo-civi-integration' ),
+			'wc-processing' => _x( 'Processing', 'Order status', 'wpcv-woo-civi-integration' ),
+			'wc-on-hold'    => _x( 'On hold', 'Order status', 'wpcv-woo-civi-integration' ),
+			'wc-completed'  => _x( 'Completed', 'Order status', 'wpcv-woo-civi-integration' ),
+			'wc-cancelled'  => _x( 'Cancelled', 'Order status', 'wpcv-woo-civi-integration' ),
+			'wc-refunded'   => _x( 'Refunded', 'Order status', 'wpcv-woo-civi-integration' ),
+			'wc-failed'     => _x( 'Failed', 'Order status', 'wpcv-woo-civi-integration' ),
 		];
 
 		/**
@@ -256,11 +257,11 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 	 *
 	 * @since 2.2
 	 *
-	 * @param int $contact_id The Contact ID.
-	 * @return int $orders_count The number of Orders.
+	 * @param integer $contact_id The Contact ID.
+	 * @return integer $orders_count The number of Orders.
 	 */
 	public function count_orders( $contact_id ) {
-		return count( $this->_get_orders( $contact_id ) );
+		return count( $this->get_orders_raw( $contact_id ) );
 	}
 
 	/**
@@ -268,12 +269,12 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 	 *
 	 * @since 2.1
 	 *
-	 * @param int $contact_id The Contact ID.
+	 * @param integer $contact_id The Contact ID.
 	 * @return array|bool $orders The array of Orders, or false on failure.
 	 */
 	public function get_orders( $contact_id ) {
 
-		$customer_orders = $this->_get_orders( $contact_id );
+		$customer_orders = $this->get_orders_raw( $contact_id );
 		$orders = [];
 		$date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
 

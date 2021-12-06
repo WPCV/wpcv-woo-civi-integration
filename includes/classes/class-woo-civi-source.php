@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $meta_key The WooCommerce Order meta key.
+	 * @var string $meta_key The WooCommerce Order meta key.
 	 */
 	public $meta_key = '_order_source';
 
@@ -86,8 +86,8 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @return str|bool $source The Source string, false otherwise.
+	 * @param integer $order_id The Order ID.
+	 * @return string|bool $source The Source string, false otherwise.
 	 */
 	public function get_order_meta( $order_id ) {
 		$source = (string) get_post_meta( $order_id, $this->meta_key, true );
@@ -99,8 +99,8 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param str $source The Source string.
+	 * @param integer $order_id The Order ID.
+	 * @param string  $source The Source string.
 	 */
 	public function set_order_meta( $order_id, $source ) {
 		update_post_meta( $order_id, $this->meta_key, (string) $source );
@@ -111,8 +111,8 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
 	 */
 	public function order_new( $order_id, $order ) {
 
@@ -146,8 +146,8 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
 	 */
 	public function order_updated( $order_id, $order ) {
 
@@ -157,7 +157,7 @@ class WPCV_Woo_Civi_Source {
 
 		// This only needs to be done once.
 		static $done;
-		if ( isset( $done ) AND $done === true ) {
+		if ( isset( $done ) && $done === true ) {
 			return;
 		}
 
@@ -174,8 +174,8 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
 	 */
 	public function order_processed( $order_id, $order ) {
 
@@ -196,8 +196,8 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @since 2.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param string $new_source The new Source.
+	 * @param integer $order_id The Order ID.
+	 * @param string  $new_source The new Source.
 	 * @return bool True if successful, or false on failure.
 	 */
 	public function source_update( $order_id, $new_source ) {
@@ -261,7 +261,7 @@ class WPCV_Woo_Civi_Source {
 		 *
 		 * @since 3.0
 		 *
-		 * @param str $source The Contribution Source string.
+		 * @param string $source The Contribution Source string.
 		 * @param object $order The Order object.
 		 */
 		$source = apply_filters( 'wpcv_woo_civi/order/source/generate', $source, $order );
@@ -275,7 +275,7 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $params The existing array of params for the CiviCRM API.
+	 * @param array  $params The existing array of params for the CiviCRM API.
 	 * @param object $order The Order object.
 	 * @return array $params The modified array of params for the CiviCRM API.
 	 */
@@ -321,8 +321,8 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @since 2.0
 	 *
-	 * @param string $column_name The column name.
-	 * @param int $post_id The WordPress Post ID.
+	 * @param string  $column_name The column name.
+	 * @param integer $post_id The WordPress Post ID.
 	 */
 	public function columns_content( $column_name, $post_id ) {
 

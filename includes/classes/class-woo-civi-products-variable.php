@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $entity_key The CiviCRM Entity Type meta key.
+	 * @var string $entity_key The CiviCRM Entity Type meta key.
 	 */
 	public $entity_key = '_wpcv_wci_variable_civicrm_entity_type';
 
@@ -136,7 +136,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	public function tab_add( $tabs ) {
 
 		$tabs['civicrm_variable'] = [
-			'label' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
+			'label' => __( 'CiviCRM Entity', 'wpcv-woo-civi-integration' ),
 			'target' => 'civicrm_variable',
 			'class' => [
 				'show_if_variable',
@@ -237,8 +237,8 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $loop The position in the loop.
-	 * @param array $variation_data The Variation data.
+	 * @param integer $loop The position in the loop.
+	 * @param array   $variation_data The Variation data.
 	 * @param WP_Post $variation The WordPress Post data.
 	 */
 	public function variation_attributes_render( $loop, $variation_data, $variation ) {
@@ -286,7 +286,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	 * @since 3.0
 	 *
 	 * @param WC_Product_Variation $variation The Product Variation object.
-	 * @param int $loop The position in the loop.
+	 * @param integer              $loop The position in the loop.
 	 */
 	public function variation_saved( $variation, $loop ) {
 
@@ -296,7 +296,7 @@ class WPCV_Woo_Civi_Products_Variable {
 		 * @since 3.0
 		 *
 		 * @param WC_Product_Variation $variation The Product Variation object.
-		 * @param int $loop The position in the loop.
+		 * @param integer $loop The position in the loop.
 		 */
 		do_action( 'wpcv_woo_civi/product/variation/attributes/saved/before', $variation, $loop );
 
@@ -347,8 +347,8 @@ class WPCV_Woo_Civi_Products_Variable {
 		 * @since 3.0
 		 *
 		 * @param WC_Product_Variation $variation The Product Variation object.
-		 * @param int $loop The position in the loop.
-		 * @param str $entity_type The CiviCRM Entity Type.
+		 * @param integer $loop The position in the loop.
+		 * @param string $entity_type The CiviCRM Entity Type.
 		 */
 		do_action( 'wpcv_woo_civi/product/variation/attributes/saved/after', $variation, $loop, $entity_type );
 
@@ -359,7 +359,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param bool $skip The possibly set "skip" flag.
+	 * @param bool   $skip The possibly set "skip" flag.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
 	 * @param string $product_type The WooCommerce Product Type.
@@ -382,11 +382,11 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $line_item The array of Line Item data.
+	 * @param array  $line_item The array of Line Item data.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
 	 * @param object $order The WooCommerce Order object.
-	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param array  $params The params to be passed to the CiviCRM API.
 	 * @return array $line_item The modified array of Line Item data.
 	 */
 	public function line_item_filter( $line_item, $item, $product, $order, $params ) {
@@ -402,13 +402,13 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Send to relevant method.
 		switch ( $entity_type ) {
-			case 'civicrm_contribution' :
+			case 'civicrm_contribution':
 				$line_item = $this->line_item_contribution_filter( $line_item, $item, $product, $order, $params );
 				break;
-			case 'civicrm_membership' :
+			case 'civicrm_membership':
 				$line_item = $this->line_item_membership_filter( $line_item, $item, $product, $order, $params );
 				break;
-			case 'civicrm_participant' :
+			case 'civicrm_participant':
 				$line_item = $this->line_item_participant_filter( $line_item, $item, $product, $order, $params );
 				break;
 		}
@@ -422,11 +422,11 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $line_item The array of Line Item data.
+	 * @param array  $line_item The array of Line Item data.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
 	 * @param object $order The WooCommerce Order object.
-	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param array  $params The params to be passed to the CiviCRM API.
 	 * @return array $line_item The modified array of Line Item data.
 	 */
 	public function line_item_contribution_filter( $line_item, $item, $product, $order, $params ) {
@@ -497,11 +497,11 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $line_item The array of Line Item data.
+	 * @param array  $line_item The array of Line Item data.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
 	 * @param object $order The WooCommerce Order object.
-	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param array  $params The params to be passed to the CiviCRM API.
 	 * @return array $line_item The modified array of Line Item data.
 	 */
 	public function line_item_membership_filter( $line_item, $item, $product, $order, $params ) {
@@ -563,11 +563,11 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $line_item The array of Line Item data.
+	 * @param array  $line_item The array of Line Item data.
 	 * @param object $item The WooCommerce Item object.
 	 * @param object $product The WooCommerce Product object.
 	 * @param object $order The WooCommerce Order object.
-	 * @param array $params The params to be passed to the CiviCRM API.
+	 * @param array  $params The params to be passed to the CiviCRM API.
 	 * @return array $line_item The modified array of Line Item data.
 	 */
 	public function line_item_participant_filter( $line_item, $item, $product, $order, $params ) {
@@ -635,9 +635,9 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param str $type The type of Product Variation.
-	 * @param str $key The shorthand for the meta key.
-	 * @return str The requested meta key.
+	 * @param string $type The type of Product Variation.
+	 * @param string $key The shorthand for the meta key.
+	 * @return string The requested meta key.
 	 */
 	public function get_meta_key( $type, $key ) {
 
@@ -662,9 +662,9 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
-	 * @param str $type The type of Product Variation.
-	 * @param str $key The name of the meta key.
+	 * @param integer $product_id The Product ID.
+	 * @param string  $type The type of Product Variation.
+	 * @param string  $key The name of the meta key.
 	 * @return mixed $value The value, false otherwise.
 	 */
 	public function get_meta( $product_id, $type, $key ) {
@@ -680,10 +680,10 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $product_id The Product ID.
-	 * @param str $type The type of Product Variation.
-	 * @param str $key The name of the meta key.
-	 * @param mixed $value The value to save.
+	 * @param integer $product_id The Product ID.
+	 * @param string  $type The type of Product Variation.
+	 * @param string  $key The name of the meta key.
+	 * @param mixed   $value The value to save.
 	 */
 	public function set_meta( $product_id, $type, $key, $value ) {
 		if ( ! empty( $this->product_variation_meta[ $type ][ $key ] ) ) {
@@ -734,10 +734,10 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param str $entity_type The possibly found Entity Type.
-	 * @param int $product_id The Product ID.
-	 * @param object $product The WooCommerce Product object.
-	 * @return str $entity_type The found Entity Type, passed through otherwise.
+	 * @param string  $entity_type The possibly found Entity Type.
+	 * @param integer $product_id The Product ID.
+	 * @param object  $product The WooCommerce Product object.
+	 * @return string $entity_type The found Entity Type, passed through otherwise.
 	 */
 	public function entity_type_get( $entity_type, $product_id, $product = null ) {
 
@@ -782,7 +782,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	 * @since 3.0
 	 *
 	 * @param object $product The WooCommerce Product object.
-	 * @param str $entity_type The CiviCRM Entity Type.
+	 * @param string $entity_type The CiviCRM Entity Type.
 	 */
 	public function entity_type_save( $product, $entity_type ) {
 
@@ -818,10 +818,10 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $financial_type_id The possibly found Financial Type ID.
-	 * @param int $product_id The Product ID.
-	 * @param object $product The WooCommerce Product object.
-	 * @return int $financial_type_id The found Financial Type ID, passed through otherwise.
+	 * @param integer $financial_type_id The possibly found Financial Type ID.
+	 * @param integer $product_id The Product ID.
+	 * @param object  $product The WooCommerce Product object.
+	 * @return integer $financial_type_id The found Financial Type ID, passed through otherwise.
 	 */
 	public function financial_type_id_get( $financial_type_id, $product_id, $product = null ) {
 
@@ -866,8 +866,8 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 *
-	 * @param object $product The WooCommerce Product object.
-	 * @param int $financial_type_id The Financial Type ID.
+	 * @param object  $product The WooCommerce Product object.
+	 * @param integer $financial_type_id The Financial Type ID.
 	 */
 	public function financial_type_id_save( $product, $financial_type_id ) {
 

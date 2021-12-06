@@ -60,7 +60,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $meta_key The WooCommerce Order meta key.
+	 * @var string $meta_key The WooCommerce Order meta key.
 	 */
 	public $meta_key = '_woocommerce_civicrm_contact_id';
 
@@ -69,7 +69,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $is_checkout True if in Checkout, false otherwise.
+	 * @var string $is_checkout True if in Checkout, false otherwise.
 	 */
 	public $is_checkout = false;
 
@@ -166,8 +166,8 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @return int|bool $contact_id The numeric ID of the CiviCRM Contact, false otherwise.
+	 * @param integer $order_id The Order ID.
+	 * @return integer|bool $contact_id The numeric ID of the CiviCRM Contact, false otherwise.
 	 */
 	public function get_order_meta( $order_id ) {
 		$contact_id = get_post_meta( $order_id, $this->meta_key, true );
@@ -179,8 +179,8 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param int $contact_id The numeric ID of the CiviCRM Contact.
+	 * @param integer $order_id The Order ID.
+	 * @param integer $contact_id The numeric ID of the CiviCRM Contact.
 	 */
 	public function set_order_meta( $order_id, $contact_id ) {
 		update_post_meta( $order_id, $this->meta_key, (int) $contact_id );
@@ -199,7 +199,7 @@ class WPCV_Woo_Civi_Contact {
 	 * @since 3.0
 	 *
 	 * @param object $order The Order object.
-	 * @param array $data The Order data.
+	 * @param array  $data The Order data.
 	 */
 	public function checkout_create_order( $order, $data ) {
 
@@ -213,8 +213,8 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
 	 */
 	public function order_new( $order_id, $order ) {
 
@@ -231,7 +231,7 @@ class WPCV_Woo_Civi_Contact {
 		 *
 		 * @since 3.0
 		 *
-		 * @param int $order_id The Order ID.
+		 * @param integer $order_id The Order ID.
 		 * @param object $order The Order object.
 		 */
 		do_action( 'wpcv_woo_civi/contact/order/new', $order_id, $order );
@@ -243,13 +243,13 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param array $posted_data The posted data.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param array   $posted_data The posted data.
+	 * @param object  $order The Order object.
 	 */
 	public function order_processed( $order_id, $posted_data, $order ) {
 
-		// Get the Contact ID (or false on error)
+		// Get the Contact ID - or false on error.
 		$contact_id = $this->get_id_by_order( $order );
 
 		// TODO: Do we want to bail here, or carry on if there's an error?
@@ -318,7 +318,7 @@ class WPCV_Woo_Civi_Contact {
 		$result = civicrm_api( 'Contact', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Failed to get Contact by ID', 'wpcv-woo-civi-integration' ) );
@@ -357,7 +357,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 *
-	 * @param str $email The Email address.
+	 * @param string $email The Email address.
 	 * @return array|bool $contacts The array of CiviCRM Contacts, or false on failure.
 	 */
 	public function get_by_email( $email ) {
@@ -418,9 +418,9 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contact The array of CiviCRM Contact data.
+	 * @param array  $contact The array of CiviCRM Contact data.
 	 * @param string $contact_type The Contact Type. Defaults to "Individual".
-	 * @return int|boolean $contact_id The suggested Contact ID, or false on failure.
+	 * @return integer|boolean $contact_id The suggested Contact ID, or false on failure.
 	 */
 	public function get_by_dedupe_unsupervised( $contact, $contact_type = 'Individual' ) {
 
@@ -458,10 +458,10 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contact The array of Contact data.
-	 * @param string $contact_type The Contact Type. Defaults to "Individual".
-	 * @param int $dedupe_rule_id The Dedupe Rule ID.
-	 * @return int|bool $contact_id The numeric Contact ID, or false on failure.
+	 * @param array   $contact The array of Contact data.
+	 * @param string  $contact_type The Contact Type. Defaults to "Individual".
+	 * @param integer $dedupe_rule_id The Dedupe Rule ID.
+	 * @return integer|bool $contact_id The numeric Contact ID, or false on failure.
 	 */
 	public function get_by_dedupe_rule( $contact, $contact_type = 'Individual', $dedupe_rule_id ) {
 
@@ -482,7 +482,7 @@ class WPCV_Woo_Civi_Contact {
 		$contact_id = 0;
 
 		// Check for duplicates.
-		$contact_ids = CRM_Dedupe_Finder::dupesByParams( $dedupe_params, $contact_type, NULL, [], $dedupe_rule_id );
+		$contact_ids = CRM_Dedupe_Finder::dupesByParams( $dedupe_params, $contact_type, null, [], $dedupe_rule_id );
 
 		// Return the suggested Contact ID.
 		if ( ! empty( $contact_ids ) ) {
@@ -517,10 +517,10 @@ class WPCV_Woo_Civi_Contact {
 
 		// Add the Dedupe Rules for all Contact Types.
 		$types = $this->types_get();
-		foreach( $types AS $type => $name ) {
+		foreach ( $types as $type => $name ) {
 			if ( empty( $contact_type ) ) {
 				$dedupe_rules[ $type ] = CRM_Dedupe_BAO_RuleGroup::getByType( $type );
-			} elseif ( $contact_type == $type ) {
+			} elseif ( $contact_type === $type ) {
 				$dedupe_rules[ $type ] = CRM_Dedupe_BAO_RuleGroup::getByType( $type );
 			}
 		}
@@ -539,8 +539,8 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 2.0
 	 *
-	 * @param int $id The CiviCRM Contact ID or WordPress User ID.
-	 * @param string $property Either 'contact_id' or 'uf_id'.
+	 * @param integer $id The CiviCRM Contact ID or WordPress User ID.
+	 * @param string  $property Either 'contact_id' or 'uf_id'.
 	 * @return array $result The UFMatch data, or empty array on failure.
 	 */
 	public function get_ufmatch( $id, $property ) {
@@ -565,7 +565,7 @@ class WPCV_Woo_Civi_Contact {
 		$result = civicrm_api3( 'UFMatch', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM UFMatch data.', 'wpcv-woo-civi-integration' ) );
@@ -588,7 +588,7 @@ class WPCV_Woo_Civi_Contact {
 			return $ufmatch;
 		}
 
- 		// The result set should contain only one item.
+		// The result set should contain only one item.
 		$ufmatch = array_pop( $result['values'] );
 
 		return $ufmatch;
@@ -636,15 +636,15 @@ class WPCV_Woo_Civi_Contact {
 		$result = civicrm_api3( 'Contact', 'create', $params );
 
 		// Log and bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
-			$e = new Exception;
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e = new Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( array(
+			error_log( print_r( [
 				'method' => __METHOD__,
 				'params' => $params,
 				'result' => $result,
 				//'backtrace' => $trace,
-			), true ) );
+			], true ) );
 			return false;
 		}
 
@@ -736,7 +736,7 @@ class WPCV_Woo_Civi_Contact {
 	 * @since 3.0
 	 *
 	 * @param object $order The Order object.
-	 * @return int|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
+	 * @return integer|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
 	 */
 	public function create_from_order( $order ) {
 
@@ -819,9 +819,9 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $contact_id The numeric ID if the CiviCRM Contact.
-	 * @param object $order The Order object.
-	 * @return int|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
+	 * @param integer $contact_id The numeric ID if the CiviCRM Contact.
+	 * @param object  $order The Order object.
+	 * @return integer|bool $contact_id The numeric ID if the CiviCRM Contact, or false on failure.
 	 */
 	public function update_from_order( $contact_id, $order ) {
 
@@ -833,7 +833,7 @@ class WPCV_Woo_Civi_Contact {
 		 * @since 3.0
 		 *
 		 * @param bool False by default: do not bypass.
-		 * @param int $contact_id The numeric ID of the Contact.
+		 * @param integer $contact_id The numeric ID of the Contact.
 		 * @param object $order The WooCommerce Order object.
 		 */
 		if ( true === apply_filters( 'wpcv_woo_civi/contact/update_from_order/bypass', false, $contact_id, $order ) ) {
@@ -960,9 +960,9 @@ class WPCV_Woo_Civi_Contact {
 	 * @since 3.0
 	 *
 	 * @param object $order The WooCommerce Order object.
-	 * @return int|bool $contact_id The numeric ID of the CiviCRM Contact if found.
-	 *                              Returns 0 if a CiviCRM Contact cannot be found.
-	 *                              Returns boolean false on failure.
+	 * @return integer|bool $contact_id The numeric ID of the CiviCRM Contact if found.
+	 *                                  Returns 0 if a CiviCRM Contact cannot be found.
+	 *                                  Returns boolean false on failure.
 	 */
 	public function get_id_by_order( $order ) {
 
@@ -1086,7 +1086,7 @@ class WPCV_Woo_Civi_Contact {
 		$result = civicrm_api( 'ContactType', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) && $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $nested;
 		}
 
@@ -1108,7 +1108,7 @@ class WPCV_Woo_Civi_Contact {
 		foreach ( $top_level as $item ) {
 			$item['children'] = [];
 			foreach ( $contact_types as $contact_type ) {
-				if ( isset( $contact_type['parent_id'] ) && $contact_type['parent_id'] == $item['id'] ) {
+				if ( isset( $contact_type['parent_id'] ) && (int) $contact_type['parent_id'] === (int) $item['id'] ) {
 					$item['children'][] = $contact_type;
 				}
 			}
@@ -1167,7 +1167,7 @@ class WPCV_Woo_Civi_Contact {
 	 * @since 3.0
 	 *
 	 * @param string|integer $contact_type The name or ID of the CiviCRM Contact Type to query.
-	 * @param string $mode The param to query by: 'name' or 'id'.
+	 * @param string         $mode The param to query by: 'name' or 'id'.
 	 * @return array|bool $contact_type_data An array of Contact Type data, or false on failure.
 	 */
 	public function type_get( $contact_type, $mode = 'name' ) {
@@ -1201,9 +1201,9 @@ class WPCV_Woo_Civi_Contact {
 		];
 
 		// Add param to query by.
-		if ( $mode == 'name' ) {
+		if ( $mode === 'name' ) {
 			$params['name'] = $contact_type;
-		} elseif ( $mode == 'id' ) {
+		} elseif ( $mode === 'id' ) {
 			$params['id'] = $contact_type;
 		}
 
@@ -1211,7 +1211,7 @@ class WPCV_Woo_Civi_Contact {
 		$result = civicrm_api( 'ContactType', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) && $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $contact_type_data;
 		}
 

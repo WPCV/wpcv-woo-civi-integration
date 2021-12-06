@@ -34,7 +34,7 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var str $meta_key The WooCommerce Order meta key.
+	 * @var string $meta_key The WooCommerce Order meta key.
 	 */
 	public $meta_key = '_woocommerce_civicrm_contribution_id';
 
@@ -73,9 +73,7 @@ class WPCV_Woo_Civi_Contribution {
 	 * @since 3.0
 	 */
 	public function register_hooks() {
-
 		// None as yet.
-
 	}
 
 	/**
@@ -95,8 +93,8 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @return int|bool $contribution_id The numeric ID of the CiviCRM Contribution, false otherwise.
+	 * @param integer $order_id The Order ID.
+	 * @return integer|bool $contribution_id The numeric ID of the CiviCRM Contribution, false otherwise.
 	 */
 	public function get_order_meta( $order_id ) {
 		$contribution_id = get_post_meta( $order_id, $this->meta_key, true );
@@ -108,8 +106,8 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param int $contribution_id The numeric ID of the CiviCRM Contribution.
+	 * @param integer $order_id The Order ID.
+	 * @param integer $contribution_id The numeric ID of the CiviCRM Contribution.
 	 */
 	public function set_order_meta( $order_id, $contribution_id ) {
 		update_post_meta( $order_id, $this->meta_key, $contribution_id );
@@ -120,7 +118,7 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $contribution_id The numeric ID of the CiviCRM Contribution.
+	 * @param integer $contribution_id The numeric ID of the CiviCRM Contribution.
 	 * @return array $result The CiviCRM Contribution data, or empty on failure.
 	 */
 	public function get_by_id( $contribution_id ) {
@@ -147,7 +145,7 @@ class WPCV_Woo_Civi_Contribution {
 		$result = civicrm_api( 'Contribution', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Error trying to find Contribution by ID', 'wpcv-woo-civi-integration' ) );
@@ -170,7 +168,7 @@ class WPCV_Woo_Civi_Contribution {
 			return $contribution;
 		}
 
- 		// The result set should contain only one item.
+		// The result set should contain only one item.
 		$contribution = array_pop( $result['values'] );
 
 		return $contribution;
@@ -182,7 +180,7 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 2.2
 	 *
-	 * @param int $order_id The numeric ID of the WooCommerce Order.
+	 * @param integer $order_id The numeric ID of the WooCommerce Order.
 	 * @return array $contribution The CiviCRM Contribution data, or empty on failure.
 	 */
 	public function get_by_order_id( $order_id ) {
@@ -210,7 +208,7 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 2.2
 	 *
-	 * @param int $post_id The WordPress Post ID.
+	 * @param integer $post_id The WordPress Post ID.
 	 * @return string $invoice_id The Invoice ID.
 	 */
 	public function get_invoice_id( $post_id ) {
@@ -266,7 +264,7 @@ class WPCV_Woo_Civi_Contribution {
 		$result = civicrm_api( 'Contribution', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Error try to find Contribution by Invoice ID', 'wpcv-woo-civi-integration' ) );
@@ -289,7 +287,7 @@ class WPCV_Woo_Civi_Contribution {
 			return $contribution;
 		}
 
- 		// The result set should contain only one item.
+		// The result set should contain only one item.
 		$contribution = array_pop( $result['values'] );
 
 		return $contribution;
@@ -653,8 +651,8 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
 	 * @return array|bool $payment_data The array of Payment data on success, false otherwise.
 	 */
 	public function payment_create( $order_id, $order ) {
@@ -712,7 +710,7 @@ class WPCV_Woo_Civi_Contribution {
 		 * This should not really be necessary to check because a CiviCRM Order should
 		 * not have been created for this Order - and therefore a Contribution for this
 		 * Order should not have been found by get_by_order_id() above.
- 		 */
+		 */
 		if ( 0 === (float) $params['total_amount'] ) {
 
 			// Bail when there are no Products that should sync to CiviCRM.
@@ -768,7 +766,7 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contribution The array of CiviCRM Contribution data.
+	 * @param array  $contribution The array of CiviCRM Contribution data.
 	 * @param string $note The text to add as a Note.
 	 * @return array|bool The Note data on success, otherwise false.
 	 */
@@ -829,9 +827,9 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 3.0
 	 *
-	 * @param int $order_id The Order ID.
-	 * @param object $order The Order object.
-	 * @param string $new_status_id The numeric ID of the new Status.
+	 * @param integer $order_id The Order ID.
+	 * @param object  $order The Order object.
+	 * @param string  $new_status_id The numeric ID of the new Status.
 	 * @return bool True on success, otherwise false.
 	 */
 	public function status_update( $order_id, $order, $new_status_id ) {
@@ -890,7 +888,7 @@ class WPCV_Woo_Civi_Contribution {
 		 * @since 3.0
 		 *
 		 * @param array $contribution The CiviCRM Contribution data.
-		 * @param int $order_id The WooCommerce Order ID.
+		 * @param integer $order_id The WooCommerce Order ID.
 		 * @param object $order The WooCommerce Order object.
 		 * @param string $new_status_id The numeric ID of the new Status.
 		 */
@@ -907,7 +905,7 @@ class WPCV_Woo_Civi_Contribution {
 	 * @since 2.0
 	 *
 	 * @param string $order_status The WooCommerce Order Status.
-	 * @return int $id The numeric ID of the CiviCRM Contribution Status.
+	 * @return integer $id The numeric ID of the CiviCRM Contribution Status.
 	 */
 	public function status_map( $order_status ) {
 

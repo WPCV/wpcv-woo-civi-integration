@@ -88,7 +88,7 @@ class WPCV_Woo_Civi_Contact_Address {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contact The CiviCRM Contact data.
+	 * @param array  $contact The CiviCRM Contact data.
 	 * @param object $order The WooCommerce Order object.
 	 */
 	public function entities_create( $contact, $order ) {
@@ -103,7 +103,7 @@ class WPCV_Woo_Civi_Contact_Address {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contact The CiviCRM Contact data.
+	 * @param array  $contact The CiviCRM Contact data.
 	 * @param object $order The WooCommerce Order object.
 	 */
 	public function entities_update( $contact, $order ) {
@@ -156,7 +156,7 @@ class WPCV_Woo_Civi_Contact_Address {
 						&& isset( $address['street_address'] )
 						&& $existing->street_address === $address['street_address']
 						&& CRM_Utils_Array::value( 'supplemental_address_1', $existing ) === CRM_Utils_Array::value( 'supplemental_address_1', $address )
-						&& $existing->city == $address['city']
+						&& $existing->city === $address['city']
 						&& $existing->postal_code === $address['postal_code']
 					) {
 						$address_exists = true;
@@ -167,8 +167,8 @@ class WPCV_Woo_Civi_Contact_Address {
 
 					civicrm_api3( 'Address', 'create', $address );
 
-					/* translators: %1$s: Address Type, %2$s: Street Address */
 					$note = sprintf(
+						/* translators: 1: Address Type, 2: Street Address */
 						__( 'Created new CiviCRM Address of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
 						$address_type,
 						$address['street_address']
@@ -300,10 +300,10 @@ class WPCV_Woo_Civi_Contact_Address {
 	 *
 	 * @since 2.0
 	 *
-	 * @param string $op The operation being performed.
-	 * @param string $object_name The entity name.
-	 * @param int $object_id The entity ID.
-	 * @param object $object_ref The entity object.
+	 * @param string  $op The operation being performed.
+	 * @param string  $object_name The entity name.
+	 * @param integer $object_id The entity ID.
+	 * @param object  $object_ref The entity object.
 	 */
 	public function sync_civi_contact_address( $op, $object_name, $object_id, $object_ref ) {
 
@@ -362,7 +362,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		 *
 		 * @since 2.0
 		 *
-		 * @param int $user_id The WordPress User ID.
+		 * @param integer $user_id The WordPress User ID.
 		 * @param string $address_type The WooCommerce Address Type. Either 'billing' or 'shipping'.
 		 */
 		do_action( 'wpcv_woo_civi/wc_address/updated', $cms_user['uf_id'], $address_type );
@@ -376,8 +376,8 @@ class WPCV_Woo_Civi_Contact_Address {
 	 *
 	 * @since 2.0
 	 *
-	 * @param int $user_id The WordPress User ID.
-	 * @param string $load_address The Address Type. Either 'shipping' or 'billing'.
+	 * @param integer $user_id The WordPress User ID.
+	 * @param string  $load_address The Address Type. Either 'shipping' or 'billing'.
 	 * @return bool True on success, false on failure.
 	 */
 	public function sync_wp_user_woocommerce_address( $user_id, $load_address ) {
@@ -483,7 +483,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		 *
 		 * @since 2.0
 		 *
-		 * @param int $contact_id The CiviCRM Contact ID.
+		 * @param integer $contact_id The CiviCRM Contact ID.
 		 * @param array $address The CiviCRM Address that has been edited.
 		 */
 		do_action( 'wpcv_woo_civi/civi_address/updated', $contact['contact_id'], $create_address );
@@ -499,7 +499,7 @@ class WPCV_Woo_Civi_Contact_Address {
 	 * @since 3.0
 	 *
 	 * @param integer $contact_id The numeric ID of the Contact.
-	 * @param array $addresses The array of data for the Addresses, or empty if none.
+	 * @return array $addresses The array of data for the Addresses, or empty if none.
 	 */
 	public function addresses_get_by_contact_id( $contact_id ) {
 
@@ -520,7 +520,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		$result = civicrm_api3( 'Address', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $addresses;
 		}
 
@@ -529,8 +529,8 @@ class WPCV_Woo_Civi_Contact_Address {
 			return $addresses;
 		}
 
- 		// Return the result set as an array of objects.
- 		foreach( $result['values'] AS $item ) {
+		// Return the result set as an array of objects.
+		foreach ( $result['values'] as $item ) {
 			$addresses[] = (object) $item;
 		}
 
@@ -544,7 +544,7 @@ class WPCV_Woo_Civi_Contact_Address {
 	 * @since 3.0
 	 *
 	 * @param integer $contact_id The numeric ID of the Contact.
-	 * @param array $address The Address data object, or false if none.
+	 * @return array $address The Address data object, or false if none.
 	 */
 	public function address_get_primary_by_contact_id( $contact_id ) {
 
@@ -567,7 +567,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		$result = civicrm_api( 'Address', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $address;
 		}
 
@@ -576,7 +576,7 @@ class WPCV_Woo_Civi_Contact_Address {
 			return $address;
 		}
 
- 		// The result set should contain only one item.
+		// The result set should contain only one item.
 		$address = (object) array_pop( $result['values'] );
 
 		return $address;
@@ -589,7 +589,7 @@ class WPCV_Woo_Civi_Contact_Address {
 	 * @since 3.0
 	 *
 	 * @param integer $contact_id The numeric ID of the Contact.
-	 * @param array $address The Address data object, or false if none.
+	 * @return array $address The Address data object, or false if none.
 	 */
 	public function address_get_billing_by_contact_id( $contact_id ) {
 
@@ -615,7 +615,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		$result = civicrm_api( 'Address', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $address;
 		}
 
@@ -624,7 +624,7 @@ class WPCV_Woo_Civi_Contact_Address {
 			return $address;
 		}
 
- 		// The result set should contain only one item.
+		// The result set should contain only one item.
 		$address = (object) array_pop( $result['values'] );
 
 		return $address;
@@ -637,7 +637,7 @@ class WPCV_Woo_Civi_Contact_Address {
 	 * @since 3.0
 	 *
 	 * @param integer $contact_id The numeric ID of the Contact.
-	 * @param array $address The Address data object, or false if none.
+	 * @return array $address The Address data object, or false if none.
 	 */
 	public function addresses_get_billing_by_contact_id( $contact_id ) {
 
@@ -660,7 +660,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		$result = civicrm_api( 'Address', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['is_error'] ) AND $result['is_error'] == 1 ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $addresses;
 		}
 
@@ -669,8 +669,8 @@ class WPCV_Woo_Civi_Contact_Address {
 			return $addresses;
 		}
 
- 		// Return the result set as an array of objects.
- 		foreach( $result['values'] AS $item ) {
+		// Return the result set as an array of objects.
+		foreach ( $result['values'] as $item ) {
 			$addresses[] = (object) $item;
 		}
 

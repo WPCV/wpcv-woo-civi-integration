@@ -55,8 +55,8 @@ class CRM_Contact_Page_View_Purchases extends CRM_Core_Page {
        *
        * @since 2.0
        *
-       * @param str $url The URL for the new Order.
-       * @param int $uid The numeric ID of the WordPress User.
+       * @param string $url The URL for the new Order.
+       * @param integer $uid The numeric ID of the WordPress User.
        */
       $new_order_url = apply_filters('wpcv_woo_civi/add_order/url', $url, $uid);
 
