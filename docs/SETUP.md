@@ -1,14 +1,22 @@
 # Setup
 
-## Customer Accounts
+## Customer Account sync
 
-Enableing two-way syncing of Address, Billing Phone, and Billing Email between CiviCRM and WooCommerce means that when a User edits their Address, Billing Phone, or Billing Email through their WooCommerce Account page, their CiviCRM Profile, or through CiviCRM's admin interface, the data will be updated in both CiviCRM and WooCommerce.
+Enabling two-way syncing of Address, Billing Phone and Billing Email between CiviCRM and WooCommerce means that when a an edit is made to an Address, Billing Phone, or Billing Email through:
+
+* A User's WooCommerce Account page
+* A Contact's CiviCRM Profile or
+* Through CiviCRM's admin interface
+
+The data will be updated in both CiviCRM and WooCommerce.
 
 
 
 ## State/Province sync
 
-**Important note** Selecting the option to replace WooCommerce's States/Counties list with CiviCRM's State/Province list will cause **States/Counties data loss** for **existing Customers** and the **WooCommerce settings** that rely on those. It is best to do the replacement when first this plugin and WooCommerce are first installed.
+**Important note:** although it is clearly desirable to have matching data in WooCommerce and CiviCRM, selecting the option to replace WooCommerce's States/Counties list with CiviCRM's State/Province list will cause **States/Counties data loss** for **existing Customers** and the **WooCommerce settings** that rely on those.
+
+For maximum data integrity, it is best to choose the replacement when first this plugin and WooCommerce are first installed.
 
 
 
