@@ -377,7 +377,11 @@ class WPCV_Woo_Civi {
 		// Init Product objects.
 		$this->products = new WPCV_Woo_Civi_Products();
 		$this->products_variable = new WPCV_Woo_Civi_Products_Variable();
-		$this->products_custom = new WPCV_Woo_Civi_Products_Custom();
+
+		// Maybe init Custom Products object.
+		if ( defined( 'WPCV_WOO_CIVI_PRODUCTS_CUSTOM' ) && WPCV_WOO_CIVI_PRODUCTS_CUSTOM ) {
+			$this->products_custom = new WPCV_Woo_Civi_Products_Custom();
+		}
 
 		// Init CiviCRM Component objects.
 		$this->campaign = new WPCV_Woo_Civi_Campaign();
