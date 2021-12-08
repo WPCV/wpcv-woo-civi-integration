@@ -84,6 +84,7 @@ git checkout-index -a -f --prefix=$SVNPATH/trunk/
 echo "Ignoring GitHub specific files and deployment script"
 svn propset svn:ignore "deploy.sh
 README.md
+phpcs.xml
 screenshots
 .git
 .editorconfig
