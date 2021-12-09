@@ -39,7 +39,7 @@ echo
 # unix line breaks to work around grep's failure to identify mac line breaks.
 NEWVERSION1=`grep "^Stable tag:" $GITPATH/readme.txt | awk -F' ' '{print $NF}'`
 echo "readme.txt version: $NEWVERSION1"
-NEWVERSION2=`grep "^Version:" $GITPATH/$MAINFILE | awk -F' ' '{print $NF}'`
+NEWVERSION2=`grep "^ \* Version:" $GITPATH/$MAINFILE | awk -F' ' '{print $NF}'`
 echo "$MAINFILE version: $NEWVERSION2"
 if [ "$NEWVERSION1" != "$NEWVERSION2" ];
 	then
