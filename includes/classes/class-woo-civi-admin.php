@@ -78,7 +78,7 @@ class WPCV_Woo_Civi_Admin {
 		}
 
 		// Add menu item(s) to WordPress admin menu.
-		add_action( 'admin_menu', [ $this, 'admin_menu' ], 30 );
+		add_action( 'admin_menu', [ $this, 'admin_menu' ], 100 );
 
 		// Add our meta boxes.
 		add_action( 'add_meta_boxes', [ $this, 'meta_boxes_add' ], 11, 1 );
