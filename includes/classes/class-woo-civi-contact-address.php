@@ -268,19 +268,9 @@ class WPCV_Woo_Civi_Contact_Address {
 			return;
 		}
 
-		// Is this Contact of the Contact Type in the WooCommerce settings?
-		$contact_type = WPCV_WCI()->contact->type_get_synced();
-
-		// Bail if not the synced top-level Contact Type.
-		if ( $contact['contact_type'] !== $contact_type['type'] ) {
+		// Bail if the Contact doesn't have the synced Contact Type.
+		if ( ! WPCV_WCI()->contact->type_is_synced( $contact ) ) {
 			return;
-		}
-
-		// Bail if not the synced Contact Sub-type.
-		if ( ! empty( $contact_type['sub_type'] ) && ! empty( $contact['contact_sub_type'] )  ) {
-			if ( ! in_array( $contact_type['sub_type'], $contact['contact_sub_type'] ) ) {
-				return;
-			}
 		}
 
 		// Bail if we don't have a WordPress User.
@@ -289,7 +279,7 @@ class WPCV_Woo_Civi_Contact_Address {
 			return;
 		}
 
-		// Get the Customr object.
+		// Use the Customer object.
 		$customer = new WC_Customer( $user['uf_id'] );
 
 		// Unhook to prevent any possibility of recursion.
@@ -347,9 +337,9 @@ class WPCV_Woo_Civi_Contact_Address {
 		];
 
 		/**
-		 * Broadcast that a WooCommerce Address has been updated for a User.
+		 * Broadcast that a WooCommerce Address has been updated from CiviCRM data.
 		 *
-		 * @since 2.0
+		 * @since 3.0
 		 *
 		 * @param array $args The array of data.
 		 */
@@ -366,117 +356,173 @@ class WPCV_Woo_Civi_Contact_Address {
 	 *
 	 * @param integer $user_id The WordPress User ID.
 	 * @param string  $load_address The Address Type. Either 'shipping' or 'billing'.
-	 * @return bool True on success, false on failure.
 	 */
 	public function sync_woo_to_civicrm( $user_id, $load_address ) {
 
 		// Bail if Address Sync is not enabled.
 		if ( ! $this->sync_enabled ) {
-			return false;
+			return;
 		}
 
+		// Bail if we don't have a CiviCRM UFMatch record.
+		$ufmatch = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
+		if ( empty( $ufmatch ) ) {
+			return;
+		}
+
+		// Try and find the Contact.
+		$contact = WPCV_WCI()->contact->get_by_id( $ufmatch['contact_id'] );
+		if ( $contact === false ) {
+			return;
+		}
+
+		// Bail if the Contact doesn't have the synced Contact Type.
+		if ( ! WPCV_WCI()->contact->type_is_synced( $contact ) ) {
+			return;
+		}
+
+		// Use the Customer object.
 		$customer = new WC_Customer( $user_id );
 
-		// Bail if we don't have a CiviCRM Contact.
-		$contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
-		if ( ! $contact ) {
-			return false;
-		}
-
-		$mapped_location_types = WPCV_WCI()->helper->get_mapped_location_types();
-		$civi_address_location_type = $mapped_location_types[ $load_address ];
-		$edited_address = [];
-
+		// Build the array for the mapped CiviCRM Address.
+		$address_params = [];
 		foreach ( $this->get_field_mappings( $load_address ) as $wc_field => $civi_field ) {
-			switch ( $civi_field ) {
-				case 'country_id':
-					$edited_address[ $civi_field ] = WPCV_WCI()->settings_states->get_civicrm_country_id( $customer->{'get_' . $wc_field}() );
-					continue 2;
-				case 'state_province_id':
-					$edited_address[ $civi_field ] = WPCV_WCI()->settings_states->get_civicrm_state_province_id( $customer->{'get_' . $wc_field}(), $edited_address['country_id'] );
-					continue 2;
-				default:
-					$edited_address[ $civi_field ] = $customer->{'get_' . $wc_field}();
-					continue 2;
+
+			// Assign the value.
+			$value = '';
+			if ( is_callable( [ $customer, "get_{$wc_field}" ] ) ) {
+				$value = $customer->{"get_{$wc_field}"}();
 			}
-		}
 
-		try {
+			// Override for special fields.
+			if ( $civi_field === 'country_id' ) {
+				$value = WPCV_WCI()->settings_states->get_civicrm_country_id( $value );
+			} elseif( $civi_field === 'state_province_id' ) {
+				// This relies on the order of the Field mappings to work.
+				$value = WPCV_WCI()->settings_states->get_civicrm_state_province_id( $value, $address_params['country_id'] );
+			}
 
-			$params = [
-				'contact_id' => $contact['contact_id'],
-				'location_type_id' => $civi_address_location_type,
-			];
-
-			$civi_address = civicrm_api3( 'Address', 'getsingle', $params );
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Address', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'backtrace' => $trace,
-			], true ) );
-
-			return false;
+			// Add to CiviCRM Address array.
+			$address_params[ $civi_field ] = $value;
 
 		}
+
+		// Get the Location Type of the edited Woo Address.
+		$mapped_location_types = WPCV_WCI()->helper->get_mapped_location_types();
+		$location_type_id = $mapped_location_types[ $load_address ];
+
+		// Get the matching Address from CiviCRM.
+		$existing_address = $this->get_by_contact_id_and_location( $contact['id'], $location_type_id );
 
 		// Prevent reverse sync.
 		remove_action( 'civicrm_post', [ $this, 'sync_civicrm_to_woo' ], 10 );
 
-		try {
-
-			if ( isset( $civi_address ) && empty( $civi_address['is_error'] ) ) {
-				$new_params = array_merge( $civi_address, $edited_address );
-			} else {
-				$new_params = array_merge( $params, $edited_address );
-			}
-
-			$create_address = civicrm_api3( 'Address', 'create', $new_params );
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to create/update Address', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'new_params' => $new_params,
-				'backtrace' => $trace,
-			], true ) );
-
-			add_action( 'civicrm_post', [ $this, 'sync_civicrm_to_woo' ], 10, 4 );
-			return false;
-
+		// Create new Address or update existing.
+		if ( ! empty( $existing_address ) ) {
+			$params = array_merge( $existing_address, $address_params );
+			$address = $this->update( $params );
+		} else {
+			$address_params['contact_id'] = $contact['id'];
+			$address_params['location_type_id'] = $location_type_id;
+			$address = $this->create( $address_params );
 		}
 
 		// Rehook callback.
 		add_action( 'civicrm_post', [ $this, 'sync_civicrm_to_woo' ], 10, 4 );
 
-		/**
-		 * Broadcast that a CiviCRM Address has been updated.
-		 *
-		 * @since 2.0
-		 *
-		 * @param integer $contact_id The CiviCRM Contact ID.
-		 * @param array $address The CiviCRM Address that has been edited.
-		 */
-		do_action( 'wpcv_woo_civi/civi_address/updated', $contact['contact_id'], $create_address );
+		// Let's make an array of the data.
+		$args = [
+			'address' => $address,
+			'contact' => $contact,
+			'address_type' => $load_address,
+			'customer' => $customer,
+			'user_id' => $user_id,
+		];
 
-		// Success.
-		return true;
+		/**
+		 * Broadcast that a CiviCRM Address has been updated from WooCommerce data.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $args The array of data.
+		 */
+		do_action( 'wpcv_woo_civi/address/woo_to_civicrm/synced', $args );
+
+	}
+
+	/**
+	 * Create a CiviCRM Address for a given set of data.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $params The array of params to pass to the CiviCRM API.
+	 * @return array|boolean $address The array of Address data, or false on failure.
+	 */
+	public function create( $params = [] ) {
+
+		// Bail if there's no data.
+		if ( empty( $params ) ) {
+			return false;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		// Call the API.
+		$result = civicrm_api3( 'Address', 'create', $params );
+
+		// Log and bail if there's an error.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e = new Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'params' => $params,
+				'result' => $result,
+				'backtrace' => $trace,
+			], true ) );
+			return false;
+		}
+
+		// The result set should contain only one item.
+		if ( ! empty( $result['values'] ) ) {
+			$address = array_pop( $result['values'] );
+		}
+
+		return $address;
+
+	}
+
+	/**
+	 * Update a CiviCRM Address with a given set of data.
+	 *
+	 * This is an alias of `self::create()` except that we expect an Address ID
+	 * to have been set in the Address data.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $params The array of params to pass to the CiviCRM API.
+	 * @return array|boolean The array of Address data from the CiviCRM API, or false on failure.
+	 */
+	public function update( $params = [] ) {
+
+		// Log and bail if there's no Address ID.
+		if ( empty( $params['id'] ) ) {
+			$e = new \Exception();
+			$trace = $e->getTraceAsString();
+			error_log( print_r( [
+				'method' => __METHOD__,
+				'message' => __( 'A numeric ID must be present to update an Address.', 'wpcv-woo-civi-integration' ),
+				'address' => $address,
+				'backtrace' => $trace,
+			], true ) );
+			return false;
+		}
+
+		// Pass through.
+		return $this->create( $params );
 
 	}
 
@@ -522,6 +568,52 @@ class WPCV_Woo_Civi_Contact_Address {
 		}
 
 		return $addresses;
+
+	}
+
+	/**
+	 * Gets a Contact's Address of a given Location Type.
+	 *
+	 * @since 3.0
+	 *
+	 * @param integer $contact_id The numeric ID of the Contact.
+	 * @param integer $location_type_id The numeric ID of the Location Type.
+	 * @return array $address The array of Address data, empty otherwise.
+	 */
+	public function get_by_contact_id_and_location( $contact_id, $location_type_id ) {
+
+		// Init return.
+		$address = [];
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $address;
+		}
+
+		// Construct API query.
+		$params = [
+			'version' => 3,
+			'contact_id' => $contact_id,
+			'location_type_id' => $location_type_id,
+		];
+
+		// Get Address details via API.
+		$result = civicrm_api( 'Address', 'get', $params );
+
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			return $address;
+		}
+
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return $address;
+		}
+
+		// The result set should contain only one item.
+		$address = array_pop( $result['values'] );
+
+		return $address;
 
 	}
 

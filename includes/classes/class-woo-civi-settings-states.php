@@ -266,7 +266,7 @@ class WPCV_Woo_Civi_Settings_States {
 		}
 
 		// Perform direct query.
-		$query = 'SELECT name,id,country_id,abbreviation FROM civicrm_state_province';
+		$query = 'SELECT name, id, country_id, abbreviation FROM civicrm_state_province';
 		$dao = CRM_Core_DAO::executeQuery( $query );
 
 		while ( $dao->fetch() ) {
@@ -302,11 +302,10 @@ class WPCV_Woo_Civi_Settings_States {
 		$civicrm_states = $this->get_civicrm_states();
 
 		foreach ( $civicrm_states as $state_id => $state ) {
-			if ( $state['country_id'] === $country_id && $state['abbreviation'] === $woo_state ) {
+			if ( (int) $state['country_id'] === (int) $country_id && $state['abbreviation'] === $woo_state ) {
 				return (int) $state['id'];
 			}
-
-			if ( $state['country_id'] === $country_id && $state['name'] === $woo_state ) {
+			if ( (int) $state['country_id'] === (int) $country_id && $state['name'] === $woo_state ) {
 				return (int) $state['id'];
 			}
 		}
