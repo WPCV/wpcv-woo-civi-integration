@@ -20,15 +20,6 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Contact {
 
 	/**
-	 * The Address sync object.
-	 *
-	 * @since 2.1
-	 * @access public
-	 * @var object $address The Address sync object.
-	 */
-	public $address;
-
-	/**
 	 * The Email sync object.
 	 *
 	 * @since 2.1
@@ -45,6 +36,15 @@ class WPCV_Woo_Civi_Contact {
 	 * @var object $phone The Phone sync object.
 	 */
 	public $phone;
+
+	/**
+	 * The Address sync object.
+	 *
+	 * @since 2.1
+	 * @access public
+	 * @var object $address The Address sync object.
+	 */
+	public $address;
 
 	/**
 	 * The Orders Contact Tab management object.
@@ -114,14 +114,12 @@ class WPCV_Woo_Civi_Contact {
 	 */
 	public function include_files() {
 
-		// Include Address class.
-		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact-address.php';
-		// Include Phone class.
-		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact-phone.php';
-		// Include Email class.
+		// Include Account class files.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact-email.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact-phone.php';
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact-address.php';
 
-		// Include Contact Orders Tab class.
+		// Include CiviCRM Contact Orders Tab class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contact-orders-tab.php';
 
 	}
@@ -133,14 +131,12 @@ class WPCV_Woo_Civi_Contact {
 	 */
 	public function setup_objects() {
 
-		// Init Address object.
-		$this->address = new WPCV_Woo_Civi_Contact_Address();
-		// Init Phone object.
-		$this->phone = new WPCV_Woo_Civi_Contact_Phone();
-		// Init Email object.
+		// Init Account objects.
 		$this->email = new WPCV_Woo_Civi_Contact_Email();
+		$this->phone = new WPCV_Woo_Civi_Contact_Phone();
+		$this->address = new WPCV_Woo_Civi_Contact_Address();
 
-		// Init Orders Tab object.
+		// Init CiviCRM Contact Orders Tab object.
 		$this->orders_tab = new WPCV_Woo_Civi_Contact_Orders_Tab();
 
 	}
@@ -598,10 +594,10 @@ class WPCV_Woo_Civi_Contact {
 	/**
 	 * Create a CiviCRM Contact for a given set of data.
 	 *
-	 * @since 0.4
+	 * @since 3.0
 	 *
-	 * @param array $contact The CiviCRM Contact data.
-	 * @return array|boolean $contact_data The array Contact data from the CiviCRM API, or false on failure.
+	 * @param array $contact The array of Contact data to pass to the CiviCRM API.
+	 * @return array|boolean $contact_data The array of Contact data from the CiviCRM API, or false on failure.
 	 */
 	public function create( $contact = [] ) {
 
@@ -669,7 +665,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $contact The array of CiviCRM Contact data.
+	 * @param array $contact The array of Contact data to pass to the CiviCRM API.
 	 * @return array|boolean The array Contact data from the CiviCRM API, or false on failure.
 	 */
 	public function update( $contact ) {
@@ -680,7 +676,7 @@ class WPCV_Woo_Civi_Contact {
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
 				'method' => __METHOD__,
-				'message' => __( 'A numerical ID must be present to update a Contact.', 'wpcv-woo-civi-integration' ),
+				'message' => __( 'A numeric ID must be present to update a Contact.', 'wpcv-woo-civi-integration' ),
 				'contact' => $contact,
 				'backtrace' => $trace,
 			], true ) );
@@ -1024,6 +1020,86 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		return $contact_id;
+
+	}
+
+	/**
+	 * Checks if a CiviCRM Contact should be synced.
+	 *
+	 * This is determined by the Contact Type and Contact Sub-type that is chosen
+	 * on this plugin's WooCommerce settings page.
+	 *
+	 * @since 3.0
+	 *
+	 * @param integer|array $contact_id CiviCRM Contact ID or Contact data array.
+	 * @return bool True if the CiviCRM Contact is synced, false otherwise.
+	 */
+	public function type_is_synced( $contact_id ) {
+
+		// Get the Contact data if an ID is passed in.
+		if ( is_int( $contact_id ) ) {
+			$contact = $this->get_by_id( $contact_id );
+		} else {
+			$contact = $contact_id;
+		}
+
+		// Idiot check.
+		if ( empty( $contact ) ) {
+			return false;
+		}
+
+		// Is this Contact of the Contact Type in the WooCommerce settings?
+		$contact_type = $this->type_get_synced();
+
+		// Bail if not the synced top-level Contact Type.
+		if ( $contact['contact_type'] !== $contact_type['type'] ) {
+			return false;
+		}
+
+		// Bail if not the synced Contact Sub-type.
+		if ( ! empty( $contact_type['sub_type'] ) && ! empty( $contact['contact_sub_type'] )  ) {
+			if ( ! in_array( $contact_type['sub_type'], $contact['contact_sub_type'] ) ) {
+				return false;
+			}
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * Gets the array of CiviCRM Contact Type and Sub-type from WooCommerce settings.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $contact_type The array of CiviCRM Contact Type and Sub-type.
+	 */
+	public function type_get_synced() {
+
+		static $contact_type;
+		if ( isset( $contact_type ) ) {
+			return $contact_type;
+		}
+
+		// Init settings array.
+		$contact_type = [
+			'type' => '',
+			'sub_type' => '',
+		];
+
+		// Always define the default top-level Contact Type.
+		$contact_type['type'] = get_option( 'woocommerce_civicrm_contact_type', 'Individual' );
+
+		// Maybe assign the Contact Sub-type.
+		$contact_sub_type_id = get_option( 'woocommerce_civicrm_contact_subtype', '' );
+		if ( ! empty( $contact_sub_type_id ) ) {
+			$contact_sub_type = $this->type_get( $contact_sub_type_id, 'id' );
+			if ( ! empty( $contact_sub_type ) ) {
+				$contact_type['sub_type'] = $contact_sub_type['name'];
+			}
+		}
+
+		return $contact_type;
 
 	}
 

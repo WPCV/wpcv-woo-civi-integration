@@ -165,8 +165,8 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		$this->mapped_location_types = [
-			'billing' => get_option( 'woocommerce_civicrm_billing_location_type_id' ),
-			'shipping' => get_option( 'woocommerce_civicrm_shipping_location_type_id' ),
+			'billing' => (int) get_option( 'woocommerce_civicrm_billing_location_type_id' ),
+			'shipping' => (int) get_option( 'woocommerce_civicrm_shipping_location_type_id' ),
 		];
 
 		/**

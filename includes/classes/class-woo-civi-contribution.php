@@ -757,6 +757,17 @@ class WPCV_Woo_Civi_Contribution {
 			$payment_data = array_pop( $result['values'] );
 		}
 
+		/**
+		 * Broadcast that a Payment has been created in CiviCRM.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array  $payment_data The array of Payment data from the CiviCRM API.
+		 * @param object $order The WooCommerce Order object.
+		 * @param array  $contribution The CiviCRM Contribution data.
+		 */
+		do_action( 'wpcv_woo_civi/contribution/payment_created', $payment_data, $order, $contribution );
+
 		return $payment_data;
 
 	}

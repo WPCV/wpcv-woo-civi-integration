@@ -498,7 +498,7 @@ class WPCV_Woo_Civi_Settings {
 			'billing_location_type_id' => [
 				'title' => __( 'Billing Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				'options' => WPCV_WCI()->contact->address->get_address_location_types(),
+				'options' => WPCV_WCI()->contact->address->get_location_types(),
 				'id'   => 'woocommerce_civicrm_billing_location_type_id',
 			],
 			'shipping_location_type_id' => [
@@ -506,7 +506,7 @@ class WPCV_Woo_Civi_Settings {
 				'type' => 'select',
 				/* translators: %1$s: Opening anchor tag, %2$s: Closing anchor tag */
 				'desc' => sprintf( __( 'Tip: you can manage your %1$sLocation Types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/locationType', 'reset=1' ) . '">', '</a>' ),
-				'options' => WPCV_WCI()->contact->address->get_address_location_types(),
+				'options' => WPCV_WCI()->contact->address->get_location_types(),
 				'id'   => 'woocommerce_civicrm_shipping_location_type_id',
 			],
 			'sync_contact_address' => [

@@ -430,7 +430,7 @@ class WPCV_Woo_Civi_Settings_Products {
 		$classes_participant = [
 			'.wpcv_woo_civi_participant_event_id',
 			'.wpcv_woo_civi_participant_role_id',
-			'.wpcv_woo_civi_participant_pfv_id'
+			'.wpcv_woo_civi_participant_pfv_id',
 		];
 
 		// Let's also have the combined array.
