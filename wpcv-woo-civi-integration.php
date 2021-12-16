@@ -660,7 +660,7 @@ class WPCV_Woo_Civi {
 		$woo = '<strong>' . __( 'WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
 
 		$requires = sprintf(
-			/* translators: %1$s: The plugin name, %2$s: WooCommerce */
+			/* translators: 1: The plugin name, 2: WooCommerce */
 			__( '%1$s requires %2$s to be installed and activated.', 'wpcv-woo-civi-integration' ),
 			$plugin,
 			$woo
@@ -671,7 +671,7 @@ class WPCV_Woo_Civi {
 			$woo
 		);
 		$back = sprintf(
-			/* translators: %1$s: The opening anchor tag, %2$s: The closing anchor tag */
+			/* translators: 1: The opening anchor tag, 2: The closing anchor tag */
 			__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
 			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">',
 			'</a>'
@@ -701,18 +701,18 @@ class WPCV_Woo_Civi {
 		$civicrm = '<strong>' . __( 'CiviCRM', 'wpcv-woo-civi-integration' ) . '</strong>';
 
 		$requires = sprintf(
-			/* translators: %1$s: The plugin name, %2$s: WooCommerce */
+			/* translators: 1: The plugin name, 2: CiviCRM */
 			__( '%1$s requires %2$s to be installed and activated.', 'wpcv-woo-civi-integration' ),
 			$plugin,
 			$civicrm
 		);
 		$deactivated = sprintf(
-			/* translators: %s: WooCommerce */
+			/* translators: %s: CiviCRM */
 			__( 'This plugin has been deactivated! Please activate %s and try again.', 'wpcv-woo-civi-integration' ),
 			$civicrm
 		);
 		$back = sprintf(
-			/* translators: %1$s: The opening anchor tag, %2$s: The closing anchor tag */
+			/* translators: 1: The opening anchor tag, 2: The closing anchor tag */
 			__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
 			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">',
 			'</a>'
@@ -742,18 +742,18 @@ class WPCV_Woo_Civi {
 		$civicrm = '<strong>' . __( 'CiviCRM', 'wpcv-woo-civi-integration' ) . '</strong>';
 
 		$requires = sprintf(
-			/* translators: %1$s: The plugin name, %2$s: WooCommerce */
+			/* translators: 1: The plugin name, 2: CiviCRM */
 			__( '%1$s requires %2$s to be fully installed and configured.', 'wpcv-woo-civi-integration' ),
 			$plugin,
 			$civicrm
 		);
 		$deactivated = sprintf(
-			/* translators: %s: WooCommerce */
+			/* translators: %s: CiviCRM */
 			__( 'This plugin has been deactivated! Please configure %s and try again.', 'wpcv-woo-civi-integration' ),
 			$civicrm
 		);
 		$back = sprintf(
-			/* translators: %1$s: The opening anchor tag, %2$s: The closing anchor tag */
+			/* translators: 1: The opening anchor tag, 2: The closing anchor tag */
 			__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
 			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">',
 			'</a>'

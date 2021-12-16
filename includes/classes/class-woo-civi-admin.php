@@ -650,7 +650,7 @@ class WPCV_Woo_Civi_Admin {
 		// Build success data.
 		$data['saved'] = true;
 		$data['notice'] = sprintf(
-			/* translators: %1$s: Opening anchor tag, %2$s: Closing anchor tag */
+			/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
 			__( 'WooCommerce Product successfully created. %1$sView Product%1$s', 'wpcv-woo-civi-integration' ),
 			'<a href="' . $product['permalink'] . '">', '</a>'
 		);
@@ -794,7 +794,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Append to the Product title.
 		$params['name'] = sprintf(
-			/* translators: %1$s: Event Title, %2$s: Price Field Value label */
+			/* translators: 1: Event Title, 2: Price Field Value label */
 			__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
 			$params['name'],
 			$pfv['label']
@@ -873,7 +873,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Append to the Product title.
 		$params['name'] = sprintf(
-			/* translators: %1$s: Event Title, %2$s: Price Field Value label */
+			/* translators: 1: Event Title, 2: Price Field Value label */
 			__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
 			$params['name'],
 			$pfv['label']
@@ -981,7 +981,7 @@ class WPCV_Woo_Civi_Admin {
 
 			// Init default Product Variation.
 			$variant = [
-				/* translators: %1$s: Event Title, %2$s: Price Field Value label */
+				/* translators: 1: Event Title, 2: Price Field Value label */
 				'title' => sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $event['title'], $pfv['label'] ),
 				'product_id' => $product['id'],
 				'regular_price' => (float) $pfv['amount'],

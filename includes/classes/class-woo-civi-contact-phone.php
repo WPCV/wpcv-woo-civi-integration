@@ -124,7 +124,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 					civicrm_api3( 'Phone', 'create', $phone );
 
 					$note = sprintf(
-						/* translators: %1$s: Location Type, %2$s: Phone Number */
+						/* translators: 1: Location Type, 2: Phone Number */
 						__( 'Created new CiviCRM Phone of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
 						$location_type,
 						$phone['phone']
