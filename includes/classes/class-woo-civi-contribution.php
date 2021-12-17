@@ -937,6 +937,16 @@ class WPCV_Woo_Civi_Contribution {
 			'refunded'   => 7,
 		];
 
+		/**
+		 * Filter the status mapping array.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array  $map The array of mapped statuses.
+		 * @param string $order_status The WooCommerce Order Status.
+		 */
+		$map = apply_filters( 'wpcv_woo_civi/contribution/status_map', $map, $order_status );
+
 		if ( array_key_exists( $order_status, $map ) ) {
 			$id = $map[ $order_status ];
 		} else {
