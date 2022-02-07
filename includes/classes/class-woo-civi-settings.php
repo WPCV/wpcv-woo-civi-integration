@@ -404,7 +404,7 @@ class WPCV_Woo_Civi_Settings {
 			'contact_subtype' => [
 				'title' => __( 'Contact Sub-type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select_optgroup',
-				/* translators: %1$s: Opening anchor tag, %2$s: Closing anchor tag */
+				/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
 				'desc' => sprintf( __( 'Select the sub-type that is assigned to Contacts created (or updated) when an Order is processed. Leave this set to "No Sub-type selected" if you do not want new Contacts to have a sub-type. Tip: you can manage your %1$sContact Sub-types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/options/subtype', 'reset=1' ) . '">', '</a>' ),
 				'options' => WPCV_WCI()->contact->subtypes_get_options(),
 				'id'   => 'woocommerce_civicrm_contact_subtype',
@@ -504,7 +504,7 @@ class WPCV_Woo_Civi_Settings {
 			'shipping_location_type_id' => [
 				'title' => __( 'Shipping Location Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
-				/* translators: %1$s: Opening anchor tag, %2$s: Closing anchor tag */
+				/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
 				'desc' => sprintf( __( 'Tip: you can manage your %1$sLocation Types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/locationType', 'reset=1' ) . '">', '</a>' ),
 				'options' => WPCV_WCI()->contact->address->get_location_types(),
 				'id'   => 'woocommerce_civicrm_shipping_location_type_id',

@@ -241,11 +241,15 @@ class WPCV_Woo_Civi_Order {
 
 		// Is this a completed Order?
 		if ( $new_status === 'completed' && $order->is_paid() ) {
+
 			// Yes - use the "Payment.create" route.
-			WPCV_WCI()->contribution->payment_create( $order_id, $order );
+			$payment = WPCV_WCI()->contribution->payment_create( $order_id, $order );
+
 		} else {
+
 			// No - just set the status of the Contribution.
-			WPCV_WCI()->contribution->status_update( $order_id, $order, $new_status_id );
+			$contribution = WPCV_WCI()->contribution->status_update( $order_id, $order, $new_status_id );
+
 		}
 
 	}
