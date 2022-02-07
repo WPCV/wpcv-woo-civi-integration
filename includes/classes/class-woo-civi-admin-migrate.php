@@ -155,7 +155,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			// Show general "Call to Action".
 			$message = sprintf(
 				/* translators: 1: Opening strong tag, 2: Closing strong tag, 3: Opening anchor tag, 4: Closing anchor tag */
-				__( '%1$sWooCommerce CiviCRM%2$s has become %1$sIntegrate CiviCRM with WooCommerce%2$s. Please visit the %5$sMigration Page%6$s to switch over.', 'wpcv-woo-civi-integration' ),
+				__( '%1$sWooCommerce CiviCRM%2$s has become %1$sIntegrate CiviCRM with WooCommerce%2$s. Please visit the %3$sMigration Page%4$s to switch over.', 'wpcv-woo-civi-integration' ),
 				'<strong>',
 				'</strong>',
 				'<a href="' . menu_page_url( 'wpcv_woocivi_migrate', false ) . '">',
