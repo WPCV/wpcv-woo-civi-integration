@@ -2,6 +2,7 @@
 /**
  * Plugin Name: Integrate CiviCRM with WooCommerce
  * Plugin URI: https://github.com/WPCV/wpcv-woo-civi-integration
+ * GitHub Plugin URI: https://github.com/WPCV/wpcv-woo-civi-integration
  * Description: Provides integration between CiviCRM and WooCommerce.
  * Author: WPCV
  * Author URI: https://github.com/WPCV
