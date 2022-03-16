@@ -863,6 +863,7 @@ class WPCV_Woo_Civi_Helper {
 
 		$map = [
 			'paypal' => 1,
+			'stripe' => 1,
 			'cod' => 3,
 			'cheque' => 4,
 			'bacs' => 5,
