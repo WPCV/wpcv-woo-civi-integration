@@ -213,9 +213,15 @@ class WPCV_Woo_Civi_Membership {
 	 */
 	public function line_item_populate( $line_item, $args = [] ) {
 
-		// Get Membership Price Field ID.
+		// Get default Membership Price Field ID.
 		$default_price_field_id = $this->get_default_price_field_id();
 		if ( empty( $default_price_field_id ) ) {
+			return $line_item;
+		}
+
+		// Get Price Field data.
+		$price_field = WPCV_WCI()->helper->get_price_field_by_price_field_value_id( $args['price_field_value_id'] );
+		if ( empty( $price_field ) ) {
 			return $line_item;
 		}
 
@@ -240,6 +246,11 @@ class WPCV_Woo_Civi_Membership {
 			'price_field_id' => $default_price_field_id,
 			'price_field_value_id' => $args['price_field_value_id'],
 		];
+
+		// Maybe override the default Price Field ID.
+		if ( ! empty( $price_field['price_field_id'] ) ) {
+			$membership_line_item_data['price_field_id'] = $price_field['price_field_id'];
+		}
 
 		// Apply Membership to Line Item.
 		$line_item = [

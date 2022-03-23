@@ -256,6 +256,7 @@ class WPCV_Woo_Civi_Products {
 
 			$product_financial_type_id = $product->get_meta( $this->financial_type_key );
 
+			// Build default Line Item data.
 			$line_item_data = [
 				'entity_table' => 'civicrm_contribution',
 				'price_field_id' => $default_price_field_id,
@@ -268,8 +269,15 @@ class WPCV_Woo_Civi_Products {
 			];
 
 			// Does this Product have a "global" Price Field Value ID?
-			if ( ! empty( $product->get_meta( $this->pfv_key ) ) ) {
-				$line_item_data['price_field_value_id'] = $product->get_meta( $this->pfv_key );
+			$pfv = $product->get_meta( $this->pfv_key );
+			if ( ! empty( $pfv ) ) {
+				// Override the Price Field Value ID.
+				$line_item_data['price_field_value_id'] = (int) $pfv;
+				// Also override the Price Field ID.
+				$price_field = WPCV_WCI()->helper->get_price_field_by_price_field_value_id( (int) $pfv );
+				if ( ! empty( $price_field ) ) {
+					$line_item_data['price_field_id'] = $price_field['price_field_id'];
+				}
 			}
 
 			/*

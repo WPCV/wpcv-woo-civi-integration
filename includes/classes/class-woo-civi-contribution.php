@@ -510,8 +510,8 @@ class WPCV_Woo_Civi_Contribution {
 		$default_financial_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
 		$payment_instrument_id = WPCV_WCI()->helper->payment_instrument_map( $order->get_payment_method() );
 
-		/* translators: %d: The numeric ID of the WooCommerce Order */
-		$trxn_id = sprintf( __( 'WooCommerce Order - %d', 'wpcv-woo-civi-integration' ), (int) $order_id );
+		// Build a unique Transaction ID.
+		$trxn_id = $order->get_order_key() . '_' . $order_id;
 		$invoice_id = $this->get_invoice_id( $order_id );
 
 		// Get dates. These are already adjusted for timezone.
@@ -670,12 +670,19 @@ class WPCV_Woo_Civi_Contribution {
 			return false;
 		}
 
+		// Build a unique Transaction ID.
+		$trxn_id = $order->get_order_key() . '_' . $order_id;
+		$transaction_id = $order->get_transaction_id();
+		if ( ! empty( $transaction_id ) ) {
+			// If the Order has a Transaction ID, use it.
+			$trxn_id = $transaction_id;
+		}
+
 		$params = [
 			'contribution_id' => $contribution['id'],
 			'total_amount' => $order->get_total(),
 			'trxn_date' => $order->get_date_paid()->date( 'Y-m-d H:i:s' ),
-			/* translators: %d: The numeric ID of the WooCommerce Order */
-			'trxn_id' => sprintf( __( 'WooCommerce Order - %d', 'wpcv-woo-civi-integration' ), (int) $order_id ),
+			'trxn_id' => $trxn_id,
 			'payment_instrument_id' => WPCV_WCI()->helper->payment_instrument_map( $order->get_payment_method() ),
 		];
 
