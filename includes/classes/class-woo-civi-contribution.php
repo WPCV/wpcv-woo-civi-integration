@@ -809,7 +809,7 @@ class WPCV_Woo_Civi_Contribution {
 		}
 
 		// Use the full set of Payment data.
-		$params = array_pop( $result );
+		$params = array_pop( $result['values'] );
 
 		// Set the "From Account" to NULL. Yes, this is possible!
 		$params['from_financial_account_id'] = '';
