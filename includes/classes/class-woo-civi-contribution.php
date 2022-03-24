@@ -775,7 +775,47 @@ class WPCV_Woo_Civi_Contribution {
 		 */
 		do_action( 'wpcv_woo_civi/contribution/payment_created', $payment_data, $order, $contribution );
 
+		// Temporarily fix the Payment.
+		$this->payment_fix( $payment_data );
+
 		return $payment_data;
+
+	}
+
+	/**
+	 * Fixes a Payment.
+	 *
+	 * This fix is needed because the CiviCRM API assigns the value of the
+	 * "Accounts Receivable Account is" Financial Account to the Financial Trxn
+	 * entry that the Payment API creates. We need to undo what the API has done
+	 * until the API is fixed.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $payment_data The array of Payment data from the CiviCRM API.
+	 */
+	public function payment_fix( $payment_data ) {
+
+		// Get the full data for the Payment.
+		$params = [
+			'version' => 3,
+			'id' => (int) $payment_data['id'],
+		];
+		$result = civicrm_api( 'FinancialTrxn', 'get', $params );
+
+		// Bail if there's an error.
+		if ( ! empty( $result['error'] ) ) {
+			return;
+		}
+
+		// Use the full set of Payment data.
+		$params = array_pop( $result );
+
+		// Set the "From Account" to NULL. Yes, this is possible!
+		$params['from_financial_account_id'] = '';
+
+		// Okay, now update the Payment.
+		$result = civicrm_api( 'FinancialTrxn', 'create', $params );
 
 	}
 
