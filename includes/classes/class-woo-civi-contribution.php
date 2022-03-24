@@ -813,6 +813,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Set the "From Account" to NULL. Yes, this is possible!
 		$params['from_financial_account_id'] = '';
+		$params['version'] = 3;
 
 		// Okay, now update the Payment.
 		$result = civicrm_api( 'FinancialTrxn', 'create', $params );
