@@ -202,7 +202,7 @@ class WPCV_Woo_Civi_Contact_Address {
 					&& isset( $existing->city )
 					&& isset( $existing->postal_code )
 					&& isset( $address_params['street_address'] )
-					&& $existing->street_address_params === $address_params['street_address']
+					&& $existing->street_address === $address_params['street_address']
 					&& CRM_Utils_Array::value( 'supplemental_address_1', $existing ) === CRM_Utils_Array::value( 'supplemental_address_1', $address_params )
 					&& $existing->city === $address_params['city']
 					&& $existing->postal_code === $address_params['postal_code']
