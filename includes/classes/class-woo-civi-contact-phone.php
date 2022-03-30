@@ -143,7 +143,6 @@ class WPCV_Woo_Civi_Contact_Phone {
 		// If we haven't found one of the matching Location Type.
 		if ( empty( $phone_params['id'] ) ) {
 			// Look for a Phone Number that's the same as the one from the Order.
-			reset( $existing_phones );
 			foreach ( $existing_phones as $existing ) {
 				if ( isset( $existing['phone'] ) && $existing['phone'] === $phone_number ) {
 					// Skip creating a new Phone record since we already have it.

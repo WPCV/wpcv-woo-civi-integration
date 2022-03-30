@@ -141,8 +141,7 @@ class WPCV_Woo_Civi_Contact_Email {
 
 		// If we haven't found one of the matching Location Type.
 		if ( empty( $email_params['id'] ) ) {
-			// Look for a Email Number that's the same as the one from the Order.
-			reset( $existing_emails );
+			// Look for a Email record that's the same as the one from the Order.
 			foreach ( $existing_emails as $existing ) {
 				if ( isset( $existing['email'] ) && $existing['email'] === $email_address ) {
 					// Skip creating a new Email record since we already have it.
