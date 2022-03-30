@@ -125,92 +125,128 @@ class WPCV_Woo_Civi_Contact_Address {
 	public function entities_update( $contact, $order ) {
 
 		$contact_id = $contact['id'];
+
+		// Get the existing Address records for this Contact.
 		$existing_addresses = $this->get_all_by_contact_id( $contact_id );
 
-		try {
+		// Process Addresses.
+		$address_types = WPCV_WCI()->helper->get_mapped_location_types();
+		foreach ( $address_types as $address_type => $location_type_id ) {
 
-			$address_types = WPCV_WCI()->helper->get_mapped_location_types();
-			foreach ( $address_types as $address_type => $location_type_id ) {
-
-				// Process Address.
-				$address_exists = false;
-
-				// Skip if we don't have both Address_1 and Postcode.
-				$address_1 = $order->{'get_' . $address_type . '_address_1'}();
-				$postcode = $order->{'get_' . $address_type . '_postcode'}();
-				if ( empty( $address_1 ) || empty( $postcode ) ) {
-					continue;
-				}
-
-				$country = $order->{'get_' . $address_type . '_country'}();
-				$country_id = WPCV_WCI()->settings_states->get_civicrm_country_id( $country );
-				$state = $order->{'get_' . $address_type . '_state'}();
-
-				// Prime the Address data array.
-				$address = [
-					'location_type_id'       => $location_type_id,
-					'city'                   => $order->{'get_' . $address_type . '_city'}(),
-					'postal_code'            => $postcode,
-					'name'                   => $order->{'get_' . $address_type . '_company'}(),
-					'street_address'         => $address_1,
-					'supplemental_address_1' => $order->{'get_' . $address_type . '_address_2'}(),
-					'country'                => $country_id,
-					'state_province_id'      => WPCV_WCI()->settings_states->get_civicrm_state_province_id( $state, $country_id ),
-					'contact_id'             => $contact_id,
-				];
-
-				foreach ( $existing_addresses as $existing ) {
-					// Does this Address have the desired Location Type?
-					if ( isset( $existing->location_type_id ) && $existing->location_type_id === $location_type_id ) {
-						$address['id'] = $existing->id;
-					} elseif (
-						// TODO: Don't create an Address if it's an exact match of another Address.
-						// FIXME: should we make 'exact match' configurable?
-						isset( $existing->street_address )
-						&& isset( $existing->city )
-						&& isset( $existing->postal_code )
-						&& isset( $address['street_address'] )
-						&& $existing->street_address === $address['street_address']
-						&& CRM_Utils_Array::value( 'supplemental_address_1', $existing ) === CRM_Utils_Array::value( 'supplemental_address_1', $address )
-						&& $existing->city === $address['city']
-						&& $existing->postal_code === $address['postal_code']
-					) {
-						$address_exists = true;
-					}
-				}
-
-				if ( ! $address_exists ) {
-
-					civicrm_api3( 'Address', 'create', $address );
-
-					$note = sprintf(
-						/* translators: 1: Address Type, 2: Street Address */
-						__( 'Created new CiviCRM Address of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
-						$address_type,
-						$address['street_address']
-					);
-
-					$order->add_order_note( $note );
-
-				}
-
+			// Skip if we don't have both Address_1 and Postcode.
+			$address_1 = '';
+			if ( is_callable( [ $order, "get_{$address_type}_address_1" ] ) ) {
+				$address_1 = $order->{"get_{$address_type}_address_1"}();
+			}
+			$postcode = '';
+			if ( is_callable( [ $order, "get_{$address_type}_postcode" ] ) ) {
+				$postcode = $order->{"get_{$address_type}_postcode"}();
+			}
+			if ( empty( $address_1 ) || empty( $postcode ) ) {
+				continue;
 			}
 
-		} catch ( CiviCRM_API3_Exception $e ) {
+			$country_id = null;
+			if ( is_callable( [ $order, "get_{$address_type}_country" ] ) ) {
+				$country = $order->{"get_{$address_type}_country"}();
+				$country_id = WPCV_WCI()->settings_states->get_civicrm_country_id( $country );
+			}
 
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to add/update Address', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			$state = null;
+			if ( is_callable( [ $order, "get_{$address_type}_state" ] ) ) {
+				$state = $order->{"get_{$address_type}_state"}();
+			}
 
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				//'params' => $params,
-				//'result' => $result,
-				'backtrace' => $trace,
-			], true ) );
+			$state_province_id = null;
+			if ( ! empty( $state ) && ! empty( $country_id ) ) {
+				$state_province_id = WPCV_WCI()->settings_states->get_civicrm_state_province_id( $state, $country_id );
+			}
+
+			$city = '';
+			if ( is_callable( [ $order, "get_{$address_type}_city" ] ) ) {
+				$city = $order->{"get_{$address_type}_city"}();
+			}
+
+			$company = '';
+			if ( is_callable( [ $order, "get_{$address_type}_company" ] ) ) {
+				$company = $order->{"get_{$address_type}_company"}();
+			}
+
+			$address_2 = '';
+			if ( is_callable( [ $order, "get_{$address_type}_address_2" ] ) ) {
+				$address_2 = $order->{"get_{$address_type}_address_2"}();
+			}
+
+			// Prime the Address data array.
+			$address_params = [
+				'location_type_id'       => $location_type_id,
+				'city'                   => $city,
+				'postal_code'            => $postcode,
+				'name'                   => $company,
+				'street_address'         => $address_1,
+				'supplemental_address_1' => $address_2,
+				'country'                => $country_id,
+				'state_province_id'      => $state_province_id,
+				'contact_id'             => $contact_id,
+			];
+
+			$address_exists = false;
+			foreach ( $existing_addresses as $existing ) {
+				// Does this Address have the desired Location Type?
+				if ( isset( $existing->location_type_id ) && $existing->location_type_id === $location_type_id ) {
+					$address_params['id'] = $existing->id;
+				} elseif (
+					// TODO: Don't create an Address if it's an exact match of another Address.
+					// FIXME: should we make 'exact match' configurable?
+					isset( $existing->street_address )
+					&& isset( $existing->city )
+					&& isset( $existing->postal_code )
+					&& isset( $address_params['street_address'] )
+					&& $existing->street_address_params === $address_params['street_address']
+					&& CRM_Utils_Array::value( 'supplemental_address_1', $existing ) === CRM_Utils_Array::value( 'supplemental_address_1', $address_params )
+					&& $existing->city === $address_params['city']
+					&& $existing->postal_code === $address_params['postal_code']
+				) {
+					$address_exists = true;
+				}
+			}
+
+			// Skip if no update needed.
+			if ( $address_exists ) {
+				continue;
+			}
+
+			// Create new or update existing Address record.
+			if ( empty( $address_params['id'] ) ) {
+				$address = $this->create( $address_params );
+			} else {
+				$address = $this->update( $address_params );
+			}
+
+			// Skip if something went wrong.
+			if ( empty( $address ) ) {
+				continue;
+			}
+
+			// Construct note for Order.
+			if ( empty( $email_params['id'] ) ) {
+				$note = sprintf(
+					/* translators: 1: Address Type, 2: Street Address */
+					__( 'Created new CiviCRM Address of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
+					$address_type,
+					$address['street_address']
+				);
+			} else {
+				$note = sprintf(
+					/* translators: 1: Address Type, 2: Street Address */
+					__( 'Updated CiviCRM Address of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
+					$address_type,
+					$address['street_address']
+				);
+			}
+
+			// Add note.
+			$order->add_order_note( $note );
 
 		}
 
@@ -228,6 +264,7 @@ class WPCV_Woo_Civi_Contact_Address {
 	 * @see https://developer.wordpress.org/reference/hooks/updated_meta_type_meta/
 	 *
 	 * @since 2.0
+	 * @since 3.0 Renamed.
 	 *
 	 * @param string  $op The operation being performed.
 	 * @param string  $object_name The entity name.
@@ -312,11 +349,24 @@ class WPCV_Woo_Civi_Contact_Address {
 		}
 
 		// Additionally update First Name and Last Name if not set.
-		if ( ! empty( $contact['first_name'] ) && '' === $customer->{"get_{$address_type}_first_name"}() ) {
-			$customer->{"set_{$address_type}_first_name"}( $contact['first_name'] );
+		$first_name = '';
+		if ( is_callable( [ $customer, "get_{$address_type}_first_name" ] ) ) {
+			$first_name = $customer->{"get_{$address_type}_first_name"}();
 		}
-		if ( ! empty( $contact['last_name'] ) && '' === $customer->{"get_{$address_type}_last_name"}() ) {
-			$customer->{"set_{$address_type}_last_name"}( $contact['last_name'] );
+		if ( ! empty( $contact['first_name'] ) && empty( $first_name ) ) {
+			if ( is_callable( [ $customer, "set_{$address_type}_first_name" ] ) ) {
+				$customer->{"set_{$address_type}_first_name"}( $contact['first_name'] );
+			}
+		}
+
+		$last_name = '';
+		if ( is_callable( [ $customer, "get_{$address_type}_last_name" ] ) ) {
+			$last_name = $customer->{"get_{$address_type}_last_name"}();
+		}
+		if ( ! empty( $contact['last_name'] ) && empty( $last_name ) ) {
+			if ( is_callable( [ $customer, "set_{$address_type}_last_name" ] ) ) {
+				$customer->{"set_{$address_type}_last_name"}( $contact['last_name'] );
+			}
 		}
 
 		// Lastly, save the Customer.
@@ -487,6 +537,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		}
 
 		// The result set should contain only one item.
+		$address = false;
 		if ( ! empty( $result['values'] ) ) {
 			$address = array_pop( $result['values'] );
 		}

@@ -19,6 +19,15 @@ defined( 'ABSPATH' ) || exit;
 class WPCV_Woo_Civi_Contact_Email {
 
 	/**
+	 * Sync enabled flag.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var bool $sync_enabled True when Email Sync is enabled, false otherwise.
+	 */
+	public $sync_enabled = false;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @since 2.0
@@ -36,7 +45,14 @@ class WPCV_Woo_Civi_Contact_Email {
 	 * @since 3.0
 	 */
 	public function initialise() {
+
+		// Store the WooCommerce option as a boolean.
+		$option = get_option( 'woocommerce_civicrm_sync_contact_email', false );
+		$this->sync_enabled = WPCV_WCI()->helper->check_yes_no_value( $option );
+
+		// Register Email-related hooks.
 		$this->register_hooks();
+
 	}
 
 	/**
@@ -46,15 +62,15 @@ class WPCV_Woo_Civi_Contact_Email {
 	 */
 	public function register_hooks() {
 
-		// Sync WooCommerce and CiviCRM email for Contact/User.
-		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
-
-		// Sync WooCommerce and CiviCRM email for User/Contact.
-		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_email' ], 10, 2 );
-
 		// Update CiviCRM Email record(s) for User/Contact.
 		add_action( 'wpcv_woo_civi/contact/create_from_order', [ $this, 'entities_create' ], 20, 2 );
 		add_action( 'wpcv_woo_civi/contact/update_from_order', [ $this, 'entities_update' ], 20, 2 );
+
+		// Sync WooCommerce and CiviCRM email for Contact/User.
+		add_action( 'civicrm_post', [ $this, 'sync_civicrm_to_woo' ], 10, 4 );
+
+		// Sync WooCommerce and CiviCRM email for User/Contact.
+		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_email' ], 10, 2 );
 
 	}
 
@@ -83,83 +99,107 @@ class WPCV_Woo_Civi_Contact_Email {
 	 */
 	public function entities_update( $contact, $order ) {
 
-		$contact_id = $contact['id'];
-		$existing_emails = $this->emails_get_by_contact_id( $contact_id );
+		// Only use 'billing' because there is no 'shipping_email' in WooCommerce.
+		$location_type = 'billing';
+		$location_types = WPCV_WCI()->helper->get_mapped_location_types();
+		$location_type_id = $location_types[ $location_type ];
 
-		try {
-
-			// Only use 'billing' because there is no 'shipping_email' in WooCommerce.
-			$location_types = WPCV_WCI()->helper->get_mapped_location_types();
-			$location_type = 'billing';
-			$location_type_id = $location_types['billing'];
-
-			// Process Email.
-			$email_exists = false;
-
-			$email_address = $order->{'get_' . $location_type . '_email'}();
-			if ( ! empty( $email_address ) ) {
-
-				// Prime the Email data.
-				$email = [
-					'location_type_id' => $location_type_id,
-					'email' => $email_address,
-					'contact_id' => $contact_id,
-				];
-
-				foreach ( $existing_emails as $existing ) {
-					// Does this Email have the same Location Type?
-					if ( isset( $existing['location_type_id'] ) && $existing['location_type_id'] === $location_type_id ) {
-						// Let's update that one.
-						$email['id'] = $existing['id'];
-					}
-					// Is this Email the same as the one from the Order?
-					if ( isset( $existing['email'] ) && $existing['email'] === $email['email'] ) {
-						// FIXME: Should we still create a new Email with the 'Billing' Location Type?
-						$email_exists = true;
-					}
-				}
-
-				if ( ! $email_exists ) {
-
-					civicrm_api3( 'Email', 'create', $email );
-
-					$note = sprintf(
-						/* translators: 1: Location Type, 2: Email Address */
-						__( 'Created new CiviCRM Email of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
-						$location_type,
-						$email['email']
-					);
-
-					$order->add_order_note( $note );
-
-				}
-
-			}
-
-		} catch ( CiviCRM_API3_Exception $e ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to add/update Email', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-			// Write details to PHP log.
-			$e = new \Exception();
-			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				//'params' => $params,
-				//'result' => $result,
-				'backtrace' => $trace,
-			], true ) );
-
+		// Bail if there's no Email in the Order.
+		$email_address = '';
+		if ( is_callable( [ $order, "get_{$location_type}_email" ] ) ) {
+			$email_address = $order->{"get_{$location_type}_email"}();
 		}
+		if ( empty( $email_address ) ) {
+			return;
+		}
+
+		$contact_id = $contact['id'];
+
+		// Prime the Email data.
+		$email_params = [
+			'location_type_id' => $location_type_id,
+			'email' => $email_address,
+			'contact_id' => $contact_id,
+		];
+
+		// Get the existing Email records for this Contact.
+		$existing_emails = $this->get_all_by_contact_id( $contact_id );
+
+		// Process Email.
+		$email_exists = false;
+		foreach ( $existing_emails as $existing ) {
+			// Does this Email have the same Location Type?
+			if ( isset( $existing['location_type_id'] ) && $existing['location_type_id'] === $location_type_id ) {
+				// Let's update that one.
+				$email_params['id'] = $existing['id'];
+			}
+			// Is this Email the same as the one from the Order?
+			if ( isset( $existing['email'] ) && $existing['email'] === $email_address ) {
+				// FIXME: Should we still create a new Email with the 'Billing' Location Type?
+				$email_exists = true;
+			}
+		}
+
+		// Skip if no update needed.
+		if ( $email_exists ) {
+			return;
+		}
+
+		// Create new or update existing Email record.
+		if ( empty( $email_params['id'] ) ) {
+			$email = $this->create( $email_params );
+		} else {
+			$email = $this->update( $email_params );
+		}
+
+		// Bail if something went wrong.
+		if ( empty( $email ) ) {
+			return;
+		}
+
+		// Construct note for Order.
+		if ( empty( $email_params['id'] ) ) {
+			$note = sprintf(
+				/* translators: 1: Location Type, 2: Email */
+				__( 'Created new CiviCRM Email of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
+				$location_type,
+				$email['email']
+			);
+		} else {
+			$note = sprintf(
+				/* translators: 1: Location Type, 2: Email */
+				__( 'Updated CiviCRM Email of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
+				$location_type,
+				$email['email']
+			);
+		}
+
+		// Add note.
+		$order->add_order_note( $note );
+
+		// Let's make an array of the data.
+		$args = [
+			'email' => $email,
+			'location_type' => $location_type,
+			'contact' => $contact,
+			'order' => $order,
+		];
+
+		/**
+		 * Broadcast that a CiviCRM Email has been updated from WooCommerce data.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $args The array of data.
+		 */
+		do_action( 'wpcv_woo_civi/email/entities_updated', $args );
 
 	}
 
 	/**
 	 * Sync a CiviCRM Email from a Contact to a WordPress User.
 	 *
-	 * Fires when a Civi Contact's Email is edited.
+	 * Fires when a CiviCRM Contact's Email is edited.
 	 *
 	 * TODO: This should probably also remove the "civicrm_post" callback because
 	 * it is possible for there to be listeners on the "updated_{$meta_type}_meta"
@@ -168,61 +208,73 @@ class WPCV_Woo_Civi_Contact_Email {
 	 * @see https://developer.wordpress.org/reference/hooks/updated_meta_type_meta/
 	 *
 	 * @since 2.0
+	 * @since 3.0 Renamed.
 	 *
 	 * @param string  $op The operation being performed.
 	 * @param string  $object_name The entity name.
 	 * @param integer $object_id The entity id.
 	 * @param object  $object_ref The entity object.
 	 */
-	public function sync_civi_contact_email( $op, $object_name, $object_id, $object_ref ) {
+	public function sync_civicrm_to_woo( $op, $object_name, $object_id, $object_ref ) {
 
-		// Bail if sync is not enabled.
-		if ( ! WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_email' ) ) ) {
+		// Bail if Email Sync is not enabled.
+		if ( ! $this->sync_enabled ) {
 			return;
 		}
 
-		if ( 'edit' !== $op ) {
-			return;
-		}
-
+		// Bail if not our target Entity.
 		if ( 'Email' !== $object_name ) {
 			return;
 		}
 
+		// Bail if not our target operation(s).
+		if ( 'edit' !== $op ) {
+			return;
+		}
+
 		// Bail if the Email being edited is not one of the mapped ones.
-		if ( ! in_array( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() ) ) {
+		$mapped = WPCV_WCI()->helper->get_mapped_location_types();
+		if ( ! in_array( (int) $object_ref->location_type_id, $mapped, true ) ) {
 			return;
 		}
 
 		// Bail if we don't have a Contact ID.
-		if ( ! isset( $object_ref->contact_id ) ) {
+		if ( empty( $object_ref->contact_id ) ) {
 			return;
 		}
 
-		$cms_user = WPCV_WCI()->contact->get_ufmatch( $object_ref->contact_id, 'contact_id' );
-
 		// Bail if we don't have a WordPress User.
+		$cms_user = WPCV_WCI()->contact->get_ufmatch( $object_ref->contact_id, 'contact_id' );
 		if ( ! $cms_user ) {
 			return;
 		}
 
-		// Proceed.
-		$email_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
-
 		// Only for billing Email, there's no shipping Email field.
-		if ( 'billing' === $email_type ) {
-			update_user_meta( $cms_user['uf_id'], $email_type . '_email', $object_ref->email );
+		$email_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
+		if ( 'billing' !== $email_type ) {
+			return;
 		}
+
+		// Do the update now.
+		// TODO: Convert to WooCommerce methods.
+		update_user_meta( $cms_user['uf_id'], $email_type . '_email', $object_ref->email );
+
+		// Let's make an array of the data.
+		$args = [
+			'email' => $object_ref,
+			'email_type' => $email_type,
+			'user_id' => $cms_user['uf_id'],
+			'user' => $cms_user['uf_id'],
+		];
 
 		/**
 		 * Broadcast that a WooCommerce Email has been updated for a User.
 		 *
-		 * @since 2.0
+		 * @since 3.0
 		 *
-		 * @param integer $user_id The WordPress User ID.
-		 * @param string $email_type The WooCommerce Email Type. Either 'billing' or 'shipping'.
+		 * @param array $args The array of data.
 		 */
-		do_action( 'wpcv_woo_civi/wc_email/updated', $cms_user['uf_id'], $email_type );
+		do_action( 'wpcv_woo_civi/email/civicrm_to_woo/synced', $args );
 
 	}
 
@@ -232,15 +284,16 @@ class WPCV_Woo_Civi_Contact_Email {
 	 * Fires when WooCommerce Email is edited.
 	 *
 	 * @since 2.0
+	 * @since 3.0 Renamed.
 	 *
 	 * @param integer $user_id The WordPress User ID.
 	 * @param string  $load_address The Address Type. Either 'shipping' or 'billing'.
 	 * @return bool True on success, false on failure.
 	 */
-	public function sync_wp_user_woocommerce_email( $user_id, $load_address ) {
+	public function sync_woo_to_civicrm( $user_id, $load_address ) {
 
 		// Bail if sync is not enabled.
-		if ( ! WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_sync_contact_email' ) ) ) {
+		if ( ! $this->sync_enabled ) {
 			return false;
 		}
 
@@ -249,98 +302,144 @@ class WPCV_Woo_Civi_Contact_Email {
 			return false;
 		}
 
-		$contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
-
 		// Bail if we don't have a CiviCRM Contact.
+		$contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
 		if ( ! $contact ) {
 			return false;
 		}
 
+		// Get the "billing" Location Type ID.
 		$mapped_location_types = WPCV_WCI()->helper->get_mapped_location_types();
-		$civi_email_location_type = $mapped_location_types[ $load_address ];
+		$location_type_id = $mapped_location_types[ $load_address ];
 
+		// Try and get the full data for the existing Email.
+		$existing_email = $this->get_by_contact_id_and_location( $contact['contact_id'], $location_type_id );
+
+		// Get the WooCommerce Customer Email.
 		$customer = new WC_Customer( $user_id );
+		$customer_email = '';
+		if ( is_callable( [ $customer, "get_{$load_address}_email" ] ) ) {
+			$customer_email = $customer->{"get_{$load_address}_email"}();
+		}
 
-		$edited_email = [
-			'email' => $customer->{'get_' . $load_address . '_email'}(),
+		// Build the array for the mapped CiviCRM Email.
+		$email_params = [
+			'email' => $customer_email,
 		];
 
-		try {
+		// Prevent reverse sync.
+		remove_action( 'civicrm_post', [ $this, 'sync_civicrm_to_woo' ], 10 );
 
-			$params = [
-				'contact_id' => $contact['contact_id'],
-				'location_type_id' => $civi_email_location_type,
-			];
+		// Create new Email or update existing.
+		if ( ! empty( $existing_email ) ) {
+			$params = array_merge( $existing_email, $email_params );
+			$email = $this->update( $params );
+		} else {
+			$email_params['contact_id'] = $contact['id'];
+			$email_params['location_type_id'] = $location_type_id;
+			$email = $this->create( $email_params );
+		}
 
-			$civi_email = civicrm_api3( 'Email', 'getsingle', $params );
+		// Rehook callback.
+		add_action( 'civicrm_post', [ $this, 'sync_civicrm_to_woo' ], 10, 4 );
 
-		} catch ( CiviCRM_API3_Exception $e ) {
+		// Let's make an array of the data.
+		$args = [
+			'email' => $email,
+			'contact' => $contact,
+			'address_type' => $load_address,
+			'customer' => $customer,
+			'user_id' => $user_id,
+		];
 
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Email', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+		/**
+		 * Broadcast that a CiviCRM Email has been updated from WooCommerce data.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $args The array of data.
+		 */
+		do_action( 'wpcv_woo_civi/email/woo_to_civicrm/synced', $args );
 
-			// Write details to PHP log.
-			$e = new \Exception();
+		// Success.
+		return true;
+
+	}
+
+	/**
+	 * Creates a CiviCRM Email record for a given set of data.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $params The array of params to pass to the CiviCRM API.
+	 * @return array|boolean $email The array of Email data, or false on failure.
+	 */
+	public function create( $params = [] ) {
+
+		// Bail if there's no data.
+		if ( empty( $params ) ) {
+			return false;
+		}
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return false;
+		}
+
+		// Call the API.
+		$result = civicrm_api3( 'Email', 'create', $params );
+
+		// Log and bail if there's an error.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e = new Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
 				'method' => __METHOD__,
 				'params' => $params,
+				'result' => $result,
 				'backtrace' => $trace,
 			], true ) );
-
 			return false;
-
 		}
 
-		// Prevent reverse sync.
-		remove_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10 );
+		// The result set should contain only one item.
+		$email = false;
+		if ( ! empty( $result['values'] ) ) {
+			$email = array_pop( $result['values'] );
+		}
 
-		try {
+		return $email;
 
-			if ( isset( $civi_email ) && empty( $civi_email['is_error'] ) ) {
-				$new_params = array_merge( $civi_email, $edited_email );
-			} else {
-				$new_params = array_merge( $params, $edited_email );
-			}
+	}
 
-			$create_email = civicrm_api3( 'Email', 'create', $new_params );
+	/**
+	 * Update a CiviCRM Email with a given set of data.
+	 *
+	 * This is an alias of `self::create()` except that we expect an Email ID
+	 * to have been set in the Email data.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $params The array of params to pass to the CiviCRM API.
+	 * @return array|boolean The array of Email data from the CiviCRM API, or false on failure.
+	 */
+	public function update( $params = [] ) {
 
-		} catch ( CiviCRM_API3_Exception $e ) {
-
-			// Write to CiviCRM log.
-			CRM_Core_Error::debug_log_message( __( 'Unable to create/update Email', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-
-			// Write details to PHP log.
+		// Log and bail if there's no Email ID.
+		if ( empty( $params['id'] ) ) {
 			$e = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
 				'method' => __METHOD__,
-				'new_params' => $new_params,
+				'message' => __( 'A numeric ID must be present to update an Email record.', 'wpcv-woo-civi-integration' ),
+				'email' => $email,
 				'backtrace' => $trace,
 			], true ) );
-
-			add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
 			return false;
-
 		}
 
-		// Rehook callback.
-		add_action( 'civicrm_post', [ $this, 'sync_civi_contact_email' ], 10, 4 );
-
-		/**
-		 * Broadcast that a CiviCRM Email has been updated.
-		 *
-		 * @since 2.0
-		 *
-		 * @param integer $contact_id The CiviCRM Contact ID.
-		 * @param array $email The CiviCRM Email that has been edited.
-		 */
-		do_action( 'wpcv_woo_civi/civi_email/updated', $contact['contact_id'], $create_email );
-
-		// Success.
-		return true;
+		// Pass through.
+		return $this->create( $params );
 
 	}
 
@@ -382,6 +481,52 @@ class WPCV_Woo_Civi_Contact_Email {
 	}
 
 	/**
+	 * Gets a Contact's Email of a given Location Type.
+	 *
+	 * @since 3.0
+	 *
+	 * @param integer $contact_id The numeric ID of the Contact.
+	 * @param integer $location_type_id The numeric ID of the Location Type.
+	 * @return array $email The array of Email data, empty otherwise.
+	 */
+	public function get_by_contact_id_and_location( $contact_id, $location_type_id ) {
+
+		// Init return.
+		$email = [];
+
+		// Bail if we can't initialise CiviCRM.
+		if ( ! WPCV_WCI()->boot_civi() ) {
+			return $email;
+		}
+
+		// Construct API query.
+		$params = [
+			'version' => 3,
+			'contact_id' => $contact_id,
+			'location_type_id' => $location_type_id,
+		];
+
+		// Get Email details via API.
+		$result = civicrm_api( 'Email', 'get', $params );
+
+		// Bail if there's an error.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			return $email;
+		}
+
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return $email;
+		}
+
+		// The result set should contain only one item.
+		$email = array_pop( $result['values'] );
+
+		return $email;
+
+	}
+
+	/**
 	 * Get the Emails for a given Contact ID.
 	 *
 	 * @since 3.0
@@ -389,7 +534,7 @@ class WPCV_Woo_Civi_Contact_Email {
 	 * @param integer $contact_id The numeric ID of the CiviCRM Contact.
 	 * @return array $email_data The array of Email data for the CiviCRM Contact.
 	 */
-	public function emails_get_by_contact_id( $contact_id ) {
+	public function get_all_by_contact_id( $contact_id ) {
 
 		$email_data = [];
 
