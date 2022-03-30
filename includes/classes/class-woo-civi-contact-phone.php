@@ -102,7 +102,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 		// Only use 'billing' because there is no 'shipping_phone' in WooCommerce.
 		$location_type = 'billing';
 		$location_types = WPCV_WCI()->helper->get_mapped_location_types();
-		$location_type_id = $location_types[ $location_type ];
+		$location_type_id = (int) $location_types[ $location_type ];
 
 		// Bail if there's no Phone Number in the Order.
 		$phone_number = '';
@@ -126,24 +126,29 @@ class WPCV_Woo_Civi_Contact_Phone {
 		// Get the existing Phone records for this Contact.
 		$existing_phones = $this->get_all_by_contact_id( $contact_id );
 
-		// Process Phone.
-		$phone_exists = false;
+		// Try and find an existing CiviCRM Phone record.
 		foreach ( $existing_phones as $existing ) {
 			// Does this Phone have the same Location Type?
-			if ( isset( $existing['location_type_id'] ) && $existing['location_type_id'] === $location_type_id ) {
+			if ( isset( $existing['location_type_id'] ) && (int) $existing['location_type_id'] === $location_type_id ) {
 				// Let's update that one.
 				$phone_params['id'] = $existing['id'];
+				// Although no need if it hasn't changed.
+				if ( isset( $existing['phone'] ) && $existing['phone'] === $phone_number ) {
+					return;
+				}
 			}
-			// Is this Phone the same as the one from the Order?
-			if ( isset( $existing['phone'] ) && $existing['phone'] === $phone_number ) {
-				// FIXME: Should we still create a new Phone with the 'Billing' Location Type?
-				$phone_exists = true;
-			}
+
 		}
 
-		// Skip if no update needed.
-		if ( $phone_exists ) {
-			return;
+		// If we haven't found one of the matching Location Type.
+		if ( empty( $phone_params['id'] ) ) {
+			// Look for a Phone Number that's the same as the one from the Order.
+			foreach ( $existing_phones as $existing ) {
+				if ( isset( $existing['phone'] ) && $existing['phone'] === $phone_number ) {
+					// Skip creating a new Phone record since we already have it.
+					return;
+				}
+			}
 		}
 
 		// Create new or update existing Phone record.

@@ -190,30 +190,28 @@ class WPCV_Woo_Civi_Contact_Address {
 				'contact_id'             => $contact_id,
 			];
 
-			$address_exists = false;
+			// Try and find an existing CiviCRM Address record.
 			foreach ( $existing_addresses as $existing ) {
 				// Does this Address have the desired Location Type?
 				if ( isset( $existing->location_type_id ) && $existing->location_type_id === $location_type_id ) {
+					// Let's update that one.
 					$address_params['id'] = $existing->id;
-				} elseif (
-					// TODO: Don't create an Address if it's an exact match of another Address.
-					// FIXME: should we make 'exact match' configurable?
-					isset( $existing->street_address )
-					&& isset( $existing->city )
-					&& isset( $existing->postal_code )
-					&& isset( $address_params['street_address'] )
-					&& $existing->street_address_params === $address_params['street_address']
-					&& CRM_Utils_Array::value( 'supplemental_address_1', $existing ) === CRM_Utils_Array::value( 'supplemental_address_1', $address_params )
-					&& $existing->city === $address_params['city']
-					&& $existing->postal_code === $address_params['postal_code']
-				) {
-					$address_exists = true;
+					// Skip if no update needed.
+					if ( $this->is_match( $existing, $address_params ) ) {
+						continue 2;
+					}
 				}
 			}
 
-			// Skip if no update needed.
-			if ( $address_exists ) {
-				continue;
+			// If we haven't found one of the matching Location Type.
+			if ( empty( $address_params['id'] ) ) {
+				// Look for an Address that's the same as the one from the Order.
+				foreach ( $existing_addresses as $existing ) {
+					if ( $this->is_match( $existing, $address_params ) ) {
+						// Skip creating a new Address record since we already have it.
+						continue 2;
+					}
+				}
 			}
 
 			// Create new or update existing Address record.
@@ -229,7 +227,7 @@ class WPCV_Woo_Civi_Contact_Address {
 			}
 
 			// Construct note for Order.
-			if ( empty( $email_params['id'] ) ) {
+			if ( empty( $address_params['id'] ) ) {
 				$note = sprintf(
 					/* translators: 1: Address Type, 2: Street Address */
 					__( 'Created new CiviCRM Address of type %1$s: %2$s', 'wpcv-woo-civi-integration' ),
@@ -249,6 +247,56 @@ class WPCV_Woo_Civi_Contact_Address {
 			$order->add_order_note( $note );
 
 		}
+
+	}
+
+	/**
+	 * Checks if two CiviCRM Addresses are the same.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array|object $one The first Address.
+	 * @param array|object $two The second Address.
+	 * @return bool True if the Addresses match, false otherwise.
+	 */
+	public function is_match( $one, $two ) {
+
+		// Cast params as objects for comparison.
+		if ( ! is_object( $one ) ) {
+			$one = (object) $one;
+		}
+		if ( ! is_object( $two ) ) {
+			$two = (object) $two;
+		}
+
+		// Backfill before comparing.
+		$one->street_address = empty( $one->street_address ) ? '' : $one->street_address;
+		$two->street_address = empty( $two->street_address ) ? '' : $two->street_address;
+		if ( $one->street_address !== $two->street_address  ) {
+			return false;
+		}
+
+		$one->postal_code = empty( $one->postal_code ) ? '' : $one->postal_code;
+		$two->postal_code = empty( $two->postal_code ) ? '' : $two->postal_code;
+		if ( $one->postal_code !== $two->postal_code  ) {
+			return false;
+		}
+
+		$one->city = empty( $one->city ) ? '' : $one->city;
+		$two->city = empty( $two->city ) ? '' : $two->city;
+		if ( $one->city !== $two->city  ) {
+			return false;
+		}
+
+		$one->supplemental_address_1 = empty( $one->supplemental_address_1 ) ? '' : $one->supplemental_address_1;
+		$two->supplemental_address_1 = empty( $two->supplemental_address_1 ) ? '' : $two->supplemental_address_1;
+		if ( $one->supplemental_address_1 !== $two->supplemental_address_1  ) {
+			return false;
+		}
+
+		// TODO: Maybe add more Address fields.
+
+		return true;
 
 	}
 
