@@ -102,7 +102,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		// Only use 'billing' because there is no 'shipping_email' in WooCommerce.
 		$location_type = 'billing';
 		$location_types = WPCV_WCI()->helper->get_mapped_location_types();
-		$location_type_id = $location_types[ $location_type ];
+		$location_type_id = (int) $location_types[ $location_type ];
 
 		// Bail if there's no Email in the Order.
 		$email_address = '';
@@ -125,24 +125,30 @@ class WPCV_Woo_Civi_Contact_Email {
 		// Get the existing Email records for this Contact.
 		$existing_emails = $this->get_all_by_contact_id( $contact_id );
 
-		// Process Email.
-		$email_exists = false;
+		// Try and find an existing CiviCRM Email record.
 		foreach ( $existing_emails as $existing ) {
 			// Does this Email have the same Location Type?
-			if ( isset( $existing['location_type_id'] ) && $existing['location_type_id'] === $location_type_id ) {
+			if ( isset( $existing['location_type_id'] ) && (int) $existing['location_type_id'] === $location_type_id ) {
 				// Let's update that one.
 				$email_params['id'] = $existing['id'];
+				// Although no need if it hasn't changed.
+				if ( isset( $existing['email'] ) && $existing['email'] === $email_address ) {
+					return;
+				}
 			}
-			// Is this Email the same as the one from the Order?
-			if ( isset( $existing['email'] ) && $existing['email'] === $email_address ) {
-				// FIXME: Should we still create a new Email with the 'Billing' Location Type?
-				$email_exists = true;
-			}
+
 		}
 
-		// Skip if no update needed.
-		if ( $email_exists ) {
-			return;
+		// If we haven't found one of the matching Location Type.
+		if ( empty( $email_params['id'] ) ) {
+			// Look for a Email Number that's the same as the one from the Order.
+			reset( $existing_emails );
+			foreach ( $existing_emails as $existing ) {
+				if ( isset( $existing['email'] ) && $existing['email'] === $email_address ) {
+					// Skip creating a new Email record since we already have it.
+					return;
+				}
+			}
 		}
 
 		// Create new or update existing Email record.
