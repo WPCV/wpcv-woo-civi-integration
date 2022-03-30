@@ -776,7 +776,7 @@ class WPCV_Woo_Civi_Contribution {
 		do_action( 'wpcv_woo_civi/contribution/payment_created', $payment_data, $order, $contribution );
 
 		// Temporarily fix the Payment.
-		$this->payment_fix( $payment_data );
+		$this->payment_fix( $payment_data, $order );
 
 		return $payment_data;
 
@@ -793,8 +793,15 @@ class WPCV_Woo_Civi_Contribution {
 	 * @since 3.0
 	 *
 	 * @param array $payment_data The array of Payment data from the CiviCRM API.
+	 * @param object $order The WooCommerce Order object.
 	 */
-	public function payment_fix( $payment_data ) {
+	public function payment_fix( $payment_data, $order ) {
+
+		// Skip if "Pay Later" Payment Method.
+		$pay_later_methods = get_option( 'woocommerce_civicrm_pay_later_gateways', [] );
+		if ( in_array( $order->get_payment_method(), $pay_later_methods ) ) {
+			return;
+		}
 
 		// Get the full data for the Payment.
 		$params = [
