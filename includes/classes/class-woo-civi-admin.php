@@ -294,16 +294,7 @@ class WPCV_Woo_Civi_Admin {
 	 */
 	public function page_submit_url_get() {
 
-		// Sanitise admin page URL.
-		$target_url = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
-		$url_array = explode( '&', $target_url );
-
-		// Strip flag, if present, and rebuild.
-		if ( ! empty( $url_array ) ) {
-			$url_raw = str_replace( '&amp;updated=true', '', $url_array[0] );
-			$target_url = htmlentities( $url_raw . '&updated=true' );
-		}
-
+		$target_url = menu_page_url( $this->admin_page_slug, false );
 		return $target_url;
 
 	}
