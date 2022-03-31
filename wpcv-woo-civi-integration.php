@@ -346,7 +346,11 @@ class WPCV_Woo_Civi {
 		// Include Product classes.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products.php';
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products-variable.php';
-		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products-custom.php';
+
+		// Maybe include Custom Products class.
+		if ( defined( 'WPCV_WOO_CIVI_PRODUCTS_CUSTOM' ) && WPCV_WOO_CIVI_PRODUCTS_CUSTOM ) {
+			include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-products-custom.php';
+		}
 
 		// Include CiviCRM Component classes.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-campaign.php';
