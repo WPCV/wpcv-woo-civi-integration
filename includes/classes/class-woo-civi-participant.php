@@ -916,7 +916,7 @@ class WPCV_Woo_Civi_Participant {
 
 			// Build Participant Roles options array.
 			$participant_roles = [
-			'' => __( 'Select a Participant Role', 'wpcv-woo-civi-integration' ),
+				'' => __( 'Select a Participant Role', 'wpcv-woo-civi-integration' ),
 			] + WPCV_WCI()->participant->get_participant_roles_options();
 
 			// Show Participant Role.
@@ -998,7 +998,7 @@ class WPCV_Woo_Civi_Participant {
 
 		// Build Participant Roles options array.
 		$participant_roles = [
-		'' => __( 'Select a Participant Role', 'wpcv-woo-civi-integration' ),
+			'' => __( 'Select a Participant Role', 'wpcv-woo-civi-integration' ),
 		] + WPCV_WCI()->participant->get_participant_roles_options();
 
 		// Get the Participant Role ID.

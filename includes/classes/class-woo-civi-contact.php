@@ -1057,7 +1057,7 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		// Bail if not the synced Contact Sub-type.
-		if ( ! empty( $contact_type['sub_type'] ) && ! empty( $contact['contact_sub_type'] )  ) {
+		if ( ! empty( $contact_type['sub_type'] ) && ! empty( $contact['contact_sub_type'] ) ) {
 			if ( ! in_array( $contact_type['sub_type'], $contact['contact_sub_type'] ) ) {
 				return false;
 			}

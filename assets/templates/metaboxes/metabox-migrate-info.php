@@ -1,4 +1,15 @@
-<!-- assets/templates/metaboxes/metabox-migrate-info.php -->
+<?php
+/**
+ * Migration Page Info metabox template.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 3.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
+
+?><!-- assets/templates/metaboxes/metabox-migrate-info.php -->
 <?php if ( $metabox['args']['migrated'] === false ) : ?>
 
 	<h3><?php esc_html_e( 'Why migrate?', 'wpcv-woo-civi-integration' ); ?></h3>
