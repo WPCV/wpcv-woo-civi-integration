@@ -201,6 +201,15 @@ class WPCV_Woo_Civi {
 	public $participant;
 
 	/**
+	 * Dependency check flag.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var object $okay_to_load True if dependency check succeeds, false otherwise.
+	 */
+	public $okay_to_load = false;
+
+	/**
 	 * Dummy instance constructor.
 	 *
 	 * @since 3.0
@@ -230,9 +239,6 @@ class WPCV_Woo_Civi {
 			// Enable translation first.
 			add_action( 'plugins_loaded', [ self::$instance, 'enable_translation' ] );
 
-			// Check dependencies once all plugins are loaded.
-			add_action( 'plugins_loaded', [ self::$instance, 'check_dependencies' ] );
-
 			// Setup plugin when WooCommerce has been bootstrapped.
 			add_action( 'woocommerce_init', [ self::$instance, 'initialise' ] );
 
@@ -249,6 +255,15 @@ class WPCV_Woo_Civi {
 	 * @since 3.0
 	 */
 	public function initialise() {
+
+		// Always include Helper class and init.
+		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-helper.php';
+		$this->helper = new WPCV_Woo_Civi_Helper();
+
+		// Bail if dependency check fails.
+		if ( ! $this->check_dependencies_on_load() ) {
+			return;
+		}
 
 		// Defer to "WooCommerce CiviCRM" if present.
 		if ( function_exists( 'WCI' ) ) {
@@ -293,10 +308,6 @@ class WPCV_Woo_Civi {
 	 */
 	private function migrate() {
 
-		// Include Helper class and init.
-		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-helper.php';
-		$this->helper = new WPCV_Woo_Civi_Helper();
-
 		// Include Contribution class and init.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contribution.php';
 		$this->contribution = new WPCV_Woo_Civi_Contribution();
@@ -316,9 +327,6 @@ class WPCV_Woo_Civi {
 
 		// Include Admin class.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-admin.php';
-
-		// Include Helper class.
-		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-helper.php';
 
 		// Include Settings classes.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-settings.php';
@@ -356,9 +364,6 @@ class WPCV_Woo_Civi {
 
 		// Init Admin object.
 		$this->admin = new WPCV_Woo_Civi_Admin();
-
-		// Init helper object.
-		$this->helper = new WPCV_Woo_Civi_Helper();
 
 		// Init Settings objects.
 		$this->settings = new WPCV_Woo_Civi_Settings();
@@ -410,6 +415,7 @@ class WPCV_Woo_Civi {
 	 */
 	public function activate() {
 
+		$this->check_dependencies();
 		$this->clear_civi_cache();
 
 		/**
@@ -621,11 +627,44 @@ class WPCV_Woo_Civi {
 	}
 
 	/**
-	 * Check plugin dependencies.
+	 * Check plugin dependencies when already installed.
+	 *
+	 * If any of these checks fail, this plugin will skip its load procedures.
+	 *
+	 * Note that no WooCommerce checks are made because this check takes place
+	 * in the callback to the "woocommerce_init" action and will not be called
+	 * if WooCommerce is not installed.
+	 *
+	 * @since 3.0
+	 */
+	public function check_dependencies_on_load() {
+
+		// Bail if CiviCRM is not available.
+		if ( ! function_exists( 'civi_wp' ) ) {
+			return false;
+		}
+
+		// Bail if CiviCRM is not installed.
+		if ( ! defined( 'CIVICRM_INSTALLED' ) ) {
+			return false;
+		}
+
+		// Bail early if the CiviContribute component is not active.
+		$contribute_active = $this->helper->is_component_enabled( 'CiviContribute' );
+		if ( ! $contribute_active ) {
+			return false;
+		}
+
+		// We're good to go.
+		$this->okay_to_load = true;
+		return true;
+
+	}
+
+	/**
+	 * Check plugin dependencies on plugin activation.
 	 *
 	 * If any of these checks fail, this plugin will self-deactivate and exit.
-	 * This check takes place on "plugins_loaded" which happens prior to the
-	 * "woocommerce_init" action.
 	 *
 	 * @since 2.0
 	 */
@@ -683,6 +722,7 @@ class WPCV_Woo_Civi {
 		$message .= '<p>' . $deactivated . '</p>';
 		$message .= '<p>' . $back . '</p>';
 
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		deactivate_plugins( plugin_basename( WPCV_WOO_CIVI_FILE ) );
 
 		wp_die( $message );
@@ -724,6 +764,7 @@ class WPCV_Woo_Civi {
 		$message .= '<p>' . $deactivated . '</p>';
 		$message .= '<p>' . $back . '</p>';
 
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		deactivate_plugins( plugin_basename( WPCV_WOO_CIVI_FILE ) );
 
 		wp_die( $message );
@@ -765,6 +806,7 @@ class WPCV_Woo_Civi {
 		$message .= '<p>' . $deactivated . '</p>';
 		$message .= '<p>' . $back . '</p>';
 
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		deactivate_plugins( plugin_basename( WPCV_WOO_CIVI_FILE ) );
 
 		wp_die( $message );
