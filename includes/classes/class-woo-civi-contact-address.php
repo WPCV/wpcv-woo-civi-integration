@@ -272,25 +272,25 @@ class WPCV_Woo_Civi_Contact_Address {
 		// Backfill before comparing.
 		$one->street_address = empty( $one->street_address ) ? '' : $one->street_address;
 		$two->street_address = empty( $two->street_address ) ? '' : $two->street_address;
-		if ( $one->street_address !== $two->street_address  ) {
+		if ( $one->street_address !== $two->street_address ) {
 			return false;
 		}
 
 		$one->postal_code = empty( $one->postal_code ) ? '' : $one->postal_code;
 		$two->postal_code = empty( $two->postal_code ) ? '' : $two->postal_code;
-		if ( $one->postal_code !== $two->postal_code  ) {
+		if ( $one->postal_code !== $two->postal_code ) {
 			return false;
 		}
 
 		$one->city = empty( $one->city ) ? '' : $one->city;
 		$two->city = empty( $two->city ) ? '' : $two->city;
-		if ( $one->city !== $two->city  ) {
+		if ( $one->city !== $two->city ) {
 			return false;
 		}
 
 		$one->supplemental_address_1 = empty( $one->supplemental_address_1 ) ? '' : $one->supplemental_address_1;
 		$two->supplemental_address_1 = empty( $two->supplemental_address_1 ) ? '' : $two->supplemental_address_1;
-		if ( $one->supplemental_address_1 !== $two->supplemental_address_1  ) {
+		if ( $one->supplemental_address_1 !== $two->supplemental_address_1 ) {
 			return false;
 		}
 
@@ -385,7 +385,7 @@ class WPCV_Woo_Civi_Contact_Address {
 			// Override for special fields.
 			if ( $civi_field === 'country_id' ) {
 				$value = WPCV_WCI()->settings_states->get_civicrm_country_iso_code( $value );
-			} elseif( $civi_field === 'state_province_id' ) {
+			} elseif ( $civi_field === 'state_province_id' ) {
 				$value = WPCV_WCI()->settings_states->get_civicrm_state_province_name( $value );
 			}
 
@@ -495,7 +495,7 @@ class WPCV_Woo_Civi_Contact_Address {
 			// Override for special fields.
 			if ( $civi_field === 'country_id' ) {
 				$value = WPCV_WCI()->settings_states->get_civicrm_country_id( $value );
-			} elseif( $civi_field === 'state_province_id' ) {
+			} elseif ( $civi_field === 'state_province_id' ) {
 				// This relies on the order of the Field mappings to work.
 				$value = WPCV_WCI()->settings_states->get_civicrm_state_province_id( $value, $address_params['country_id'] );
 			}

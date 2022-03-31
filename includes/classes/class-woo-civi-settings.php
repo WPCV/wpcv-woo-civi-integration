@@ -255,6 +255,8 @@ class WPCV_Woo_Civi_Settings {
 			'financial_type_shipping_id' => [
 				'title' => __( 'Shipping Financial Type', 'wpcv-woo-civi-integration' ),
 				'type' => 'select',
+				/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
+				'desc' => sprintf( __( 'Tip: you can manage your %1$sFinancial Types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/financial/financialType', 'reset=1' ) . '">', '</a>' ),
 				'options' => WPCV_WCI()->helper->get_financial_types(),
 				'id'   => 'woocommerce_civicrm_financial_type_shipping_id',
 			],
@@ -321,7 +323,7 @@ class WPCV_Woo_Civi_Settings {
 			'product_types_with_panel' => [
 				'title' => __( 'Product Types with CiviCRM Settings', 'wpcv-woo-civi-integration' ),
 				'type' => 'multiselect',
-				'options' => WPCV_WCI()->helper->get_product_types_options( $raw = false ),
+				'options' => WPCV_WCI()->helper->get_product_types_options( false ),
 				'id'   => 'woocommerce_civicrm_product_types_with_panel',
 				'autoload' => false,
 				'desc' => __( 'Select the WooCommerce Product Types to show the CiviCRM Settings panel on. You will need to update this setting if you enable additional plugins that provide Custom Product Types that you want to include as Line Items in CiviCRM Orders.', 'wpcv-woo-civi-integration' ),

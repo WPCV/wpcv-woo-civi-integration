@@ -76,6 +76,7 @@ class WPCV_Woo_Civi_UTM {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['utm_campaign'] ) || isset( $_GET['utm_source'] ) || isset( $_GET['utm_medium'] ) ) {
 			$this->utm_cookies_save();
 		}

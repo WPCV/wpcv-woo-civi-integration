@@ -1,4 +1,15 @@
-<!-- assets/templates/metaboxes/metabox-migrate-submit.php -->
+<?php
+/**
+ * Migration Page Submit metabox template.
+ *
+ * @package WPCV_Woo_Civi
+ * @since 3.0
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
+
+?><!-- assets/templates/metaboxes/metabox-migrate-submit.php -->
 <div class="submitbox">
 	<div id="minor-publishing">
 		<div id="misc-publishing-actions">

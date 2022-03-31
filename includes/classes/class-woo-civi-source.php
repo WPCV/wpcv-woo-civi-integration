@@ -351,7 +351,7 @@ class WPCV_Woo_Civi_Source {
 		}
 
 		global $wpdb;
-		$results = $wpdb->get_results( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '{$this->meta_key}'" );
+		$results = $wpdb->get_results( $wpdb->prepare( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = %s", $this->meta_key ) );
 		if ( count( $results ) > 0 ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_source' );
 
@@ -427,7 +427,7 @@ class WPCV_Woo_Civi_Source {
 
 		// Query database directly.
 		global $wpdb;
-		$results = $wpdb->get_results( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '{$this->meta_key}'" );
+		$results = $wpdb->get_results( $wpdb->prepare( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = %s", $this->meta_key ) );
 
 		?>
 		<p class="form-field form-field-wide wc-civicrmsource">
