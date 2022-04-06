@@ -513,8 +513,12 @@ class WPCV_Woo_Civi_Products {
 		/*
 		 * Line item for shipping.
 		 *
-		 * Shouldn't it be added to it's corresponding Product/Line Item?
-		 * i.e. an Order can have both shippable and downloadable Products?
+		 * Even though a WooCommerce Order can have both shippable and downloadable
+		 * Products, the Shipping Fee is a single item in the Order.
+		 *
+		 * Line Items are always added with their ID as the key, so Shipping is
+		 * added with ID = 0 so that it cannot accidentally overwrite a Line Item
+		 * or be overwritten by a Line Item.
 		 */
 		$params['line_items'][0] = [
 			'line_item' => [
