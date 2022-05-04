@@ -114,7 +114,7 @@ class WPCV_Woo_Civi_Source {
 	 * @param integer $order_id The Order ID.
 	 * @param object  $order The Order object.
 	 */
-	public function order_new( $order_id, $order ) {
+	public function order_new( $order_id, $order = null ) {
 
 		// Retrieve the current Source.
 		$current_source = $this->get_order_meta( $order_id );
@@ -122,6 +122,9 @@ class WPCV_Woo_Civi_Source {
 		// Generate the new Source if there isn't one.
 		$new_source = filter_input( INPUT_POST, 'order_civicrmsource', FILTER_SANITIZE_STRING );
 		if ( empty( $new_source ) ) {
+			if ( empty( $order ) ) {
+				$order = wc_get_order( $order_id );
+			}
 			$new_source = $this->source_generate( $order );
 		}
 
@@ -149,7 +152,7 @@ class WPCV_Woo_Civi_Source {
 	 * @param integer $order_id The Order ID.
 	 * @param object  $order The Order object.
 	 */
-	public function order_updated( $order_id, $order ) {
+	public function order_updated( $order_id, $order = null ) {
 
 		if ( ! is_admin() ) {
 			return;
@@ -159,6 +162,11 @@ class WPCV_Woo_Civi_Source {
 		static $done;
 		if ( isset( $done ) && $done === true ) {
 			return;
+		}
+
+		// Sometimes the Order param is missing.
+		if ( empty( $order ) ) {
+			$order = wc_get_order( $order_id );
 		}
 
 		// Use same method as for new Orders for now.
