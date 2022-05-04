@@ -601,7 +601,7 @@ class WPCV_Woo_Civi_Campaign {
 	 * @param integer $order_id The Order ID.
 	 * @param object  $order The Order object.
 	 */
-	public function order_new( $order_id, $order ) {
+	public function order_new( $order_id, $order = null ) {
 
 		// Retrieve the current and new Campaign ID.
 		$current_campaign_id = $this->get_order_meta( $order_id );
@@ -627,7 +627,7 @@ class WPCV_Woo_Civi_Campaign {
 	 * @param integer $order_id The Order ID.
 	 * @param object  $order The Order object.
 	 */
-	public function order_updated( $order_id, $order ) {
+	public function order_updated( $order_id, $order = null ) {
 
 		if ( ! is_admin() ) {
 			return;
@@ -637,6 +637,11 @@ class WPCV_Woo_Civi_Campaign {
 		static $done;
 		if ( isset( $done ) && $done === true ) {
 			return;
+		}
+
+		// Sometimes the Order param is missing.
+		if ( empty( $order ) ) {
+			$order = wc_get_order( $order_id );
 		}
 
 		// Use same method as for new Orders for now.

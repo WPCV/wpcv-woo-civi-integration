@@ -212,15 +212,20 @@ class WPCV_Woo_Civi_Contact {
 	 * @param integer $order_id The Order ID.
 	 * @param object  $order The Order object.
 	 */
-	public function order_new( $order_id, $order ) {
+	public function order_new( $order_id, $order = null ) {
 
 		// Bail when the Order is created in the Checkout.
 		if ( $this->is_checkout ) {
 			return;
 		}
 
+		// Sometimes the Order param is missing.
+		if ( empty( $order ) ) {
+			$order = wc_get_order( $order_id );
+		}
+
 		// In WordPress admin, mimic the "woocommerce_checkout_order_processed" callback.
-		$this->order_processed( $order_id, null, new WC_Order( $order_id ) );
+		$this->order_processed( $order_id, null, $order );
 
 		/**
 		 * Broadcast that a new WooCommerce Order with CiviCRM data has been created.
