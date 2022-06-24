@@ -112,6 +112,9 @@ class WPCV_Woo_Civi_Participant {
 		// Add Event and Participant Role to the Product Variation "CiviCRM Settings".
 		add_action( 'wpcv_woo_civi/product/variation/block/middle', [ $this, 'attributes_add_markup' ], 20, 4 );
 
+		// Save Event and Participant Role for the Product Variation.
+		add_action( 'wpcv_woo_civi/product/variation/attributes/saved/after', [ $this, 'variation_saved' ], 10, 3 );
+
 		// Add Participant data to the Product "Bulk Edit" and "Quick Edit" markup.
 		//add_action( 'wpcv_woo_civi/product/bulk_edit/after', [ $this, 'bulk_edit_add_markup' ] );
 		//add_action( 'wpcv_woo_civi/product/quick_edit/after', [ $this, 'quick_edit_add_markup' ] );
@@ -1050,11 +1053,11 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 *
-	 * @param integer              $loop The position in the loop.
 	 * @param WC_Product_Variation $variation The Product Variation object.
+	 * @param integer              $loop The position in the loop.
 	 * @param string               $entity The CiviCRM Entity Type.
 	 */
-	public function variation_saved( $loop, $variation, $entity ) {
+	public function variation_saved( $variation, $loop, $entity ) {
 
 		// Bail if this is not a CiviCRM Participant.
 		if ( $entity !== 'civicrm_participant' ) {
