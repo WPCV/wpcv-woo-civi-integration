@@ -308,13 +308,6 @@ class WPCV_Woo_Civi {
 	 */
 	private function migrate() {
 
-		function debug_to_console($data) {
-			$output = $data;
-			if (is_array($output))
-				$output = implode(',', $output);
-		
-			echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
-		}
 		// Include Contribution class and init.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-contribution.php';
 		$this->contribution = new WPCV_Woo_Civi_Contribution();
@@ -322,7 +315,7 @@ class WPCV_Woo_Civi {
 		// Include Admin Migrate class and init.
 		include WPCV_WOO_CIVI_PATH . 'includes/classes/class-woo-civi-admin-migrate.php';
 		$this->migrate = new WPCV_Woo_Civi_Admin_Migrate();
-		
+
 	}
 
 	/**
