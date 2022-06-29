@@ -685,7 +685,6 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 				// Process this Product.
 				$this->product_process( $product_id, $member_active );
-
 			}
 
 			// Reset Post data just in case.
@@ -735,12 +734,33 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			delete_post_meta( $product_id, '_civicrm_contribution_type' );
 		}
 
+		// get all variation products 
+		$variation_product_id = [];
+		$args = array(
+			'post_type' => 'product_variation',
+			'post_parent' => $product_id,
+			'suppress_filters' => false
+		);
+		$all_variations = get_posts($args);
+		foreach ($all_variations as $result) {
+			array_push($variation_product_id, $result->ID);
+		}
+
 		// Does the Product have meta without the leading underscore?
 		$financial_type_id = get_post_meta( $product_id, 'woocommerce_civicrm_financial_type_id', true );
 
 		// When it does, update the proper meta and remove old.
-		if ( ! empty( $financial_type_id ) || $financial_type_id === 0 ) {
+		if ( ! empty( $financial_type_id ) || $financial_type_id === 0 ) {	
 			update_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id', $financial_type_id );
+			update_post_meta( $product_id, '_woocommerce_civicrm_entity_type', 'civicrm_contribution' );
+			if ( $variation_product_id != NULL ) {
+				update_post_meta( $product_id, '_wpcv_wci_variable_civicrm_entity_type', 'civicrm_contribution' );
+				foreach ($variation_product_id as $variation_product) {
+					update_post_meta($variation_product, '_wpcv_wci_variable_membership_financial_type_id', $financial_type_id);
+					update_post_meta($variation_product, '_wpcv_wci_variable_contribution_financial_type_id', $financial_type_id);
+					update_post_meta($variation_product, '_wpcv_wci_variable_participant_financial_type_id', $financial_type_id);
+				}
+			}
 			delete_post_meta( $product_id, 'woocommerce_civicrm_financial_type_id' );
 		}
 
@@ -755,6 +775,14 @@ class WPCV_Woo_Civi_Admin_Migrate {
 				if ( $membership_type_id > 0 ) {
 					update_post_meta( $product_id, '_woocommerce_civicrm_entity_type', 'civicrm_membership' );
 				}
+				if ( $variation_product_id != NULL ) {
+					if ( $membership_type_id > 0 ) {
+						update_post_meta( $product_id, '_wpcv_wci_variable_civicrm_entity_type', 'civicrm_membership' );
+					}
+					foreach ($variation_product_id as $variation_product) {
+						update_post_meta( $variation_product, '_wpcv_wci_variable_membership_type_id', $membership_type_id );
+					}
+				}
 			}
 			delete_post_meta( $product_id, 'woocommerce_civicrm_membership_type_id' );
 		}
@@ -764,8 +792,15 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			update_post_meta( $product_id, '_woocommerce_civicrm_entity_type', 'civicrm_exclude' );
 			delete_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id' );
 			delete_post_meta( $product_id, '_woocommerce_civicrm_membership_type_id' );
+			if ($variation_product_id != NULL) {
+				update_post_meta( $product_id, '_wpcv_wci_variable_civicrm_entity_type', 'civicrm_exclude' );
+				foreach ($variation_product_id as $variation_product) {
+					delete_post_meta($variation_product, '_woocommerce_civicrm_financial_type_id');
+					delete_post_meta($variation_product, '_woocommerce_civicrm_membership_type_id');
+				}
+			}
 		}
-
+		unset($all_variations);
 	}
 
 	/**
