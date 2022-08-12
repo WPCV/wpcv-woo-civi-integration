@@ -760,7 +760,8 @@ class WPCV_Woo_Civi_Admin_Migrate
         $args = array(
         'post_type' => 'product_variation',
         'post_parent' => $product_id,
-        'suppress_filters' => false
+        'suppress_filters' => false,
+        'nopaging' => true
         );
         $all_variations = get_posts($args);
         foreach ($all_variations as $result) {
