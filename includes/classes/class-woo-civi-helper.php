@@ -450,7 +450,7 @@ class WPCV_Woo_Civi_Helper {
 					}
 
 					// Add Tax data if necessary.
-					if ( $tax_enabled && empty( $tax_rates ) && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
+					if ( $tax_enabled && empty( $tax_rates ) && is_array( $tax_rates ) && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
 						$price_field_value['tax_rate'] = $tax_rates[ $price_field_value['financial_type_id'] ];
 						$price_field_value['tax_amount'] = $this->percentage( $price_field_value['amount'], $price_field_value['tax_rate'] );
 					}
