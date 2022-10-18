@@ -4,7 +4,7 @@
 **Donate link:** https://www.paypal.me/interactivist<br/>
 **Tags:** civicrm, woocommerce, contribution, sync<br/>
 **Requires at least:** 5.7<br/>
-**Tested up to:** 5.8<br/>
+**Tested up to:** 6.1<br/>
 **Stable tag:** 3.0<br/>
 **License:** GPLv3<br/>
 **License URI:** https://www.gnu.org/licenses/gpl-3.0.html
