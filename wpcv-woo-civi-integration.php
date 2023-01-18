@@ -410,6 +410,17 @@ class WPCV_Woo_Civi {
 		// Add settings link to plugin listing page.
 		add_filter( 'plugin_action_links', [ $this, 'add_action_links' ], 10, 2 );
 
+		/*
+		 * Declare incompatibility with WooCommerce HPOS.
+		 *
+		 * @see https://github.com/woocommerce/woocommerce/wiki/High-Performance-Order-Storage-Upgrade-Recipe-Book
+		 */
+		add_action( 'before_woocommerce_init', function() {
+			if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, false );
+			}
+		} );
+
 	}
 
 	/**
