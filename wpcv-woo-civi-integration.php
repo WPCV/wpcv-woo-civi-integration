@@ -364,7 +364,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 */
-	public function setup_objects() {
+	private function setup_objects() {
 
 		// Init Admin object.
 		$this->admin = new WPCV_Woo_Civi_Admin();
