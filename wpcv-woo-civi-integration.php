@@ -410,16 +410,8 @@ class WPCV_Woo_Civi {
 		// Add settings link to plugin listing page.
 		add_filter( 'plugin_action_links', [ $this, 'add_action_links' ], 10, 2 );
 
-		/*
-		 * Declare incompatibility with WooCommerce HPOS.
-		 *
-		 * @see https://github.com/woocommerce/woocommerce/wiki/High-Performance-Order-Storage-Upgrade-Recipe-Book
-		 */
-		add_action( 'before_woocommerce_init', function() {
-			if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
-				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, false );
-			}
-		} );
+		// Declare status of compatibility with WooCommerce HPOS.
+		add_action( 'before_woocommerce_init', [ $this, 'declare_woocommerce_hpos_status' ] );
 
 	}
 
@@ -673,6 +665,25 @@ class WPCV_Woo_Civi {
 		// We're good to go.
 		$this->okay_to_load = true;
 		return true;
+
+	}
+
+	/**
+	 * Declare status of compatibility with WooCommerce HPOS.
+	 *
+	 * @see https://github.com/woocommerce/woocommerce/wiki/High-Performance-Order-Storage-Upgrade-Recipe-Book
+	 *
+	 * @since 3.0
+	 */
+	public function declare_woocommerce_hpos_status() {
+
+		// Bail if we can't declare compatibility.
+		if ( ! class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+			return;
+		}
+
+		// When this plugin is compatible, switch to final param to "true".
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, false );
 
 	}
 
