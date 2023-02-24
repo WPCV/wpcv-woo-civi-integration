@@ -370,6 +370,10 @@ class WPCV_Woo_Civi_Contact_Address {
 		// Unhook to prevent any possibility of recursion.
 		remove_action( 'woocommerce_customer_save_address', [ $this, 'sync_woo_to_civicrm' ] );
 
+		// Also unhook CiviCRM's callbacks.
+		remove_action( 'user_register', [ civi_wp()->users, 'update_user' ] );
+		remove_action( 'profile_update', [ civi_wp()->users, 'update_user' ] );
+
 		// Update the Fields for the mapped WooCommerce Address Type.
 		$address_type = array_search( (int) $object_ref->location_type_id, $mapped, true );
 		foreach ( $this->get_field_mappings( $address_type ) as $wc_field => $civi_field ) {
@@ -422,6 +426,10 @@ class WPCV_Woo_Civi_Contact_Address {
 
 		// Rehook callback for WooCommerce action.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_woo_to_civicrm' ], 10, 2 );
+
+		// Rehook CiviCRM's callbacks.
+		add_action( 'user_register', [ civi_wp()->users, 'update_user' ] );
+		add_action( 'profile_update', [ civi_wp()->users, 'update_user' ] );
 
 		// Let's make an array of the data.
 		$args = [
