@@ -374,6 +374,17 @@ class WPCV_Woo_Civi_Contact_Address {
 		remove_action( 'user_register', [ civi_wp()->users, 'update_user' ] );
 		remove_action( 'profile_update', [ civi_wp()->users, 'update_user' ] );
 
+		/**
+		 * Fires before syncing a CiviCRM Address from a CiviCRM Contact to a WordPress User.
+		 *
+		 * This allows plugins to unhook their callbacks which might interfere with
+		 * this syncing procedure. Callbacks can be rehooked with the corresponding
+		 * `wpcv_woo_civi/contact/address/sync_civicrm_to_woo/post` action.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/contact/address/sync_civicrm_to_woo/pre' );
+
 		// Update the Fields for the mapped WooCommerce Address Type.
 		$address_type = array_search( (int) $object_ref->location_type_id, $mapped, true );
 		foreach ( $this->get_field_mappings( $address_type ) as $wc_field => $civi_field ) {
@@ -430,6 +441,13 @@ class WPCV_Woo_Civi_Contact_Address {
 		// Rehook CiviCRM's callbacks.
 		add_action( 'user_register', [ civi_wp()->users, 'update_user' ] );
 		add_action( 'profile_update', [ civi_wp()->users, 'update_user' ] );
+
+		/**
+		 * Fires after syncing a CiviCRM Address from a CiviCRM Contact to a WordPress User.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/contact/address/sync_civicrm_to_woo/post' );
 
 		// Let's make an array of the data.
 		$args = [
