@@ -66,11 +66,11 @@ class WPCV_Woo_Civi_Contact_Email {
 		add_action( 'wpcv_woo_civi/contact/create_from_order', [ $this, 'entities_create' ], 20, 2 );
 		add_action( 'wpcv_woo_civi/contact/update_from_order', [ $this, 'entities_update' ], 20, 2 );
 
-		// Sync WooCommerce and CiviCRM email for Contact/User.
+		// Sync CiviCRM Contact Email to WooCommerce User Email.
 		add_action( 'civicrm_post', [ $this, 'sync_civicrm_to_woo' ], 10, 4 );
 
-		// Sync WooCommerce and CiviCRM email for User/Contact.
-		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_email' ], 10, 2 );
+		// Sync WooCommerce User Email to CiviCRM Contact Email.
+		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_woo_to_civicrm' ], 10, 2 );
 
 	}
 
@@ -206,12 +206,6 @@ class WPCV_Woo_Civi_Contact_Email {
 	 *
 	 * Fires when a CiviCRM Contact's Email is edited.
 	 *
-	 * TODO: This should probably also remove the "civicrm_post" callback because
-	 * it is possible for there to be listeners on the "updated_{$meta_type}_meta"
-	 * action in WordPress.
-	 *
-	 * @see https://developer.wordpress.org/reference/hooks/updated_meta_type_meta/
-	 *
 	 * @since 2.0
 	 * @since 3.0 Renamed.
 	 *
@@ -233,7 +227,12 @@ class WPCV_Woo_Civi_Contact_Email {
 		}
 
 		// Bail if not our target operation(s).
-		if ( 'edit' !== $op ) {
+		if ( 'create' !== $op && 'edit' !== $op ) {
+			return;
+		}
+
+		// Bail if we don't have a Contact ID.
+		if ( empty( $object_ref->contact_id ) ) {
 			return;
 		}
 
@@ -243,33 +242,43 @@ class WPCV_Woo_Civi_Contact_Email {
 			return;
 		}
 
-		// Bail if we don't have a Contact ID.
-		if ( empty( $object_ref->contact_id ) ) {
+		// Bail if the Contact doesn't have the synced Contact Type.
+		if ( ! WPCV_WCI()->contact->type_is_synced( $object_ref->contact_id ) ) {
 			return;
 		}
 
-		// Bail if we don't have a WordPress User.
-		$cms_user = WPCV_WCI()->contact->get_ufmatch( $object_ref->contact_id, 'contact_id' );
-		if ( ! $cms_user ) {
+		// Bail if we don't have a WordPress User match.
+		$ufmatch = WPCV_WCI()->contact->get_ufmatch( $object_ref->contact_id, 'contact_id' );
+		if ( ! $ufmatch ) {
 			return;
 		}
 
-		// Only for billing Email, there's no shipping Email field.
+		/*
+		 * Only sync billing Email because there is no shipping Email field in
+		 * WooCommerce and CiviCRM itself (or CiviCRM Profile Sync if present)
+		 * handles syncing the Contact Primary Email to WordPress User Email.
+		 */
 		$email_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
 		if ( 'billing' !== $email_type ) {
 			return;
 		}
 
-		// Do the update now.
-		// TODO: Convert to WooCommerce methods.
-		update_user_meta( $cms_user['uf_id'], $email_type . '_email', $object_ref->email );
+		// Set the WooCommerce Customer Email.
+		$customer = new WC_Customer( $ufmatch['uf_id'] );
+		if ( is_callable( [ $customer, "set_{$email_type}_email" ] ) ) {
+			$customer->{"set_{$email_type}_email"}( $object_ref->email );
+			$customer->save();
+		}
 
 		// Let's make an array of the data.
 		$args = [
-			'email' => $object_ref,
+			'op' => $op,
+			'object_name' => $object_name,
+			'object_id' => $object_id,
+			'object_ref' => $object_ref,
 			'email_type' => $email_type,
-			'user_id' => $cms_user['uf_id'],
-			'user' => $cms_user['uf_id'],
+			'customer' => $customer,
+			'user_id' => $ufmatch['uf_id'],
 		];
 
 		/**
@@ -293,24 +302,35 @@ class WPCV_Woo_Civi_Contact_Email {
 	 *
 	 * @param integer $user_id The WordPress User ID.
 	 * @param string  $load_address The Address Type. Either 'shipping' or 'billing'.
-	 * @return bool True on success, false on failure.
 	 */
 	public function sync_woo_to_civicrm( $user_id, $load_address ) {
 
 		// Bail if sync is not enabled.
 		if ( ! $this->sync_enabled ) {
-			return false;
+			return;
 		}
 
 		// Bail if Email is not of type 'billing'.
 		if ( 'billing' !== $load_address ) {
-			return false;
+			return;
 		}
 
 		// Bail if we don't have a CiviCRM Contact.
-		$contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
-		if ( ! $contact ) {
-			return false;
+		$ufmatch = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
+		if ( ! $ufmatch ) {
+			return;
+		}
+
+		// Try and find the Contact.
+		$contact = WPCV_WCI()->contact->get_by_id( $ufmatch['contact_id'] );
+		if ( $contact === false ) {
+			return;
+		}
+
+		// Add the synced Contact Type if the Contact doesn't have it.
+		if ( ! WPCV_WCI()->contact->type_is_synced( $contact ) ) {
+			$contact = WPCV_WCI()->contact->subtype_add_to_contact( $contact );
+			WPCV_WCI()->contact->update( $contact );
 		}
 
 		// Get the "billing" Location Type ID.
@@ -318,7 +338,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		$location_type_id = $mapped_location_types[ $load_address ];
 
 		// Try and get the full data for the existing Email.
-		$existing_email = $this->get_by_contact_id_and_location( $contact['contact_id'], $location_type_id );
+		$existing_email = $this->get_by_contact_id_and_location( $ufmatch['contact_id'], $location_type_id );
 
 		// Get the WooCommerce Customer Email.
 		$customer = new WC_Customer( $user_id );
@@ -340,7 +360,7 @@ class WPCV_Woo_Civi_Contact_Email {
 			$params = array_merge( $existing_email, $email_params );
 			$email = $this->update( $params );
 		} else {
-			$email_params['contact_id'] = $contact['id'];
+			$email_params['contact_id'] = $ufmatch['contact_id'];
 			$email_params['location_type_id'] = $location_type_id;
 			$email = $this->create( $email_params );
 		}
@@ -350,11 +370,11 @@ class WPCV_Woo_Civi_Contact_Email {
 
 		// Let's make an array of the data.
 		$args = [
-			'email' => $email,
-			'contact' => $contact,
+			'user_id' => $user_id,
 			'address_type' => $load_address,
 			'customer' => $customer,
-			'user_id' => $user_id,
+			'contact' => $ufmatch,
+			'email' => $email,
 		];
 
 		/**
@@ -365,9 +385,6 @@ class WPCV_Woo_Civi_Contact_Email {
 		 * @param array $args The array of data.
 		 */
 		do_action( 'wpcv_woo_civi/email/woo_to_civicrm/synced', $args );
-
-		// Success.
-		return true;
 
 	}
 
