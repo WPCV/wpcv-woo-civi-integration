@@ -155,6 +155,9 @@ class WPCV_Woo_Civi_Contact {
 		// Process changes in WooCommerce Orders.
 		add_action( 'woocommerce_new_order', [ $this, 'order_new' ], 10, 2 );
 
+		// Process Customer signups.
+		add_action( 'woocommerce_created_customer', [ $this, 'types_apply' ], 10, 3 );
+
 	}
 
 	/**
@@ -886,60 +889,11 @@ class WPCV_Woo_Civi_Contact {
 			return false;
 		}
 
+		// Add our Contact Sub-type but ensure existing Sub-types are retained.
+		$contact = $this->subtype_add_to_contact( $contact );
+
 		// Get the primed Contact data from the Order.
 		$prepared_contact = $this->prepare_from_order( $order );
-
-		/*
-		 * We need to ensure any existing Contact Sub-types are retained.
-		 *
-		 * However, the Contact Sub-type could be:
-		 *
-		 * * Empty.
-		 * * The "name" of a Sub-type. (Hmm, check this.)
-		 * * An array of Sub-type "names".
-		 *
-		 * The following handles all possibilities.
-		 */
-		$contact_sub_type_id = get_option( 'woocommerce_civicrm_contact_subtype', '' );
-		if ( ! empty( $contact_sub_type_id ) ) {
-
-			// Convert to "name".
-			$contact_sub_type_name = '';
-			$contact_sub_type = $this->type_get( $contact_sub_type_id, 'id' );
-			if ( ! empty( $contact_sub_type ) ) {
-				$contact_sub_type_name = $contact_sub_type['name'];
-			}
-
-			// If we didn't get an error fetching the name.
-			if ( ! empty( $contact_sub_type ) ) {
-
-				// When there is already an existing Sub-type.
-				if ( is_array( $contact['contact_sub_type'] ) ) {
-
-					// Add default if it's not present.
-					if ( ! in_array( $contact_sub_type_name, $contact['contact_sub_type'] ) ) {
-						$contact['contact_sub_type'][] = $contact_sub_type_name;
-					}
-
-				} else {
-
-					// Make an array of both when the existing is different.
-					if ( ! empty( $contact['contact_sub_type'] ) ) {
-						if ( $contact_sub_type_name !== $contact['contact_sub_type'] ) {
-							$new_contact_sub_types = [ $contact['contact_sub_type'] ];
-							$new_contact_sub_types[] = $contact_sub_type_name;
-							$contact['contact_sub_type'] = $new_contact_sub_types;
-						}
-					} else {
-						// Apply default.
-						$contact['contact_sub_type'] = $contact_sub_type_name;
-					}
-
-				}
-
-			}
-
-		}
 
 		// FIXME: Shouldn't the following depend on if there is existing data?
 
@@ -1068,86 +1022,6 @@ class WPCV_Woo_Civi_Contact {
 	}
 
 	/**
-	 * Checks if a CiviCRM Contact should be synced.
-	 *
-	 * This is determined by the Contact Type and Contact Sub-type that is chosen
-	 * on this plugin's WooCommerce settings page.
-	 *
-	 * @since 3.0
-	 *
-	 * @param integer|array $contact_id CiviCRM Contact ID or Contact data array.
-	 * @return bool True if the CiviCRM Contact is synced, false otherwise.
-	 */
-	public function type_is_synced( $contact_id ) {
-
-		// Get the Contact data if an ID is passed in.
-		if ( is_int( $contact_id ) ) {
-			$contact = $this->get_by_id( $contact_id );
-		} else {
-			$contact = $contact_id;
-		}
-
-		// Idiot check.
-		if ( empty( $contact ) ) {
-			return false;
-		}
-
-		// Is this Contact of the Contact Type in the WooCommerce settings?
-		$contact_type = $this->type_get_synced();
-
-		// Bail if not the synced top-level Contact Type.
-		if ( $contact['contact_type'] !== $contact_type['type'] ) {
-			return false;
-		}
-
-		// Bail if not the synced Contact Sub-type.
-		if ( ! empty( $contact_type['sub_type'] ) && ! empty( $contact['contact_sub_type'] ) ) {
-			if ( ! in_array( $contact_type['sub_type'], $contact['contact_sub_type'] ) ) {
-				return false;
-			}
-		}
-
-		return true;
-
-	}
-
-	/**
-	 * Gets the array of CiviCRM Contact Type and Sub-type from WooCommerce settings.
-	 *
-	 * @since 3.0
-	 *
-	 * @return array $contact_type The array of CiviCRM Contact Type and Sub-type.
-	 */
-	public function type_get_synced() {
-
-		static $contact_type;
-		if ( isset( $contact_type ) ) {
-			return $contact_type;
-		}
-
-		// Init settings array.
-		$contact_type = [
-			'type' => '',
-			'sub_type' => '',
-		];
-
-		// Always define the default top-level Contact Type.
-		$contact_type['type'] = get_option( 'woocommerce_civicrm_contact_type', 'Individual' );
-
-		// Maybe assign the Contact Sub-type.
-		$contact_sub_type_id = get_option( 'woocommerce_civicrm_contact_subtype', '' );
-		if ( ! empty( $contact_sub_type_id ) ) {
-			$contact_sub_type = $this->type_get( $contact_sub_type_id, 'id' );
-			if ( ! empty( $contact_sub_type ) ) {
-				$contact_type['sub_type'] = $contact_sub_type['name'];
-			}
-		}
-
-		return $contact_type;
-
-	}
-
-	/**
 	 * Gets the array of top-level CiviCRM Contact Types.
 	 *
 	 * @since 3.0
@@ -1240,44 +1114,59 @@ class WPCV_Woo_Civi_Contact {
 	}
 
 	/**
-	 * Gets the CiviCRM Contact Types as options.
+	 * Adds the CiviCRM Contact Type and Sub-type if required.
 	 *
 	 * @since 3.0
 	 *
-	 * @return array $options The options array.
+	 * @param integer $customer_id New customer (user) ID.
+	 * @param array $new_customer_data Array of customer (user) data.
+	 * @param string $password_generated The generated password for the account.
 	 */
-	public function subtypes_get_options() {
+	public function types_apply( $customer_id, $new_customer_data, $password_generated ) {
 
-		// Init return.
-		$options = [
-			'' => __( 'No Sub-type selected', 'wpcv-woo-civi-integration' ),
+		// Bail if we don't have a CiviCRM Contact.
+		$ufmatch = $this->get_ufmatch( $customer_id, 'uf_id' );
+		if ( ! $ufmatch ) {
+			return;
+		}
+
+		// Build Contact data to match the settings for this plugin.
+		$contact = [
+			'id' => $ufmatch['contact_id'],
+			'contact_source' => __( 'WooCommerce Account', 'wpcv-woo-civi-integration' ),
 		];
 
-		// Get all Contact Types.
-		$contact_types = $this->types_get_nested();
-		if ( empty( $contact_types ) ) {
-			return $options;
+		// Overwrite Contact Type.
+		$contact['contact_type'] = get_option( 'woocommerce_civicrm_contact_type', 'Individual' );
+
+		// Maybe add the Contact Sub-type from our settings.
+		$contact = $this->subtype_add_to_contact( $contact );
+
+		// Update the CiviCRM Contact.
+		$contact = $this->update( $contact );
+
+		// Bail if something went wrong.
+		if ( $contact === false ) {
+			CRM_Core_Error::debug_log_message( __( 'Unable to update Contact after WooCommerce Signup', 'wpcv-woo-civi-integration' ) );
+			return;
 		}
 
-		// Add entries for each CiviCRM Contact Sub-type.
-		foreach ( $contact_types as $contact_type ) {
+		// Let's make an array of the data.
+		$args = [
+			'customer_id' => $customer_id,
+			'new_customer_data' => $new_customer_data,
+			'password_generated' => $password_generated,
+			'contact' => $contact,
+		];
 
-			// Skip if there aren't any Sub-types.
-			if ( empty( $contact_type['children'] ) ) {
-				continue;
-			}
-
-			// Top level Contact Types are enclosing keys.
-			$options[ $contact_type['label'] ] = [];
-
-			// Add children.
-			foreach ( $contact_type['children'] as $contact_subtype ) {
-				$options[ $contact_type['label'] ][ $contact_subtype['id'] ] = $contact_subtype['label'];
-			}
-
-		}
-
-		return $options;
+		/**
+		 * Fires when a Contact has been successfully updated after a WooCommerce Signup.
+		 *
+		 * @since 3.0
+		 *
+		 * @param array $args The array of data.
+		 */
+		do_action( 'wpcv_woo_civi/contact/types_apply', $args );
 
 	}
 
@@ -1349,6 +1238,194 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		return $contact_type_data;
+
+	}
+
+	/**
+	 * Checks if a CiviCRM Contact should be synced.
+	 *
+	 * This is determined by the Contact Type and Contact Sub-type that is chosen
+	 * on this plugin's WooCommerce settings page.
+	 *
+	 * @since 3.0
+	 *
+	 * @param integer|array $contact_id CiviCRM Contact ID or Contact data array.
+	 * @return bool True if the CiviCRM Contact is synced, false otherwise.
+	 */
+	public function type_is_synced( $contact_id ) {
+
+		// Get the Contact data if an ID is passed in.
+		if ( is_int( $contact_id ) ) {
+			$contact = $this->get_by_id( $contact_id );
+		} else {
+			$contact = $contact_id;
+		}
+
+		// Idiot check.
+		if ( empty( $contact ) ) {
+			return false;
+		}
+
+		// Is this Contact of the Contact Type in the WooCommerce settings?
+		$contact_type = $this->type_get_synced();
+
+		// Bail if not the synced top-level Contact Type.
+		if ( $contact['contact_type'] !== $contact_type['type'] ) {
+			return false;
+		}
+
+		// Make sure the Contact Sub-type is an array.
+		if ( ! is_array( $contact['contact_sub_type'] ) ) {
+			$contact['contact_sub_type'] = (array) $contact['contact_sub_type'];
+		}
+
+		// Bail if not the synced Contact Sub-type.
+		if ( ! empty( $contact_type['sub_type'] ) ) {
+			if ( ! in_array( $contact_type['sub_type'], $contact['contact_sub_type'] ) ) {
+				return false;
+			}
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * Gets the array of CiviCRM Contact Type and Sub-type from WooCommerce settings.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $contact_type The array of CiviCRM Contact Type and Sub-type.
+	 */
+	public function type_get_synced() {
+
+		static $contact_type;
+		if ( isset( $contact_type ) ) {
+			return $contact_type;
+		}
+
+		// Init settings array.
+		$contact_type = [
+			'type' => '',
+			'sub_type' => '',
+		];
+
+		// Always define the default top-level Contact Type.
+		$contact_type['type'] = get_option( 'woocommerce_civicrm_contact_type', 'Individual' );
+
+		// Maybe assign the Contact Sub-type.
+		$contact_sub_type_id = get_option( 'woocommerce_civicrm_contact_subtype', '' );
+		if ( ! empty( $contact_sub_type_id ) ) {
+			$contact_sub_type = $this->type_get( $contact_sub_type_id, 'id' );
+			if ( ! empty( $contact_sub_type ) ) {
+				$contact_type['sub_type'] = $contact_sub_type['name'];
+			}
+		}
+
+		return $contact_type;
+
+	}
+
+	/**
+	 * Gets the CiviCRM Contact Types as options.
+	 *
+	 * @since 3.0
+	 *
+	 * @return array $options The options array.
+	 */
+	public function subtypes_get_options() {
+
+		// Init return.
+		$options = [
+			'' => __( 'No Sub-type selected', 'wpcv-woo-civi-integration' ),
+		];
+
+		// Get all Contact Types.
+		$contact_types = $this->types_get_nested();
+		if ( empty( $contact_types ) ) {
+			return $options;
+		}
+
+		// Add entries for each CiviCRM Contact Sub-type.
+		foreach ( $contact_types as $contact_type ) {
+
+			// Skip if there aren't any Sub-types.
+			if ( empty( $contact_type['children'] ) ) {
+				continue;
+			}
+
+			// Top level Contact Types are enclosing keys.
+			$options[ $contact_type['label'] ] = [];
+
+			// Add children.
+			foreach ( $contact_type['children'] as $contact_subtype ) {
+				$options[ $contact_type['label'] ][ $contact_subtype['id'] ] = $contact_subtype['label'];
+			}
+
+		}
+
+		return $options;
+
+	}
+
+	/**
+	 * Adds the CiviCRM Contact Sub-type.
+	 *
+	 * We need to ensure any existing Contact Sub-types are retained.
+	 *
+	 * However, the Contact Sub-type could be:
+	 *
+	 * * Empty.
+	 * * The "name" of a Sub-type. (Hmm, check this.)
+	 * * An array of Sub-type "names".
+	 *
+	 * The following handles all possibilities.
+	 *
+	 * @since 3.0
+	 *
+	 * @param array $contact The array of Contact data.
+	 * @return array $contact The modified array of Contact data.
+	 */
+	public function subtype_add_to_contact( $contact ) {
+
+		// Bail if we can't get our Contact Sub-type setting.
+		$contact_sub_type_id = get_option( 'woocommerce_civicrm_contact_subtype', '' );
+		if ( empty( $contact_sub_type_id ) ) {
+			return $contact;
+		}
+
+		// Bail if we can't get the full Contact Sub-type data.
+		$contact_sub_type = $this->type_get( $contact_sub_type_id, 'id' );
+		if ( empty( $contact_sub_type ) ) {
+			return $contact;
+		}
+
+		// Apply our Contact Sub-type when none exists.
+		if ( empty( $contact['contact_sub_type'] ) ) {
+			$contact['contact_sub_type'] = $contact_sub_type['name'];
+			return $contact;
+		}
+
+		// When the Contact already has more than one Sub-type.
+		if ( is_array( $contact['contact_sub_type'] ) ) {
+
+			// Add ours if it's not present.
+			if ( ! in_array( $contact_sub_type['name'], $contact['contact_sub_type'] ) ) {
+				$contact['contact_sub_type'][] = $contact_sub_type['name'];
+			}
+
+		} else {
+
+			// Make an array of both when the existing is different.
+			if ( $contact_sub_type['name'] !== $contact['contact_sub_type'] ) {
+				$new_contact_sub_types = [ $contact['contact_sub_type'] ];
+				$new_contact_sub_types[] = $contact_sub_type['name'];
+				$contact['contact_sub_type'] = $new_contact_sub_types;
+			}
+
+		}
+
+		return $contact;
 
 	}
 

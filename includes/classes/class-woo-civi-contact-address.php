@@ -91,10 +91,10 @@ class WPCV_Woo_Civi_Contact_Address {
 		add_action( 'wpcv_woo_civi/contact/create_from_order', [ $this, 'entities_create' ], 40, 2 );
 		add_action( 'wpcv_woo_civi/contact/update_from_order', [ $this, 'entities_update' ], 40, 2 );
 
-		// Sync WooCommerce and CiviCRM Address for Contact/User.
+		// Sync CiviCRM Contact Address to WooCommerce User Address.
 		add_action( 'civicrm_post', [ $this, 'sync_civicrm_to_woo' ], 10, 4 );
 
-		// Sync WooCommerce and CiviCRM Address for User/Contact.
+		// Sync WooCommerce User Address to CiviCRM Contact Address.
 		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_woo_to_civicrm' ], 10, 2 );
 
 	}
@@ -305,12 +305,6 @@ class WPCV_Woo_Civi_Contact_Address {
 	 *
 	 * Fires when a CiviCRM Contact's Address is edited.
 	 *
-	 * TODO: This should probably also remove the "civicrm_post" callback because
-	 * it is possible for there to be listeners on the "updated_{$meta_type}_meta"
-	 * action in WordPress.
-	 *
-	 * @see https://developer.wordpress.org/reference/hooks/updated_meta_type_meta/
-	 *
 	 * @since 2.0
 	 * @since 3.0 Renamed.
 	 *
@@ -358,14 +352,14 @@ class WPCV_Woo_Civi_Contact_Address {
 			return;
 		}
 
-		// Bail if we don't have a WordPress User.
-		$user = WPCV_WCI()->contact->get_ufmatch( $contact['id'], 'contact_id' );
-		if ( empty( $user ) ) {
+		// Bail if we don't have a WordPress User match.
+		$ufmatch = WPCV_WCI()->contact->get_ufmatch( $contact['id'], 'contact_id' );
+		if ( empty( $ufmatch ) ) {
 			return;
 		}
 
 		// Use the Customer object.
-		$customer = new WC_Customer( $user['uf_id'] );
+		$customer = new WC_Customer( $ufmatch['uf_id'] );
 
 		// Unhook to prevent any possibility of recursion.
 		remove_action( 'woocommerce_customer_save_address', [ $this, 'sync_woo_to_civicrm' ] );
@@ -373,6 +367,17 @@ class WPCV_Woo_Civi_Contact_Address {
 		// Also unhook CiviCRM's callbacks.
 		remove_action( 'user_register', [ civi_wp()->users, 'update_user' ] );
 		remove_action( 'profile_update', [ civi_wp()->users, 'update_user' ] );
+
+		/**
+		 * Fires before syncing a CiviCRM Address from a CiviCRM Contact to a WordPress User.
+		 *
+		 * This allows plugins to unhook their callbacks which might interfere with
+		 * this syncing procedure. Callbacks can be rehooked with the corresponding
+		 * `wpcv_woo_civi/contact/address/sync_civicrm_to_woo/post` action.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/contact/address/sync_civicrm_to_woo/pre' );
 
 		// Update the Fields for the mapped WooCommerce Address Type.
 		$address_type = array_search( (int) $object_ref->location_type_id, $mapped, true );
@@ -431,6 +436,13 @@ class WPCV_Woo_Civi_Contact_Address {
 		add_action( 'user_register', [ civi_wp()->users, 'update_user' ] );
 		add_action( 'profile_update', [ civi_wp()->users, 'update_user' ] );
 
+		/**
+		 * Fires after syncing a CiviCRM Address from a CiviCRM Contact to a WordPress User.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/contact/address/sync_civicrm_to_woo/post' );
+
 		// Let's make an array of the data.
 		$args = [
 			'op' => $op,
@@ -439,7 +451,7 @@ class WPCV_Woo_Civi_Contact_Address {
 			'object_ref' => $object_ref,
 			'address_type' => $address_type,
 			'customer' => $customer,
-			'user_id' => $user['uf_id'],
+			'user_id' => $ufmatch['uf_id'],
 		];
 
 		/**
@@ -482,9 +494,10 @@ class WPCV_Woo_Civi_Contact_Address {
 			return;
 		}
 
-		// Bail if the Contact doesn't have the synced Contact Type.
+		// Add the synced Contact Type if the Contact doesn't have it.
 		if ( ! WPCV_WCI()->contact->type_is_synced( $contact ) ) {
-			return;
+			$contact = WPCV_WCI()->contact->subtype_add_to_contact( $contact );
+			WPCV_WCI()->contact->update( $contact );
 		}
 
 		// Use the Customer object.
@@ -538,11 +551,11 @@ class WPCV_Woo_Civi_Contact_Address {
 
 		// Let's make an array of the data.
 		$args = [
-			'address' => $address,
-			'contact' => $contact,
+			'user_id' => $user_id,
 			'address_type' => $load_address,
 			'customer' => $customer,
-			'user_id' => $user_id,
+			'contact' => $contact,
+			'address' => $address,
 		];
 
 		/**

@@ -66,11 +66,11 @@ class WPCV_Woo_Civi_Contact_Phone {
 		add_action( 'wpcv_woo_civi/contact/create_from_order', [ $this, 'entities_create' ], 30, 2 );
 		add_action( 'wpcv_woo_civi/contact/update_from_order', [ $this, 'entities_update' ], 30, 2 );
 
-		// Sync WooCommerce and CiviCRM Phone for Contact/User.
+		// Sync WooCommerce User Phone to CiviCRM  Contact Phone.
 		add_action( 'civicrm_post', [ $this, 'sync_civicrm_to_woo' ], 10, 4 );
 
-		// Sync WooCommerce and CiviCRM Phone for User/Contact.
-		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_wp_user_woocommerce_phone' ], 10, 2 );
+		// Sync CiviCRM Contact Phone to WooCommerce User Phone.
+		add_action( 'woocommerce_customer_save_address', [ $this, 'sync_woo_to_civicrm' ], 10, 2 );
 
 	}
 
@@ -234,7 +234,17 @@ class WPCV_Woo_Civi_Contact_Phone {
 		}
 
 		// Bail if not our target operation(s).
-		if ( 'edit' !== $op ) {
+		if ( 'create' !== $op && 'edit' !== $op ) {
+			return;
+		}
+
+		// Bail if we don't have a Contact ID.
+		if ( empty( $object_ref->contact_id ) ) {
+			return;
+		}
+
+		// Bail if the Contact doesn't have the synced Contact Type.
+		if ( ! WPCV_WCI()->contact->type_is_synced( $object_ref->contact_id ) ) {
 			return;
 		}
 
@@ -244,14 +254,9 @@ class WPCV_Woo_Civi_Contact_Phone {
 			return;
 		}
 
-		// Bail if we don't have a Contact ID.
-		if ( empty( $object_ref->contact_id ) ) {
-			return;
-		}
-
 		// Bail if we don't have a WordPress User.
-		$cms_user = WPCV_WCI()->contact->get_ufmatch( $object_ref->contact_id, 'contact_id' );
-		if ( ! $cms_user ) {
+		$ufmatch = WPCV_WCI()->contact->get_ufmatch( $object_ref->contact_id, 'contact_id' );
+		if ( ! $ufmatch ) {
 			return;
 		}
 
@@ -261,16 +266,22 @@ class WPCV_Woo_Civi_Contact_Phone {
 			return;
 		}
 
-		// Do the update now.
-		// TODO: Convert to WooCommerce methods.
-		update_user_meta( $cms_user['uf_id'], $phone_type . '_phone', $object_ref->phone );
+		// Set the WooCommerce Customer Phone.
+		$customer = new WC_Customer( $ufmatch['uf_id'] );
+		if ( is_callable( [ $customer, "set_{$phone_type}_phone" ] ) ) {
+			$customer->{"set_{$phone_type}_phone"}( $object_ref->phone );
+			$customer->save();
+		}
 
 		// Let's make an array of the data.
 		$args = [
-			'phone' => $object_ref,
+			'op' => $op,
+			'object_name' => $object_name,
+			'object_id' => $object_id,
+			'object_ref' => $object_ref,
 			'phone_type' => $phone_type,
-			'user_id' => $cms_user['uf_id'],
-			'user' => $cms_user['uf_id'],
+			'customer' => $customer,
+			'user_id' => $ufmatch['uf_id'],
 		];
 
 		/**
@@ -294,24 +305,35 @@ class WPCV_Woo_Civi_Contact_Phone {
 	 *
 	 * @param integer $user_id The WordPress User ID.
 	 * @param string  $load_address The Address Type. Either 'shipping' or 'billing'.
-	 * @return bool True on success, false on failure.
 	 */
 	public function sync_woo_to_civicrm( $user_id, $load_address ) {
 
 		// Bail if sync is not enabled.
 		if ( ! $this->sync_enabled ) {
-			return false;
+			return;
 		}
 
 		// Bail if Phone is not of type 'billing'.
 		if ( 'billing' !== $load_address ) {
-			return false;
+			return;
 		}
 
 		// Bail if we don't have a CiviCRM Contact.
-		$contact = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
-		if ( ! $contact ) {
-			return false;
+		$ufmatch = WPCV_WCI()->contact->get_ufmatch( $user_id, 'uf_id' );
+		if ( ! $ufmatch ) {
+			return;
+		}
+
+		// Try and find the Contact.
+		$contact = WPCV_WCI()->contact->get_by_id( $ufmatch['contact_id'] );
+		if ( $contact === false ) {
+			return;
+		}
+
+		// Add the synced Contact Type if the Contact doesn't have it.
+		if ( ! WPCV_WCI()->contact->type_is_synced( $contact ) ) {
+			$contact = WPCV_WCI()->contact->subtype_add_to_contact( $contact );
+			WPCV_WCI()->contact->update( $contact );
 		}
 
 		// Get the "billing" Location Type ID.
@@ -319,7 +341,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 		$location_type_id = $mapped_location_types[ $load_address ];
 
 		// Try and get the full data for the existing Phone.
-		$existing_phone = $this->get_by_contact_id_and_location( $contact['contact_id'], $location_type_id );
+		$existing_phone = $this->get_by_contact_id_and_location( $ufmatch['contact_id'], $location_type_id );
 
 		// Get the WooCommerce Customer Phone.
 		$customer = new WC_Customer( $user_id );
@@ -341,7 +363,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 			$params = array_merge( $existing_phone, $phone_params );
 			$phone = $this->update( $params );
 		} else {
-			$phone_params['contact_id'] = $contact['id'];
+			$phone_params['contact_id'] = $ufmatch['contact_id'];
 			$phone_params['location_type_id'] = $location_type_id;
 			$phone = $this->create( $phone_params );
 		}
@@ -351,11 +373,11 @@ class WPCV_Woo_Civi_Contact_Phone {
 
 		// Let's make an array of the data.
 		$args = [
-			'phone' => $phone,
-			'contact' => $contact,
+			'user_id' => $user_id,
 			'address_type' => $load_address,
 			'customer' => $customer,
-			'user_id' => $user_id,
+			'contact' => $ufmatch,
+			'phone' => $phone,
 		];
 
 		/**
@@ -366,9 +388,6 @@ class WPCV_Woo_Civi_Contact_Phone {
 		 * @param array $args The array of data.
 		 */
 		do_action( 'wpcv_woo_civi/phone/woo_to_civicrm/synced', $args );
-
-		// Success.
-		return true;
 
 	}
 
