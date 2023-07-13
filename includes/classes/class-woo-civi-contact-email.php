@@ -243,12 +243,12 @@ class WPCV_Woo_Civi_Contact_Email {
 		}
 
 		// Bail if the Contact doesn't have the synced Contact Type.
-		if ( ! WPCV_WCI()->contact->type_is_synced( $object_ref->contact_id ) ) {
+		if ( ! WPCV_WCI()->contact->type_is_synced( (int) $object_ref->contact_id ) ) {
 			return;
 		}
 
 		// Bail if we don't have a WordPress User match.
-		$ufmatch = WPCV_WCI()->contact->get_ufmatch( $object_ref->contact_id, 'contact_id' );
+		$ufmatch = WPCV_WCI()->contact->get_ufmatch( (int) $object_ref->contact_id, 'contact_id' );
 		if ( ! $ufmatch ) {
 			return;
 		}
@@ -258,7 +258,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		 * WooCommerce and CiviCRM itself (or CiviCRM Profile Sync if present)
 		 * handles syncing the Contact Primary Email to WordPress User Email.
 		 */
-		$email_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
+		$email_type = array_search( (int) $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
 		if ( 'billing' !== $email_type ) {
 			return;
 		}

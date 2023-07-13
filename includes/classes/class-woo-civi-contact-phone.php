@@ -244,7 +244,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 		}
 
 		// Bail if the Contact doesn't have the synced Contact Type.
-		if ( ! WPCV_WCI()->contact->type_is_synced( $object_ref->contact_id ) ) {
+		if ( ! WPCV_WCI()->contact->type_is_synced( (int) $object_ref->contact_id ) ) {
 			return;
 		}
 
@@ -261,7 +261,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 		}
 
 		// Only for Billing Phone, there's no Shipping Phone field.
-		$phone_type = array_search( $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
+		$phone_type = array_search( (int) $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
 		if ( 'billing' !== $phone_type ) {
 			return;
 		}
