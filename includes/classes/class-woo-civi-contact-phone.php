@@ -266,12 +266,30 @@ class WPCV_Woo_Civi_Contact_Phone {
 			return;
 		}
 
+		/**
+		 * Fires before syncing a CiviCRM Phone from a CiviCRM Contact to a WordPress User.
+		 *
+		 * This allows plugins to unhook their callbacks which might interfere with
+		 * this syncing procedure. Callbacks can be rehooked with the corresponding
+		 * `wpcv_woo_civi/contact/phone/sync_civicrm_to_woo/post` action.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/contact/phone/sync_civicrm_to_woo/pre' );
+
 		// Set the WooCommerce Customer Phone.
 		$customer = new WC_Customer( $ufmatch['uf_id'] );
 		if ( is_callable( [ $customer, "set_{$phone_type}_phone" ] ) ) {
 			$customer->{"set_{$phone_type}_phone"}( $object_ref->phone );
 			$customer->save();
 		}
+
+		/**
+		 * Fires after syncing a CiviCRM Phone from a CiviCRM Contact to a WordPress User.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/contact/phone/sync_civicrm_to_woo/post' );
 
 		// Let's make an array of the data.
 		$args = [

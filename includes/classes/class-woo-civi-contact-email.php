@@ -263,12 +263,30 @@ class WPCV_Woo_Civi_Contact_Email {
 			return;
 		}
 
+		/**
+		 * Fires before syncing a CiviCRM Email from a CiviCRM Contact to a WordPress User.
+		 *
+		 * This allows plugins to unhook their callbacks which might interfere with
+		 * this syncing procedure. Callbacks can be rehooked with the corresponding
+		 * `wpcv_woo_civi/contact/email/sync_civicrm_to_woo/post` action.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/contact/email/sync_civicrm_to_woo/pre' );
+
 		// Set the WooCommerce Customer Email.
 		$customer = new WC_Customer( $ufmatch['uf_id'] );
 		if ( is_callable( [ $customer, "set_{$email_type}_email" ] ) ) {
 			$customer->{"set_{$email_type}_email"}( $object_ref->email );
 			$customer->save();
 		}
+
+		/**
+		 * Fires after syncing a CiviCRM Email from a CiviCRM Contact to a WordPress User.
+		 *
+		 * @since 3.0
+		 */
+		do_action( 'wpcv_woo_civi/contact/email/sync_civicrm_to_woo/post' );
 
 		// Let's make an array of the data.
 		$args = [
