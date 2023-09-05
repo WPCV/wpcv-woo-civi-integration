@@ -193,9 +193,9 @@ class WPCV_Woo_Civi_Contact_Address {
 			// Try and find an existing CiviCRM Address record.
 			foreach ( $existing_addresses as $existing ) {
 				// Does this Address have the desired Location Type?
-				if ( isset( $existing->location_type_id ) && $existing->location_type_id === $location_type_id ) {
+				if ( isset( $existing->location_type_id ) && (int) $existing->location_type_id === $location_type_id ) {
 					// Let's update that one.
-					$address_params['id'] = $existing->id;
+					$address_params['id'] = (int) $existing->id;
 					// Skip if no update needed.
 					if ( $this->is_match( $existing, $address_params ) ) {
 						continue 2;
