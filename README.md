@@ -9,7 +9,7 @@
 **License:** GPLv3<br/>
 **License URI:** https://www.gnu.org/licenses/gpl-3.0.html
 
-A WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WordCommerce Orders and keeps WordCommerce Customer Accounts in sync with CiviCRM Contact data.
+A WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WooCommerce Orders and keeps WooCommerce Customer Accounts in sync with CiviCRM Contact data.
 
 
 
@@ -17,7 +17,7 @@ A WordPress plugin that creates CiviCRM Contributions, Memberships and Participa
 
 Please note: this is the development repository for *Integrate CiviCRM with WooCommerce*.
 
-*Integrate CiviCRM with WooCommerce* is a WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WooCommerce  Products and keeps WordCommerce Customer Accounts in sync with CiviCRM Contact data.
+*Integrate CiviCRM with WooCommerce* is a WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WooCommerce  Products and keeps WooCommerce Customer Accounts in sync with CiviCRM Contact data.
 
 
 
