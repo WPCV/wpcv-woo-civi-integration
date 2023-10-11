@@ -3,34 +3,52 @@ Contributors: needle, bastho, mecachisenros, rajeshrhino, kcristiano, tadpolecc
 Tags: civicrm, woocommerce, integration
 Requires PHP: 7.1
 Requires at least: 5.7
-Tested up to: 6.1
+Tested up to: 6.4
 Stable tag: 3.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Creates CiviCRM Contributions, Memberships and Participants from WordCommerce Orders and keeps WordCommerce Customer Accounts in sync with CiviCRM Contact data.
+Creates CiviCRM Contributions, Memberships and Participants from WooCommerce Orders and keeps WooCommerce Customer Accounts in sync with CiviCRM Contact data.
+
 
 
 == Description ==
 
-*Integrate CiviCRM with WooCommerce* creates CiviCRM Contributions, Memberships and Participants from WordCommerce Orders and keeps WordCommerce Customer Accounts in sync with CiviCRM Contact data.
+*Integrate CiviCRM with WooCommerce* creates CiviCRM Contributions, Memberships and Participants from WooCommerce Orders and keeps WooCommerce Customer Accounts in sync with CiviCRM Contact data.
 
 ### Features
 
-1. WooCommerce Orders are created as Contributions in CiviCRM. Each Product in the Order is a Line Item in the Contribution.
-2. Sales Tax/VAT & Shipping Costs are configurable/mappable as CiviCRM Financial Types.
-3. A default Campaign can be defined for each Contribution, but Campaigns can be customized per Order.
-4. Logged in Users are recognised and the Contribution is created against the related CiviCRM Contact record.
-5. If not logged in, the plugin tries to find the CiviCRM Contact record using Dedupe Rules and the Contribution is created against the CiviCRM Contact record if one is found.
-6. If the CiviCRM Contact does not exist, a new Contact record is created in CiviCRM and the Contribution is created against the newly-created Contact record.
-7. The related Contact record link is added to the WooCommerce Order as a note.
-8. This plugin enables two-way syncing of Address, Billing Phone, and Billing Email between CiviCRM and WooCommerce. When a User edits their Address, Billing Phone, or Billing Email through their WooCommerce Account >> Edit Address page, their CiviCRM Profile, or through CiviCRM's admin interface, the data will be updated in both CiviCRM and WooCommerce.
-9. This plugin can replace WooCommerce's States/Counties list with CiviCRM's State/Province list. (**WARNING!!!** Enabling this option in an existing WooCommerce instance will cause **States/Counties data loss** for **existing Customers** and the **WooCommerce settings** that rely on those.)
-10. Basic Membership implementation: select the Membership Type in the CiviCRM Settings panel in the Product screen. If selected, a CiviCRM Membership will be created at checkout.
+#### Contributions, Memberships and Participants
+
+* Easily create WooCommerce Products that create Contributions, Memberships and Participants in CiviCRM.
+* Each Product in a WooCommerce Order becomes a Line Item in the CiviCRM Contribution.
+* Membership and Participant Statuses are updated when a WooCommerce Order is completed.
+* Assign a default CiviCRM Campaign to all WooCommerce Orders or customize the Campaign per Order.
+* Shipping Costs can be mapped to a CiviCRM Financial Type.
+
+#### CiviCRM Contacts
+
+* Logged in Users are recognised and the Contribution is created against the related CiviCRM Contact record.
+* If not logged in, the plugin tries to find the CiviCRM Contact record using Dedupe Rules and the Contribution is created against the CiviCRM Contact record if one is found.
+* If the CiviCRM Contact does not exist, a new Contact record is created in CiviCRM and the Contribution is created against the newly-created Contact record.
+* The related Contact record link is added to each WooCommerce Order as a note.
+
+#### Customer Accounts
+
+* This plugin enables two-way syncing of Address, Billing Phone, and Billing Email between CiviCRM and WooCommerce.
+* When a User edits their Address, Billing Phone, or Billing Email through their WooCommerce Account page, their CiviCRM Profile, or through CiviCRM's admin interface, the data will be updated in both CiviCRM and WooCommerce.
+
+#### State/Province sync
+
+* This plugin can replace WooCommerce's States/Counties list with CiviCRM's State/Province list.
+
+
 
 ### Requirements
 
 This plugin requires a minimum of *CiviCRM 5.42.1* and *WooCommerce 5.2.2+*.
+
+
 
 ### General Settings
 
@@ -66,11 +84,14 @@ You can use Bulk Edit and Quick Edit functionality to edit the "Entity Type" and
 
 <img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/docs/screenshots/wpcv-woo-products-list-quick-edit.jpg" alt="CiviCRM information shown in the Product Quick Edit UI" width="800" />
 
+
+
 ### Individual Order Settings
 
 Configure settings for an Order in the *General* section of the "New Order" and "Edit Order" screens.
 
 <img src="https://github.com/WPCV/wpcv-woo-civi-integration/raw/main/docs/screenshots/wpcv-woo-order-panel.jpg" alt="Settings for integrating CiviCRM with an Order" width="500" />
+
 
 
 == Known Issues ==

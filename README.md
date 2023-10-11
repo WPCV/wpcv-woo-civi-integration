@@ -4,12 +4,12 @@
 **Donate link:** https://www.paypal.me/interactivist<br/>
 **Tags:** civicrm, woocommerce, contribution, sync<br/>
 **Requires at least:** 5.7<br/>
-**Tested up to:** 6.1<br/>
+**Tested up to:** 6.4<br/>
 **Stable tag:** 3.0<br/>
 **License:** GPLv3<br/>
 **License URI:** https://www.gnu.org/licenses/gpl-3.0.html
 
-A WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WordCommerce Orders and keeps WordCommerce Customer Accounts in sync with CiviCRM Contact data.
+A WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WooCommerce Orders and keeps WooCommerce Customer Accounts in sync with CiviCRM Contact data.
 
 
 
@@ -17,7 +17,7 @@ A WordPress plugin that creates CiviCRM Contributions, Memberships and Participa
 
 Please note: this is the development repository for *Integrate CiviCRM with WooCommerce*.
 
-*Integrate CiviCRM with WooCommerce* is a WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WooCommerce  Products and keeps WordCommerce Customer Accounts in sync with CiviCRM Contact data.
+*Integrate CiviCRM with WooCommerce* is a WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WooCommerce  Products and keeps WooCommerce Customer Accounts in sync with CiviCRM Contact data.
 
 
 
@@ -61,7 +61,7 @@ Please refer to the [documentation](docs/SETUP.md).
 
 
 
-## Know Issues
+## Known Issues
 
 This plugin currently relies on the `Order.create` and `Payment.create` API in CiviCRM to register WooCommerce Orders as CiviCRM Contributions. There is currently a push in CiviCRM to fix various aspects of this API, which is why this plugin should ideally be used with CiviCRM 5.42.1 or greater.
 
