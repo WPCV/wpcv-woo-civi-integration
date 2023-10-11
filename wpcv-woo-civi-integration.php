@@ -239,6 +239,9 @@ class WPCV_Woo_Civi {
 			// Enable translation first.
 			add_action( 'plugins_loaded', [ self::$instance, 'enable_translation' ] );
 
+			// Declare status of compatibility with WooCommerce HPOS.
+			add_action( 'before_woocommerce_init', [ self::$instance, 'declare_woocommerce_hpos_status' ] );
+
 			// Setup plugin when WooCommerce has been bootstrapped.
 			add_action( 'woocommerce_init', [ self::$instance, 'initialise' ] );
 
@@ -409,9 +412,6 @@ class WPCV_Woo_Civi {
 
 		// Add settings link to plugin listing page.
 		add_filter( 'plugin_action_links', [ $this, 'add_action_links' ], 10, 2 );
-
-		// Declare status of compatibility with WooCommerce HPOS.
-		add_action( 'before_woocommerce_init', [ $this, 'declare_woocommerce_hpos_status' ] );
 
 	}
 
