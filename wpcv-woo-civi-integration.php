@@ -6,7 +6,7 @@
  * Description: Provides integration between CiviCRM and WooCommerce.
  * Author: WPCV
  * Author URI: https://github.com/WPCV
- * Version: 3.0
+ * Version: 3.1.0a
  * Requires at least: 5.7
  * Requires PHP: 7.1
  * Text Domain: wpcv-woo-civi-integration
@@ -297,7 +297,7 @@ class WPCV_Woo_Civi {
 	 */
 	private static function define_constants() {
 
-		define( 'WPCV_WOO_CIVI_VERSION', '3.0' );
+		define( 'WPCV_WOO_CIVI_VERSION', '3.1.0a' );
 		define( 'WPCV_WOO_CIVI_FILE', __FILE__ );
 		define( 'WPCV_WOO_CIVI_URL', plugin_dir_url( WPCV_WOO_CIVI_FILE ) );
 		define( 'WPCV_WOO_CIVI_PATH', plugin_dir_path( WPCV_WOO_CIVI_FILE ) );

@@ -5,7 +5,7 @@
 **Tags:** civicrm, woocommerce, contribution, sync<br/>
 **Requires at least:** 5.7<br/>
 **Tested up to:** 6.4<br/>
-**Stable tag:** 3.0<br/>
+**Stable tag:** 3.1.0a<br/>
 **License:** GPLv3<br/>
 **License URI:** https://www.gnu.org/licenses/gpl-3.0.html
 
