@@ -568,7 +568,7 @@ class WPCV_Woo_Civi_Products {
 
 			$result = civicrm_api3( 'PriceField', 'get', $params );
 
-		} catch ( CiviCRM_API3_Exception $e ) {
+		} catch ( Exception $e ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Contribution Price Field ID', 'wpcv-woo-civi-integration' ) );

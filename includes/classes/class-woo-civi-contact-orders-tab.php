@@ -179,7 +179,7 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 
 				$contact = civicrm_api3( 'Contact', 'getsingle', $params );
 
-			} catch ( CiviCRM_API3_Exception $e ) {
+			} catch ( Exception $e ) {
 
 				// Write to CiviCRM log.
 				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
