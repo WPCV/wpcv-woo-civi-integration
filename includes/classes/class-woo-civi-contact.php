@@ -377,11 +377,12 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'email' => $email,
 		];
 
-		$result = civicrm_api3( 'Contact', 'get', $params );
+		$result = civicrm_api( 'Contact', 'get', $params );
 
 		// If there's an error.
 		if ( ! empty( $result['is_error'] ) ) {
@@ -601,11 +602,12 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			$property => $id,
 		];
 
-		$result = civicrm_api3( 'UFMatch', 'get', $params );
+		$result = civicrm_api( 'UFMatch', 'get', $params );
 
 		// Bail if there's an error.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
@@ -660,6 +662,7 @@ class WPCV_Woo_Civi_Contact {
 
 		// Maybe debug?
 		$params = [
+			'version' => 3,
 			'debug' => 1,
 		] + $contact;
 

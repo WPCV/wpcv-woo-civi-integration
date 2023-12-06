@@ -429,8 +429,11 @@ class WPCV_Woo_Civi_Contact_Phone {
 			return false;
 		}
 
+		// Add API version.
+		$params['version'] = 3;
+
 		// Call the API.
-		$result = civicrm_api3( 'Phone', 'create', $params );
+		$result = civicrm_api( 'Phone', 'create', $params );
 
 		// Log and bail if there's an error.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {

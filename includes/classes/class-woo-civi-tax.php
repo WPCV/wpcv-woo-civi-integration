@@ -211,6 +211,7 @@ class WPCV_Woo_Civi_Tax {
 		}
 
 		$params = [
+			'version' => 3,
 			'return' => [
 				'id',
 				'entity_table',
@@ -228,7 +229,7 @@ class WPCV_Woo_Civi_Tax {
 		];
 
 		// Call the CiviCRM API.
-		$result = civicrm_api3( 'EntityFinancialAccount', 'get', $params );
+		$result = civicrm_api( 'EntityFinancialAccount', 'get', $params );
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {
