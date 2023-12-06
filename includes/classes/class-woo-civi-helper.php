@@ -88,7 +88,7 @@ class WPCV_Woo_Civi_Helper {
 
 			$setting = civicrm_api3( 'Setting', 'getvalue', $params );
 
-		} catch ( CiviCRM_API3_Exception $e ) {
+		} catch ( Exception $e ) {
 
 			/* translators: %s: The name of the requested CiviCRM Setting */
 			$human_readable = sprintf( __( 'Unable to fetch the "%s" setting.', 'wpcv-woo-civi-integration' ), $name );
@@ -300,7 +300,7 @@ class WPCV_Woo_Civi_Helper {
 
 			$result = civicrm_api3( 'PriceSet', 'get', $params );
 
-		} catch ( CiviCRM_API3_Exception $e ) {
+		} catch ( Exception $e ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Price Sets', 'wpcv-woo-civi-integration' ) );
@@ -359,7 +359,7 @@ class WPCV_Woo_Civi_Helper {
 
 			$result = civicrm_api3( 'PriceFieldValue', 'get', $params );
 
-		} catch ( CiviCRM_API3_Exception $e ) {
+		} catch ( Exception $e ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Price Field Values', 'wpcv-woo-civi-integration' ) );
@@ -654,7 +654,7 @@ class WPCV_Woo_Civi_Helper {
 
 			$result = civicrm_api3( 'Setting', 'getvalue', $params );
 
-		} catch ( CiviCRM_API3_Exception $e ) {
+		} catch ( Exception $e ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Decimal Separator', 'wpcv-woo-civi-integration' ) );
@@ -712,7 +712,7 @@ class WPCV_Woo_Civi_Helper {
 
 			$result = civicrm_api3( 'Setting', 'getvalue', $params );
 
-		} catch ( CiviCRM_API3_Exception $e ) {
+		} catch ( Exception $e ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Thousand Separator', 'wpcv-woo-civi-integration' ) );

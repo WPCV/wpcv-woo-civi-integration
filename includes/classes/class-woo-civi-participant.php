@@ -658,7 +658,7 @@ class WPCV_Woo_Civi_Participant {
 
 			$option_group = civicrm_api( 'OptionGroup', 'getsingle', $params );
 
-		} catch ( CiviCRM_API3_Exception $e ) {
+		} catch ( Exception $e ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Participant Role Option Group.', 'wpcv-woo-civi-integration' ) );
