@@ -124,13 +124,14 @@ class WPCV_Woo_Civi_Settings_States {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'options' => [
 				'limit' => 0,
 			],
 		];
 
-		$result = civicrm_api3( 'Country', 'get', $params );
+		$result = civicrm_api( 'Country', 'get', $params );
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {
@@ -166,11 +167,12 @@ class WPCV_Woo_Civi_Settings_States {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'iso_code' => $woo_country,
 		];
 
-		$result = civicrm_api3( 'Country', 'getsingle', $params );
+		$result = civicrm_api( 'Country', 'getsingle', $params );
 
 		// Bail if something went wrong.
 		if ( ! empty( $result['error'] ) ) {
@@ -214,11 +216,12 @@ class WPCV_Woo_Civi_Settings_States {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'id' => $country_id,
 		];
 
-		$result = civicrm_api3( 'Country', 'getsingle', $params );
+		$result = civicrm_api( 'Country', 'getsingle', $params );
 
 		// Bail if something went wrong.
 		if ( ! empty( $result['error'] ) ) {

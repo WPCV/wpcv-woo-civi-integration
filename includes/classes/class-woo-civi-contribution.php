@@ -340,6 +340,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Maybe debug?
 		$params = [
+			'version' => 3,
 			'debug' => 1,
 		] + $contribution;
 
@@ -357,7 +358,7 @@ class WPCV_Woo_Civi_Contribution {
 		 *
 		 * $params['id'] = 255;
 		 */
-		$result = civicrm_api3( 'Contribution', 'create', $params );
+		$result = civicrm_api( 'Contribution', 'create', $params );
 
 		// Sanity check.
 		if ( ! empty( $result['error'] ) ) {

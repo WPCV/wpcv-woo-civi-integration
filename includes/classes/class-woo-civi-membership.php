@@ -290,6 +290,7 @@ class WPCV_Woo_Civi_Membership {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'is_active' => 1,
 			'options' => [
@@ -306,7 +307,7 @@ class WPCV_Woo_Civi_Membership {
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/membership_types/get/params', $params );
 
-		$result = civicrm_api3( 'MembershipType', 'get', $params );
+		$result = civicrm_api( 'MembershipType', 'get', $params );
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {

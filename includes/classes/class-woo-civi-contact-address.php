@@ -589,8 +589,11 @@ class WPCV_Woo_Civi_Contact_Address {
 			return false;
 		}
 
+		// Add API version.
+		$params['version'] = 3;
+
 		// Call the API.
-		$result = civicrm_api3( 'Address', 'create', $params );
+		$result = civicrm_api( 'Address', 'create', $params );
 
 		// Log and bail if there's an error.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
@@ -666,11 +669,12 @@ class WPCV_Woo_Civi_Contact_Address {
 
 		// Construct API query.
 		$params = [
+			'version' => 3,
 			'contact_id' => $contact_id,
 		];
 
 		// Get Address details via API.
-		$result = civicrm_api3( 'Address', 'get', $params );
+		$result = civicrm_api( 'Address', 'get', $params );
 
 		// Bail if there's an error.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
@@ -899,13 +903,14 @@ class WPCV_Woo_Civi_Contact_Address {
 		}
 
 		$params = [
+			'version' => 3,
 			'field' => 'location_type_id',
 			'options' => [
 				'limit' => 0,
 			],
 		];
 
-		$result = civicrm_api3( 'Address', 'getoptions', $params );
+		$result = civicrm_api( 'Address', 'getoptions', $params );
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {

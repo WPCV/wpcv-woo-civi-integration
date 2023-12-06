@@ -200,6 +200,7 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'is_active' => 1,
 			'status_id' => [ 'NOT IN' => [ 'Completed', 'Cancelled' ] ],
@@ -218,7 +219,7 @@ class WPCV_Woo_Civi_Campaign {
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/campaigns/get/params', $params );
 
-		$result = civicrm_api3( 'Campaign', 'get', $params );
+		$result = civicrm_api( 'Campaign', 'get', $params );
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {
@@ -278,6 +279,7 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'return' => [ 'id', 'name', 'status_id' ],
 			'options' => [
@@ -295,7 +297,7 @@ class WPCV_Woo_Civi_Campaign {
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/campaigns/get_all/params', $params );
 
-		$result = civicrm_api3( 'Campaign', 'get', $params );
+		$result = civicrm_api( 'Campaign', 'get', $params );
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {
@@ -356,6 +358,7 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'id' => $campaign_id,
 			'options' => [
@@ -363,7 +366,7 @@ class WPCV_Woo_Civi_Campaign {
 			],
 		];
 
-		$result = civicrm_api3( 'Campaign', 'get', $params );
+		$result = civicrm_api( 'Campaign', 'get', $params );
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {
@@ -415,6 +418,7 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'name' => $campaign_name,
 			'options' => [
@@ -422,7 +426,7 @@ class WPCV_Woo_Civi_Campaign {
 			],
 		];
 
-		$result = civicrm_api3( 'Campaign', 'get', $params );
+		$result = civicrm_api( 'Campaign', 'get', $params );
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {
@@ -482,6 +486,7 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'option_group_id' => 'campaign_status',
 			'options' => [
@@ -498,7 +503,7 @@ class WPCV_Woo_Civi_Campaign {
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/campaign_statuses/get/params', $params );
 
-		$result = civicrm_api3( 'OptionValue', 'get', $params );
+		$result = civicrm_api( 'OptionValue', 'get', $params );
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {

@@ -202,6 +202,7 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		$params = [
+			'version' => 3,
 			'sequential' => 1,
 			'is_active' => 1,
 			'options' => [
@@ -218,7 +219,7 @@ class WPCV_Woo_Civi_Helper {
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/financial_types/get/params', $params );
 
-		$result = civicrm_api3( 'FinancialType', 'get', $params );
+		$result = civicrm_api( 'FinancialType', 'get', $params );
 
 		// Return early if something went wrong.
 		if ( ! empty( $result['error'] ) ) {
