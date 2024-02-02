@@ -1,17 +1,17 @@
-# Copyright (C) 2023 WPCV
+# Copyright (C) 2024 WPCV
 # This file is distributed under the same license as the Integrate CiviCRM with WooCommerce plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Integrate CiviCRM with WooCommerce 3.0\n"
+"Project-Id-Version: Integrate CiviCRM with WooCommerce 3.1.0a\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpcv-woo-civi-integration\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-10-11T11:28:20+00:00\n"
+"POT-Creation-Date: 2024-02-02T17:16:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.8.1\n"
+"X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: wpcv-woo-civi-integration\n"
 
 #. Plugin Name of the plugin
@@ -139,9 +139,9 @@ msgstr ""
 #: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-settings-contribution.php:59
 #: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-settings-membership.php:78
 #: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-settings-participant.php:110
-#: includes/classes/class-woo-civi-membership.php:614
-#: includes/classes/class-woo-civi-membership.php:739
-#: includes/classes/class-woo-civi-membership.php:788
+#: includes/classes/class-woo-civi-membership.php:615
+#: includes/classes/class-woo-civi-membership.php:740
+#: includes/classes/class-woo-civi-membership.php:789
 #: includes/classes/class-woo-civi-participant.php:938
 #: includes/classes/class-woo-civi-participant.php:1125
 #: includes/classes/class-woo-civi-participant.php:1179
@@ -161,10 +161,10 @@ msgstr ""
 #: includes/classes/class-woo-civi-admin.php:789
 #: includes/classes/class-woo-civi-admin.php:868
 #: includes/classes/class-woo-civi-admin.php:976
-#: includes/classes/class-woo-civi-helper.php:518
-#: includes/classes/class-woo-civi-membership.php:619
-#: includes/classes/class-woo-civi-membership.php:745
-#: includes/classes/class-woo-civi-membership.php:794
+#: includes/classes/class-woo-civi-helper.php:519
+#: includes/classes/class-woo-civi-membership.php:620
+#: includes/classes/class-woo-civi-membership.php:746
+#: includes/classes/class-woo-civi-membership.php:795
 #: includes/classes/class-woo-civi-participant.php:943
 #: includes/classes/class-woo-civi-participant.php:1131
 #: includes/classes/class-woo-civi-participant.php:1185
@@ -190,8 +190,8 @@ msgstr ""
 
 #: assets/templates/metaboxes/metabox-admin-event.php:32
 #: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-settings-participant.php:78
-#: includes/classes/class-woo-civi-campaign.php:241
-#: includes/classes/class-woo-civi-campaign.php:323
+#: includes/classes/class-woo-civi-campaign.php:242
+#: includes/classes/class-woo-civi-campaign.php:325
 #: includes/classes/class-woo-civi-participant.php:561
 #: includes/classes/class-woo-civi-participant.php:908
 #: includes/classes/class-woo-civi-participant.php:1021
@@ -222,7 +222,7 @@ msgid "Choose the Financial Type that is assigned to Payments made by Participan
 msgstr ""
 
 #: assets/templates/metaboxes/metabox-admin-membership.php:39
-#: includes/classes/class-woo-civi-membership.php:527
+#: includes/classes/class-woo-civi-membership.php:528
 #: includes/classes/class-woo-civi-products-custom.php:79
 msgid "CiviCRM Membership"
 msgstr ""
@@ -233,10 +233,10 @@ msgstr ""
 
 #: assets/templates/metaboxes/metabox-admin-membership.php:64
 #: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-settings-membership.php:67
-#: includes/classes/class-woo-civi-membership.php:605
-#: includes/classes/class-woo-civi-membership.php:672
-#: includes/classes/class-woo-civi-membership.php:727
-#: includes/classes/class-woo-civi-membership.php:776
+#: includes/classes/class-woo-civi-membership.php:606
+#: includes/classes/class-woo-civi-membership.php:673
+#: includes/classes/class-woo-civi-membership.php:728
+#: includes/classes/class-woo-civi-membership.php:777
 msgid "Membership Type"
 msgstr ""
 
@@ -368,8 +368,8 @@ msgstr ""
 #: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-settings-contribution.php:61
 #: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-settings-membership.php:80
 #: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-settings-participant.php:112
-#: includes/classes/class-woo-civi-helper.php:511
-#: includes/classes/class-woo-civi-membership.php:616
+#: includes/classes/class-woo-civi-helper.php:512
+#: includes/classes/class-woo-civi-membership.php:617
 #: includes/classes/class-woo-civi-participant.php:940
 msgid "Select a Price Field"
 msgstr ""
@@ -392,8 +392,8 @@ msgid "Select The Price Field for this Variation."
 msgstr ""
 
 #: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-settings-membership.php:61
-#: includes/classes/class-woo-civi-membership.php:599
-#: includes/classes/class-woo-civi-membership.php:661
+#: includes/classes/class-woo-civi-membership.php:600
+#: includes/classes/class-woo-civi-membership.php:662
 msgid "Select a Membership Type"
 msgstr ""
 
@@ -402,7 +402,7 @@ msgid "Select the Membership Type to be created in CiviCRM. The Membership will 
 msgstr ""
 
 #: assets/templates/woocommerce/admin/meta-boxes/views/html-product-data-settings-membership.php:90
-#: includes/classes/class-woo-civi-membership.php:626
+#: includes/classes/class-woo-civi-membership.php:627
 msgid "Select The Price Field for the Membership."
 msgstr ""
 
@@ -596,31 +596,31 @@ msgstr ""
 msgid "Unrecognised Price Field."
 msgstr ""
 
-#: includes/classes/class-woo-civi-campaign.php:541
+#: includes/classes/class-woo-civi-campaign.php:546
 msgid "Default Campaign"
 msgstr ""
 
-#: includes/classes/class-woo-civi-campaign.php:542
+#: includes/classes/class-woo-civi-campaign.php:547
 msgid "The default Campaign can be overridden on individual Orders."
 msgstr ""
 
-#: includes/classes/class-woo-civi-campaign.php:682
+#: includes/classes/class-woo-civi-campaign.php:687
 msgid "Unable to fetch Campaign"
 msgstr ""
 
-#: includes/classes/class-woo-civi-campaign.php:745
+#: includes/classes/class-woo-civi-campaign.php:750
 msgid "Campaign"
 msgstr ""
 
-#: includes/classes/class-woo-civi-campaign.php:814
+#: includes/classes/class-woo-civi-campaign.php:819
 msgid "All campaigns"
 msgstr ""
 
-#: includes/classes/class-woo-civi-campaign.php:912
+#: includes/classes/class-woo-civi-campaign.php:917
 msgid "CiviCRM Campaign:"
 msgstr ""
 
-#: includes/classes/class-woo-civi-campaign.php:913
+#: includes/classes/class-woo-civi-campaign.php:918
 msgid "CiviCRM Campaign"
 msgstr ""
 
@@ -634,7 +634,7 @@ msgstr ""
 msgid "Updated CiviCRM Address of type %1$s: %2$s"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact-address.php:637
+#: includes/classes/class-woo-civi-contact-address.php:640
 msgid "A numeric ID must be present to update an Address."
 msgstr ""
 
@@ -648,7 +648,7 @@ msgstr ""
 msgid "Updated CiviCRM Email of type %1$s: %2$s"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact-email.php:474
+#: includes/classes/class-woo-civi-contact-email.php:477
 msgid "A numeric ID must be present to update an Email record."
 msgstr ""
 
@@ -696,16 +696,16 @@ msgid "Failed"
 msgstr ""
 
 #. translators: 1: Location Type, 2: Phone Number
-#: includes/classes/class-woo-civi-contact-phone.php:170
+#: includes/classes/class-woo-civi-contact-phone.php:176
 msgid "Created new CiviCRM Phone of type %1$s: %2$s"
 msgstr ""
 
 #. translators: 1: Location Type, 2: Phone Number
-#: includes/classes/class-woo-civi-contact-phone.php:177
+#: includes/classes/class-woo-civi-contact-phone.php:183
 msgid "Updated CiviCRM Phone of type %1$s: %2$s"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact-phone.php:477
+#: includes/classes/class-woo-civi-contact-phone.php:492
 msgid "A numeric ID must be present to update a Phone record."
 msgstr ""
 
@@ -725,56 +725,56 @@ msgstr ""
 msgid "Failed to get Contact by ID"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:390
+#: includes/classes/class-woo-civi-contact.php:391
 msgid "Failed to get Contact by Email"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:614
+#: includes/classes/class-woo-civi-contact.php:616
 msgid "Unable to retrieve CiviCRM UFMatch data."
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:726
+#: includes/classes/class-woo-civi-contact.php:729
 msgid "A numeric ID must be present to update a Contact."
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:824
-#: includes/classes/class-woo-civi-contact.php:918
+#: includes/classes/class-woo-civi-contact.php:827
+#: includes/classes/class-woo-civi-contact.php:921
 msgid "Unknown Name"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:828
+#: includes/classes/class-woo-civi-contact.php:831
 msgid "WooCommerce Purchase"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:835
+#: includes/classes/class-woo-civi-contact.php:838
 msgid "Unable to create Contact"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:926
+#: includes/classes/class-woo-civi-contact.php:929
 msgid "Unable to update Contact"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:1034
+#: includes/classes/class-woo-civi-contact.php:1037
 msgid "Individual"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:1035
+#: includes/classes/class-woo-civi-contact.php:1038
 msgid "Household"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:1036
+#: includes/classes/class-woo-civi-contact.php:1039
 msgid "Organization"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:1136
+#: includes/classes/class-woo-civi-contact.php:1139
 msgid "WooCommerce Account"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:1150
+#: includes/classes/class-woo-civi-contact.php:1153
 msgid "Unable to update Contact after WooCommerce Signup"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contact.php:1340
+#: includes/classes/class-woo-civi-contact.php:1343
 msgid "No Sub-type selected"
 msgstr ""
 
@@ -786,27 +786,27 @@ msgstr ""
 msgid "Error try to find Contribution by Invoice ID"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contribution.php:366
+#: includes/classes/class-woo-civi-contribution.php:367
 msgid "Error when creating/updating a Contribution"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contribution.php:412
+#: includes/classes/class-woo-civi-contribution.php:413
 msgid "A numeric ID must be present to update a Contribution."
 msgstr ""
 
-#: includes/classes/class-woo-civi-contribution.php:446
+#: includes/classes/class-woo-civi-contribution.php:447
 msgid "Unable to create an Order via the CiviCRM Order API"
 msgstr ""
 
-#: includes/classes/class-woo-civi-contribution.php:740
+#: includes/classes/class-woo-civi-contribution.php:741
 msgid "Unable to create Payment record."
 msgstr ""
 
-#: includes/classes/class-woo-civi-contribution.php:860
+#: includes/classes/class-woo-civi-contribution.php:861
 msgid "Unable to create a Note for a Contribution."
 msgstr ""
 
-#: includes/classes/class-woo-civi-contribution.php:935
+#: includes/classes/class-woo-civi-contribution.php:936
 msgid "Unable to update Contribution Status"
 msgstr ""
 
@@ -819,19 +819,19 @@ msgstr ""
 msgid "Do not sync to CiviCRM"
 msgstr ""
 
-#: includes/classes/class-woo-civi-helper.php:305
+#: includes/classes/class-woo-civi-helper.php:306
 msgid "Unable to fetch Price Sets"
 msgstr ""
 
-#: includes/classes/class-woo-civi-helper.php:364
+#: includes/classes/class-woo-civi-helper.php:365
 msgid "Unable to fetch Price Field Values"
 msgstr ""
 
-#: includes/classes/class-woo-civi-helper.php:659
+#: includes/classes/class-woo-civi-helper.php:660
 msgid "Unable to fetch Decimal Separator"
 msgstr ""
 
-#: includes/classes/class-woo-civi-helper.php:717
+#: includes/classes/class-woo-civi-helper.php:718
 msgid "Unable to fetch Thousand Separator"
 msgstr ""
 
@@ -840,35 +840,35 @@ msgstr ""
 msgid "Shop"
 msgstr ""
 
-#: includes/classes/class-woo-civi-membership.php:377
+#: includes/classes/class-woo-civi-membership.php:378
 msgid "Unable to retrieve CiviCRM Membership Types."
 msgstr ""
 
-#: includes/classes/class-woo-civi-membership.php:439
+#: includes/classes/class-woo-civi-membership.php:440
 msgid "Unable to retrieve CiviCRM Membership Type."
 msgstr ""
 
-#: includes/classes/class-woo-civi-membership.php:491
+#: includes/classes/class-woo-civi-membership.php:492
 msgid "Unable to retrieve default Membership Price Field ID"
 msgstr ""
 
-#: includes/classes/class-woo-civi-membership.php:607
+#: includes/classes/class-woo-civi-membership.php:608
 msgid "Select a Membership Type if you would like this Product to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM."
 msgstr ""
 
-#: includes/classes/class-woo-civi-membership.php:674
+#: includes/classes/class-woo-civi-membership.php:675
 msgid "Select a Membership Type if you would like this Product Variation to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM."
 msgstr ""
 
-#: includes/classes/class-woo-civi-membership.php:719
-#: includes/classes/class-woo-civi-membership.php:742
+#: includes/classes/class-woo-civi-membership.php:720
+#: includes/classes/class-woo-civi-membership.php:743
 #: includes/classes/class-woo-civi-participant.php:1098
 #: includes/classes/class-woo-civi-participant.php:1128
 msgid "- No Change -"
 msgstr ""
 
-#: includes/classes/class-woo-civi-membership.php:768
-#: includes/classes/class-woo-civi-membership.php:791
+#: includes/classes/class-woo-civi-membership.php:769
+#: includes/classes/class-woo-civi-membership.php:792
 #: includes/classes/class-woo-civi-participant.php:1155
 #: includes/classes/class-woo-civi-participant.php:1182
 #: includes/classes/class-woo-civi-settings-products.php:580
