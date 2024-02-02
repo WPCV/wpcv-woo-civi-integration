@@ -319,9 +319,9 @@ class WPCV_Woo_Civi_Contact_Email {
 	 * @since 3.0 Renamed.
 	 *
 	 * @param integer $user_id The WordPress User ID.
-	 * @param string  $load_address The Address Type. Either 'shipping' or 'billing'.
+	 * @param string  $address_type The Address Type. Either 'shipping' or 'billing'.
 	 */
-	public function sync_woo_to_civicrm( $user_id, $load_address ) {
+	public function sync_woo_to_civicrm( $user_id, $address_type ) {
 
 		// Bail if sync is not enabled.
 		if ( ! $this->sync_enabled ) {
@@ -329,7 +329,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		}
 
 		// Bail if Email is not of type 'billing'.
-		if ( 'billing' !== $load_address ) {
+		if ( 'billing' !== $address_type ) {
 			return;
 		}
 
@@ -353,7 +353,7 @@ class WPCV_Woo_Civi_Contact_Email {
 
 		// Get the "billing" Location Type ID.
 		$mapped_location_types = WPCV_WCI()->helper->get_mapped_location_types();
-		$location_type_id = $mapped_location_types[ $load_address ];
+		$location_type_id = $mapped_location_types[ $address_type ];
 
 		// Try and get the full data for the existing Email.
 		$existing_email = $this->get_by_contact_id_and_location( $ufmatch['contact_id'], $location_type_id );
@@ -361,8 +361,8 @@ class WPCV_Woo_Civi_Contact_Email {
 		// Get the WooCommerce Customer Email.
 		$customer = new WC_Customer( $user_id );
 		$customer_email = '';
-		if ( is_callable( [ $customer, "get_{$load_address}_email" ] ) ) {
-			$customer_email = $customer->{"get_{$load_address}_email"}();
+		if ( is_callable( [ $customer, "get_{$address_type}_email" ] ) ) {
+			$customer_email = $customer->{"get_{$address_type}_email"}();
 		}
 
 		// Build the array for the mapped CiviCRM Email.
@@ -389,7 +389,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		// Let's make an array of the data.
 		$args = [
 			'user_id' => $user_id,
-			'address_type' => $load_address,
+			'address_type' => $address_type,
 			'customer' => $customer,
 			'contact' => $ufmatch,
 			'email' => $email,
