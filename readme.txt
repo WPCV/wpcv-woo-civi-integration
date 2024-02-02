@@ -114,9 +114,13 @@ Creating Orders in WooCommerce admin is not fully supported. It is best to creat
 
 == Changelog ==
 
+= 3.1.0 =
+
+* Improved CiviCRM API error handling
+
 = 3.0 =
 
-* Initial WordPress Plugin Directory release.
+* Initial WordPress Plugin Directory release candidate.
 
 = Prior to 3.0 =
 
