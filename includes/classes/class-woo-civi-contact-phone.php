@@ -151,6 +151,12 @@ class WPCV_Woo_Civi_Contact_Phone {
 			}
 		}
 
+		// Bail if the Phone Number is empty to avoid API warnings.
+		// TODO: Perhaps delete the Phone record?
+		if ( empty( $phone_params['phone'] ) ) {
+			return;
+		}
+
 		// Create new or update existing Phone record.
 		if ( empty( $phone_params['id'] ) ) {
 			$phone = $this->create( $phone_params );
@@ -372,6 +378,12 @@ class WPCV_Woo_Civi_Contact_Phone {
 		$phone_params = [
 			'phone' => $customer_phone,
 		];
+
+		// Bail if the Phone Number is empty to avoid API warnings.
+		// TODO: Perhaps delete the Phone record?
+		if ( empty( $phone_params['phone'] ) ) {
+			return;
+		}
 
 		// Prevent reverse sync.
 		remove_action( 'civicrm_post', [ $this, 'sync_civicrm_to_woo' ], 10 );
