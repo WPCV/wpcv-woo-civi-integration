@@ -679,7 +679,7 @@ class WPCV_Woo_Civi_Contact {
 		 *
 		 * $params['id'] = 255;
 		 */
-		$result = civicrm_api3( 'Contact', 'create', $params );
+		$result = civicrm_api( 'Contact', 'create', $params );
 
 		// Log and bail if there's an error.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {

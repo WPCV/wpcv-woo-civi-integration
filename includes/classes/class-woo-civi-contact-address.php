@@ -473,9 +473,9 @@ class WPCV_Woo_Civi_Contact_Address {
 	 * @since 2.0
 	 *
 	 * @param integer $user_id The WordPress User ID.
-	 * @param string  $load_address The Address Type. Either 'shipping' or 'billing'.
+	 * @param string  $address_type The Address Type. Either 'shipping' or 'billing'.
 	 */
-	public function sync_woo_to_civicrm( $user_id, $load_address ) {
+	public function sync_woo_to_civicrm( $user_id, $address_type ) {
 
 		// Bail if Address Sync is not enabled.
 		if ( ! $this->sync_enabled ) {
@@ -505,7 +505,7 @@ class WPCV_Woo_Civi_Contact_Address {
 
 		// Build the array for the mapped CiviCRM Address.
 		$address_params = [];
-		foreach ( $this->get_field_mappings( $load_address ) as $wc_field => $civi_field ) {
+		foreach ( $this->get_field_mappings( $address_type ) as $wc_field => $civi_field ) {
 
 			// Assign the value.
 			$value = '';
@@ -528,7 +528,7 @@ class WPCV_Woo_Civi_Contact_Address {
 
 		// Get the Location Type of the edited Woo Address.
 		$mapped_location_types = WPCV_WCI()->helper->get_mapped_location_types();
-		$location_type_id = $mapped_location_types[ $load_address ];
+		$location_type_id = $mapped_location_types[ $address_type ];
 
 		// Get the matching Address from CiviCRM.
 		$existing_address = $this->get_by_contact_id_and_location( $contact['id'], $location_type_id );
@@ -552,7 +552,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		// Let's make an array of the data.
 		$args = [
 			'user_id' => $user_id,
-			'address_type' => $load_address,
+			'address_type' => $address_type,
 			'customer' => $customer,
 			'contact' => $contact,
 			'address' => $address,
