@@ -540,15 +540,15 @@ class WPCV_Woo_Civi_Membership {
 	 */
 	public function panel_saved( $product ) {
 
-		// Save the Membership Type ID.
-		if ( isset( $_POST[ $this->meta_key ] ) ) {
-			$membership_type_id = sanitize_key( $_POST[ $this->meta_key ] );
+		// Save the Membership Type ID. Nonce has been verified by WooCommerce.
+		if ( isset( $_POST[ $this->meta_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$membership_type_id = sanitize_key( $_POST[ $this->meta_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$product->add_meta_data( $this->meta_key, (int) $membership_type_id, true );
 		}
 
 		// Save the Membership Price Field Value ID.
-		if ( isset( $_POST[ $this->pfv_key ] ) ) {
-			$membership_pfv_id = sanitize_key( $_POST[ $this->pfv_key ] );
+		if ( isset( $_POST[ $this->pfv_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$membership_pfv_id = sanitize_key( $_POST[ $this->pfv_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$product->add_meta_data( $this->pfv_key, (int) $membership_pfv_id, true );
 		}
 
@@ -614,8 +614,8 @@ class WPCV_Woo_Civi_Membership {
 			?>
 
 			<p class="form-field">
-				<label for="<?php echo $this->pfv_key; ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
-				<select name="<?php echo $this->pfv_key; ?>" id="<?php echo $this->pfv_key; ?>" class="select short">
+				<label for="<?php echo esc_attr( $this->pfv_key ); ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
+				<select name="<?php echo esc_attr( $this->pfv_key ); ?>" id="<?php echo esc_attr( $this->pfv_key ); ?>" class="select short">
 					<option value="0"><?php esc_html_e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
 					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
@@ -627,7 +627,7 @@ class WPCV_Woo_Civi_Membership {
 							</optgroup>
 						<?php endforeach; ?>
 					<?php endforeach; ?>
-				</select> <?php echo wc_help_tip( __( 'Select The Price Field for the Membership.', 'wpcv-woo-civi-integration' ) ); ?>
+				</select> <?php echo wc_help_tip( esc_html__( 'Select The Price Field for the Membership.', 'wpcv-woo-civi-integration' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</p>
 
 		</div>
@@ -704,9 +704,9 @@ class WPCV_Woo_Civi_Membership {
 		// Add loop item.
 		$type_loop_key = $type_key . '-' . $loop;
 
-		// Save the Membership Type.
-		if ( isset( $_POST[ $type_loop_key ] ) ) {
-			$value = sanitize_key( $_POST[ $type_loop_key ] );
+		// Save the Membership Type. Nonce has been verified by WooCommerce.
+		if ( isset( $_POST[ $type_loop_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$value = sanitize_key( $_POST[ $type_loop_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$variation->add_meta_data( $type_key, $value, true );
 		}
 

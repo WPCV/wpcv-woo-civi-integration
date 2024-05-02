@@ -1284,7 +1284,7 @@ class WPCV_Woo_Civi_Contact {
 
 		// Bail if not the synced Contact Sub-type.
 		if ( ! empty( $contact_type['sub_type'] ) ) {
-			if ( ! in_array( $contact_type['sub_type'], $contact['contact_sub_type'] ) ) {
+			if ( ! in_array( $contact_type['sub_type'], $contact['contact_sub_type'], true ) ) {
 				return false;
 			}
 		}
@@ -1413,7 +1413,7 @@ class WPCV_Woo_Civi_Contact {
 		if ( is_array( $contact['contact_sub_type'] ) ) {
 
 			// Add ours if it's not present.
-			if ( ! in_array( $contact_sub_type['name'], $contact['contact_sub_type'] ) ) {
+			if ( ! in_array( $contact_sub_type['name'], $contact['contact_sub_type'], true ) ) {
 				$contact['contact_sub_type'][] = $contact_sub_type['name'];
 			}
 

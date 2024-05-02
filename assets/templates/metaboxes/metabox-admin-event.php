@@ -75,7 +75,7 @@ do_action( 'wpcv_woo_civi/admin/metabox/event/before' );
 				<p>
 					<select id="wpcv_wci_event_role_id" name="wpcv_wci_event_role_id">
 						<?php foreach ( $metabox['args']['roles'] as $key => $participant_role ) : ?>
-							<option value="<?php echo $key; ?>"><?php echo $participant_role; ?></option>
+							<option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $participant_role ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</p>
@@ -91,7 +91,7 @@ do_action( 'wpcv_woo_civi/admin/metabox/event/before' );
 				<p>
 					<select id="wpcv_wci_event_financial_type_id" name="wpcv_wci_event_financial_type_id">
 						<?php foreach ( $metabox['args']['financial_types'] as $key => $financial_type ) : ?>
-							<option value="<?php echo $key; ?>"><?php echo $financial_type; ?></option>
+							<option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $financial_type ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</p>

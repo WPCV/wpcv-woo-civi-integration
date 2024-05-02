@@ -1031,7 +1031,7 @@ class WPCV_Woo_Civi_Helper {
 		 * @see https://bugs.php.net/bug.php?id=45543
 		 * @see https://bugs.php.net/bug.php?id=45528
 		 */
-		if ( empty( $tzstring ) && 0 != $offset && floor( $offset ) == $offset ) {
+		if ( empty( $tzstring ) && 0 != $offset && floor( $offset ) == $offset ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 			$offset_string = $offset > 0 ? "-$offset" : '+' . absint( $offset );
 			$tzstring      = 'Etc/GMT' . $offset_string;
 		}

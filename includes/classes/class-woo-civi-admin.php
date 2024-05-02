@@ -253,12 +253,12 @@ class WPCV_Woo_Civi_Admin {
 
 		// We must be network admin in Multisite.
 		if ( is_multisite() && ! is_super_admin() ) {
-			wp_die( __( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
 		}
 
 		// Check user permissions.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
 		}
 
 		// Get current screen.
@@ -316,7 +316,7 @@ class WPCV_Woo_Civi_Admin {
 		];
 
 		// Bail if not the Screen ID we want.
-		if ( ! in_array( $screen_id, $screen_ids ) ) {
+		if ( ! in_array( $screen_id, $screen_ids, true ) ) {
 			return;
 		}
 
@@ -425,7 +425,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Add closed class.
 		if ( is_array( $classes ) ) {
-			if ( ! in_array( 'closed', $classes ) ) {
+			if ( ! in_array( 'closed', $classes, true ) ) {
 				$classes[] = 'closed';
 			}
 		}
@@ -539,6 +539,7 @@ class WPCV_Woo_Civi_Admin {
 
 		/*
 		// If our "Create Product for Contribution" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_contribution_process'] ) ) {
 			$this->form_nonce_check();
 			$this->contribution_process();
@@ -548,6 +549,7 @@ class WPCV_Woo_Civi_Admin {
 
 		/*
 		// If our "Create Product for Membership" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_membership_process'] ) ) {
 			$this->form_nonce_check();
 			$this->membership_process();
@@ -556,6 +558,7 @@ class WPCV_Woo_Civi_Admin {
 		*/
 
 		// If our "Create Product for Event" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_event_process'] ) ) {
 			$this->form_nonce_check();
 			$this->event_process();
@@ -686,7 +689,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Bail if the Product Type is not valid.
 		$product_type = isset( $values['product_type'] ) ? sanitize_key( wp_unslash( $values['product_type'] ) ) : '';
-		if ( empty( $product_type ) || ! in_array( $product_type, [ 'simple', 'custom' ] ) ) {
+		if ( empty( $product_type ) || ! in_array( $product_type, [ 'simple', 'custom' ], true ) ) {
 			$data['notice'] = __( 'Unrecognised Product Type.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}

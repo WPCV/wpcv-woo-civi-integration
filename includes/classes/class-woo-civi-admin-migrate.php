@@ -123,12 +123,12 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// Have we already migrated?
-		if ( in_array( 'accepted', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'accepted', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 
 			// Show general "Call to Action".
 			$message = sprintf(
 				/* translators: 1: Opening strong tag, 2: Closing strong tag */
-				__( 'You can now deactivate %1$sWooCommerce CiviCRM%2$s.', 'wpcv-woo-civi-integration' ),
+				esc_html__( 'You can now deactivate %1$sWooCommerce CiviCRM%2$s.', 'wpcv-woo-civi-integration' ),
 				'<strong>',
 				'</strong>'
 			);
@@ -139,14 +139,14 @@ class WPCV_Woo_Civi_Admin_Migrate {
 				// Add link.
 				$link = sprintf(
 					/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
-					__( 'Please visit the %1$sPlugins Page%2$s to deactivate it.', 'wpcv-woo-civi-integration' ),
-					'<a href="' . admin_url( 'plugins.php' ) . '">',
+					esc_html__( 'Please visit the %1$sPlugins Page%2$s to deactivate it.', 'wpcv-woo-civi-integration' ),
+					'<a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">',
 					'</a>'
 				);
 
 				// Merge.
 				/* translators: 1: Message, 2: Link */
-				$message = sprintf( __( '%1$s %2$s', 'wpcv-woo-civi-integration' ), $message, $link );
+				$message = sprintf( esc_html__( '%1$s %2$s', 'wpcv-woo-civi-integration' ), $message, $link );
 
 			}
 
@@ -155,10 +155,10 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			// Show general "Call to Action".
 			$message = sprintf(
 				/* translators: 1: Opening strong tag, 2: Closing strong tag, 3: Opening anchor tag, 4: Closing anchor tag */
-				__( '%1$sWooCommerce CiviCRM%2$s has become %1$sIntegrate CiviCRM with WooCommerce%2$s. Please visit the %3$sMigration Page%4$s to switch over.', 'wpcv-woo-civi-integration' ),
+				esc_html__( '%1$sWooCommerce CiviCRM%2$s has become %1$sIntegrate CiviCRM with WooCommerce%2$s. Please visit the %3$sMigration Page%4$s to switch over.', 'wpcv-woo-civi-integration' ),
 				'<strong>',
 				'</strong>',
-				'<a href="' . menu_page_url( 'wpcv_woocivi_migrate', false ) . '">',
+				'<a href="' . menu_page_url( 'wpcv_woocivi_migrate', false ) . '">', // The returned URL is already escaped.
 				'</a>'
 			);
 
@@ -166,7 +166,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Show it.
 		echo '<div id="message" class="notice notice-warning">';
-		echo '<p>' . $message . '</p>';
+		echo '<p>' . $message . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</div>';
 
 	}
@@ -263,13 +263,13 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Add flag when Products have been migrated.
 		$settings['products_migrated'] = 'n';
-		if ( in_array( 'products-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'products-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 			$settings['products_migrated'] = 'y';
 		}
 
 		// Add flag when Orders have been migrated.
 		$settings['orders_migrated'] = 'n';
-		if ( in_array( 'orders-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'orders-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 			$settings['orders_migrated'] = 'y';
 		}
 
@@ -369,7 +369,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		];
 
 		// Bail if not the Screen ID we want.
-		if ( ! in_array( $screen_id, $screen_ids ) ) {
+		if ( ! in_array( $screen_id, $screen_ids, true ) ) {
 			return;
 		}
 
@@ -383,7 +383,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Have we already migrated?
 		$data['migrated'] = false;
-		if ( in_array( 'accepted', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'accepted', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 			$data['migrated'] = true;
 		}
 
@@ -395,7 +395,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Have we already resolved Product metadata?
 		$data['product-metadata'] = false;
-		if ( in_array( 'products-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'products-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 			$data['product-metadata'] = true;
 		}
 
@@ -410,7 +410,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Have we already resolved Order metadata?
 		$data['order-metadata'] = false;
-		if ( in_array( 'orders-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'orders-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 			$data['order-metadata'] = true;
 		}
 
@@ -498,6 +498,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	public function form_submitted() {
 
 		// If our "Submit" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_save'] ) ) {
 			$this->form_nonce_check();
 			$this->form_migration_accept();
@@ -505,6 +506,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If our "Process Products" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_product_process'] ) ) {
 			$this->form_nonce_check();
 			$this->products_process();
@@ -512,6 +514,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If our "Stop Processing Products" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_product_process_stop'] ) ) {
 			$this->form_nonce_check();
 			$this->stepped_offset_delete( 'products' );
@@ -519,6 +522,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If our "Process Orders" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_order_process'] ) ) {
 			$this->form_nonce_check();
 			$this->orders_process();
@@ -526,6 +530,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If our "Stop Processing Orders" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_order_process_stop'] ) ) {
 			$this->form_nonce_check();
 			$this->stepped_offset_delete( 'orders' );

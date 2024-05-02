@@ -51,7 +51,7 @@ do_action( 'wpcv_woo_civi/admin/metabox/membership/before' );
 				<p>
 					<select id="wpcv_wci_membership_financial_type_id" name="wpcv_wci_membership_financial_type_id">
 						<?php foreach ( $metabox['args']['financial_types'] as $key => $financial_type ) : ?>
-							<option value="<?php echo $key; ?>"><?php echo $financial_type; ?></option>
+							<option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $financial_type ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</p>

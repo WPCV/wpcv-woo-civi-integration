@@ -413,7 +413,7 @@ class WPCV_Woo_Civi_Products_Custom {
 		}
 
 		// Bail if we don't have a Product Post object.
-		if ( 'product' != $post->post_type ) {
+		if ( 'product' !== $post->post_type ) {
 			return;
 		}
 
@@ -429,10 +429,10 @@ class WPCV_Woo_Civi_Products_Custom {
 		// Add "show_if" classes to relevant sections.
 		foreach ( $this->product_names as $type => $name ) {
 			// phpcs:disable Generic.Strings.UnnecessaryStringConcat.Found
-			echo "\t\t" . "jQuery('#general_product_data .pricing').addClass('show_if_{$type}');\n";
+			echo "\t\t" . "jQuery('#general_product_data .pricing').addClass('show_if_" . esc_attr( $type ) . "');\n";
 			echo "\t\t" . 'var tax = jQuery("#general_product_data").find("._tax_status_field");' . "\n";
 			echo "\t\t" . 'if (tax.length) {' . "\n";
-			echo "\t\t\t" . "tax.parent().addClass('show_if_{$type}');\n";
+			echo "\t\t\t" . "tax.parent().addClass('show_if_" . esc_attr( $type ) . "');\n";
 			echo "\t\t" . '}' . "\n";
 			// phpcs:enable Generic.Strings.UnnecessaryStringConcat.Found
 		}
@@ -485,10 +485,10 @@ class WPCV_Woo_Civi_Products_Custom {
 		 */
 		do_action( 'wpcv_woo_civi/product/custom/panel/saved/before', $product );
 
-		// Save relevant metadata for this Product Type.
+		// Save relevant metadata for this Product Type. Nonce has been verified by WooCommerce.
 		foreach ( $this->product_types_meta[ $product_type ] as $code => $meta_key ) {
-			if ( isset( $_POST[ $meta_key ] ) ) {
-				$value = sanitize_key( $_POST[ $meta_key ] );
+			if ( isset( $_POST[ $meta_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$value = sanitize_key( $_POST[ $meta_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				$product->add_meta_data( $meta_key, $value, true );
 			}
 		}

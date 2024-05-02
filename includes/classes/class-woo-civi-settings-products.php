@@ -174,7 +174,7 @@ class WPCV_Woo_Civi_Settings_Products {
 
 		// Bail if not an allowed Product Type.
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
-		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
+		if ( ! in_array( $product_type, $product_types_with_panel, true ) ) {
 			return;
 		}
 
@@ -192,23 +192,23 @@ class WPCV_Woo_Civi_Settings_Products {
 		 */
 		do_action( 'wpcv_woo_civi/product/panel/saved/before', $product );
 
-		// Save the Entity Type.
-		if ( isset( $_POST[ WPCV_WCI()->products->entity_key ] ) ) {
-			$entity_type = sanitize_key( $_POST[ WPCV_WCI()->products->entity_key ] );
+		// Save the Entity Type. Nonce has been verified by WooCommerce.
+		if ( isset( $_POST[ WPCV_WCI()->products->entity_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$entity_type = sanitize_key( $_POST[ WPCV_WCI()->products->entity_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$product->add_meta_data( WPCV_WCI()->products->entity_key, $entity_type, true );
 		}
 
 		// Save the Financial Type ID.
-		if ( isset( $_POST[ WPCV_WCI()->products->financial_type_key ] ) ) {
-			$financial_type_id = sanitize_key( $_POST[ WPCV_WCI()->products->financial_type_key ] );
+		if ( isset( $_POST[ WPCV_WCI()->products->financial_type_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$financial_type_id = sanitize_key( $_POST[ WPCV_WCI()->products->financial_type_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( is_numeric( $financial_type_id ) ) {
 				$product->add_meta_data( WPCV_WCI()->products->financial_type_key, (int) $financial_type_id, true );
 			}
 		}
 
 		// Save the Price Field Value ID.
-		if ( isset( $_POST[ WPCV_WCI()->products->pfv_key ] ) ) {
-			$pfv_id = sanitize_key( $_POST[ WPCV_WCI()->products->pfv_key ] );
+		if ( isset( $_POST[ WPCV_WCI()->products->pfv_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$pfv_id = sanitize_key( $_POST[ WPCV_WCI()->products->pfv_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			if ( is_numeric( $pfv_id ) ) {
 				$product->add_meta_data( WPCV_WCI()->products->pfv_key, (int) $pfv_id, true );
 			}
@@ -353,10 +353,12 @@ class WPCV_Woo_Civi_Settings_Products {
 			unset( $feedback['financial_type'] );
 		}
 
-		// Show feedback.
+		// Show escaped feedback.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo implode( '<br>' . "\n", array_values( $feedback ) );
 
-		// Write hidden data.
+		// Write escaped hidden data.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $data;
 
 	}
@@ -377,10 +379,10 @@ class WPCV_Woo_Civi_Settings_Products {
 
 		// Build the data markup.
 		$markup  = '';
-		$markup .= "\n" . '<div class="hidden" id="wpcv_woo_civi_inline_' . $post_id . '">' . "\n";
+		$markup .= "\n" . '<div class="hidden" id="wpcv_woo_civi_inline_' . esc_attr( $post_id ) . '">' . "\n";
 		// $markup .= "\t" . '<div class="product_type">' . $product_type . '</div>' . "\n";
-		$markup .= "\t" . '<div class="entity_type">' . $entity_type . '</div>' . "\n";
-		$markup .= "\t" . '<div class="financial_type_id">' . $financial_type_id . '</div>' . "\n";
+		$markup .= "\t" . '<div class="entity_type">' . esc_html( $entity_type ) . '</div>' . "\n";
+		$markup .= "\t" . '<div class="financial_type_id">' . esc_html( $financial_type_id ) . '</div>' . "\n";
 		// $markup .= "\t" . '<div class="pfv_id">' . $pfv_id . '</div>' . "\n";
 		$markup .= '</div>' . "\n";
 
@@ -511,9 +513,9 @@ class WPCV_Woo_Civi_Settings_Products {
 			return;
 		}
 
-		// Maybe save Entity Type.
-		if ( ! empty( $_REQUEST['_civicrm_bulk_entity_type'] ) ) {
-			$entity_type = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_bulk_entity_type'] ) );
+		// Maybe save Entity Type. Nonce has been verified by WooCommerce.
+		if ( ! empty( $_REQUEST['_civicrm_bulk_entity_type'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$entity_type = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_bulk_entity_type'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			/**
 			 * Fires to inform classes to save the Entity Type.
@@ -535,9 +537,10 @@ class WPCV_Woo_Civi_Settings_Products {
 
 		}
 
-		// Maybe save Financial Type.
+		// Maybe save Financial Type. Nonce has been verified by WooCommerce.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_REQUEST['_civicrm_bulk_financial_type_id'] ) && '' !== $_REQUEST['_civicrm_bulk_financial_type_id'] ) {
-			$financial_type_id = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_bulk_financial_type_id'] ) );
+			$financial_type_id = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_bulk_financial_type_id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			/**
 			 * Fires to inform classes to save the Financial Type.
@@ -561,9 +564,10 @@ class WPCV_Woo_Civi_Settings_Products {
 		}
 
 		/*
-		// Maybe save Price Field Value ID.
+		// Maybe save Price Field Value ID. Nonce has been verified by WooCommerce.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_REQUEST['_civirm_bulk_contribution_pfv_id'] ) && '' !== $_REQUEST['_civirm_bulk_contribution_pfv_id'] ) {
-			$pfv_id = sanitize_text_field( $_REQUEST['_civirm_bulk_contribution_pfv_id'] );
+			$pfv_id = sanitize_text_field( $_REQUEST['_civirm_bulk_contribution_pfv_id'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			WPCV_WCI()->products->set_product_meta( $post_id, $pfv_id );
 		}
 		*/
@@ -613,18 +617,20 @@ class WPCV_Woo_Civi_Settings_Products {
 			return;
 		}
 
-		// Maybe save Entity Type.
+		// Maybe save Entity Type. Nonce has been verified by WooCommerce.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $_REQUEST['_civicrm_entity_type'] ) ) {
-			$entity_type = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_entity_type'] ) );
+			$entity_type = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_entity_type'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			/* This action is documented in WPCV_Woo_Civi_Settings_Products::bulk_edit_save() */
 			do_action( 'wpcv_woo_civi/product/save/entity_type', $product, $entity_type );
 
 		}
 
-		// Maybe save Financial Type.
+		// Maybe save Financial Type. Nonce has been verified by WooCommerce.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_REQUEST['_civicrm_financial_type_id'] ) && '' !== $_REQUEST['_civicrm_financial_type_id'] ) {
-			$financial_type_id = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_financial_type_id'] ) );
+			$financial_type_id = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_financial_type_id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			/* This action is documented in WPCV_Woo_Civi_Settings_Products::bulk_edit_save() */
 			do_action( 'wpcv_woo_civi/product/save/financial_type_id', $product, $financial_type_id );
@@ -632,9 +638,10 @@ class WPCV_Woo_Civi_Settings_Products {
 		}
 
 		/*
-		// Maybe save Price Field Value ID.
+		// Maybe save Price Field Value ID. Nonce has been verified by WooCommerce.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_REQUEST['_civirm_contribution_pfv_id'] ) && '' !== $_REQUEST['_civirm_contribution_pfv_id'] ) {
-			$pfv_id = sanitize_text_field( $_REQUEST['_civirm_contribution_pfv_id'] );
+			$pfv_id = sanitize_text_field( $_REQUEST['_civirm_contribution_pfv_id'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			WPCV_WCI()->products->set_product_meta( $post_id, $pfv_id );
 		}
 		*/

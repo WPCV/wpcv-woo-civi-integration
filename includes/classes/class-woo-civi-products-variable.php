@@ -203,9 +203,9 @@ class WPCV_Woo_Civi_Products_Variable {
 		 */
 		do_action( 'wpcv_woo_civi/product/variable/panel/saved/before', $product );
 
-		// Save the Entity Type.
-		if ( isset( $_POST[ $this->entity_key ] ) ) {
-			$entity_type = sanitize_key( $_POST[ $this->entity_key ] );
+		// Save the Entity Type. Nonce has been verified by WooCommerce.
+		if ( isset( $_POST[ $this->entity_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$entity_type = sanitize_key( $_POST[ $this->entity_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$product->add_meta_data( $this->entity_key, $entity_type, true );
 		}
 
@@ -223,6 +223,8 @@ class WPCV_Woo_Civi_Products_Variable {
 	/**
 	 * Clears the metadata for this Variable Product.
 	 *
+	 * TODO: What happens to Product Variations when the Product Type is switched?
+	 *
 	 * @since 3.0
 	 *
 	 * @param WC_Product $product The Product object.
@@ -231,8 +233,6 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Clear the current Variable Product metadata.
 		$product->delete_meta_data( $this->entity_key );
-
-		// TODO: What happens to Product Variations when the Product Type is switched?
 
 	}
 
@@ -328,15 +328,15 @@ class WPCV_Woo_Civi_Products_Variable {
 		$financial_type_loop_key = $financial_type_key . '-' . $loop;
 		$pfv_loop_key            = $pfv_key . '-' . $loop;
 
-		// Save the Financial Type.
-		if ( isset( $_POST[ $financial_type_loop_key ] ) ) {
-			$value = sanitize_key( $_POST[ $financial_type_loop_key ] );
+		// Save the Financial Type. Nonce has been verified by WooCommerce.
+		if ( isset( $_POST[ $financial_type_loop_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$value = sanitize_key( $_POST[ $financial_type_loop_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$variation->add_meta_data( $financial_type_key, $value, true );
 		}
 
 		// Save the Price Field Value.
-		if ( isset( $_POST[ $pfv_loop_key ] ) ) {
-			$value = sanitize_key( $_POST[ $pfv_loop_key ] );
+		if ( isset( $_POST[ $pfv_loop_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$value = sanitize_key( $_POST[ $pfv_loop_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$variation->add_meta_data( $pfv_key, $value, true );
 		}
 

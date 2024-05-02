@@ -24,16 +24,6 @@
 		<exclude name="Squiz.PHP.CommentedOutCode.Found" />
 		<exclude name="Squiz.Commenting.BlockComment.HasEmptyLineBefore" />
 
-		<!-- Remove some checks to allow phpcbf to run in bulk mode. -->
-		<exclude name="WordPress.PHP.StrictComparisons.LooseComparison" />
-		<exclude name="WordPress.PHP.StrictInArray.MissingTrueStrict" />
-		<exclude name="Squiz.Commenting.InlineComment.SpacingAfterAtFunctionEnd" />
-
-		<exclude name="Generic.CodeAnalysis.EmptyStatement.DetectedIf" />
-		<exclude name="WordPress.Security.NonceVerification.Recommended" />
-		<exclude name="WordPress.Security.NonceVerification.Missing" />
-		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped" />
-
 		<!-- Remove when error logging has been moved to a function. -->
 		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_error_log" />
 		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />

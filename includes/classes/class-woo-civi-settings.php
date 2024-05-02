@@ -91,15 +91,19 @@ class WPCV_Woo_Civi_Settings {
 	 */
 	public function upgrade_tasks() {
 
+		/*
 		// If this is a new install (or a migration from a version prior to 3.0).
 		if ( false === $this->plugin_version ) {
 			// Already handled by migration.
 		}
+		*/
 
+		/*
 		// If this is an upgrade.
 		if ( WPCV_WOO_CIVI_VERSION !== $this->plugin_version ) {
 			// Do something.
 		}
+		*/
 
 		/*
 		// For future upgrades, use something like the following.
@@ -771,7 +775,7 @@ class WPCV_Woo_Civi_Settings {
 							<option value="<?php echo esc_attr( $option_key ); ?>" <?php selected( (string) $option_key, (string) esc_attr( $value['value'] ) ); ?>><?php echo esc_html( $option_value ); ?></option>
 						<?php endif; ?>
 					<?php endforeach; ?>
-				</select> <?php echo $description; ?>
+				</select> <?php echo $description; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</td>
 		</tr>
 		<?php

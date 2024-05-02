@@ -67,9 +67,9 @@ defined( 'ABSPATH' ) || exit;
 	<?php if ( ! empty( $price_sets ) ) : ?>
 
 		<p class="form-row form-row-full variable_civicrm_pfv_id">
-			<label for="<?php echo $pfv_id_key; ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
-			<?php echo wc_help_tip( __( 'Select The Price Field for this Variation.', 'wpcv-woo-civi-integration' ) ); ?>
-			<select name="<?php echo $pfv_id_key; ?>" id="<?php echo $pfv_id_key; ?>">
+			<label for="<?php echo esc_attr( $pfv_id_key ); ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
+			<?php echo wc_help_tip( esc_html__( 'Select The Price Field for this Variation.', 'wpcv-woo-civi-integration' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<select name="<?php echo esc_attr( $pfv_id_key ); ?>" id="<?php echo esc_attr( $pfv_id_key ); ?>">
 				<option value="0"><?php esc_html_e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
 				<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 					<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>

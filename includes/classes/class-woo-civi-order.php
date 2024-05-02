@@ -365,7 +365,7 @@ class WPCV_Woo_Civi_Order {
 
 		?>
 		<p class="form-field form-field-wide wc-civicrmcontact" style="margin: 1.5em 0 1em 0">
-			<strong style="display: block;"><?php esc_html_e( 'CiviCRM Contact:', 'wpcv-woo-civi-integration' ); ?></strong> <a href="<?php echo $link; ?>" target="_blank"><?php esc_html_e( 'View Contact in CiviCRM', 'wpcv-woo-civi-integration' ); ?></a>
+			<strong style="display: block;"><?php esc_html_e( 'CiviCRM Contact:', 'wpcv-woo-civi-integration' ); ?></strong> <a href="<?php echo esc_url( $link ); ?>" target="_blank"><?php esc_html_e( 'View Contact in CiviCRM', 'wpcv-woo-civi-integration' ); ?></a>
 		</p>
 		<?php
 

@@ -922,7 +922,7 @@ class WPCV_Woo_Civi_Products {
 		// Pass through if not an allowed Product Type.
 		$product_type             = $product->get_type();
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
-		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
+		if ( ! in_array( $product_type, $product_types_with_panel, true ) ) {
 			return $entity_type;
 		}
 
@@ -951,7 +951,7 @@ class WPCV_Woo_Civi_Products {
 		// Bail if not an allowed Product Type.
 		$product_type             = $product->get_type();
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
-		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
+		if ( ! in_array( $product_type, $product_types_with_panel, true ) ) {
 			return;
 		}
 
@@ -990,7 +990,7 @@ class WPCV_Woo_Civi_Products {
 		// Pass through if not an allowed Product Type.
 		$product_type             = $product->get_type();
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
-		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
+		if ( ! in_array( $product_type, $product_types_with_panel, true ) ) {
 			return $financial_type_id;
 		}
 
@@ -1023,7 +1023,7 @@ class WPCV_Woo_Civi_Products {
 		// Bail if not an allowed Product Type.
 		$product_type             = $product->get_type();
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
-		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
+		if ( ! in_array( $product_type, $product_types_with_panel, true ) ) {
 			return;
 		}
 
@@ -1062,7 +1062,7 @@ class WPCV_Woo_Civi_Products {
 		// Pass through if an allowed Product Type.
 		$product_type             = $product->get_type();
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
-		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
+		if ( ! in_array( $product_type, $product_types_with_panel, true ) ) {
 			return $pfv_id;
 		}
 

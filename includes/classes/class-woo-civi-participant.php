@@ -334,7 +334,7 @@ class WPCV_Woo_Civi_Participant {
 
 		// Override with "Pay Later" status when necessary.
 		$pay_later_methods = get_option( 'woocommerce_civicrm_pay_later_gateways', [] );
-		if ( in_array( $args['order']->get_payment_method(), $pay_later_methods ) ) {
+		if ( in_array( $args['order']->get_payment_method(), $pay_later_methods, true ) ) {
 			$line_item_params['status_id'] = 'Pending from pay later';
 		}
 
@@ -825,21 +825,21 @@ class WPCV_Woo_Civi_Participant {
 	 */
 	public function panel_saved( $product ) {
 
-		// Save the Event ID.
-		if ( isset( $_POST[ $this->event_key ] ) ) {
-			$event_id = sanitize_key( $_POST[ $this->event_key ] );
+		// Save the Event ID. Nonce has been verified by WooCommerce.
+		if ( isset( $_POST[ $this->event_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$event_id = sanitize_key( $_POST[ $this->event_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$product->add_meta_data( $this->event_key, (int) $event_id, true );
 		}
 
 		// Save the Participant Role ID.
-		if ( isset( $_POST[ $this->role_key ] ) ) {
-			$participant_role_id = sanitize_key( $_POST[ $this->role_key ] );
+		if ( isset( $_POST[ $this->role_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$participant_role_id = sanitize_key( $_POST[ $this->role_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$product->add_meta_data( $this->role_key, (int) $participant_role_id, true );
 		}
 
 		// Save the Participant Price Field Value ID.
-		if ( isset( $_POST[ $this->pfv_key ] ) ) {
-			$participant_pfv_id = sanitize_key( $_POST[ $this->pfv_key ] );
+		if ( isset( $_POST[ $this->pfv_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$participant_pfv_id = sanitize_key( $_POST[ $this->pfv_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$product->add_meta_data( $this->pfv_key, (int) $participant_pfv_id, true );
 		}
 
@@ -906,8 +906,8 @@ class WPCV_Woo_Civi_Participant {
 		<div class="options_group civicrm_participant">
 
 			<p class="form-field">
-				<label for="<?php echo $this->event_key; ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
-				<select class="wc-product-search" id="<?php echo $this->event_key; ?>" name="<?php echo $this->event_key; ?>" style="width: 50%;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
+				<label for="<?php echo esc_attr( $this->event_key ); ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
+				<select class="wc-product-search" id="<?php echo esc_attr( $this->event_key ); ?>" name="<?php echo esc_attr( $this->event_key ); ?>" style="width: 50%;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
 					<option value=""><?php esc_html_e( 'None', 'wpcv-woo-civi-integration' ); ?></option>
 					<?php $selected = $this->get_event_meta( $product_id ); ?>
 					<?php foreach ( $options as $event_id => $event_name ) : ?>
@@ -915,7 +915,7 @@ class WPCV_Woo_Civi_Participant {
 							<?php echo esc_attr( $event_name ); ?>
 						</option>
 					<?php endforeach; ?>
-				</select> <?php echo wc_help_tip( __( 'Select an Event if you would like this Product to create an Event Participant in CiviCRM.', 'wpcv-woo-civi-integration' ) ); ?>
+				</select> <?php echo wc_help_tip( esc_html__( 'Select an Event if you would like this Product to create an Event Participant in CiviCRM.', 'wpcv-woo-civi-integration' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</p>
 
 			<?php
@@ -938,8 +938,8 @@ class WPCV_Woo_Civi_Participant {
 			?>
 
 			<p class="form-field">
-				<label for="<?php echo $this->pfv_key; ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
-				<select name="<?php echo $this->pfv_key; ?>" id="<?php echo $this->pfv_key; ?>" class="select short">
+				<label for="<?php echo esc_attr( $this->pfv_key ); ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
+				<select name="<?php echo esc_attr( $this->pfv_key ); ?>" id="<?php echo esc_attr( $this->pfv_key ); ?>" class="select short">
 					<option value="0"><?php esc_html_e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
 					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
@@ -951,7 +951,7 @@ class WPCV_Woo_Civi_Participant {
 							</optgroup>
 						<?php endforeach; ?>
 					<?php endforeach; ?>
-				</select> <?php echo wc_help_tip( __( 'Select The Price Field for the Event Participant.', 'wpcv-woo-civi-integration' ) ); ?>
+				</select> <?php echo wc_help_tip( esc_html__( 'Select The Price Field for the Event Participant.', 'wpcv-woo-civi-integration' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</p>
 
 		</div>
@@ -1013,15 +1013,15 @@ class WPCV_Woo_Civi_Participant {
 
 		?>
 		<p class="form-row form-row-full variable_civicrm_event_id">
-			<label for="<?php echo $event_key; ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
-			<?php echo wc_help_tip( __( 'Select an Event if you would like this Product Variation to create an Event Participant in CiviCRM.', 'wpcv-woo-civi-integration' ) ); ?>
+			<label for="<?php echo esc_attr( $event_key ); ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
+			<?php echo wc_help_tip( esc_html__( 'Select an Event if you would like this Product Variation to create an Event Participant in CiviCRM.', 'wpcv-woo-civi-integration' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			<br>
 			<style>
 				.variable_civicrm_event_id .select2-container {
 					width: 100% !important;
 				}
 			</style>
-			<select class="wc-product-search" id="<?php echo $event_key; ?>" name="<?php echo $event_key; ?>" style="clear: left;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
+			<select class="wc-product-search" id="<?php echo esc_attr( $event_key ); ?>" name="<?php echo esc_attr( $event_key ); ?>" style="clear: left;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
 				<option value=""><?php esc_html_e( 'None', 'wpcv-woo-civi-integration' ); ?></option>
 				<?php $selected = WPCV_WCI()->products_variable->get_meta( $variation->ID, $entity, 'event_id' ); ?>
 				<?php foreach ( $options as $event_id => $event_name ) : ?>
@@ -1076,15 +1076,15 @@ class WPCV_Woo_Civi_Participant {
 		$event_loop_key = $event_key . '-' . $loop;
 		$role_loop_key  = $role_key . '-' . $loop;
 
-		// Save the Event ID.
-		if ( isset( $_POST[ $event_loop_key ] ) ) {
-			$event_id = sanitize_key( $_POST[ $event_loop_key ] );
+		// Save the Event ID. Nonce has been verified by WooCommerce.
+		if ( isset( $_POST[ $event_loop_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$event_id = sanitize_key( $_POST[ $event_loop_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$variation->add_meta_data( $event_key, (int) $event_id, true );
 		}
 
 		// Save the Participant Role ID.
-		if ( isset( $_POST[ $role_loop_key ] ) ) {
-			$participant_role_id = sanitize_key( $_POST[ $role_loop_key ] );
+		if ( isset( $_POST[ $role_loop_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$participant_role_id = sanitize_key( $_POST[ $role_loop_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$variation->add_meta_data( $role_key, (int) $participant_role_id, true );
 		}
 

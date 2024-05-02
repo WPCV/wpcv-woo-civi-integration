@@ -267,7 +267,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 		}
 
 		// Only for Billing Phone, there's no Shipping Phone field.
-		$phone_type = array_search( (int) $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
+		$phone_type = array_search( (int) $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types(), true );
 		if ( 'billing' !== $phone_type ) {
 			return;
 		}

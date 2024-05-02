@@ -258,7 +258,7 @@ class WPCV_Woo_Civi_Contact_Email {
 		 * WooCommerce and CiviCRM itself (or CiviCRM Profile Sync if present)
 		 * handles syncing the Contact Primary Email to WordPress User Email.
 		 */
-		$email_type = array_search( (int) $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types() );
+		$email_type = array_search( (int) $object_ref->location_type_id, WPCV_WCI()->helper->get_mapped_location_types(), true );
 		if ( 'billing' !== $email_type ) {
 			return;
 		}

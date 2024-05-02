@@ -39,7 +39,7 @@ if ( false !== $event ) {
 $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 
 ?>
-<div id="<?php echo $product_type_name; ?>_settings" class="panel woocommerce_options_panel">
+<div id="<?php echo esc_attr( $product_type_name ); ?>_settings" class="panel woocommerce_options_panel">
 
 	<?php
 
@@ -73,8 +73,8 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 	<div class="options_group">
 
 		<p class="form-field">
-			<label for="<?php echo $event_id_key; ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
-			<select class="wc-product-search" id="<?php echo $event_id_key; ?>" name="<?php echo $event_id_key; ?>" style="width: 50%;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
+			<label for="<?php echo esc_attr( $event_id_key ); ?>"><?php esc_html_e( 'Event', 'wpcv-woo-civi-integration' ); ?></label>
+			<select class="wc-product-search" id="<?php echo esc_attr( $event_id_key ); ?>" name="<?php echo esc_attr( $event_id_key ); ?>" style="width: 50%;" data-placeholder="<?php esc_attr_e( 'Search for a CiviCRM Event&hellip;', 'wpcv-woo-civi-integration' ); ?>" data-action="wpcv_woo_civi_search_events">
 				<option value=""><?php esc_html_e( 'None', 'wpcv-woo-civi-integration' ); ?></option>
 				<?php $selected = $this->get_meta( $product_id, $product_type_name, 'event_id' ); ?>
 				<?php foreach ( $options as $event_id => $event_name ) : ?>
@@ -82,7 +82,7 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 						<?php echo esc_attr( $event_name ); ?>
 					</option>
 				<?php endforeach; ?>
-			</select> <?php echo wc_help_tip( __( 'Select an Event if you would like this Product to create an Event Participant in CiviCRM.', 'wpcv-woo-civi-integration' ) ); ?>
+			</select> <?php echo wc_help_tip( esc_html__( 'Select an Event if you would like this Product to create an Event Participant in CiviCRM.', 'wpcv-woo-civi-integration' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</p>
 
 		<?php
@@ -107,8 +107,8 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 		<?php if ( ! empty( $price_sets ) ) : ?>
 
 			<p class="form-field">
-				<label for="<?php echo $pfv_id_key; ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
-				<select name="<?php echo $pfv_id_key; ?>" id="<?php echo $pfv_id_key; ?>" class="select short">
+				<label for="<?php echo esc_attr( $pfv_id_key ); ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
+				<select name="<?php echo esc_attr( $pfv_id_key ); ?>" id="<?php echo esc_attr( $pfv_id_key ); ?>" class="select short">
 					<option value="0"><?php esc_html_e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
 					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
@@ -120,7 +120,7 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 							</optgroup>
 						<?php endforeach; ?>
 					<?php endforeach; ?>
-				</select> <?php echo wc_help_tip( __( 'Select The Price Field for the Participant.', 'wpcv-woo-civi-integration' ) ); ?>
+				</select> <?php echo wc_help_tip( esc_html__( 'Select The Price Field for the Participant.', 'wpcv-woo-civi-integration' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</p>
 
 		<?php endif; ?>

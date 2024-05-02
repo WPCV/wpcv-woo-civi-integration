@@ -21,7 +21,7 @@ $type_id_key           = $this->get_meta_key( $product_type_name, 'type_id' );
 $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 
 ?>
-<div id="<?php echo $product_type_name; ?>_settings" class="panel woocommerce_options_panel">
+<div id="<?php echo esc_attr( $product_type_name ); ?>_settings" class="panel woocommerce_options_panel">
 
 	<?php
 
@@ -75,8 +75,8 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 		<?php if ( ! empty( $price_sets ) ) : ?>
 
 			<p class="form-field">
-				<label for="<?php echo $pfv_id_key; ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
-				<select name="<?php echo $pfv_id_key; ?>" id="<?php echo $pfv_id_key; ?>" class="select short">
+				<label for="<?php echo esc_attr( $pfv_id_key ); ?>"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></label>
+				<select name="<?php echo esc_attr( $pfv_id_key ); ?>" id="<?php echo esc_attr( $pfv_id_key ); ?>" class="select short">
 					<option value="0"><?php esc_html_e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
 					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
@@ -88,7 +88,7 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 							</optgroup>
 						<?php endforeach; ?>
 					<?php endforeach; ?>
-				</select> <?php echo wc_help_tip( __( 'Select The Price Field for the Membership.', 'wpcv-woo-civi-integration' ) ); ?>
+				</select> <?php echo wc_help_tip( esc_html__( 'Select The Price Field for the Membership.', 'wpcv-woo-civi-integration' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</p>
 
 		<?php endif; ?>
