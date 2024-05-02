@@ -611,11 +611,12 @@ class WPCV_Woo_Civi_Campaign {
 		// Retrieve the current and new Campaign ID.
 		$current_campaign_id = $this->get_order_meta( $order_id );
 		$new_campaign_id = filter_input( INPUT_POST, 'order_civicrmcampaign', FILTER_VALIDATE_INT );
+		$new_campaign_id = (int) sanitize_text_field( wp_unslash( $new_campaign_id ) );
 
 		// Update the Contribution.
-		if ( false !== $new_campaign_id && $new_campaign_id !== $current_campaign_id ) {
+		if ( ! empty( $new_campaign_id ) && $new_campaign_id !== (int) $current_campaign_id ) {
 			$this->campaign_update( $order_id, $current_campaign_id, $new_campaign_id );
-			$this->set_order_meta( $order_id, (int) $new_campaign_id );
+			$this->set_order_meta( $order_id, $new_campaign_id );
 		}
 
 	}
@@ -813,6 +814,7 @@ class WPCV_Woo_Civi_Campaign {
 
 		if ( $campaign_list && ! empty( $campaign_list ) && is_array( $campaign_list ) ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_campaign_id', FILTER_VALIDATE_INT );
+			$selected = sanitize_text_field( wp_unslash( $selected ) );
 
 			?>
 			<select name='shop_order_campaign_id' id='dropdown_shop_order_campaign_id'>
@@ -850,6 +852,7 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$campaign_id = filter_input( INPUT_GET, 'shop_order_campaign_id', FILTER_VALIDATE_INT );
+		$campaign_id = (int) sanitize_text_field( wp_unslash( $campaign_id ) );
 		if ( empty( $campaign_id ) ) {
 			return;
 		}

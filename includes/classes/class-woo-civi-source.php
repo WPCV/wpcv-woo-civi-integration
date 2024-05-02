@@ -119,8 +119,11 @@ class WPCV_Woo_Civi_Source {
 		// Retrieve the current Source.
 		$current_source = $this->get_order_meta( $order_id );
 
+		// Get new Source.
+		$new_source = filter_input( INPUT_POST, 'order_civicrmsource' );
+		$new_source = sanitize_text_field( wp_unslash( $new_source ) );
+
 		// Generate the new Source if there isn't one.
-		$new_source = filter_input( INPUT_POST, 'order_civicrmsource', FILTER_SANITIZE_STRING );
 		if ( empty( $new_source ) ) {
 			if ( empty( $order ) ) {
 				$order = wc_get_order( $order_id );
@@ -362,6 +365,7 @@ class WPCV_Woo_Civi_Source {
 		$results = $wpdb->get_results( $wpdb->prepare( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = %s", $this->meta_key ) );
 		if ( count( $results ) > 0 ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_source' );
+			$selected = sanitize_text_field( wp_unslash( $selected ) );
 
 			?>
 			<select name='shop_order_source' id='dropdown_shop_order_source'>
@@ -399,6 +403,7 @@ class WPCV_Woo_Civi_Source {
 		}
 
 		$source = filter_input( INPUT_GET, 'shop_order_source' );
+		$source = sanitize_text_field( wp_unslash( $source ) );
 		if ( empty( $source ) ) {
 			return;
 		}

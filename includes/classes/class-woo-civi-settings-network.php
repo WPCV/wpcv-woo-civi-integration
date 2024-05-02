@@ -205,7 +205,10 @@ class WPCV_Woo_Civi_Settings_Network {
 	 */
 	public function network_settings_save() {
 
-		if ( ! wp_verify_nonce( filter_input( INPUT_POST, 'woocommerce-civicrm-settings', FILTER_SANITIZE_STRING ), 'woocommerce-civicrm-settings' ) ) {
+		// Verify our nonce.
+		$nonce = filter_input( INPUT_POST, 'woocommerce-civicrm-settings' );
+		$nonce = sanitize_text_field( wp_unslash( $nonce ) );
+		if ( ! wp_verify_nonce( $nonce, 'woocommerce-civicrm-settings' ) ) {
 			wp_die( esc_html__( 'Cheating uh?', 'wpcv-woo-civi-integration' ) );
 		}
 
