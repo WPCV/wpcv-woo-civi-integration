@@ -260,14 +260,14 @@ class WPCV_Woo_Civi_Products {
 
 			// Build default Line Item data.
 			$line_item_data = [
-				'entity_table' => 'civicrm_contribution',
+				'entity_table'   => 'civicrm_contribution',
 				'price_field_id' => $default_price_field_id,
-				'unit_price' => $product->get_price(),
-				'qty' => $item->get_quantity(),
+				'unit_price'     => $product->get_price(),
+				'qty'            => $item->get_quantity(),
 				// The "line_total" must equal the unit_price × qty.
-				'line_total' => $item->get_total(),
-				'tax_amount' => $item->get_total_tax(),
-				'label' => $product->get_name(),
+				'line_total'     => $item->get_total(),
+				'tax_amount'     => $item->get_total_tax(),
+				'label'          => $product->get_name(),
 			];
 
 			// Does this Product have a "global" Price Field Value ID?
@@ -307,7 +307,7 @@ class WPCV_Woo_Civi_Products {
 			 * Order API checks whether it is empty rather than whether it is set.
 			 */
 			$line_item = [
-				'params' => [],
+				'params'    => [],
 				'line_item' => [ $line_item_data ],
 			];
 
@@ -324,11 +324,11 @@ class WPCV_Woo_Civi_Products {
 			 *
 			 * @since 3.0
 			 *
-			 * @param array $line_item The array of Line Item data.
+			 * @param array  $line_item The array of Line Item data.
 			 * @param object $item The WooCommerce Item object.
 			 * @param object $product The WooCommerce Product object.
 			 * @param object $order The WooCommerce Order object.
-			 * @param array $params The params as presently constructed.
+			 * @param array  $params The params as presently constructed.
 			 */
 			$line_item = apply_filters( 'wpcv_woo_civi/products/line_item', $line_item, $item, $product, $order, $params );
 
@@ -336,7 +336,7 @@ class WPCV_Woo_Civi_Products {
 
 			// Store (or overwrite) entry in Financial Types array.
 			if ( ! empty( $line_item['line_item'][0]['financial_type_id'] ) ) {
-				$financial_type = $line_item['line_item'][0]['financial_type_id'];
+				$financial_type                     = $line_item['line_item'][0]['financial_type_id'];
 				$financial_types[ $financial_type ] = $financial_type;
 			} else {
 				$financial_types[ $product_financial_type_id ] = $product_financial_type_id;
@@ -409,7 +409,7 @@ class WPCV_Woo_Civi_Products {
 		 *
 		 * @param integer Numeric 0 because we are querying the Entity.
 		 * @param integer $product_id The WooCommerce Product ID.
-		 * @param object $product The WooCommerce Product object.
+		 * @param object  $product The WooCommerce Product object.
 		 */
 		$entity = apply_filters( 'wpcv_woo_civi/product/query/entity_type', '', $product->get_id(), $product );
 
@@ -499,12 +499,12 @@ class WPCV_Woo_Civi_Products {
 			CRM_Core_Error::debug_log_message( $message );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'message' => $message,
-				'params' => $params,
+				'method'    => __METHOD__,
+				'message'   => $message,
+				'params'    => $params,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -525,11 +525,11 @@ class WPCV_Woo_Civi_Products {
 		$params['line_items'][0] = [
 			'line_item' => [
 				[
-					'price_field_id' => $default_price_field_id,
-					'qty' => 1,
-					'line_total' => $shipping_cost,
-					'unit_price' => $shipping_cost,
-					'label' => 'Shipping',
+					'price_field_id'    => $default_price_field_id,
+					'qty'               => 1,
+					'line_total'        => $shipping_cost,
+					'unit_price'        => $shipping_cost,
+					'label'             => 'Shipping',
 					'financial_type_id' => $default_financial_type_shipping_id,
 				],
 			],
@@ -559,9 +559,9 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		$params = [
-			'sequential' => 1,
+			'sequential'   => 1,
 			'price_set_id' => 'default_contribution_amount',
-			'options' => [
+			'options'      => [
 				'limit' => 1,
 			],
 		];
@@ -577,11 +577,11 @@ class WPCV_Woo_Civi_Products {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+				'method'    => __METHOD__,
+				'params'    => $params,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -727,12 +727,12 @@ class WPCV_Woo_Civi_Products {
 		 * ],
 		 */
 		$items_data = [];
-		$count = 0;
+		$count      = 0;
 		foreach ( $items as $item ) {
 			$line_item = [ (string) $count ];
 			$count++;
 			$line_item[ (string) $count ] = (float) $item['line_total'] + (float) $item['tax_amount'];
-			$items_data[] = [ $line_item ];
+			$items_data[]                 = [ $line_item ];
 		}
 
 		$params['line_item'] = $items_data;
@@ -763,7 +763,7 @@ class WPCV_Woo_Civi_Products {
 
 		// Construct API query.
 		$params = [
-			'version' => 3,
+			'version'         => 3,
 			'contribution_id' => $contribution_id,
 		];
 
@@ -777,12 +777,12 @@ class WPCV_Woo_Civi_Products {
 			CRM_Core_Error::debug_log_message( __( 'Error trying to find Line Items by Contribution ID', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -920,7 +920,7 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		// Pass through if not an allowed Product Type.
-		$product_type = $product->get_type();
+		$product_type             = $product->get_type();
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
 		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
 			return $entity_type;
@@ -949,7 +949,7 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		// Bail if not an allowed Product Type.
-		$product_type = $product->get_type();
+		$product_type             = $product->get_type();
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
 		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
 			return;
@@ -988,7 +988,7 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		// Pass through if not an allowed Product Type.
-		$product_type = $product->get_type();
+		$product_type             = $product->get_type();
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
 		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
 			return $financial_type_id;
@@ -1021,7 +1021,7 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		// Bail if not an allowed Product Type.
-		$product_type = $product->get_type();
+		$product_type             = $product->get_type();
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
 		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
 			return;
@@ -1060,7 +1060,7 @@ class WPCV_Woo_Civi_Products {
 		}
 
 		// Pass through if an allowed Product Type.
-		$product_type = $product->get_type();
+		$product_type             = $product->get_type();
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
 		if ( ! in_array( $product_type, $product_types_with_panel ) ) {
 			return $pfv_id;

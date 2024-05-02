@@ -175,18 +175,18 @@ class WPCV_Woo_Civi_Admin {
 
 		$localisation = [
 			'event_button' => esc_html__( 'Create Product', 'wpcv-woo-civi-integration' ),
-			'creating' => esc_html__( 'Creating...', 'wpcv-woo-civi-integration' ),
+			'creating'     => esc_html__( 'Creating...', 'wpcv-woo-civi-integration' ),
 		];
 
 		$settings = [
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'ajax_url'       => admin_url( 'admin-ajax.php' ),
 			'notice_success' => '<div class="event_success notice notice-success inline is-dismissible" style="background-color: #f7f7f7; display: none;"><p></p><button type="button" class="notice-dismiss"><span class="screen-reader-text">' . esc_html__( 'Dismiss this notice.', 'wpcv-woo-civi-integration' ) . '</span></button></div>',
-			'notice_error' => '<div class="event_error notice notice-error inline is-dismissible" style="background-color: #f7f7f7; display: none;"><p></p><button type="button" class="notice-dismiss"><span class="screen-reader-text">' . esc_html__( 'Dismiss this notice.', 'wpcv-woo-civi-integration' ) . '</span></button></div>',
+			'notice_error'   => '<div class="event_error notice notice-error inline is-dismissible" style="background-color: #f7f7f7; display: none;"><p></p><button type="button" class="notice-dismiss"><span class="screen-reader-text">' . esc_html__( 'Dismiss this notice.', 'wpcv-woo-civi-integration' ) . '</span></button></div>',
 		];
 
 		$vars = [
 			'localisation' => $localisation,
-			'settings' => $settings,
+			'settings'     => $settings,
 		];
 
 		/**
@@ -276,7 +276,7 @@ class WPCV_Woo_Civi_Admin {
 		do_action( 'add_meta_boxes', $screen->id, null );
 
 		// Get the column CSS class.
-		$columns = absint( $screen->get_columns() );
+		$columns     = absint( $screen->get_columns() );
 		$columns_css = '';
 		if ( $columns ) {
 			$columns_css = " columns-$columns";
@@ -448,7 +448,7 @@ class WPCV_Woo_Civi_Admin {
 		$metabox['args']['button_title'] = esc_html__( 'Create Product', 'wpcv-woo-civi-integration' );
 		$metabox['args']['button_args']  = [
 			'data-security' => esc_attr( wp_create_nonce( 'wpcv_manual_sync_contribution' ) ),
-			'style' => 'float: right;',
+			'style'         => 'float: right;',
 		];
 
 		// Assume there is no Custom Contribution Product Type.
@@ -479,7 +479,7 @@ class WPCV_Woo_Civi_Admin {
 		$metabox['args']['button_title'] = esc_html__( 'Create Product', 'wpcv-woo-civi-integration' );
 		$metabox['args']['button_args']  = [
 			'data-security' => esc_attr( wp_create_nonce( 'wpcv_manual_sync_membership' ) ),
-			'style' => 'float: right;',
+			'style'         => 'float: right;',
 		];
 
 		// Assume there is no Custom Membership Product Type.
@@ -513,7 +513,7 @@ class WPCV_Woo_Civi_Admin {
 		$metabox['args']['button_title'] = esc_html__( 'Create Product', 'wpcv-woo-civi-integration' );
 		$metabox['args']['button_args']  = [
 			'data-security' => esc_attr( wp_create_nonce( 'wpcv_manual_sync_event' ) ),
-			'style' => 'float: right;',
+			'style'         => 'float: right;',
 		];
 
 		// Assume there is no Custom Participant Product Type.
@@ -618,7 +618,7 @@ class WPCV_Woo_Civi_Admin {
 		// Default response.
 		$data = [
 			'notice' => __( 'Could not create WooCommerce Product.', 'wpcv-woo-civi-integration' ),
-			'saved' => false,
+			'saved'  => false,
 		];
 
 		// If this is an AJAX request, check security.
@@ -655,7 +655,7 @@ class WPCV_Woo_Civi_Admin {
 		}
 
 		// Build success data.
-		$data['saved'] = true;
+		$data['saved']  = true;
 		$data['notice'] = sprintf(
 			/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
 			__( 'WooCommerce Product successfully created. %1$sView Product%1$s', 'wpcv-woo-civi-integration' ),
@@ -721,11 +721,11 @@ class WPCV_Woo_Civi_Admin {
 
 		// Combine inputs into an array.
 		$inputs = [
-			'product_type' => $product_type,
+			'product_type'      => $product_type,
 			'financial_type_id' => $financial_type_id,
-			'pfv_ids' => $pfv_ids,
-			'event_id' => $event_id,
-			'role_id' => $role_id,
+			'pfv_ids'           => $pfv_ids,
+			'event_id'          => $event_id,
+			'role_id'           => $role_id,
 		];
 
 		return $inputs;
@@ -745,11 +745,11 @@ class WPCV_Woo_Civi_Admin {
 
 		// Init default Simple Product.
 		$params = [
-			'name' => $event['title'],
-			'description' => ! empty( $event['description'] ) ? $event['description'] : '',
-			'status' => 'publish',
-			'type' => 'simple',
-			'virtual' => true,
+			'name'         => $event['title'],
+			'description'  => ! empty( $event['description'] ) ? $event['description'] : '',
+			'status'       => 'publish',
+			'type'         => 'simple',
+			'virtual'      => true,
 			'downloadable' => false,
 			//'catalog_visibility' => 'hidden',
 		];
@@ -759,32 +759,32 @@ class WPCV_Woo_Civi_Admin {
 
 		// Add CiviCRM Entity.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products->entity_key,
+			'key'   => WPCV_WCI()->products->entity_key,
 			'value' => 'civicrm_participant',
 		];
 
 		// Add Financial Type ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products->financial_type_key,
+			'key'   => WPCV_WCI()->products->financial_type_key,
 			'value' => $inputs['financial_type_id'],
 		];
 
 		// Get the Price Field Value ID and add to metadata.
-		$pfv_id = array_pop( $inputs['pfv_ids'] );
+		$pfv_id                = array_pop( $inputs['pfv_ids'] );
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->participant->pfv_key,
+			'key'   => WPCV_WCI()->participant->pfv_key,
 			'value' => $pfv_id,
 		];
 
 		// Add Event ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->participant->event_key,
+			'key'   => WPCV_WCI()->participant->event_key,
 			'value' => $inputs['event_id'],
 		];
 
 		// Add Participant Role ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->participant->role_key,
+			'key'   => WPCV_WCI()->participant->role_key,
 			'value' => $inputs['role_id'],
 		];
 
@@ -827,11 +827,11 @@ class WPCV_Woo_Civi_Admin {
 
 		// Init default Custom Product.
 		$params = [
-			'name' => $event['title'],
-			'description' => ! empty( $event['description'] ) ? $event['description'] : '',
-			'status' => 'publish',
-			'type' => 'civicrm_participant',
-			'virtual' => true,
+			'name'         => $event['title'],
+			'description'  => ! empty( $event['description'] ) ? $event['description'] : '',
+			'status'       => 'publish',
+			'type'         => 'civicrm_participant',
+			'virtual'      => true,
 			'downloadable' => false,
 			//'catalog_visibility' => 'hidden',
 		];
@@ -844,26 +844,26 @@ class WPCV_Woo_Civi_Admin {
 
 		// Add Financial Type ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products_custom->get_meta_key( $entity, 'financial_type_id' ),
+			'key'   => WPCV_WCI()->products_custom->get_meta_key( $entity, 'financial_type_id' ),
 			'value' => $inputs['financial_type_id'],
 		];
 
 		// Get the Price Field Value ID and add to metadata.
-		$pfv_id = array_pop( $inputs['pfv_ids'] );
+		$pfv_id                = array_pop( $inputs['pfv_ids'] );
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products_custom->get_meta_key( $entity, 'pfv_id' ),
+			'key'   => WPCV_WCI()->products_custom->get_meta_key( $entity, 'pfv_id' ),
 			'value' => $pfv_id,
 		];
 
 		// Add Event ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products_custom->get_meta_key( $entity, 'event_id' ),
+			'key'   => WPCV_WCI()->products_custom->get_meta_key( $entity, 'event_id' ),
 			'value' => $inputs['event_id'],
 		];
 
 		// Add Participant Role ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products_custom->get_meta_key( $entity, 'role_id' ),
+			'key'   => WPCV_WCI()->products_custom->get_meta_key( $entity, 'role_id' ),
 			'value' => $inputs['role_id'],
 		];
 
@@ -906,11 +906,11 @@ class WPCV_Woo_Civi_Admin {
 
 		// Init default Product.
 		$params = [
-			'name' => $event['title'],
-			'description' => ! empty( $event['description'] ) ? $event['description'] : '',
-			'status' => 'publish',
-			'type' => 'variable',
-			'virtual' => true,
+			'name'         => $event['title'],
+			'description'  => ! empty( $event['description'] ) ? $event['description'] : '',
+			'status'       => 'publish',
+			'type'         => 'variable',
+			'virtual'      => true,
 			'downloadable' => false,
 			//'catalog_visibility' => 'hidden',
 		];
@@ -933,11 +933,11 @@ class WPCV_Woo_Civi_Admin {
 
 		// Init Price Field Attributes.
 		$pfv_attributes = [
-			'name' => $price_field_data['label'],
-			'position' => 0,
-			'visible' => true,
+			'name'      => $price_field_data['label'],
+			'position'  => 0,
+			'visible'   => true,
 			'variation' => true,
-			'options' => [],
+			'options'   => [],
 		];
 
 		// Build Attribute options.
@@ -964,7 +964,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Add CiviCRM Entity to Product metadata.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products_variable->entity_key,
+			'key'   => WPCV_WCI()->products_variable->entity_key,
 			'value' => 'civicrm_participant',
 		];
 
@@ -989,18 +989,18 @@ class WPCV_Woo_Civi_Admin {
 			// Init default Product Variation.
 			$variant = [
 				/* translators: 1: Event Title, 2: Price Field Value label */
-				'title' => sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $event['title'], $pfv['label'] ),
-				'product_id' => $product['id'],
+				'title'         => sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $event['title'], $pfv['label'] ),
+				'product_id'    => $product['id'],
 				'regular_price' => (float) $pfv['amount'],
-				'menu_order' => $menu_order,
-				'virtual' => true,
-				'downloadable' => false,
+				'menu_order'    => $menu_order,
+				'virtual'       => true,
+				'downloadable'  => false,
 			];
 
 			// Build Variation Attributes.
-			$attributes = [];
+			$attributes   = [];
 			$attributes[] = [
-				'name' => $pfv_attributes['name'],
+				'name'   => $pfv_attributes['name'],
 				'option' => $pfv['label'],
 			];
 
@@ -1012,24 +1012,24 @@ class WPCV_Woo_Civi_Admin {
 
 			// Add Financial Type ID.
 			$variant['meta_data'][] = [
-				'key' => WPCV_WCI()->products_variable->get_meta_key( $entity, 'financial_type_id' ),
+				'key'   => WPCV_WCI()->products_variable->get_meta_key( $entity, 'financial_type_id' ),
 				'value' => $inputs['financial_type_id'],
 			];
 
 			// Add Price Field Value ID.
 			$variant['meta_data'][] = [
-				'key' => WPCV_WCI()->products_variable->get_meta_key( $entity, 'pfv_id' ),
+				'key'   => WPCV_WCI()->products_variable->get_meta_key( $entity, 'pfv_id' ),
 				'value' => $pfv_id,
 			];
 
 			// Add Event ID.
 			$variant['meta_data'][] = [
-				'key' => WPCV_WCI()->products_variable->get_meta_key( $entity, 'event_id' ),
+				'key'   => WPCV_WCI()->products_variable->get_meta_key( $entity, 'event_id' ),
 				'value' => $inputs['event_id'],
 			];
 			// Add Participant Role ID.
 			$variant['meta_data'][] = [
-				'key' => WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' ),
+				'key'   => WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' ),
 				'value' => $inputs['role_id'],
 			];
 

@@ -84,7 +84,7 @@ class WPCV_Woo_Civi_Settings_Products {
 	 */
 	public function tab_add( $tabs ) {
 
-		$classes = [];
+		$classes                  = [];
 		$product_types_with_panel = get_option( 'woocommerce_civicrm_product_types_with_panel', [] );
 		if ( ! empty( $product_types_with_panel ) ) {
 			foreach ( $product_types_with_panel as $product_type ) {
@@ -93,9 +93,9 @@ class WPCV_Woo_Civi_Settings_Products {
 		}
 
 		$tabs['woocommerce_civicrm'] = [
-			'label' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
+			'label'  => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
 			'target' => 'woocommerce_civicrm',
-			'class' => $classes,
+			'class'  => $classes,
 		];
 
 		return $tabs;
@@ -142,8 +142,8 @@ class WPCV_Woo_Civi_Settings_Products {
 		// Build data array.
 		$vars = [
 			'localisation' => [],
-			'settings' => [
-				'entity_keys' => array_keys( $entity_options ),
+			'settings'     => [
+				'entity_keys'    => array_keys( $entity_options ),
 				'entity_options' => $entity_options,
 			],
 		];
@@ -282,7 +282,7 @@ class WPCV_Woo_Civi_Settings_Products {
 		 *
 		 * @param integer Numeric 0 because we are querying the Entity.
 		 * @param integer $post_id The WordPress Post ID.
-		 * @param object $product The WooCommerce Product object.
+		 * @param object  $product The WooCommerce Product object.
 		 */
 		$entity_type = apply_filters( 'wpcv_woo_civi/product/query/entity_type', '', $post_id, $product );
 
@@ -293,7 +293,7 @@ class WPCV_Woo_Civi_Settings_Products {
 		 *
 		 * @param integer Numeric 0 because we are querying the Financial Type ID.
 		 * @param integer $post_id The WordPress Post ID.
-		 * @param object $product The WooCommerce Product object.
+		 * @param object  $product The WooCommerce Product object.
 		 */
 		$financial_type_id = apply_filters( 'wpcv_woo_civi/product/query/financial_type_id', 0, $post_id, $product );
 
@@ -304,7 +304,7 @@ class WPCV_Woo_Civi_Settings_Products {
 		 *
 		 * @param integer Numeric 0 because we are querying the Price Field Value ID.
 		 * @param integer $post_id The WordPress Post ID.
-		 * @param object $product The WooCommerce Product object.
+		 * @param object  $product The WooCommerce Product object.
 		 */
 		$pfv_id = apply_filters( 'wpcv_woo_civi/product/query/pfv_id', 0, $post_id, $product );
 
@@ -312,7 +312,7 @@ class WPCV_Woo_Civi_Settings_Products {
 		$data = $this->columns_data( $post_id, $product_type, $entity_type, $financial_type_id, $pfv_id );
 
 		// Get the Entity Types and Financial Types.
-		$entity_types = WPCV_WCI()->helper->get_entity_type_options();
+		$entity_types    = WPCV_WCI()->helper->get_entity_type_options();
 		$financial_types = WPCV_WCI()->helper->get_financial_types();
 
 		// Init feedback.
@@ -376,7 +376,7 @@ class WPCV_Woo_Civi_Settings_Products {
 	public function columns_data( $post_id, $product_type, $entity_type, $financial_type_id, $pfv_id ) {
 
 		// Build the data markup.
-		$markup = '';
+		$markup  = '';
 		$markup .= "\n" . '<div class="hidden" id="wpcv_woo_civi_inline_' . $post_id . '">' . "\n";
 		//$markup .= "\t" . '<div class="product_type">' . $product_type . '</div>' . "\n";
 		$markup .= "\t" . '<div class="entity_type">' . $entity_type . '</div>' . "\n";
@@ -416,14 +416,14 @@ class WPCV_Woo_Civi_Settings_Products {
 		);
 
 		// Define classes to pass to script.
-		$class_br = '.wpcv_woo_civi_br';
-		$class_title = '.wpcv_woo_civi_title';
-		$class_entity = '.wpcv_woo_civi_entity_type';
-		$class_financial = '.wpcv_woo_civi_financial_type_id';
+		$class_br           = '.wpcv_woo_civi_br';
+		$class_title        = '.wpcv_woo_civi_title';
+		$class_entity       = '.wpcv_woo_civi_entity_type';
+		$class_financial    = '.wpcv_woo_civi_financial_type_id';
 		$class_contribution = '.wpcv_woo_civi_contribution_pfv_id';
 
 		// Memberships and Participants have multiple classes.
-		$classes_membership = [
+		$classes_membership  = [
 			'.wpcv_woo_civi_membership_type_id',
 			'.wpcv_woo_civi_membership_pfv_id',
 		];
@@ -447,15 +447,15 @@ class WPCV_Woo_Civi_Settings_Products {
 		// Build data array.
 		$vars = [
 			'localisation' => [],
-			'settings' => [
-				'class_br' => $class_br,
-				'class_title' => $class_title,
-				'class_entity' => $class_entity,
-				'class_financial' => $class_financial,
+			'settings'     => [
+				'class_br'             => $class_br,
+				'class_title'          => $class_title,
+				'class_entity'         => $class_entity,
+				'class_financial'      => $class_financial,
 				'classes_contribution' => $class_contribution,
-				'classes_membership' => $classes_membership,
-				'classes_participant' => $classes_participant,
-				'classes_all' => $classes_all,
+				'classes_membership'   => $classes_membership,
+				'classes_participant'  => $classes_participant,
+				'classes_all'          => $classes_all,
 			],
 		];
 

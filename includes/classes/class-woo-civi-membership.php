@@ -189,11 +189,11 @@ class WPCV_Woo_Civi_Membership {
 
 		// Make an array of the params.
 		$args = [
-			'item' => $item,
-			'product' => $product,
-			'order' => $order,
-			'params' => $params,
-			'membership_type_id' => $membership_type_id,
+			'item'                 => $item,
+			'product'              => $product,
+			'order'                => $order,
+			'params'               => $params,
+			'membership_type_id'   => $membership_type_id,
 			'price_field_value_id' => $price_field_value_id,
 		];
 
@@ -237,15 +237,15 @@ class WPCV_Woo_Civi_Membership {
 
 		$line_item_params = [
 			'membership_type_id' => $args['membership_type_id'],
-			'source' => __( 'Shop', 'wpcv-woo-civi-integration' ),
-			'contact_id' => $args['params']['contact_id'],
-			'skipStatusCal' => 1,
-			'status_id' => 'Pending',
+			'source'             => __( 'Shop', 'wpcv-woo-civi-integration' ),
+			'contact_id'         => $args['params']['contact_id'],
+			'skipStatusCal'      => 1,
+			'status_id'          => 'Pending',
 		];
 
 		$membership_line_item_data = [
-			'entity_table' => 'civicrm_membership',
-			'price_field_id' => $default_price_field_id,
+			'entity_table'         => 'civicrm_membership',
+			'price_field_id'       => $default_price_field_id,
 			'price_field_value_id' => $args['price_field_value_id'],
 		];
 
@@ -256,7 +256,7 @@ class WPCV_Woo_Civi_Membership {
 
 		// Apply Membership to Line Item.
 		$line_item = [
-			'params' => $line_item_params,
+			'params'    => $line_item_params,
 			'line_item' => [
 				array_merge( $line_item_data, $membership_line_item_data ),
 			],
@@ -292,10 +292,10 @@ class WPCV_Woo_Civi_Membership {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'is_active' => 1,
-			'options' => [
+			'is_active'  => 1,
+			'options'    => [
 				'limit' => 0,
 			],
 		];
@@ -315,12 +315,12 @@ class WPCV_Woo_Civi_Membership {
 		if ( ! empty( $result['error'] ) ) {
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -331,7 +331,7 @@ class WPCV_Woo_Civi_Membership {
 		$membership_types = [];
 
 		foreach ( $result['values'] as $key => $value ) {
-			$membership_types['by_membership_type_id'][ $value['id'] ] = $value;
+			$membership_types['by_membership_type_id'][ $value['id'] ]               = $value;
 			$membership_types['by_financial_type_id'][ $value['financial_type_id'] ] = $value;
 		}
 
@@ -365,7 +365,7 @@ class WPCV_Woo_Civi_Membership {
 
 		$params = [
 			'is_active' => true,
-			'options' => [
+			'options'   => [
 				'limit' => 0,
 			],
 		];
@@ -381,11 +381,11 @@ class WPCV_Woo_Civi_Membership {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+				'method'    => __METHOD__,
+				'params'    => $params,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -443,11 +443,11 @@ class WPCV_Woo_Civi_Membership {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+				'method'    => __METHOD__,
+				'params'    => $params,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -477,9 +477,9 @@ class WPCV_Woo_Civi_Membership {
 		}
 
 		$params = [
-			'sequential' => 1,
+			'sequential'   => 1,
 			'price_set_id' => 'default_membership_type_amount',
-			'options' => [
+			'options'      => [
 				'limit' => 1,
 			],
 		];
@@ -495,11 +495,11 @@ class WPCV_Woo_Civi_Membership {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+				'method'    => __METHOD__,
+				'params'    => $params,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -603,12 +603,12 @@ class WPCV_Woo_Civi_Membership {
 			] + WPCV_WCI()->membership->get_membership_types_options();
 
 			woocommerce_wp_select( [
-				'id' => $this->meta_key,
-				'name' => $this->meta_key,
-				'label' => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
-				'desc_tip' => 'true',
+				'id'          => $this->meta_key,
+				'name'        => $this->meta_key,
+				'label'       => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
+				'desc_tip'    => 'true',
 				'description' => __( 'Select a Membership Type if you would like this Product to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
-				'options' => $membership_types,
+				'options'     => $membership_types,
 			] );
 
 			?>
@@ -670,14 +670,14 @@ class WPCV_Woo_Civi_Membership {
 
 		// Show Participant Role.
 		woocommerce_wp_select( [
-			'id' => $type_key,
-			'name' => $type_key,
-			'value' => $type_id,
-			'label' => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
-			'description' => __( 'Select a Membership Type if you would like this Product Variation to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
+			'id'            => $type_key,
+			'name'          => $type_key,
+			'value'         => $type_id,
+			'label'         => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
+			'desc_tip'      => 'true',
+			'description'   => __( 'Select a Membership Type if you would like this Product Variation to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
 			'wrapper_class' => 'form-row form-row-full variable_civicrm_type_id',
-			'options' => $membership_types,
+			'options'       => $membership_types,
 		] );
 
 	}

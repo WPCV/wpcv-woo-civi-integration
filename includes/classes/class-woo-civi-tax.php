@@ -86,7 +86,7 @@ class WPCV_Woo_Civi_Tax {
 		}
 
 		$setting = false;
-		$result = WPCV_WCI()->helper->get_civicrm_setting( 'invoicing' );
+		$result  = WPCV_WCI()->helper->get_civicrm_setting( 'invoicing' );
 		if ( ! empty( $result ) ) {
 			$setting = $result;
 		}
@@ -213,8 +213,8 @@ class WPCV_Woo_Civi_Tax {
 		}
 
 		$params = [
-			'version' => 3,
-			'return' => [
+			'version'                        => 3,
+			'return'                         => [
 				'id',
 				'entity_table',
 				'entity_id',
@@ -224,8 +224,8 @@ class WPCV_Woo_Civi_Tax {
 				'financial_account_id.tax_rate',
 			],
 			'financial_account_id.is_active' => 1,
-			'financial_account_id.is_tax' => 1,
-			'options' => [
+			'financial_account_id.is_tax'    => 1,
+			'options'                        => [
 				'limit' => 0,
 			],
 		];
@@ -237,12 +237,12 @@ class WPCV_Woo_Civi_Tax {
 		if ( ! empty( $result['error'] ) ) {
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -285,7 +285,7 @@ class WPCV_Woo_Civi_Tax {
 		}
 
 		$setting = '';
-		$result = WPCV_WCI()->helper->get_civicrm_setting( 'tax_term' );
+		$result  = WPCV_WCI()->helper->get_civicrm_setting( 'tax_term' );
 		if ( ! empty( $result ) ) {
 			$setting = $result;
 		}
@@ -310,7 +310,7 @@ class WPCV_Woo_Civi_Tax {
 		}
 
 		$setting = '';
-		$result = WPCV_WCI()->helper->get_civicrm_setting( 'tax_display_settings' );
+		$result  = WPCV_WCI()->helper->get_civicrm_setting( 'tax_display_settings' );
 		if ( ! empty( $result ) ) {
 			$setting = $result;
 		}

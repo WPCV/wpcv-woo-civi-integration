@@ -300,7 +300,7 @@ class WPCV_Woo_Civi_Order {
 	public function note_add_contact_created( $contact, $order ) {
 
 		// Get the link to the Contact in CiviCRM.
-		$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
+		$link        = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
 		$contact_url = '<a href="' . $link . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
 
 		/* translators: %s: The link to the Contact in CiviCRM */
@@ -322,7 +322,7 @@ class WPCV_Woo_Civi_Order {
 	public function note_add_contact_updated( $contact, $order ) {
 
 		// Get the link to the Contact in CiviCRM.
-		$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
+		$link        = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
 		$contact_url = '<a href="' . $link . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
 
 		/* translators: %s: The link to the Contact in CiviCRM */

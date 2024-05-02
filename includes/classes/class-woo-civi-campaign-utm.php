@@ -108,7 +108,7 @@ class WPCV_Woo_Civi_UTM {
 		$campaign_name = sanitize_text_field( wp_unslash( $campaign_name ) );
 		if ( ! empty( $campaign_name ) ) {
 			$campaign_cookie = 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH;
-			$campaign = WPCV_WCI()->campaign->get_campaign_by_name( esc_attr( $campaign_name ) );
+			$campaign        = WPCV_WCI()->campaign->get_campaign_by_name( esc_attr( $campaign_name ) );
 			if ( ! empty( $campaign['id'] ) && is_numeric( $campaign['id'] ) ) {
 				setcookie( $campaign_cookie, $campaign['id'], $expire, COOKIEPATH, COOKIE_DOMAIN, $secure );
 			} else {
@@ -169,7 +169,7 @@ class WPCV_Woo_Civi_UTM {
 			return $campaign_id;
 		}
 
-		$cookie = wp_unslash( $_COOKIE );
+		$cookie          = wp_unslash( $_COOKIE );
 		$campaign_cookie = 'woocommerce_civicrm_utm_campaign_' . COOKIEHASH;
 
 		// Override with the UTM Campaign ID if present.
@@ -191,7 +191,7 @@ class WPCV_Woo_Civi_UTM {
 	 */
 	public function utm_filter_source( $source ) {
 
-		$cookie = wp_unslash( $_COOKIE );
+		$cookie        = wp_unslash( $_COOKIE );
 		$source_cookie = 'woocommerce_civicrm_utm_source_' . COOKIEHASH;
 		$medium_cookie = 'woocommerce_civicrm_utm_medium_' . COOKIEHASH;
 

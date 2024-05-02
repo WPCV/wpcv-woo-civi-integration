@@ -37,18 +37,18 @@ class WPCV_Woo_Civi_Products_Variable {
 	public $product_variation_meta = [
 		'civicrm_contribution' => [
 			'financial_type_id' => '_wpcv_wci_variable_contribution_financial_type_id',
-			'pfv_id' => '_wpcv_wci_variable_contribution_pfv_id',
+			'pfv_id'            => '_wpcv_wci_variable_contribution_pfv_id',
 		],
-		'civicrm_membership' => [
+		'civicrm_membership'   => [
 			'financial_type_id' => '_wpcv_wci_variable_membership_financial_type_id',
-			'pfv_id' => '_wpcv_wci_variable_membership_pfv_id',
-			'type_id' => '_wpcv_wci_variable_membership_type_id',
+			'pfv_id'            => '_wpcv_wci_variable_membership_pfv_id',
+			'type_id'           => '_wpcv_wci_variable_membership_type_id',
 		],
-		'civicrm_participant' => [
+		'civicrm_participant'  => [
 			'financial_type_id' => '_wpcv_wci_variable_participant_financial_type_id',
-			'pfv_id' => '_wpcv_wci_variable_participant_pfv_id',
-			'event_id' => '_wpcv_wci_variable_participant_event_id',
-			'role_id' => '_wpcv_wci_variable_participant_role_id',
+			'pfv_id'            => '_wpcv_wci_variable_participant_pfv_id',
+			'event_id'          => '_wpcv_wci_variable_participant_event_id',
+			'role_id'           => '_wpcv_wci_variable_participant_role_id',
 		],
 	];
 
@@ -140,9 +140,9 @@ class WPCV_Woo_Civi_Products_Variable {
 	public function tab_add( $tabs ) {
 
 		$tabs['civicrm_variable'] = [
-			'label' => __( 'CiviCRM Entity', 'wpcv-woo-civi-integration' ),
+			'label'  => __( 'CiviCRM Entity', 'wpcv-woo-civi-integration' ),
 			'target' => 'civicrm_variable',
-			'class' => [
+			'class'  => [
 				'show_if_variable',
 			],
 		];
@@ -268,15 +268,15 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Get common meta keys for the form elements.
 		$financial_type_id_key = $this->get_meta_key( $entity, 'financial_type_id' );
-		$pfv_id_key = $this->get_meta_key( $entity, 'pfv_id' );
+		$pfv_id_key            = $this->get_meta_key( $entity, 'pfv_id' );
 
 		// Add loop item.
 		$financial_type_id_key .= '-' . $loop;
-		$pfv_id_key .= '-' . $loop;
+		$pfv_id_key            .= '-' . $loop;
 
 		// Get common metadata.
 		$financial_type_id = $this->get_meta( $variation->ID, $entity, 'financial_type_id' );
-		$pfv_id = $this->get_meta( $variation->ID, $entity, 'pfv_id' );
+		$pfv_id            = $this->get_meta( $variation->ID, $entity, 'pfv_id' );
 
 		// Include template.
 		$directory = 'assets/templates/woocommerce/admin/meta-boxes/views/';
@@ -322,11 +322,11 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Get meta keys.
 		$financial_type_key = $this->get_meta_key( $entity_type, 'financial_type_id' );
-		$pfv_key = $this->get_meta_key( $entity_type, 'pfv_id' );
+		$pfv_key            = $this->get_meta_key( $entity_type, 'pfv_id' );
 
 		// Add loop item.
 		$financial_type_loop_key = $financial_type_key . '-' . $loop;
-		$pfv_loop_key = $pfv_key . '-' . $loop;
+		$pfv_loop_key            = $pfv_key . '-' . $loop;
 
 		// Save the Financial Type.
 		if ( isset( $_POST[ $financial_type_loop_key ] ) ) {
@@ -470,10 +470,10 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// TODO: Are there other params for the Line Item data?
 		$contribution_line_item_data = [
-			'financial_type_id' => $financial_type_id,
-			'price_field_id' => $price_field_value['price_field_id'],
+			'financial_type_id'    => $financial_type_id,
+			'price_field_id'       => $price_field_value['price_field_id'],
 			'price_field_value_id' => $price_field_value_id,
-			'label' => $price_field_value['label'],
+			'label'                => $price_field_value['label'],
 		];
 
 		// TODO: Look at the Line Item.
@@ -481,7 +481,7 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Apply Contribution to Line Item.
 		$line_item = [
-			'params' => $line_item_params,
+			'params'    => $line_item_params,
 			'line_item' => [
 				array_merge( $line_item_data, $contribution_line_item_data ),
 			],
@@ -541,12 +541,12 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Make an array of the params.
 		$args = [
-			'item' => $item,
-			'product' => $product,
-			'order' => $order,
-			'params' => $params,
-			'financial_type_id' => $financial_type_id,
-			'membership_type_id' => $membership_type_id,
+			'item'                 => $item,
+			'product'              => $product,
+			'order'                => $order,
+			'params'               => $params,
+			'financial_type_id'    => $financial_type_id,
+			'membership_type_id'   => $membership_type_id,
 			'price_field_value_id' => $price_field_value_id,
 		];
 
@@ -613,13 +613,13 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Make an array of the params.
 		$args = [
-			'item' => $item,
-			'product' => $product,
-			'order' => $order,
-			'params' => $params,
-			'financial_type_id' => $financial_type_id,
-			'event_id' => $event_id,
-			'participant_role_id' => $participant_role_id,
+			'item'                 => $item,
+			'product'              => $product,
+			'order'                => $order,
+			'params'               => $params,
+			'financial_type_id'    => $financial_type_id,
+			'event_id'             => $event_id,
+			'participant_role_id'  => $participant_role_id,
 			'price_field_value_id' => $price_field_value_id,
 		];
 
@@ -647,12 +647,12 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Log when incorrectly called.
 		if ( empty( $this->product_variation_meta[ $type ][ $key ] ) ) {
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
 				'method' => __METHOD__,
-				'type' => $type,
-				'key' => $key,
+				'type'   => $type,
+				'key'    => $key,
 				//'backtrace' => $trace,
 			], true ) );
 		}
@@ -721,7 +721,7 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Get parent Product.
 		$parent_id = $product->get_parent_id();
-		$parent = wc_get_product( $parent_id );
+		$parent    = wc_get_product( $parent_id );
 		if ( empty( $parent ) ) {
 			return $entity_type;
 		}
@@ -810,7 +810,7 @@ class WPCV_Woo_Civi_Products_Variable {
 		// Get Entity Type from parent meta when Product Variation.
 		if ( $product_type === 'variation' ) {
 			$parent_id = $product->get_parent_id();
-			$parent = wc_get_product( $parent_id );
+			$parent    = wc_get_product( $parent_id );
 			$parent->add_meta_data( $this->entity_key, $entity_type, true );
 			$id = $parent->save();
 		}
@@ -854,7 +854,7 @@ class WPCV_Woo_Civi_Products_Variable {
 		$entity_type = $this->entity_type_get_from_parent( $product );
 
 		// Return Financial Type ID if found.
-		$financial_type_id_key = $this->get_meta_key( $entity_type, 'financial_type_id' );
+		$financial_type_id_key     = $this->get_meta_key( $entity_type, 'financial_type_id' );
 		$product_financial_type_id = $product->get_meta( $financial_type_id_key );
 		if ( ! empty( $product_financial_type_id ) ) {
 			return $product_financial_type_id;

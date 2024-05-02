@@ -14,8 +14,8 @@ $product_type_name = 'civicrm_membership';
 
 // Get meta keys for the form elements.
 $financial_type_id_key = $this->get_meta_key( $product_type_name, 'financial_type_id' );
-$pfv_id_key = $this->get_meta_key( $product_type_name, 'pfv_id' );
-$type_id_key = $this->get_meta_key( $product_type_name, 'type_id' );
+$pfv_id_key            = $this->get_meta_key( $product_type_name, 'pfv_id' );
+$type_id_key           = $this->get_meta_key( $product_type_name, 'type_id' );
 
 // Get the Price Field Value ID.
 $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
@@ -40,12 +40,12 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 
 		// Always render the Financial Type select.
 		woocommerce_wp_select( [
-			'id' => $financial_type_id_key,
-			'name' => $financial_type_id_key,
-			'label' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
+			'id'          => $financial_type_id_key,
+			'name'        => $financial_type_id_key,
+			'label'       => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
+			'desc_tip'    => 'true',
 			'description' => __( 'The CiviCRM Financial Type for this Product.', 'wpcv-woo-civi-integration' ),
-			'options' => $financial_type_options,
+			'options'     => $financial_type_options,
 		] );
 
 		?>
@@ -62,12 +62,12 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 		] + WPCV_WCI()->membership->get_membership_types_options();
 
 		woocommerce_wp_select( [
-			'id' => $type_id_key,
-			'name' => $type_id_key,
-			'label' => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
+			'id'          => $type_id_key,
+			'name'        => $type_id_key,
+			'label'       => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
+			'desc_tip'    => 'true',
 			'description' => __( 'Select the Membership Type to be created in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
-			'options' => $membership_types,
+			'options'     => $membership_types,
 		] );
 
 		?>

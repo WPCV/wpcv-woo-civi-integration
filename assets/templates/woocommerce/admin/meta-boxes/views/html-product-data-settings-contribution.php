@@ -14,7 +14,7 @@ $product_type_name = 'civicrm_contribution';
 
 // Get meta keys for the form elements.
 $financial_type_id_key = $this->get_meta_key( $product_type_name, 'financial_type_id' );
-$pfv_id_key = $this->get_meta_key( $product_type_name, 'pfv_id' );
+$pfv_id_key            = $this->get_meta_key( $product_type_name, 'pfv_id' );
 
 // Get the Price Field Value ID.
 $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
@@ -39,12 +39,12 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 
 		// Always render the Financial Type select.
 		woocommerce_wp_select( [
-			'id' => $financial_type_id_key,
-			'name' => $financial_type_id_key,
-			'label' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
+			'id'          => $financial_type_id_key,
+			'name'        => $financial_type_id_key,
+			'label'       => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
+			'desc_tip'    => 'true',
 			'description' => __( 'The CiviCRM Financial Type for this Product.', 'wpcv-woo-civi-integration' ),
-			'options' => $financial_type_options,
+			'options'     => $financial_type_options,
 		] );
 
 		?>

@@ -27,13 +27,6 @@
 		<!-- Yoda? Really? -->
 		<exclude name="WordPress.PHP.YodaConditions.NotYoda" />
 
-		<!-- Ignore docblock formatting. -->
-		<exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType" />
-
-		<!-- Not a fan of arrow or equals alignment. -->
-		<exclude name="WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned" />
-		<exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
-
 		<!-- Remove some checks to allow phpcbf to run in bulk mode. -->
 		<exclude name="WordPress.PHP.StrictComparisons.LooseComparison" />
 		<exclude name="WordPress.PHP.StrictInArray.MissingTrueStrict" />
@@ -42,6 +35,10 @@
 		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase" />
 		<exclude name="Squiz.Commenting.InlineComment.SpacingAfterAtFunctionEnd" />
 		<exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect" />
+
+		<exclude name="Generic.CodeAnalysis.EmptyStatement.DetectedIf" />
+		<exclude name="WordPress.Security.NonceVerification.Recommended" />
+		<exclude name="WordPress.Security.NonceVerification.Missing" />
 		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped" />
 
 		<!-- Remove when error logging has been moved to a function. -->

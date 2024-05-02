@@ -29,12 +29,12 @@ defined( 'ABSPATH' ) || exit;
 
 		// Always render the Entity Type select.
 		woocommerce_wp_select( [
-			'id' => WPCV_WCI()->products->entity_key,
-			'name' => WPCV_WCI()->products->entity_key,
-			'label' => __( 'Entity Type', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
+			'id'          => WPCV_WCI()->products->entity_key,
+			'name'        => WPCV_WCI()->products->entity_key,
+			'label'       => __( 'Entity Type', 'wpcv-woo-civi-integration' ),
+			'desc_tip'    => 'true',
 			'description' => __( 'The CiviCRM Entity Type for this Product.', 'wpcv-woo-civi-integration' ),
-			'options' => $entity_options,
+			'options'     => $entity_options,
 		] );
 
 		?>
@@ -47,12 +47,12 @@ defined( 'ABSPATH' ) || exit;
 
 		// Always render the Financial Type select.
 		woocommerce_wp_select( [
-			'id' => WPCV_WCI()->products->financial_type_key,
-			'name' => WPCV_WCI()->products->financial_type_key,
-			'label' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
+			'id'          => WPCV_WCI()->products->financial_type_key,
+			'name'        => WPCV_WCI()->products->financial_type_key,
+			'label'       => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
+			'desc_tip'    => 'true',
 			'description' => __( 'The CiviCRM Financial Type for this Product.', 'wpcv-woo-civi-integration' ),
-			'options' => WPCV_WCI()->helper->get_financial_types(),
+			'options'     => WPCV_WCI()->helper->get_financial_types(),
 		] );
 
 		?>

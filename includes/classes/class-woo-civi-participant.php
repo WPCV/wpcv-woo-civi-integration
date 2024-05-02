@@ -232,12 +232,12 @@ class WPCV_Woo_Civi_Participant {
 
 		// Make an array of the params.
 		$args = [
-			'item' => $item,
-			'product' => $product,
-			'order' => $order,
-			'params' => $params,
-			'event_id' => $event_id,
-			'participant_role_id' => $participant_role_id,
+			'item'                 => $item,
+			'product'              => $product,
+			'order'                => $order,
+			'params'               => $params,
+			'event_id'             => $event_id,
+			'participant_role_id'  => $participant_role_id,
 			'price_field_value_id' => $price_field_value_id,
 		];
 
@@ -281,12 +281,12 @@ class WPCV_Woo_Civi_Participant {
 
 		// Init the params sub-array.
 		$line_item_params = [
-			'event_id' => $args['event_id'],
-			'contact_id' => $args['params']['contact_id'],
-			'role_id' => $args['participant_role_id'],
+			'event_id'     => $args['event_id'],
+			'contact_id'   => $args['params']['contact_id'],
+			'role_id'      => $args['participant_role_id'],
 			'price_set_id' => $price_field['price_set_id'],
-			'fee_level' => $price_field_value['label'],
-			'fee_amount' => $line_item_data['line_total'],
+			'fee_level'    => $price_field_value['label'],
+			'fee_amount'   => $line_item_data['line_total'],
 		];
 
 		// Add Tax if set.
@@ -340,15 +340,15 @@ class WPCV_Woo_Civi_Participant {
 
 		// TODO: Are there other params for the Line Item data?
 		$participant_line_item_data = [
-			'entity_table' => 'civicrm_participant',
-			'price_field_id' => $price_field_value['price_field_id'],
+			'entity_table'         => 'civicrm_participant',
+			'price_field_id'       => $price_field_value['price_field_id'],
 			'price_field_value_id' => $args['price_field_value_id'],
-			'label' => $price_field_value['label'],
+			'label'                => $price_field_value['label'],
 		];
 
 		// Apply Participant to Line Item.
 		$line_item = [
-			'params' => $line_item_params,
+			'params'    => $line_item_params,
 			'line_item' => [
 				array_merge( $line_item_data, $participant_line_item_data ),
 			],
@@ -383,12 +383,12 @@ class WPCV_Woo_Civi_Participant {
 
 		// Define params query Events.
 		$params = [
-			'version' => 3,
-			'is_public' => 1,
+			'version'     => 3,
+			'is_public'   => 1,
 			'is_template' => 0,
-			'options' => [
+			'options'     => [
 				'limit' => 0, // No limit.
-				'sort' => [
+				'sort'  => [
 					'start_date ASC', // Earliest Events first.
 				],
 			],
@@ -452,10 +452,10 @@ class WPCV_Woo_Civi_Participant {
 
 		// Define params to get queried Event.
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'id' => $event_id,
-			'options' => [
+			'id'         => $event_id,
+			'options'    => [
 				'limit' => 0, // No limit.
 			],
 		];
@@ -501,11 +501,11 @@ class WPCV_Woo_Civi_Participant {
 
 		// Define params to get Events.
 		$params = [
-			'version' => 3,
-			'sequential' => 1,
-			'is_public' => 1,
+			'version'     => 3,
+			'sequential'  => 1,
+			'is_public'   => 1,
 			'is_template' => 0,
-			'options' => [
+			'options'     => [
 				'limit' => $limit,
 			],
 		];
@@ -596,13 +596,13 @@ class WPCV_Woo_Civi_Participant {
 
 		// Define params to get queried Event.
 		$params = [
-			'version' => 3,
-			'sequential' => 1,
-			'input' => $search,
-			'title' => 'label',
+			'version'      => 3,
+			'sequential'   => 1,
+			'input'        => $search,
+			'title'        => 'label',
 			'search_field' => 'title',
-			'label_field' => 'title',
-			'options' => [
+			'label_field'  => 'title',
+			'options'      => [
 				'limit' => 25, // No limit.
 			],
 		];
@@ -653,7 +653,7 @@ class WPCV_Woo_Civi_Participant {
 		// First, get Participant Role Option Group ID.
 		$params = [
 			'version' => 3,
-			'name' => 'participant_role',
+			'name'    => 'participant_role',
 		];
 
 		try {
@@ -667,11 +667,11 @@ class WPCV_Woo_Civi_Participant {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+				'method'    => __METHOD__,
+				'params'    => $params,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -681,10 +681,10 @@ class WPCV_Woo_Civi_Participant {
 
 		// Now get the values for that Option Group.
 		$params = [
-			'version' => 3,
-			'is_active' => 1,
+			'version'         => 3,
+			'is_active'       => 1,
 			'option_group_id' => $option_group['id'],
-			'options' => [
+			'options'         => [
 				'sort' => 'weight ASC',
 			],
 		];
@@ -695,12 +695,12 @@ class WPCV_Woo_Civi_Participant {
 		if ( ! empty( $result['error'] ) ) {
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -927,12 +927,12 @@ class WPCV_Woo_Civi_Participant {
 
 			// Show Participant Role.
 			woocommerce_wp_select( [
-				'id' => $this->role_key,
-				'name' => $this->role_key,
-				'label' => __( 'Participant Role', 'wpcv-woo-civi-integration' ),
-				'desc_tip' => 'true',
+				'id'          => $this->role_key,
+				'name'        => $this->role_key,
+				'label'       => __( 'Participant Role', 'wpcv-woo-civi-integration' ),
+				'desc_tip'    => 'true',
 				'description' => __( 'Select a Participant Role for the Event Participant.', 'wpcv-woo-civi-integration' ),
-				'options' => $participant_roles,
+				'options'     => $participant_roles,
 			] );
 
 			?>
@@ -980,11 +980,11 @@ class WPCV_Woo_Civi_Participant {
 
 		// Get the meta keys.
 		$event_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'event_id' );
-		$role_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' );
+		$role_key  = WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' );
 
 		// Add loop item.
 		$event_key .= '-' . $loop;
-		$role_key .= '-' . $loop;
+		$role_key  .= '-' . $loop;
 
 		// Get an initial set of Events.
 		$options = $this->get_event_options();
@@ -1036,14 +1036,14 @@ class WPCV_Woo_Civi_Participant {
 
 		// Show Participant Role.
 		woocommerce_wp_select( [
-			'id' => $role_key,
-			'name' => $role_key,
-			'value' => $role_id,
-			'label' => __( 'Participant Role', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
-			'description' => __( 'Select a Participant Role for the Event Participant.', 'wpcv-woo-civi-integration' ),
+			'id'            => $role_key,
+			'name'          => $role_key,
+			'value'         => $role_id,
+			'label'         => __( 'Participant Role', 'wpcv-woo-civi-integration' ),
+			'desc_tip'      => 'true',
+			'description'   => __( 'Select a Participant Role for the Event Participant.', 'wpcv-woo-civi-integration' ),
 			'wrapper_class' => 'form-row form-row-full variable_civicrm_role_id',
-			'options' => $participant_roles,
+			'options'       => $participant_roles,
 		] );
 
 		?>
@@ -1070,11 +1070,11 @@ class WPCV_Woo_Civi_Participant {
 
 		// Get the meta keys.
 		$event_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'event_id' );
-		$role_key = WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' );
+		$role_key  = WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' );
 
 		// Add loop item.
 		$event_loop_key = $event_key . '-' . $loop;
-		$role_loop_key = $role_key . '-' . $loop;
+		$role_loop_key  = $role_key . '-' . $loop;
 
 		// Save the Event ID.
 		if ( isset( $_POST[ $event_loop_key ] ) ) {

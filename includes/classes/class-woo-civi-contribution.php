@@ -138,7 +138,7 @@ class WPCV_Woo_Civi_Contribution {
 		// Construct API query.
 		$params = [
 			'version' => 3,
-			'id' => $contribution_id,
+			'id'      => $contribution_id,
 		];
 
 		// Get Contribution details via API.
@@ -151,11 +151,11 @@ class WPCV_Woo_Civi_Contribution {
 			CRM_Core_Error::debug_log_message( __( 'Error trying to find Contribution by ID', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+				'method'    => __METHOD__,
+				'params'    => $params,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -195,7 +195,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Fall back to the old method.
 		if ( empty( $contribution ) ) {
-			$invoice_id = $this->get_invoice_id( $order_id );
+			$invoice_id   = $this->get_invoice_id( $order_id );
 			$contribution = $this->get_by_invoice_id( $invoice_id );
 		}
 
@@ -247,7 +247,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Construct API query.
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'invoice_id' => $invoice_id,
 		];
 
@@ -270,11 +270,11 @@ class WPCV_Woo_Civi_Contribution {
 			CRM_Core_Error::debug_log_message( __( 'Error try to find Contribution by Invoice ID', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+				'method'    => __METHOD__,
+				'params'    => $params,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -341,7 +341,7 @@ class WPCV_Woo_Civi_Contribution {
 		// Maybe debug?
 		$params = [
 			'version' => 3,
-			'debug' => 1,
+			'debug'   => 1,
 		] + $contribution;
 
 		/*
@@ -367,14 +367,14 @@ class WPCV_Woo_Civi_Contribution {
 			CRM_Core_Error::debug_log_message( __( 'Error when creating/updating a Contribution', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
+				'method'       => __METHOD__,
 				'contribution' => $contribution,
-				'params' => $params,
-				'result' => $result,
-				'backtrace' => $trace,
+				'params'       => $params,
+				'result'       => $result,
+				'backtrace'    => $trace,
 			], true ) );
 
 			return false;
@@ -406,13 +406,13 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Log and bail if there's no Contact ID.
 		if ( empty( $contribution['id'] ) ) {
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'message' => __( 'A numeric ID must be present to update a Contribution.', 'wpcv-woo-civi-integration' ),
+				'method'       => __METHOD__,
+				'message'      => __( 'A numeric ID must be present to update a Contribution.', 'wpcv-woo-civi-integration' ),
 				'contribution' => $contribution,
-				'backtrace' => $trace,
+				'backtrace'    => $trace,
 			], true ) );
 			return false;
 		}
@@ -450,10 +450,10 @@ class WPCV_Woo_Civi_Contribution {
 
 			// Write extra details to PHP log.
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+				'method'       => __METHOD__,
+				'params'       => $params,
 				'extra_params' => $e->getExtraParams(),
-				'backtrace' => $e->getTraceAsString(),
+				'backtrace'    => $e->getTraceAsString(),
 			], true ) );
 
 			return false;
@@ -464,12 +464,12 @@ class WPCV_Woo_Civi_Contribution {
 		if ( empty( $result['id'] ) || ! is_numeric( $result['id'] ) ) {
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -509,15 +509,15 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Get the default Financial Type & Payment Method.
 		$default_financial_type_id = get_option( 'woocommerce_civicrm_financial_type_id' );
-		$payment_instrument_id = WPCV_WCI()->helper->payment_instrument_map( $order->get_payment_method() );
+		$payment_instrument_id     = WPCV_WCI()->helper->payment_instrument_map( $order->get_payment_method() );
 
 		// Build a unique Transaction ID.
-		$trxn_id = $order->get_order_key() . '_' . $order_id;
+		$trxn_id    = $order->get_order_key() . '_' . $order_id;
 		$invoice_id = $this->get_invoice_id( $order_id );
 
 		// Get dates. These are already adjusted for timezone.
 		$date_created = $order->get_date_created();
-		$date_paid = $order->get_date_paid();
+		$date_paid    = $order->get_date_paid();
 
 		/*
 		 * Prime the Contribution's "Receive Date" with the Order's "Date Created".
@@ -539,12 +539,12 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Init Order params.
 		$params = [
-			'contact_id' => $contact_id,
-			'financial_type_id' => $default_financial_type_id,
-			'payment_instrument_id' => $payment_instrument_id,
-			'trxn_id' => $trxn_id,
-			'invoice_id' => $invoice_id,
-			'receive_date' => $receive_date,
+			'contact_id'             => $contact_id,
+			'financial_type_id'      => $default_financial_type_id,
+			'payment_instrument_id'  => $payment_instrument_id,
+			'trxn_id'                => $trxn_id,
+			'invoice_id'             => $invoice_id,
+			'receive_date'           => $receive_date,
 			'contribution_status_id' => 'Pending',
 		];
 
@@ -595,7 +595,7 @@ class WPCV_Woo_Civi_Contribution {
 		 *
 		 * @since 2.0
 		 *
-		 * @param array $params The params to be passed to the CiviCRM API.
+		 * @param array  $params The params to be passed to the CiviCRM API.
 		 * @param object $order The WooCommerce Order object.
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/contribution/create_from_order/params', $params, $order );
@@ -665,14 +665,14 @@ class WPCV_Woo_Civi_Contribution {
 		}
 
 		// Bail early if the Order is 'free' (0 amount) and 0 amount setting is enabled.
-		$ignore = get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false );
+		$ignore             = get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false );
 		$ignore_zero_orders = WPCV_WCI()->helper->check_yes_no_value( $ignore );
 		if ( $ignore_zero_orders && $order->get_total() === 0 ) {
 			return false;
 		}
 
 		// Build a unique Transaction ID.
-		$trxn_id = $order->get_order_key() . '_' . $order_id;
+		$trxn_id        = $order->get_order_key() . '_' . $order_id;
 		$transaction_id = $order->get_transaction_id();
 		if ( ! empty( $transaction_id ) ) {
 			// If the Order has a Transaction ID, use it.
@@ -680,10 +680,10 @@ class WPCV_Woo_Civi_Contribution {
 		}
 
 		$params = [
-			'contribution_id' => $contribution['id'],
-			'total_amount' => $order->get_total(),
-			'trxn_date' => $order->get_date_paid()->date( 'Y-m-d H:i:s' ),
-			'trxn_id' => $trxn_id,
+			'contribution_id'       => $contribution['id'],
+			'total_amount'          => $order->get_total(),
+			'trxn_date'             => $order->get_date_paid()->date( 'Y-m-d H:i:s' ),
+			'trxn_id'               => $trxn_id,
 			'payment_instrument_id' => WPCV_WCI()->helper->payment_instrument_map( $order->get_payment_method() ),
 		];
 
@@ -699,9 +699,9 @@ class WPCV_Woo_Civi_Contribution {
 		 *
 		 * @since 3.0
 		 *
-		 * @param array $params The params to be passed to the CiviCRM API.
+		 * @param array  $params The params to be passed to the CiviCRM API.
 		 * @param object $order The WooCommerce Order object.
-		 * @param array $contribution The CiviCRM Contribution data.
+		 * @param array  $contribution The CiviCRM Contribution data.
 		 */
 		$params = apply_filters( 'wpcv_woo_civi/contribution/payment_create/params', $params, $order, $contribution );
 
@@ -744,12 +744,12 @@ class WPCV_Woo_Civi_Contribution {
 			CRM_Core_Error::debug_log_message( $e->getExtraParams() );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'message' => $e->getMessage(),
-				'params' => $params,
+				'method'    => __METHOD__,
+				'message'   => $e->getMessage(),
+				'params'    => $params,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -793,7 +793,7 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 3.0
 	 *
-	 * @param array $payment_data The array of Payment data from the CiviCRM API.
+	 * @param array  $payment_data The array of Payment data from the CiviCRM API.
 	 * @param object $order The WooCommerce Order object.
 	 */
 	public function payment_fix( $payment_data, $order ) {
@@ -807,7 +807,7 @@ class WPCV_Woo_Civi_Contribution {
 		// Get the full data for the Payment.
 		$params = [
 			'version' => 3,
-			'id' => (int) $payment_data['id'],
+			'id'      => (int) $payment_data['id'],
 		];
 		$result = civicrm_api( 'FinancialTrxn', 'get', $params );
 
@@ -821,7 +821,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Set the "From Account" to NULL. Yes, this is possible!
 		$params['from_financial_account_id'] = '';
-		$params['version'] = 3;
+		$params['version']                   = 3;
 
 		// Okay, now update the Payment.
 		$result = civicrm_api( 'FinancialTrxn', 'create', $params );
@@ -846,9 +846,9 @@ class WPCV_Woo_Civi_Contribution {
 
 		$params = [
 			'entity_table' => 'civicrm_contribute',
-			'entity_id' => $contribution['id'],
-			'contact_id' => $contribution['contact_id'],
-			'note' => $note,
+			'entity_id'    => $contribution['id'],
+			'contact_id'   => $contribution['contact_id'],
+			'note'         => $note,
 		];
 
 		try {
@@ -864,12 +864,12 @@ class WPCV_Woo_Civi_Contribution {
 			CRM_Core_Error::debug_log_message( $e->getExtraParams() );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'message' => $e->getMessage(),
-				'params' => $params,
+				'method'    => __METHOD__,
+				'message'   => $e->getMessage(),
+				'params'    => $params,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -936,13 +936,13 @@ class WPCV_Woo_Civi_Contribution {
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Contribution Status', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
+				'method'       => __METHOD__,
 				'contribution' => $contribution,
-				'result' => $result,
-				'backtrace' => $trace,
+				'result'       => $result,
+				'backtrace'    => $trace,
 			], true ) );
 
 			return false;
@@ -984,13 +984,13 @@ class WPCV_Woo_Civi_Contribution {
 			'wc-processing' => 2,
 			'wc-on-hold'    => 2,
 			'wc-refunded'   => 7,
-			'completed'  => 1,
-			'pending'    => 2,
-			'cancelled'  => 3,
-			'failed'     => 4,
-			'processing' => 2,
-			'on-hold'    => 2,
-			'refunded'   => 7,
+			'completed'     => 1,
+			'pending'       => 2,
+			'cancelled'     => 3,
+			'failed'        => 4,
+			'processing'    => 2,
+			'on-hold'       => 2,
+			'refunded'      => 7,
 		];
 
 		/**

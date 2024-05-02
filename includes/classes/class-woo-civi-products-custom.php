@@ -28,18 +28,18 @@ class WPCV_Woo_Civi_Products_Custom {
 	public $product_types_meta = [
 		'civicrm_contribution' => [
 			'financial_type_id' => '_wpcv_woo_civicrm_contribution_financial_type_id',
-			'pfv_id' => '_wpcv_woo_civicrm_contribution_pfv_id',
+			'pfv_id'            => '_wpcv_woo_civicrm_contribution_pfv_id',
 		],
-		'civicrm_membership' => [
+		'civicrm_membership'   => [
 			'financial_type_id' => '_wpcv_woo_civicrm_membership_financial_type_id',
-			'pfv_id' => '_wpcv_woo_civicrm_membership_pfv_id',
-			'type_id' => '_wpcv_woo_civicrm_membership_type_id',
+			'pfv_id'            => '_wpcv_woo_civicrm_membership_pfv_id',
+			'type_id'           => '_wpcv_woo_civicrm_membership_type_id',
 		],
-		'civicrm_participant' => [
+		'civicrm_participant'  => [
 			'financial_type_id' => '_wpcv_woo_civicrm_participant_financial_type_id',
-			'pfv_id' => '_wpcv_woo_civicrm_participant_pfv_id',
-			'event_id' => '_wpcv_woo_civicrm_participant_event_id',
-			'role_id' => '_wpcv_woo_civicrm_participant_role_id',
+			'pfv_id'            => '_wpcv_woo_civicrm_participant_pfv_id',
+			'event_id'          => '_wpcv_woo_civicrm_participant_event_id',
+			'role_id'           => '_wpcv_woo_civicrm_participant_role_id',
 		],
 	];
 
@@ -76,8 +76,8 @@ class WPCV_Woo_Civi_Products_Custom {
 		// The translatable names of our Custom Product Types.
 		$this->product_names = [
 			'civicrm_contribution' => __( 'CiviCRM Contribution', 'wpcv-woo-civi-integration' ),
-			'civicrm_membership' => __( 'CiviCRM Membership', 'wpcv-woo-civi-integration' ),
-			'civicrm_participant' => __( 'CiviCRM Participant', 'wpcv-woo-civi-integration' ),
+			'civicrm_membership'   => __( 'CiviCRM Membership', 'wpcv-woo-civi-integration' ),
+			'civicrm_participant'  => __( 'CiviCRM Participant', 'wpcv-woo-civi-integration' ),
 		];
 
 		// Set up Custom Product Types.
@@ -278,11 +278,11 @@ class WPCV_Woo_Civi_Products_Custom {
 	public function tabs_add( $tabs ) {
 
 		foreach ( $this->product_names as $type => $name ) {
-			$target = $type . '_settings';
+			$target          = $type . '_settings';
 			$tabs[ $target ] = [
-				'label' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
-				'target' => $target,
-				'class' => [
+				'label'    => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
+				'target'   => $target,
+				'class'    => [
 					'show_if_' . $type,
 				],
 				'priority' => 15,
@@ -758,10 +758,10 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// TODO: Are there other params for the Line Item data?
 		$contribution_line_item_data = [
-			'financial_type_id' => $financial_type_id,
-			'price_field_id' => $price_field_value['price_field_id'],
+			'financial_type_id'    => $financial_type_id,
+			'price_field_id'       => $price_field_value['price_field_id'],
 			'price_field_value_id' => $price_field_value_id,
-			'label' => $price_field_value['label'],
+			'label'                => $price_field_value['label'],
 		];
 
 		// TODO: Look at the Line Item.
@@ -769,7 +769,7 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// Apply Contribution to Line Item.
 		$line_item = [
-			'params' => $line_item_params,
+			'params'    => $line_item_params,
 			'line_item' => [
 				array_merge( $line_item_data, $contribution_line_item_data ),
 			],
@@ -829,12 +829,12 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// Make an array of the params.
 		$args = [
-			'item' => $item,
-			'product' => $product,
-			'order' => $order,
-			'params' => $params,
-			'financial_type_id' => $financial_type_id,
-			'membership_type_id' => $membership_type_id,
+			'item'                 => $item,
+			'product'              => $product,
+			'order'                => $order,
+			'params'               => $params,
+			'financial_type_id'    => $financial_type_id,
+			'membership_type_id'   => $membership_type_id,
 			'price_field_value_id' => $price_field_value_id,
 		];
 
@@ -901,13 +901,13 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// Make an array of the params.
 		$args = [
-			'item' => $item,
-			'product' => $product,
-			'order' => $order,
-			'params' => $params,
-			'financial_type_id' => $financial_type_id,
-			'event_id' => $event_id,
-			'participant_role_id' => $participant_role_id,
+			'item'                 => $item,
+			'product'              => $product,
+			'order'                => $order,
+			'params'               => $params,
+			'financial_type_id'    => $financial_type_id,
+			'event_id'             => $event_id,
+			'participant_role_id'  => $participant_role_id,
 			'price_field_value_id' => $price_field_value_id,
 		];
 

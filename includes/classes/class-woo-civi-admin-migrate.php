@@ -245,20 +245,20 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		);
 
 		$localisation = [
-			'total_products' => esc_html__( '{{total_products}} Products to clean up...', 'wpcv-woo-civi-integration' ),
-			'current_products' => esc_html__( 'Processing Products {{from_product}} to {{to_product}}', 'wpcv-woo-civi-integration' ),
+			'total_products'    => esc_html__( '{{total_products}} Products to clean up...', 'wpcv-woo-civi-integration' ),
+			'current_products'  => esc_html__( 'Processing Products {{from_product}} to {{to_product}}', 'wpcv-woo-civi-integration' ),
 			'complete_products' => esc_html__( 'Processing Products {{from_product}} to {{to_product}} complete', 'wpcv-woo-civi-integration' ),
-			'total_orders' => esc_html__( '{{total_orders}} Orders to clean up...', 'wpcv-woo-civi-integration' ),
-			'current_orders' => esc_html__( 'Upgrading Orders {{from_order}} to {{to_order}}', 'wpcv-woo-civi-integration' ),
-			'complete_orders' => esc_html__( 'Upgrading Orders {{from_order}} to {{to_order}} complete', 'wpcv-woo-civi-integration' ),
-			'done' => esc_html__( 'All done!', 'wpcv-woo-civi-integration' ),
+			'total_orders'      => esc_html__( '{{total_orders}} Orders to clean up...', 'wpcv-woo-civi-integration' ),
+			'current_orders'    => esc_html__( 'Upgrading Orders {{from_order}} to {{to_order}}', 'wpcv-woo-civi-integration' ),
+			'complete_orders'   => esc_html__( 'Upgrading Orders {{from_order}} to {{to_order}} complete', 'wpcv-woo-civi-integration' ),
+			'done'              => esc_html__( 'All done!', 'wpcv-woo-civi-integration' ),
 		];
 
 		$settings = [
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'ajax_url'       => admin_url( 'admin-ajax.php' ),
 			'total_products' => $this->products_get_count(),
-			'total_orders' => $this->orders_get_count(),
-			'batch_count' => $this->step_count,
+			'total_orders'   => $this->orders_get_count(),
+			'batch_count'    => $this->step_count,
 		];
 
 		// Add flag when Products have been migrated.
@@ -275,7 +275,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		$vars = [
 			'localisation' => $localisation,
-			'settings' => $settings,
+			'settings'     => $settings,
 		];
 
 		// Localise the WordPress way.
@@ -542,7 +542,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	private function form_migration_accept() {
 
 		// Do this by adding an element to the migration settings array.
-		$settings = get_site_option( 'wpcv_woo_civi_migration', [] );
+		$settings   = get_site_option( 'wpcv_woo_civi_migration', [] );
 		$settings[] = 'accepted';
 		update_site_option( 'wpcv_woo_civi_migration', $settings );
 
@@ -593,9 +593,9 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	public function products_get_count() {
 
 		$args = [
-			'post_type' => 'product',
+			'post_type'   => 'product',
 			'post_status' => 'any',
-			'nopaging' => true,
+			'nopaging'    => true,
 		];
 
 		$query = new WP_Query( $args );
@@ -640,11 +640,11 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Construct args.
 		$query_args = [
-			'post_type' => 'product',
-			'post_status' => 'any',
+			'post_type'     => 'product',
+			'post_status'   => 'any',
 			'no_found_rows' => true,
-			'numberposts' => $this->step_count,
-			'offset' => $offset,
+			'numberposts'   => $this->step_count,
+			'offset'        => $offset,
 		];
 
 		// The query.
@@ -665,7 +665,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 			// Set from and to flags.
 			$data['from'] = (int) $offset;
-			$data['to'] = $data['from'] + $diff;
+			$data['to']   = $data['from'] + $diff;
 
 			// Find out if CiviMember is active.
 			$member_active = false;
@@ -703,7 +703,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			$this->stepped_offset_delete( $key );
 
 			// Add a unique string to the migration option.
-			$settings = get_site_option( 'wpcv_woo_civi_migration', [] );
+			$settings   = get_site_option( 'wpcv_woo_civi_migration', [] );
 			$settings[] = 'products-migrated';
 			update_site_option( 'wpcv_woo_civi_migration', $settings );
 
@@ -776,9 +776,9 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	public function orders_get_count() {
 
 		$args = [
-			'post_type' => 'shop_order',
+			'post_type'   => 'shop_order',
 			'post_status' => 'any',
-			'nopaging' => true,
+			'nopaging'    => true,
 		];
 
 		$query = new WP_Query( $args );
@@ -823,11 +823,11 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Construct args.
 		$query_args = [
-			'post_type' => 'shop_order',
-			'post_status' => 'any',
+			'post_type'     => 'shop_order',
+			'post_status'   => 'any',
 			'no_found_rows' => true,
-			'numberposts' => $this->step_count,
-			'offset' => $offset,
+			'numberposts'   => $this->step_count,
+			'offset'        => $offset,
 		];
 
 		// The query.
@@ -848,7 +848,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 			// Set from and to flags.
 			$data['from'] = (int) $offset;
-			$data['to'] = $data['from'] + $diff;
+			$data['to']   = $data['from'] + $diff;
 
 			// Find out if CiviCampaign is active.
 			$campaign_active = false;
@@ -886,7 +886,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			$this->stepped_offset_delete( $key );
 
 			// Add a unique string to the migration option.
-			$settings = get_site_option( 'wpcv_woo_civi_migration', [] );
+			$settings   = get_site_option( 'wpcv_woo_civi_migration', [] );
 			$settings[] = 'orders-migrated';
 			update_site_option( 'wpcv_woo_civi_migration', $settings );
 

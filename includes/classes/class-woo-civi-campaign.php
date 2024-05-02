@@ -204,12 +204,12 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'is_active' => 1,
-			'status_id' => [ 'NOT IN' => [ 'Completed', 'Cancelled' ] ],
-			'options' => [
-				'sort' => 'name',
+			'is_active'  => 1,
+			'status_id'  => [ 'NOT IN' => [ 'Completed', 'Cancelled' ] ],
+			'options'    => [
+				'sort'  => 'name',
 				'limit' => 0,
 			],
 		];
@@ -229,12 +229,12 @@ class WPCV_Woo_Civi_Campaign {
 		if ( ! empty( $result['error'] ) ) {
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -283,11 +283,11 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'return' => [ 'id', 'name', 'status_id' ],
-			'options' => [
-				'sort' => 'status_id ASC, created_date DESC, name ASC',
+			'return'     => [ 'id', 'name', 'status_id' ],
+			'options'    => [
+				'sort'  => 'status_id ASC, created_date DESC, name ASC',
 				'limit' => 0,
 			],
 		];
@@ -307,12 +307,12 @@ class WPCV_Woo_Civi_Campaign {
 		if ( ! empty( $result['error'] ) ) {
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -362,10 +362,10 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'id' => $campaign_id,
-			'options' => [
+			'id'         => $campaign_id,
+			'options'    => [
 				'limit' => 1,
 			],
 		];
@@ -376,12 +376,12 @@ class WPCV_Woo_Civi_Campaign {
 		if ( ! empty( $result['error'] ) ) {
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -422,10 +422,10 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'name' => $campaign_name,
-			'options' => [
+			'name'       => $campaign_name,
+			'options'    => [
 				'limit' => 1,
 			],
 		];
@@ -436,12 +436,12 @@ class WPCV_Woo_Civi_Campaign {
 		if ( ! empty( $result['error'] ) ) {
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -490,10 +490,10 @@ class WPCV_Woo_Civi_Campaign {
 		}
 
 		$params = [
-			'version' => 3,
-			'sequential' => 1,
+			'version'         => 3,
+			'sequential'      => 1,
 			'option_group_id' => 'campaign_status',
-			'options' => [
+			'options'         => [
 				'limit' => 0,
 			],
 		];
@@ -513,12 +513,12 @@ class WPCV_Woo_Civi_Campaign {
 		if ( ! empty( $result['error'] ) ) {
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
 			], true ) );
 
@@ -547,11 +547,11 @@ class WPCV_Woo_Civi_Campaign {
 	public function campaign_settings_add( $options ) {
 
 		$options['woocommerce_civicrm_campaign_id'] = [
-			'name' => __( 'Default Campaign', 'wpcv-woo-civi-integration' ),
-			'desc' => __( 'The default Campaign can be overridden on individual Orders.', 'wpcv-woo-civi-integration' ),
-			'type' => 'select',
+			'name'    => __( 'Default Campaign', 'wpcv-woo-civi-integration' ),
+			'desc'    => __( 'The default Campaign can be overridden on individual Orders.', 'wpcv-woo-civi-integration' ),
+			'type'    => 'select',
 			'options' => $this->get_campaigns(),
-			'id' => 'woocommerce_civicrm_campaign_id',
+			'id'      => 'woocommerce_civicrm_campaign_id',
 		];
 
 		return $options;
@@ -587,7 +587,7 @@ class WPCV_Woo_Civi_Campaign {
 		 *
 		 * @since 3.0
 		 *
-		 * @param array $campaign_id The calculated Campaign ID.
+		 * @param array  $campaign_id The calculated Campaign ID.
 		 * @param object $order The WooCommerce Order object.
 		 */
 		$campaign_id = apply_filters( 'wpcv_woo_civi/campaign/get_for_order', $campaign_id, $order );
@@ -614,8 +614,8 @@ class WPCV_Woo_Civi_Campaign {
 
 		// Retrieve the current and new Campaign ID.
 		$current_campaign_id = $this->get_order_meta( $order_id );
-		$new_campaign_id = filter_input( INPUT_POST, 'order_civicrmcampaign', FILTER_VALIDATE_INT );
-		$new_campaign_id = (int) sanitize_text_field( wp_unslash( $new_campaign_id ) );
+		$new_campaign_id     = filter_input( INPUT_POST, 'order_civicrmcampaign', FILTER_VALIDATE_INT );
+		$new_campaign_id     = (int) sanitize_text_field( wp_unslash( $new_campaign_id ) );
 
 		// Update the Contribution.
 		if ( ! empty( $new_campaign_id ) && $new_campaign_id !== (int) $current_campaign_id ) {
@@ -692,14 +692,14 @@ class WPCV_Woo_Civi_Campaign {
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Campaign', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'order_id' => $order_id,
+				'method'          => __METHOD__,
+				'order_id'        => $order_id,
 				'old_campaign_id' => $old_campaign_id,
 				'new_campaign_id' => $new_campaign_id,
-				'backtrace' => $trace,
+				'backtrace'       => $trace,
 			], true ) );
 
 			return false;
@@ -750,11 +750,11 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function columns_head( $defaults ) {
 
-		$nb_cols = count( $defaults );
+		$nb_cols  = count( $defaults );
 		$new_cols = [
 			'campaign' => __( 'Campaign', 'wpcv-woo-civi-integration' ),
 		];
-		$columns = array_slice( $defaults, 0, $nb_cols - 2, true )
+		$columns  = array_slice( $defaults, 0, $nb_cols - 2, true )
 			+ $new_cols
 			+ array_slice( $defaults, $nb_cols - 2, $nb_cols, true );
 
@@ -868,8 +868,8 @@ class WPCV_Woo_Civi_Campaign {
 
 		// Add Campaign meta query.
 		$meta_query['campaign_clause'] = [
-			'key' => $this->meta_key,
-			'value' => $campaign_id,
+			'key'     => $this->meta_key,
+			'value'   => $campaign_id,
 			'compare' => '==',
 		];
 

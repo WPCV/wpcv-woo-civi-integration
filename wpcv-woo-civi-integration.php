@@ -373,9 +373,9 @@ class WPCV_Woo_Civi {
 		$this->admin = new WPCV_Woo_Civi_Admin();
 
 		// Init Settings objects.
-		$this->settings = new WPCV_Woo_Civi_Settings();
-		$this->settings_network = new WPCV_Woo_Civi_Settings_Network();
-		$this->settings_states = new WPCV_Woo_Civi_Settings_States();
+		$this->settings          = new WPCV_Woo_Civi_Settings();
+		$this->settings_network  = new WPCV_Woo_Civi_Settings_Network();
+		$this->settings_states   = new WPCV_Woo_Civi_Settings_States();
 		$this->settings_products = new WPCV_Woo_Civi_Settings_Products();
 
 		// Init Contact object.
@@ -383,12 +383,12 @@ class WPCV_Woo_Civi {
 
 		// Init Financial objects.
 		$this->contribution = new WPCV_Woo_Civi_Contribution();
-		$this->order = new WPCV_Woo_Civi_Order();
-		$this->source = new WPCV_Woo_Civi_Source();
-		$this->tax = new WPCV_Woo_Civi_Tax();
+		$this->order        = new WPCV_Woo_Civi_Order();
+		$this->source       = new WPCV_Woo_Civi_Source();
+		$this->tax          = new WPCV_Woo_Civi_Tax();
 
 		// Init Product objects.
-		$this->products = new WPCV_Woo_Civi_Products();
+		$this->products          = new WPCV_Woo_Civi_Products();
 		$this->products_variable = new WPCV_Woo_Civi_Products_Variable();
 
 		// Maybe init Custom Products object.
@@ -397,8 +397,8 @@ class WPCV_Woo_Civi {
 		}
 
 		// Init CiviCRM Component objects.
-		$this->campaign = new WPCV_Woo_Civi_Campaign();
-		$this->membership = new WPCV_Woo_Civi_Membership();
+		$this->campaign    = new WPCV_Woo_Civi_Campaign();
+		$this->membership  = new WPCV_Woo_Civi_Membership();
 		$this->participant = new WPCV_Woo_Civi_Participant();
 
 	}
@@ -723,7 +723,7 @@ class WPCV_Woo_Civi {
 		$heading = __( 'Activation failed', 'wpcv-woo-civi-integration' );
 
 		$plugin = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
-		$woo = '<strong>' . __( 'WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
+		$woo    = '<strong>' . __( 'WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
 
 		$requires = sprintf(
 			/* translators: 1: The plugin name, 2: WooCommerce */
@@ -743,7 +743,7 @@ class WPCV_Woo_Civi {
 			'</a>'
 		);
 
-		$message = '<h1>' . $heading . '</h1>';
+		$message  = '<h1>' . $heading . '</h1>';
 		$message .= '<p>' . $requires . '</p>';
 		$message .= '<p>' . $deactivated . '</p>';
 		$message .= '<p>' . $back . '</p>';
@@ -764,7 +764,7 @@ class WPCV_Woo_Civi {
 
 		$heading = __( 'Activation failed', 'wpcv-woo-civi-integration' );
 
-		$plugin = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
+		$plugin  = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
 		$civicrm = '<strong>' . __( 'CiviCRM', 'wpcv-woo-civi-integration' ) . '</strong>';
 
 		$requires = sprintf(
@@ -785,7 +785,7 @@ class WPCV_Woo_Civi {
 			'</a>'
 		);
 
-		$message = '<h1>' . $heading . '</h1>';
+		$message  = '<h1>' . $heading . '</h1>';
 		$message .= '<p>' . $requires . '</p>';
 		$message .= '<p>' . $deactivated . '</p>';
 		$message .= '<p>' . $back . '</p>';
@@ -806,7 +806,7 @@ class WPCV_Woo_Civi {
 
 		$heading = __( 'Activation failed', 'wpcv-woo-civi-integration' );
 
-		$plugin = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
+		$plugin  = '<strong>' . __( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
 		$civicrm = '<strong>' . __( 'CiviCRM', 'wpcv-woo-civi-integration' ) . '</strong>';
 
 		$requires = sprintf(
@@ -827,7 +827,7 @@ class WPCV_Woo_Civi {
 			'</a>'
 		);
 
-		$message = '<h1>' . $heading . '</h1>';
+		$message  = '<h1>' . $heading . '</h1>';
 		$message .= '<p>' . $requires . '</p>';
 		$message .= '<p>' . $deactivated . '</p>';
 		$message .= '<p>' . $back . '</p>';

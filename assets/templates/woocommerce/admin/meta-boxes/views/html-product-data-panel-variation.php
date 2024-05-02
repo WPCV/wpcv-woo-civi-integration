@@ -31,14 +31,14 @@ defined( 'ABSPATH' ) || exit;
 
 	// Always render the Financial Type select.
 	woocommerce_wp_select( [
-		'id' => $financial_type_id_key,
-		'name' => $financial_type_id_key,
-		'value' => $financial_type_id,
-		'label' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
-		'desc_tip' => 'true',
-		'description' => __( 'The CiviCRM Financial Type for this Variation.', 'wpcv-woo-civi-integration' ),
+		'id'            => $financial_type_id_key,
+		'name'          => $financial_type_id_key,
+		'value'         => $financial_type_id,
+		'label'         => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
+		'desc_tip'      => 'true',
+		'description'   => __( 'The CiviCRM Financial Type for this Variation.', 'wpcv-woo-civi-integration' ),
 		'wrapper_class' => 'form-row form-row-full variable_civicrm_financial_type_id',
-		'options' => $financial_type_options,
+		'options'       => $financial_type_options,
 	] );
 
 	?>

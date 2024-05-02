@@ -323,11 +323,11 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function columns_head( $defaults ) {
 
-		$nb_cols = count( $defaults );
+		$nb_cols  = count( $defaults );
 		$new_cols = [
 			'source' => __( 'Source', 'wpcv-woo-civi-integration' ),
 		];
-		$columns = array_slice( $defaults, 0, $nb_cols - 2, true )
+		$columns  = array_slice( $defaults, 0, $nb_cols - 2, true )
 			+ $new_cols
 			+ array_slice( $defaults, $nb_cols - 2, $nb_cols, true );
 
@@ -424,8 +424,8 @@ class WPCV_Woo_Civi_Source {
 
 		// Add Source meta query.
 		$meta_query['source_clause'] = [
-			'key' => $this->meta_key,
-			'value' => $source,
+			'key'     => $this->meta_key,
+			'value'   => $source,
 			'compare' => '==',
 		];
 
