@@ -61,6 +61,7 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 					<option value="0"><?php esc_html_e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
 					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
+							<?php /* translators: 1: The Price Set title, 2: The Price Set label. */ ?>
 							<optgroup label="<?php echo esc_attr( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
 								<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
 									<option value="<?php echo esc_attr( $price_field_value_id ); ?>" <?php selected( $price_field_value_id, $pfv_id ); ?>><?php echo esc_html( $price_field_value['label'] ); ?></option>

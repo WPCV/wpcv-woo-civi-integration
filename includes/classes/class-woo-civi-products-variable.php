@@ -108,11 +108,15 @@ class WPCV_Woo_Civi_Products_Variable {
 		// Save the Entity Type of a Variable Product Type.
 		add_action( 'wpcv_woo_civi/product/save/entity_type', [ $this, 'entity_type_save' ], 20, 2 );
 
+		/*
 		// Get the Financial Type ID of a Product Variation.
-		//add_filter( 'wpcv_woo_civi/product/query/financial_type_id', [ $this, 'financial_type_id_get' ], 20, 3 );
+		add_filter( 'wpcv_woo_civi/product/query/financial_type_id', [ $this, 'financial_type_id_get' ], 20, 3 );
+		*/
 
+		/*
 		// Save the Financial Type ID of a Product Variation.
-		//add_action( 'wpcv_woo_civi/product/save/financial_type_id', [ $this, 'financial_type_id_save' ], 20, 2 );
+		add_action( 'wpcv_woo_civi/product/save/financial_type_id', [ $this, 'financial_type_id_save' ], 20, 2 );
+		*/
 
 		// Filter the Product Type options to exclude Variable Product Type.
 		add_filter( 'wpcv_woo_civi/product_types/get/options', [ $this, 'product_types_filter' ], 20 );

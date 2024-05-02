@@ -8,7 +8,11 @@
  * @since 3.0
  */
 
-?><!-- assets/templates/pages/page-admin-migrate.php -->
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
+
+?>
+<!-- assets/templates/pages/page-admin-migrate.php -->
 <div class="wrap">
 
 	<h1><?php esc_html_e( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ); ?></h1>

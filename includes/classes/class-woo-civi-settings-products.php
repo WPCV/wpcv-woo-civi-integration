@@ -485,8 +485,10 @@ class WPCV_Woo_Civi_Settings_Products {
 			'' => __( '— No Change —', 'wpcv-woo-civi-integration' ),
 		] + WPCV_WCI()->helper->get_financial_types();
 
+		/*
 		// Get the Price Sets.
-		//$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
+		$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
+		*/
 
 		// Include template.
 		$directory = 'assets/templates/woocommerce/admin/list-tables/views/';
@@ -511,7 +513,7 @@ class WPCV_Woo_Civi_Settings_Products {
 
 		// Maybe save Entity Type.
 		if ( ! empty( $_REQUEST['_civicrm_bulk_entity_type'] ) ) {
-			$entity_type = sanitize_text_field( $_REQUEST['_civicrm_bulk_entity_type'] );
+			$entity_type = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_bulk_entity_type'] ) );
 
 			/**
 			 * Fires to inform classes to save the Entity Type.
@@ -535,7 +537,7 @@ class WPCV_Woo_Civi_Settings_Products {
 
 		// Maybe save Financial Type.
 		if ( isset( $_REQUEST['_civicrm_bulk_financial_type_id'] ) && '' !== $_REQUEST['_civicrm_bulk_financial_type_id'] ) {
-			$financial_type_id = sanitize_text_field( $_REQUEST['_civicrm_bulk_financial_type_id'] );
+			$financial_type_id = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_bulk_financial_type_id'] ) );
 
 			/**
 			 * Fires to inform classes to save the Financial Type.
@@ -585,8 +587,10 @@ class WPCV_Woo_Civi_Settings_Products {
 			'' => __( 'Not set', 'wpcv-woo-civi-integration' ),
 		] + WPCV_WCI()->helper->get_financial_types();
 
+		/*
 		// Get the Price Sets.
-		//$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
+		$price_sets = WPCV_WCI()->helper->get_price_sets_populated();
+		*/
 
 		// Include template.
 		$directory = 'assets/templates/woocommerce/admin/list-tables/views/';
@@ -611,18 +615,18 @@ class WPCV_Woo_Civi_Settings_Products {
 
 		// Maybe save Entity Type.
 		if ( ! empty( $_REQUEST['_civicrm_entity_type'] ) ) {
-			$entity_type = sanitize_text_field( $_REQUEST['_civicrm_entity_type'] );
+			$entity_type = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_entity_type'] ) );
 
-			// This action is documented in WPCV_Woo_Civi_Settings_Products::bulk_edit_save()
+			/* This action is documented in WPCV_Woo_Civi_Settings_Products::bulk_edit_save() */
 			do_action( 'wpcv_woo_civi/product/save/entity_type', $product, $entity_type );
 
 		}
 
 		// Maybe save Financial Type.
 		if ( isset( $_REQUEST['_civicrm_financial_type_id'] ) && '' !== $_REQUEST['_civicrm_financial_type_id'] ) {
-			$financial_type_id = sanitize_text_field( $_REQUEST['_civicrm_financial_type_id'] );
+			$financial_type_id = sanitize_text_field( wp_unslash( $_REQUEST['_civicrm_financial_type_id'] ) );
 
-			// This action is documented in WPCV_Woo_Civi_Settings_Products::bulk_edit_save()
+			/* This action is documented in WPCV_Woo_Civi_Settings_Products::bulk_edit_save() */
 			do_action( 'wpcv_woo_civi/product/save/financial_type_id', $product, $financial_type_id );
 
 		}

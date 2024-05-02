@@ -60,8 +60,10 @@ class WPCV_Woo_Civi_Tax {
 	 */
 	public function register_hooks() {
 
+		/*
 		// Modify params when an Order has a tax value.
-		//add_action( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'contribution_tax_add' ], 100, 2 );
+		add_action( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'contribution_tax_add' ], 100, 2 );
+		*/
 
 		// Add Tax to Line Item.
 		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_tax_add' ], 10, 5 );

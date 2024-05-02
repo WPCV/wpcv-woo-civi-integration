@@ -428,20 +428,24 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// Add "show_if" classes to relevant sections.
 		foreach ( $this->product_names as $type => $name ) {
+			// phpcs:disable Generic.Strings.UnnecessaryStringConcat.Found
 			echo "\t\t" . "jQuery('#general_product_data .pricing').addClass('show_if_{$type}');\n";
 			echo "\t\t" . 'var tax = jQuery("#general_product_data").find("._tax_status_field");' . "\n";
 			echo "\t\t" . 'if (tax.length) {' . "\n";
 			echo "\t\t\t" . "tax.parent().addClass('show_if_{$type}');\n";
 			echo "\t\t" . '}' . "\n";
+			// phpcs:enable Generic.Strings.UnnecessaryStringConcat.Found
 		}
 
 		// Show it if this is one of our Product Types.
 		$product_type = $product_object->get_type();
 		if ( array_key_exists( $product_type, $this->product_names ) ) {
+			// phpcs:disable Generic.Strings.UnnecessaryStringConcat.Found
 			echo "\t\t" . 'jQuery("#general_product_data .pricing").show();' . "\n";
 			echo "\t\t" . 'if (tax.length) {' . "\n";
 			echo "\t\t\t" . "tax.parent().show();\n";
 			echo "\t\t" . '}' . "\n";
+			// phpcs:enable Generic.Strings.UnnecessaryStringConcat.Found
 		}
 
 		// Close script.

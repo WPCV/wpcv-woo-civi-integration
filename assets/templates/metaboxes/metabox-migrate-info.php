@@ -9,7 +9,8 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
-?><!-- assets/templates/metaboxes/metabox-migrate-info.php -->
+?>
+<!-- assets/templates/metaboxes/metabox-migrate-info.php -->
 <?php if ( $metabox['args']['migrated'] === false ) : ?>
 
 	<h3><?php esc_html_e( 'Why migrate?', 'wpcv-woo-civi-integration' ); ?></h3>
@@ -38,9 +39,7 @@ defined( 'ABSPATH' ) || exit;
 				<?php submit_button( esc_html__( 'Stop', 'wpcv-woo-civi-integration' ), 'secondary', 'wpcv_woocivi_products_process_stop', false ); ?>
 			<?php endif; ?>
 
-			<?php submit_button( $metabox['args']['product-button_title'], 'primary', 'wpcv_woocivi_products_process', false, [
-				'data-security' => esc_attr( wp_create_nonce( 'wpcv_migrate_products' ) ),
-			] ); ?>
+			<?php submit_button( $metabox['args']['product-button_title'], 'primary', 'wpcv_woocivi_products_process', false, [ 'data-security' => esc_attr( wp_create_nonce( 'wpcv_migrate_products' ) ) ] ); ?>
 
 			<div id="product-progress-bar"><div class="progress-label"></div></div>
 
@@ -60,9 +59,7 @@ defined( 'ABSPATH' ) || exit;
 				<?php submit_button( esc_html__( 'Stop', 'wpcv-woo-civi-integration' ), 'secondary', 'wpcv_woocivi_orders_process_stop', false ); ?>
 			<?php endif; ?>
 
-			<?php submit_button( $metabox['args']['order-button_title'], 'primary', 'wpcv_woocivi_orders_process', false, [
-				'data-security' => esc_attr( wp_create_nonce( 'wpcv_migrate_orders' ) ),
-			] ); ?>
+			<?php submit_button( $metabox['args']['order-button_title'], 'primary', 'wpcv_woocivi_orders_process', false, [ 'data-security' => esc_attr( wp_create_nonce( 'wpcv_migrate_orders' ) ) ] ); ?>
 
 			<div id="order-progress-bar"><div class="progress-label"></div></div>
 
@@ -80,16 +77,18 @@ defined( 'ABSPATH' ) || exit;
 
 	<p><em><?php esc_html_e( 'You have successfully migrated from WooCommerce CiviCRM to Integrate CiviCRM with WooCommerce.', 'wpcv-woo-civi-integration' ); ?></em></p>
 
-	<p><?php
+	<p>
+		<?php
 
-	echo sprintf(
-		/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
-		__( 'You can now go to your %1$sPlugins page%2$s and deactivate the WooCommerce CiviCRM plugin.', 'wpcv-woo-civi-integration' ),
-		'<a href="' . admin_url( 'plugins.php' ) . '">',
-		'</a>'
-	);
+		echo sprintf(
+			/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
+			__( 'You can now go to your %1$sPlugins page%2$s and deactivate the WooCommerce CiviCRM plugin.', 'wpcv-woo-civi-integration' ),
+			'<a href="' . admin_url( 'plugins.php' ) . '">',
+			'</a>'
+		);
 
-	?></p>
+		?>
+	</p>
 
 	<p><?php esc_html_e( 'Reminder: When you have deactivated WooCommerce CiviCRM, make sure you visit the "CiviCRM" Settings Tab to configure Integrate CiviCRM with WooCommerce. You will also need to review the CiviCRM settings for every active Product in your Shop to ensure they are all properly configured.', 'wpcv-woo-civi-integration' ); ?></p>
 

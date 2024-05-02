@@ -55,12 +55,18 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function register_hooks() {
 
+		/*
+		// Allow Source to be set on new Orders in WordPress admin.
+		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
+		*/
+
 		// Allow Source to be set on Orders in WordPress admin.
-		//add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
 		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 10, 2 );
 
+		/*
 		// Hook into WooCommerce Order processed.
-		//add_action( 'wpcv_woo_civi/order/processed', [ $this, 'order_processed' ], 10, 2 );
+		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'order_processed' ], 10, 2 );
+		*/
 
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ] );
@@ -68,8 +74,10 @@ class WPCV_Woo_Civi_Source {
 		// Add Source to Order.
 		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'source_get_for_order' ], 10, 2 );
 
+		/*
 		// Add Source to plugin settings fields.
-		//add_filter( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', [ $this, 'source_settings_add' ] );
+		add_filter( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', [ $this, 'source_settings_add' ] );
+		*/
 
 		// Show Source on Orders listing screen.
 		add_filter( 'manage_shop_order_posts_columns', [ $this, 'columns_head' ], 30 );
@@ -362,6 +370,7 @@ class WPCV_Woo_Civi_Source {
 		}
 
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results( $wpdb->prepare( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = %s", $this->meta_key ) );
 		if ( count( $results ) > 0 ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_source' );
@@ -410,6 +419,7 @@ class WPCV_Woo_Civi_Source {
 
 		// Modify meta query.
 		$mq = $query->get( 'meta_query' );
+		// phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 		$meta_query = false !== $mq ? [ 'relation' => 'AND', $mq ] : [];
 
 		// Add Source meta query.
@@ -440,6 +450,7 @@ class WPCV_Woo_Civi_Source {
 
 		// Query database directly.
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results( $wpdb->prepare( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = %s", $this->meta_key ) );
 
 		?>

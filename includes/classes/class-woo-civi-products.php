@@ -89,8 +89,10 @@ class WPCV_Woo_Civi_Products {
 		// Filter the Payment total.
 		add_filter( 'wpcv_woo_civi/contribution/payment_create/params', [ $this, 'payment_total_filter' ], 10, 3 );
 
+		/*
 		// Get Line Items for Payment.
-		//add_filter( 'wpcv_woo_civi/contribution/payment_create/params', [ $this, 'items_get_for_payment' ], 10, 3 );
+		add_filter( 'wpcv_woo_civi/contribution/payment_create/params', [ $this, 'items_get_for_payment' ], 10, 3 );
+		*/
 
 		// Get the Entity Type from WooCommerce Product meta.
 		add_filter( 'wpcv_woo_civi/product/query/entity_type', [ $this, 'entity_type_get' ], 10, 3 );

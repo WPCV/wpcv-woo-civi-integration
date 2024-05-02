@@ -290,7 +290,7 @@ class WPCV_Woo_Civi_Helper {
 			'options' => [ 'limit' => 0 ],
 			'api.PriceField.get' => [
 				'sequential' => 0,
-				'price_set_id' => "\$value.id",
+				'price_set_id' => '$value.id',
 				'is_active' => 1,
 				'options' => [ 'limit' => 0 ],
 			],
@@ -807,8 +807,12 @@ class WPCV_Woo_Civi_Helper {
 
 		$gateways = [];
 
+		/*
+		// Get available Payment Gateways.
+		$available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+		*/
+
 		// Get all Payment Gateways.
-		//$available_gateways = WC()->payment_gateways->get_available_payment_gateways();
 		$all_gateways = WC()->payment_gateways->payment_gateways();
 		if ( empty( $all_gateways ) ) {
 			return $gateways;

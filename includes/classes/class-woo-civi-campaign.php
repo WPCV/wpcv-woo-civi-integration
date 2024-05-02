@@ -118,8 +118,12 @@ class WPCV_Woo_Civi_Campaign {
 	 */
 	public function register_hooks() {
 
+		/*
+		// Allow Campaign to be set on new Orders in WordPress admin.
+		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
+		*/
+
 		// Allow Campaign to be set on Order in WordPress admin.
-		//add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
 		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 20, 2 );
 
 		// Add CiviCRM options to Edit Order screen.
@@ -859,6 +863,7 @@ class WPCV_Woo_Civi_Campaign {
 
 		// Modify meta query.
 		$mq = $query->get( 'meta_query' );
+		// phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 		$meta_query = false !== $mq ? [ 'relation' => 'AND', $mq ] : [];
 
 		// Add Campaign meta query.

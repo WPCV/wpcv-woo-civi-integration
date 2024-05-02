@@ -63,7 +63,11 @@ class WPCV_Woo_Civi_Order {
 		add_action( 'woocommerce_new_order', [ $this, 'order_new' ], 20, 2 );
 		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 20, 2 );
 		add_action( 'woocommerce_order_status_changed', [ $this, 'order_status_changed' ], 99, 4 );
-		//add_action( 'woocommerce_order_payment_status_changed', [ $this, 'order_status_changed_to_paid' ], 10, 2 );
+
+		/*
+		// Process changes when Payment Status changes in WooCommerce Orders.
+		add_action( 'woocommerce_order_payment_status_changed', [ $this, 'order_status_changed_to_paid' ], 10, 2 );
+		*/
 
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'woocommerce_admin_order_data_after_order_details', [ $this, 'order_details_add' ], 30 );

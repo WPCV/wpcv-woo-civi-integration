@@ -122,8 +122,10 @@ class WPCV_Woo_Civi_Admin {
 		// Register our form submit hander.
 		add_action( 'load-' . $this->admin_page, [ $this, 'form_submitted' ] );
 
-		// Add styles and scripts only on our Admin page.
-		// @see wp-admin/admin-header.php
+		/*
+		 * Add styles and scripts only on our Admin page.
+		 * @see wp-admin/admin-header.php
+		 */
 		add_action( 'admin_head-' . $this->admin_page, [ $this, 'admin_head' ] );
 		add_action( 'admin_print_styles-' . $this->admin_page, [ $this, 'admin_styles' ] );
 		add_action( 'admin_print_scripts-' . $this->admin_page, [ $this, 'admin_scripts' ] );
@@ -395,8 +397,10 @@ class WPCV_Woo_Civi_Admin {
 			$data
 		);
 
+		/*
 		// Make this metabox closed by default.
-		//add_filter( "postbox_classes_{$screen_id}_{$handle}", [ $this, 'meta_box_closed' ] );
+		add_filter( "postbox_classes_{$screen_id}_{$handle}", [ $this, 'meta_box_closed' ] );
+		*/
 
 		/**
 		 * Broadcast that the metaboxes have been added.
@@ -440,8 +444,12 @@ class WPCV_Woo_Civi_Admin {
 	 */
 	public function meta_box_contribution_render( $unused, $metabox ) {
 
-		// Set the Event button title.
+		// Configure the submit button.
 		$metabox['args']['button_title'] = esc_html__( 'Create Product', 'wpcv-woo-civi-integration' );
+		$metabox['args']['button_args']  = [
+			'data-security' => esc_attr( wp_create_nonce( 'wpcv_manual_sync_contribution' ) ),
+			'style' => 'float: right;',
+		];
 
 		// Assume there is no Custom Contribution Product Type.
 		$metabox['args']['custom_product_type_exists'] = false;
@@ -467,8 +475,12 @@ class WPCV_Woo_Civi_Admin {
 		// Get the array of Membership Types.
 		$metabox['args']['types'] = WPCV_WCI()->membership->get_membership_types_options();
 
-		// Set the Event button title.
+		// Configure the submit button.
 		$metabox['args']['button_title'] = esc_html__( 'Create Product', 'wpcv-woo-civi-integration' );
+		$metabox['args']['button_args']  = [
+			'data-security' => esc_attr( wp_create_nonce( 'wpcv_manual_sync_membership' ) ),
+			'style' => 'float: right;',
+		];
 
 		// Assume there is no Custom Membership Product Type.
 		$metabox['args']['custom_product_type_exists'] = false;
@@ -497,8 +509,12 @@ class WPCV_Woo_Civi_Admin {
 		// Get the array of Participant Roles.
 		$metabox['args']['roles'] = WPCV_WCI()->participant->get_participant_roles_options();
 
-		// Set the Event button title.
+		// Configure the submit button.
 		$metabox['args']['button_title'] = esc_html__( 'Create Product', 'wpcv-woo-civi-integration' );
+		$metabox['args']['button_args']  = [
+			'data-security' => esc_attr( wp_create_nonce( 'wpcv_manual_sync_event' ) ),
+			'style' => 'float: right;',
+		];
 
 		// Assume there is no Custom Participant Product Type.
 		$metabox['args']['custom_product_type_exists'] = false;
@@ -662,42 +678,42 @@ class WPCV_Woo_Civi_Admin {
 	public function event_inputs_parse( $data ) {
 
 		// Bail if there are no valid values.
-		$values = isset( $_POST['value'] ) ? (array) $_POST['value'] : [];
+		$values = filter_input( INPUT_POST, 'value', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 		if ( empty( $values ) ) {
 			$data['notice'] = __( 'Unrecognised parameters.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Product Type is not valid.
-		$product_type = isset( $_POST['value']['product_type'] ) ? sanitize_key( $_POST['value']['product_type'] ) : '';
+		$product_type = isset( $values['product_type'] ) ? sanitize_key( wp_unslash( $values['product_type'] ) ) : '';
 		if ( empty( $product_type ) || ! in_array( $product_type, [ 'simple', 'custom' ] ) ) {
 			$data['notice'] = __( 'Unrecognised Product Type.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Financial Type is not valid.
-		$financial_type_id = isset( $_POST['value']['financial_type'] ) ? (int) $_POST['value']['financial_type'] : 0;
+		$financial_type_id = isset( $values['financial_type'] ) ? (int) sanitize_text_field( wp_unslash( $values['financial_type'] ) ) : 0;
 		if ( empty( $financial_type_id ) ) {
 			$data['notice'] = __( 'Unrecognised Financial Type.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Price Field Values are not valid.
-		$pfv_ids = isset( $_POST['value']['pfv_ids'] ) ? array_map( 'intval', $_POST['value']['pfv_ids'] ) : [];
+		$pfv_ids = isset( $values['pfv_ids'] ) ? array_map( 'intval', $values['pfv_ids'] ) : [];
 		if ( empty( $pfv_ids ) ) {
 			$data['notice'] = __( 'Unrecognised Price Field Values.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Event ID is not valid.
-		$event_id = isset( $_POST['value']['event_id'] ) ? (int) $_POST['value']['event_id'] : 0;
+		$event_id = isset( $values['event_id'] ) ? (int) sanitize_text_field( wp_unslash( $values['event_id'] ) ) : 0;
 		if ( empty( $event_id ) ) {
 			$data['notice'] = __( 'Unrecognised Event ID.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Participant Role is not valid.
-		$role_id = isset( $_POST['value']['role'] ) ? (int) $_POST['value']['role'] : 0;
+		$role_id = isset( $values['role'] ) ? (int) sanitize_text_field( wp_unslash( $values['role'] ) ) : 0;
 		if ( empty( $role_id ) ) {
 			$data['notice'] = __( 'Unrecognised Participant Role.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );

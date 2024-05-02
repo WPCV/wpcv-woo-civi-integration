@@ -848,7 +848,7 @@ class WPCV_Woo_Civi {
  *
  * @return WPCV_Woo_Civi The plugin instance.
  */
-function WPCV_WCI() {
+function WPCV_WCI() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 	return WPCV_Woo_Civi::instance();
 }
 

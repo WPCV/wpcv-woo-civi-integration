@@ -115,9 +115,11 @@ class WPCV_Woo_Civi_Participant {
 		// Save Event and Participant Role for the Product Variation.
 		add_action( 'wpcv_woo_civi/product/variation/attributes/saved/after', [ $this, 'variation_saved' ], 10, 3 );
 
+		/*
 		// Add Participant data to the Product "Bulk Edit" and "Quick Edit" markup.
-		//add_action( 'wpcv_woo_civi/product/bulk_edit/after', [ $this, 'bulk_edit_add_markup' ] );
-		//add_action( 'wpcv_woo_civi/product/quick_edit/after', [ $this, 'quick_edit_add_markup' ] );
+		add_action( 'wpcv_woo_civi/product/bulk_edit/after', [ $this, 'bulk_edit_add_markup' ] );
+		add_action( 'wpcv_woo_civi/product/quick_edit/after', [ $this, 'quick_edit_add_markup' ] );
+		*/
 
 	}
 
@@ -770,7 +772,7 @@ class WPCV_Woo_Civi_Participant {
 	}
 
 	/**
-	 * Adds the CiviCRM Event and Participant Role settings as meta to the Product.
+	 * AJAX handler for Event searches.
 	 *
 	 * @since 3.0
 	 */
@@ -780,6 +782,7 @@ class WPCV_Woo_Civi_Participant {
 
 		$term = '';
 		if ( isset( $_GET['term'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$term = (string) wc_clean( wp_unslash( $_GET['term'] ) );
 		}
 
@@ -940,6 +943,7 @@ class WPCV_Woo_Civi_Participant {
 					<option value="0"><?php esc_html_e( 'Select a Price Field', 'wpcv-woo-civi-integration' ); ?></option>
 					<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 						<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
+							<?php /* translators: 1: The Price Set title, 2: The Price Set label. */ ?>
 							<optgroup label="<?php echo esc_attr( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
 								<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
 									<option value="<?php echo esc_attr( $price_field_value_id ); ?>" <?php selected( $price_field_value_id, $pfv_id ); ?>><?php echo esc_html( $price_field_value['label'] ); ?></option>
@@ -1128,6 +1132,7 @@ class WPCV_Woo_Civi_Participant {
 						<option value=""><?php esc_html_e( '- No Change -', 'wpcv-woo-civi-integration' ); ?></option>
 						<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 							<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
+								<?php /* translators: 1: The Price Set title, 2: The Price Set label. */ ?>
 								<optgroup label="<?php echo esc_attr( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
 									<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
 										<option value="<?php echo esc_attr( $price_field_value_id ); ?>"><?php echo esc_html( $price_field_value['label'] ); ?></option>
@@ -1182,6 +1187,7 @@ class WPCV_Woo_Civi_Participant {
 						<option value=""><?php esc_html_e( 'Not set', 'wpcv-woo-civi-integration' ); ?></option>
 						<?php foreach ( $price_sets as $price_set_id => $price_set ) : ?>
 							<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
+								<?php /* translators: 1: The Price Set title, 2: The Price Set label. */ ?>
 								<optgroup label="<?php echo esc_attr( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
 									<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
 										<option value="<?php echo esc_attr( $price_field_value_id ); ?>"><?php echo esc_html( $price_field_value['label'] ); ?></option>
