@@ -254,7 +254,7 @@ class WPCV_Woo_Civi_Products_Variable {
 		$entity = $parent->get_meta( $this->entity_key );
 
 		// Bail there isn't one or it's excluded from sync.
-		if ( empty( $entity ) || $entity === 'civicrm_exclude' ) {
+		if ( empty( $entity ) || 'civicrm_exclude' === $entity ) {
 			return;
 		}
 
@@ -316,7 +316,7 @@ class WPCV_Woo_Civi_Products_Variable {
 		$entity_type = $this->entity_type_get_from_parent( $variation );
 
 		// Bail there isn't one or it's excluded from sync.
-		if ( empty( $entity_type ) || $entity_type === 'civicrm_exclude' ) {
+		if ( empty( $entity_type ) || 'civicrm_exclude' === $entity_type ) {
 			return;
 		}
 
@@ -397,7 +397,7 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Bail if not a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variation' ) {
+		if ( 'variation' !== $product_type ) {
 			return $line_item;
 		}
 
@@ -650,10 +650,10 @@ class WPCV_Woo_Civi_Products_Variable {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'type'   => $type,
-				'key'    => $key,
-				//'backtrace' => $trace,
+				'method'    => __METHOD__,
+				'type'      => $type,
+				'key'       => $key,
+				'backtrace' => $trace,
 			], true ) );
 		}
 
@@ -715,7 +715,7 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Bail if not a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variation' ) {
+		if ( 'variation' !== $product_type ) {
 			return $entity_type;
 		}
 
@@ -746,7 +746,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	public function entity_type_get( $entity_type, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $entity_type !== '' ) {
+		if ( '' !== $entity_type ) {
 			return $entity_type;
 		}
 
@@ -762,17 +762,17 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Pass through if not a Variable Product or a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variable' && $product_type !== 'variation' ) {
+		if ( 'variable' !== $product_type && 'variation' !== $product_type ) {
 			return $entity_type;
 		}
 
 		// Get Entity Type from meta when Variable Product.
-		if ( $product_type === 'variable' ) {
+		if ( 'variable' === $product_type ) {
 			$entity_type = $product->get_meta( $this->entity_key );
 		}
 
 		// Get Entity Type from parent meta when Product Variation.
-		if ( $product_type === 'variation' ) {
+		if ( 'variation' === $product_type ) {
 			$entity_type = $this->entity_type_get_from_parent( $product );
 		}
 
@@ -797,18 +797,18 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Bail if not a Variable Product or a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variable' && $product_type !== 'variation' ) {
+		if ( 'variable' !== $product_type && 'variation' !== $product_type ) {
 			return;
 		}
 
 		// Save Entity Type to meta.
-		if ( $product_type === 'variable' ) {
+		if ( 'variable' === $product_type ) {
 			$product->add_meta_data( $this->entity_key, $entity_type, true );
 			$id = $product->save();
 		}
 
 		// Get Entity Type from parent meta when Product Variation.
-		if ( $product_type === 'variation' ) {
+		if ( 'variation' === $product_type ) {
 			$parent_id = $product->get_parent_id();
 			$parent    = wc_get_product( $parent_id );
 			$parent->add_meta_data( $this->entity_key, $entity_type, true );
@@ -830,7 +830,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	public function financial_type_id_get( $financial_type_id, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $financial_type_id !== 0 ) {
+		if ( 0 !== $financial_type_id ) {
 			return $financial_type_id;
 		}
 
@@ -846,7 +846,7 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Pass through if not a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variation' ) {
+		if ( 'variation' !== $product_type ) {
 			return $entity_type;
 		}
 
@@ -882,7 +882,7 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Bail if not a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variation' ) {
+		if ( 'variation' !== $product_type ) {
 			return;
 		}
 

@@ -118,7 +118,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// Bail if we are on our "Migration" page.
-		if ( $screen->id === 'civicrm_page_' . $this->migrate_page_slug ) {
+		if ( 'civicrm_page_' . $this->migrate_page_slug === $screen->id ) {
 			return;
 		}
 
@@ -134,7 +134,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			);
 
 			// Add a link if we are not on the "Plugins" page.
-			if ( $screen->id !== 'plugins' ) {
+			if ( 'plugins' !== $screen->id ) {
 
 				// Add link.
 				$link = sprintf(
@@ -389,7 +389,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Init meta box title.
 		$title = __( 'Migration Tasks', 'wpcv-woo-civi-integration' );
-		if ( $data['migrated'] === true ) {
+		if ( true === $data['migrated'] ) {
 			$title = __( 'Migration Complete', 'wpcv-woo-civi-integration' );
 		}
 
@@ -404,7 +404,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Set the Product button title.
 		$data['product-button_title'] = esc_html__( 'Upgrade Products', 'wpcv-woo-civi-integration' );
-		if ( $data['product-offset'] !== false ) {
+		if ( false !== $data['product-offset'] ) {
 			$data['product-button_title'] = esc_html__( 'Continue Upgrading', 'wpcv-woo-civi-integration' );
 		}
 
@@ -419,16 +419,16 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Set the Order button title.
 		$data['order-button_title'] = esc_html__( 'Upgrade Orders', 'wpcv-woo-civi-integration' );
-		if ( $data['order-offset'] !== false ) {
+		if ( false !== $data['order-offset'] ) {
 			$data['order-button_title'] = esc_html__( 'Continue Upgrading', 'wpcv-woo-civi-integration' );
 		}
 
 		// Only show Submit if not migrated.
-		if ( $data['migrated'] === false ) {
+		if ( false === $data['migrated'] ) {
 
 			// Disable Submit if not fully migrated.
 			$data['submit-atts'] = [];
-			if ( $data['product-metadata'] === false || $data['order-metadata'] === false ) {
+			if ( false === $data['product-metadata'] || false === $data['order-metadata'] ) {
 				$data['submit-atts'] = [
 					'disabled' => 'disabled',
 				];
@@ -575,7 +575,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		];
 
 		// Maybe append param.
-		if ( $mode === 'updated' ) {
+		if ( 'updated' === $mode ) {
 			$args['settings-updated'] = 'true';
 		}
 
@@ -624,7 +624,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If we get an error.
-		if ( $result === false ) {
+		if ( false === $result ) {
 
 			// Set finished flag.
 			$data['finished'] = 'true';
@@ -730,7 +730,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$duplicate = get_post_meta( $product_id, '_civicrm_contribution_type', true );
 
 		// When it does, update the proper meta and remove duplicate.
-		if ( ! empty( $duplicate ) || $duplicate === 0 ) {
+		if ( ! empty( $duplicate ) || 0 === $duplicate ) {
 			update_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id', $duplicate );
 			delete_post_meta( $product_id, '_civicrm_contribution_type' );
 		}
@@ -739,7 +739,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$financial_type_id = get_post_meta( $product_id, 'woocommerce_civicrm_financial_type_id', true );
 
 		// When it does, update the proper meta and remove old.
-		if ( ! empty( $financial_type_id ) || $financial_type_id === 0 ) {
+		if ( ! empty( $financial_type_id ) || 0 === $financial_type_id ) {
 			update_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id', $financial_type_id );
 			delete_post_meta( $product_id, 'woocommerce_civicrm_financial_type_id' );
 		}
@@ -748,7 +748,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$membership_type_id = get_post_meta( $product_id, 'woocommerce_civicrm_membership_type_id', true );
 
 		// When it does, update the proper meta and remove old.
-		if ( ! empty( $membership_type_id ) || $membership_type_id === 0 ) {
+		if ( ! empty( $membership_type_id ) || 0 === $membership_type_id ) {
 			if ( $member_active ) {
 				update_post_meta( $product_id, '_woocommerce_civicrm_membership_type_id', $membership_type_id );
 				// Also set the Entity Type if applicable.
@@ -760,7 +760,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// Maybe transfer "exclude" setting to Entity Type and clean up.
-		if ( $financial_type_id === 'exclude' ) {
+		if ( 'exclude' === $financial_type_id ) {
 			update_post_meta( $product_id, '_woocommerce_civicrm_entity_type', 'civicrm_exclude' );
 			delete_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id' );
 			delete_post_meta( $product_id, '_woocommerce_civicrm_membership_type_id' );
@@ -807,7 +807,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If we get an error.
-		if ( $result === false ) {
+		if ( false === $result ) {
 
 			// Set finished flag.
 			$data['finished'] = 'true';
@@ -921,7 +921,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If that fails, try and find the Contact ID via the Invoice ID.
-		if ( $contact_id === false ) {
+		if ( false === $contact_id ) {
 			$contribution = WPCV_WCI()->contribution->get_by_order_id( $order_id );
 			if ( ! empty( $contribution ) ) {
 				$contact_id = (int) $contribution['contact_id'];
@@ -929,7 +929,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If we find the Contact ID, create meta.
-		if ( $contact_id !== false ) {
+		if ( false !== $contact_id ) {
 			update_post_meta( $order_id, '_woocommerce_civicrm_contact_id', $contact_id );
 		}
 

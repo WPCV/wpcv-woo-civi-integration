@@ -306,7 +306,7 @@ class WPCV_Woo_Civi_Participant {
 		/*
 		// Build source with CiviCRM Event data if we can.
 		$event = $this->get_event_by_id( $event_id );
-		if ( $event !== false ) {
+		if ( false !== $event ) {
 			$line_item_params['source'] = sprintf(
 				__( '%1$s: %2$s' ),
 				WPCV_WCI()->source->source_generate(),
@@ -895,7 +895,7 @@ class WPCV_Woo_Civi_Participant {
 		}
 
 		// Maybe add to options.
-		if ( $event !== false ) {
+		if ( false !== $event ) {
 			$options[ $event_id ] = $event['title'];
 		}
 
@@ -974,7 +974,7 @@ class WPCV_Woo_Civi_Participant {
 		// TODO: We nay still want to include these for Product Type switching.
 
 		// Bail if this is not a CiviCRM Participant.
-		if ( $entity !== 'civicrm_participant' ) {
+		if ( 'civicrm_participant' !== $entity ) {
 			return;
 		}
 
@@ -999,7 +999,7 @@ class WPCV_Woo_Civi_Participant {
 		}
 
 		// Maybe add to options.
-		if ( $event !== false ) {
+		if ( false !== $event ) {
 			$options[ $event_id ] = $event['title'];
 		}
 
@@ -1064,7 +1064,7 @@ class WPCV_Woo_Civi_Participant {
 	public function variation_saved( $variation, $loop, $entity ) {
 
 		// Bail if this is not a CiviCRM Participant.
-		if ( $entity !== 'civicrm_participant' ) {
+		if ( 'civicrm_participant' !== $entity ) {
 			return;
 		}
 

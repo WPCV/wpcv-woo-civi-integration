@@ -120,7 +120,7 @@ class WPCV_Woo_Civi_Products_Custom {
 		foreach ( $this->product_names as $type => $name ) {
 
 			// Handle CiviCRM Contribution.
-			if ( $name === 'civicrm_contribution' ) {
+			if ( 'civicrm_contribution' === $name ) {
 				if ( ! WPCV_WCI()->helper->is_component_enabled( 'CiviContribute' ) ) {
 					$this->term_delete( $type );
 					unset( $this->product_names['civicrm_contribution'] );
@@ -132,7 +132,7 @@ class WPCV_Woo_Civi_Products_Custom {
 			}
 
 			// Handle CiviCRM Membership.
-			if ( $name === 'civicrm_membership' ) {
+			if ( 'civicrm_membership' === $name ) {
 				if ( ! WPCV_WCI()->membership->active ) {
 					$this->term_delete( $type );
 					unset( $this->product_names['civicrm_membership'] );
@@ -144,7 +144,7 @@ class WPCV_Woo_Civi_Products_Custom {
 			}
 
 			// Handle CiviCRM Participant.
-			if ( $name === 'civicrm_participant' ) {
+			if ( 'civicrm_participant' === $name ) {
 				if ( ! WPCV_WCI()->participant->active ) {
 					$this->term_delete( $type );
 					unset( $this->product_names['civicrm_participant'] );
@@ -401,7 +401,7 @@ class WPCV_Woo_Civi_Products_Custom {
 		}
 
 		// Bail if we are not editing a Product.
-		if ( $screen->id !== 'product' && $screen->base !== 'post' && $screen->post_type !== 'product' ) {
+		if ( 'product' !== $screen->id && 'post' !== $screen->base && 'product' !== $screen->post_type ) {
 			return;
 		}
 
@@ -567,7 +567,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	public function pfv_id_get( $pfv_id, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $pfv_id !== 0 ) {
+		if ( 0 !== $pfv_id ) {
 			return $pfv_id;
 		}
 
@@ -931,7 +931,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	public function entity_type_get( $entity_type, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $entity_type !== '' ) {
+		if ( '' !== $entity_type ) {
 			return $entity_type;
 		}
 
@@ -969,7 +969,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	public function financial_type_id_get( $financial_type_id, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $financial_type_id !== 0 ) {
+		if ( 0 !== $financial_type_id ) {
 			return $financial_type_id;
 		}
 

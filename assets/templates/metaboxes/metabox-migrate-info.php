@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 <!-- assets/templates/metaboxes/metabox-migrate-info.php -->
-<?php if ( $metabox['args']['migrated'] === false ) : ?>
+<?php if ( false === $metabox['args']['migrated'] ) : ?>
 
 	<h3><?php esc_html_e( 'Why migrate?', 'wpcv-woo-civi-integration' ); ?></h3>
 
@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<p><?php esc_html_e( 'Filters and Actions have undergone a major overhaul and there isn’t really a simple substitution formula that we can give you. If you are technical enough to have used them to modify or extend the behaviour of the WooCommerce CiviCRM plugin, then we are confident that you are capable of figuring out their replacements by looking at the equivalent classes, functions and templates in this plugin.', 'wpcv-woo-civi-integration' ); ?> <em><?php esc_html_e( 'You need to do so before taking any further action.', 'wpcv-woo-civi-integration' ); ?></em></p>
 
-	<?php if ( $metabox['args']['product-metadata'] === false ) : ?>
+	<?php if ( false === $metabox['args']['product-metadata'] ) : ?>
 
 		<div id="wpcv_woocivi_products">
 
@@ -35,7 +35,7 @@ defined( 'ABSPATH' ) || exit;
 
 			<p><?php esc_html_e( 'The WooCommerce CiviCRM plugin duplicated some Product metadata in certain circumstances. Click the "Upgrade Products" button below to resolve this issue.', 'wpcv-woo-civi-integration' ); ?></p>
 
-			<?php if ( $metabox['args']['product-offset'] !== false ) : ?>
+			<?php if ( false !== $metabox['args']['product-offset'] ) : ?>
 				<?php submit_button( esc_html__( 'Stop', 'wpcv-woo-civi-integration' ), 'secondary', 'wpcv_woocivi_products_process_stop', false ); ?>
 			<?php endif; ?>
 
@@ -47,7 +47,7 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php endif; ?>
 
-	<?php if ( $metabox['args']['order-metadata'] === false ) : ?>
+	<?php if ( false === $metabox['args']['order-metadata'] ) : ?>
 
 		<div id="wpcv_woocivi_orders">
 
@@ -55,7 +55,7 @@ defined( 'ABSPATH' ) || exit;
 
 			<p><?php esc_html_e( 'This plugin needs to store some information in WooCommerce Order metadata so that it can perform certain tasks. Click the "Upgrade Orders" button below to start the upgrade process.', 'wpcv-woo-civi-integration' ); ?></p>
 
-			<?php if ( $metabox['args']['order-offset'] !== false ) : ?>
+			<?php if ( false !== $metabox['args']['order-offset'] ) : ?>
 				<?php submit_button( esc_html__( 'Stop', 'wpcv-woo-civi-integration' ), 'secondary', 'wpcv_woocivi_orders_process_stop', false ); ?>
 			<?php endif; ?>
 

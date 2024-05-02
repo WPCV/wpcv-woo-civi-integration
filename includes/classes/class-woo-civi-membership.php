@@ -650,7 +650,7 @@ class WPCV_Woo_Civi_Membership {
 		// TODO: We may still want to include these for Product Type switching.
 
 		// Bail if this is not a CiviCRM Membership.
-		if ( $entity !== 'civicrm_membership' ) {
+		if ( 'civicrm_membership' !== $entity ) {
 			return;
 		}
 
@@ -694,7 +694,7 @@ class WPCV_Woo_Civi_Membership {
 	public function variation_saved( $variation, $loop, $entity ) {
 
 		// Bail if this is not a CiviCRM Membership.
-		if ( $entity !== 'civicrm_membership' ) {
+		if ( 'civicrm_membership' !== $entity ) {
 			return;
 		}
 

@@ -350,7 +350,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 
 		// Try and find the Contact.
 		$contact = WPCV_WCI()->contact->get_by_id( $ufmatch['contact_id'] );
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			return;
 		}
 

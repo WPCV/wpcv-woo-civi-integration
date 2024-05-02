@@ -65,7 +65,7 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 		}
 
 		$wc_site_id = (int) $options['wc_blog_id'];
-		if ( $wc_site_id === get_current_blog_id() ) {
+		if ( get_current_blog_id() === $wc_site_id ) {
 			return false;
 		}
 

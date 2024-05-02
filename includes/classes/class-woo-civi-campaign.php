@@ -645,7 +645,7 @@ class WPCV_Woo_Civi_Campaign {
 
 		// This only needs to be done once.
 		static $done;
-		if ( isset( $done ) && $done === true ) {
+		if ( isset( $done ) && true === $done ) {
 			return;
 		}
 
@@ -686,7 +686,7 @@ class WPCV_Woo_Civi_Campaign {
 
 		// Bail if the new Campaign cannot be found.
 		$new_campaign = $this->get_campaign_by_id( $new_campaign_id );
-		if ( $new_campaign_id === false ) {
+		if ( false === $new_campaign_id ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Campaign', 'wpcv-woo-civi-integration' ) );

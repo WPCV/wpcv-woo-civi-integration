@@ -664,7 +664,7 @@ class WPCV_Woo_Civi_Products {
 			}
 
 			// Skip if we should not deduct this Item regardless of total and tax.
-			if ( $deduct === false ) {
+			if ( false === $deduct ) {
 				// Also flag that there are synced Line Items.
 				$params['has_synced_line_items'] = true;
 				continue;
@@ -905,7 +905,7 @@ class WPCV_Woo_Civi_Products {
 	public function entity_type_get( $entity_type, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $entity_type !== '' ) {
+		if ( '' !== $entity_type ) {
 			return $entity_type;
 		}
 
@@ -973,7 +973,7 @@ class WPCV_Woo_Civi_Products {
 	public function financial_type_id_get( $financial_type_id, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $financial_type_id !== 0 ) {
+		if ( 0 !== $financial_type_id ) {
 			return $financial_type_id;
 		}
 
@@ -1045,7 +1045,7 @@ class WPCV_Woo_Civi_Products {
 	public function pfv_id_get( $pfv_id, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $pfv_id !== 0 ) {
+		if ( 0 !== $pfv_id ) {
 			return $pfv_id;
 		}
 

@@ -598,7 +598,7 @@ class WPCV_Woo_Civi_Admin {
 		];
 
 		// Maybe append param.
-		if ( $mode === 'updated' ) {
+		if ( 'updated' === $mode ) {
 			$args['settings-updated'] = 'true';
 		}
 
@@ -628,7 +628,7 @@ class WPCV_Woo_Civi_Admin {
 		}
 
 		// If we get an error.
-		if ( $result === false ) {
+		if ( false === $result ) {
 			$data['notice'] = __( 'Authentication failed.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
@@ -638,14 +638,14 @@ class WPCV_Woo_Civi_Admin {
 
 		// Get the CiviCRM Event data.
 		$event = WPCV_WCI()->participant->get_event_by_id( $inputs['event_id'] );
-		if ( $event === false ) {
+		if ( false === $event ) {
 			$data['notice'] = __( 'Unrecognised Event.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Create Product based on Price Field Value count and selected type.
 		if ( count( $inputs['pfv_ids'] ) === 1 ) {
-			if ( $inputs['product_type'] === 'simple' ) {
+			if ( 'simple' === $inputs['product_type'] ) {
 				$product = $this->event_product_create_simple( $inputs, $event );
 			} else {
 				$product = $this->event_product_create_custom( $inputs, $event );
@@ -751,7 +751,7 @@ class WPCV_Woo_Civi_Admin {
 			'type'         => 'simple',
 			'virtual'      => true,
 			'downloadable' => false,
-			//'catalog_visibility' => 'hidden',
+			// 'catalog_visibility' => 'hidden',
 		];
 
 		// Init Product meta data.
@@ -833,7 +833,7 @@ class WPCV_Woo_Civi_Admin {
 			'type'         => 'civicrm_participant',
 			'virtual'      => true,
 			'downloadable' => false,
-			//'catalog_visibility' => 'hidden',
+			// 'catalog_visibility' => 'hidden',
 		];
 
 		// Declare CiviCRM Entity.
@@ -912,7 +912,7 @@ class WPCV_Woo_Civi_Admin {
 			'type'         => 'variable',
 			'virtual'      => true,
 			'downloadable' => false,
-			//'catalog_visibility' => 'hidden',
+			// 'catalog_visibility' => 'hidden',
 		];
 
 		// Get Price Field data.

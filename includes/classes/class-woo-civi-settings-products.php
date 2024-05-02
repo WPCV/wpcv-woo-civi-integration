@@ -321,7 +321,7 @@ class WPCV_Woo_Civi_Settings_Products {
 		// Show if this Product needs its Entity Type set.
 		if ( empty( $entity_type ) ) {
 			$feedback['entity_type'] = esc_html__( 'Excluded', 'wpcv-woo-civi-integration' );
-		} elseif ( $entity_type === 'civicrm_exclude' ) {
+		} elseif ( 'civicrm_exclude' === $entity_type ) {
 			// Show if this Product should not be synced to CiviCRM.
 			$feedback['entity_type'] = esc_html__( 'Excluded', 'wpcv-woo-civi-integration' );
 		} elseif ( array_key_exists( $entity_type, $entity_types ) ) {
@@ -333,9 +333,9 @@ class WPCV_Woo_Civi_Settings_Products {
 		}
 
 		// Show if it has the legacy excluded setting.
-		if ( ! empty( $financial_type_id ) && $financial_type_id === 'exclude' ) {
+		if ( ! empty( $financial_type_id ) && 'exclude' === $financial_type_id ) {
 			$feedback['financial_type'] = esc_html__( 'Excluded (legacy)', 'wpcv-woo-civi-integration' );
-		} elseif ( $financial_type_id !== 0 && array_key_exists( $financial_type_id, $financial_types ) ) {
+		} elseif ( 0 !== $financial_type_id && array_key_exists( $financial_type_id, $financial_types ) ) {
 			// If there's a specific Financial Type for this Product, use it.
 			$feedback['financial_type'] = esc_html( $financial_types[ $financial_type_id ] );
 		} else {
@@ -344,12 +344,12 @@ class WPCV_Woo_Civi_Settings_Products {
 		}
 
 		// Clear Financial Type when Product is excluded.
-		if ( empty( $entity_type ) || $entity_type === 'civicrm_exclude' ) {
+		if ( empty( $entity_type ) || 'civicrm_exclude' === $entity_type ) {
 			unset( $feedback['financial_type'] );
 		}
 
 		// Clear Financial Type when it's a Variable Product.
-		if ( $product_type === 'variable' && isset( $feedback['financial_type'] ) ) {
+		if ( 'variable' === $product_type && isset( $feedback['financial_type'] ) ) {
 			unset( $feedback['financial_type'] );
 		}
 
@@ -378,10 +378,10 @@ class WPCV_Woo_Civi_Settings_Products {
 		// Build the data markup.
 		$markup  = '';
 		$markup .= "\n" . '<div class="hidden" id="wpcv_woo_civi_inline_' . $post_id . '">' . "\n";
-		//$markup .= "\t" . '<div class="product_type">' . $product_type . '</div>' . "\n";
+		// $markup .= "\t" . '<div class="product_type">' . $product_type . '</div>' . "\n";
 		$markup .= "\t" . '<div class="entity_type">' . $entity_type . '</div>' . "\n";
 		$markup .= "\t" . '<div class="financial_type_id">' . $financial_type_id . '</div>' . "\n";
-		//$markup .= "\t" . '<div class="pfv_id">' . $pfv_id . '</div>' . "\n";
+		// $markup .= "\t" . '<div class="pfv_id">' . $pfv_id . '</div>' . "\n";
 		$markup .= '</div>' . "\n";
 
 		return $markup;
@@ -402,7 +402,7 @@ class WPCV_Woo_Civi_Settings_Products {
 		}
 
 		// Bail if we are not on the right screen.
-		if ( $screen->id !== 'edit-product' ) {
+		if ( 'edit-product' !== $screen->id ) {
 			return;
 		}
 

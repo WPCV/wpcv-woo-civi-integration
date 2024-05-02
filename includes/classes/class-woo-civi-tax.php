@@ -180,7 +180,7 @@ class WPCV_Woo_Civi_Tax {
 
 		// Apply Tax to Line Item.
 		$line_item = [
-			//'params' => $line_item_params,
+			// 'params' => $line_item_params,
 			'line_item' => [
 				$line_item_data,
 			],

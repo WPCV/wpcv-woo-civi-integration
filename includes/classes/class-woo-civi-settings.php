@@ -78,7 +78,7 @@ class WPCV_Woo_Civi_Settings {
 		$this->upgrade_tasks();
 
 		// Store version for later reference if there has been a change.
-		if ( $this->plugin_version !== WPCV_WOO_CIVI_VERSION ) {
+		if ( WPCV_WOO_CIVI_VERSION !== $this->plugin_version ) {
 			$this->option_set( 'wpcv_woo_civi_version', WPCV_WOO_CIVI_VERSION );
 		}
 
@@ -92,12 +92,12 @@ class WPCV_Woo_Civi_Settings {
 	public function upgrade_tasks() {
 
 		// If this is a new install (or a migration from a version prior to 3.0).
-		if ( $this->plugin_version === false ) {
+		if ( false === $this->plugin_version ) {
 			// Already handled by migration.
 		}
 
 		// If this is an upgrade.
-		if ( $this->plugin_version !== WPCV_WOO_CIVI_VERSION ) {
+		if ( WPCV_WOO_CIVI_VERSION !== $this->plugin_version ) {
 			// Do something.
 		}
 
@@ -313,7 +313,7 @@ class WPCV_Woo_Civi_Settings {
 			'product_title' => [
 				'title' => __( 'Product settings', 'wpcv-woo-civi-integration' ),
 				'type'  => 'title',
-				//'desc' => __( 'This plugin needs to know some information to configure WooCommerce Products.', 'wpcv-woo-civi-integration' ),
+				// 'desc' => __( 'This plugin needs to know some information to configure WooCommerce Products.', 'wpcv-woo-civi-integration' ),
 				'id'    => 'product_title',
 			],
 		];
@@ -389,7 +389,7 @@ class WPCV_Woo_Civi_Settings {
 			'contact_title' => [
 				'title' => __( 'Contact settings', 'wpcv-woo-civi-integration' ),
 				'type'  => 'title',
-				//'desc' => __( 'This plugin needs to know some information to configure WooCommerce Contacts.', 'wpcv-woo-civi-integration' ),
+				// 'desc' => __( 'This plugin needs to know some information to configure WooCommerce Contacts.', 'wpcv-woo-civi-integration' ),
 				'id'    => 'contact_title',
 			],
 		];
@@ -479,7 +479,7 @@ class WPCV_Woo_Civi_Settings {
 				'title' => __( 'Address, Phone and Email settings', 'wpcv-woo-civi-integration' ),
 				'type'  => 'title',
 				'desc'  => '',
-				//'desc' => __( 'Default settings for synchronizing Addresses in CiviCRM.', 'wpcv-woo-civi-integration' ),
+				// 'desc' => __( 'Default settings for synchronizing Addresses in CiviCRM.', 'wpcv-woo-civi-integration' ),
 				'id'    => 'address_title',
 			],
 		];

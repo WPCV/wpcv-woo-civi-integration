@@ -31,7 +31,7 @@ if ( ! empty( $event_id ) ) {
 }
 
 // Maybe add to options.
-if ( $event !== false ) {
+if ( false !== $event ) {
 	$options[ $event_id ] = $event['title'];
 }
 

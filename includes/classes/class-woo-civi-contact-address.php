@@ -343,7 +343,7 @@ class WPCV_Woo_Civi_Contact_Address {
 
 		// Try and find the Contact.
 		$contact = WPCV_WCI()->contact->get_by_id( $object_ref->contact_id );
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			return;
 		}
 
@@ -392,9 +392,9 @@ class WPCV_Woo_Civi_Contact_Address {
 			$value = $object_ref->{$civi_field};
 
 			// Override for special fields.
-			if ( $civi_field === 'country_id' ) {
+			if ( 'country_id' === $civi_field ) {
 				$value = WPCV_WCI()->settings_states->get_civicrm_country_iso_code( $value );
-			} elseif ( $civi_field === 'state_province_id' ) {
+			} elseif ( 'state_province_id' === $civi_field ) {
 				$value = WPCV_WCI()->settings_states->get_civicrm_state_province_name( $value );
 			}
 
@@ -490,7 +490,7 @@ class WPCV_Woo_Civi_Contact_Address {
 
 		// Try and find the Contact.
 		$contact = WPCV_WCI()->contact->get_by_id( $ufmatch['contact_id'] );
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			return;
 		}
 
@@ -514,9 +514,9 @@ class WPCV_Woo_Civi_Contact_Address {
 			}
 
 			// Override for special fields.
-			if ( $civi_field === 'country_id' ) {
+			if ( 'country_id' === $civi_field ) {
 				$value = WPCV_WCI()->settings_states->get_civicrm_country_id( $value );
-			} elseif ( $civi_field === 'state_province_id' ) {
+			} elseif ( 'state_province_id' === $civi_field ) {
 				// This relies on the order of the Field mappings to work.
 				$value = WPCV_WCI()->settings_states->get_civicrm_state_province_id( $value, $address_params['country_id'] );
 			}

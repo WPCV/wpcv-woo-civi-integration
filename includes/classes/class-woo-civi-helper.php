@@ -508,7 +508,7 @@ class WPCV_Woo_Civi_Helper {
 
 		// Init options array.
 		$price_set_options = [];
-		if ( $zero_option === true ) {
+		if ( true === $zero_option ) {
 			$price_set_options[0] = __( 'Select a Price Field', 'wpcv-woo-civi-integration' );
 		}
 
@@ -754,7 +754,7 @@ class WPCV_Woo_Civi_Helper {
 		// Return incoming value on error.
 		$decimal_separator  = $this->get_decimal_separator();
 		$thousand_separator = $this->get_thousand_separator();
-		if ( $decimal_separator === false || $thousand_separator === false ) {
+		if ( false === $decimal_separator || false === $thousand_separator ) {
 			return $number;
 		}
 

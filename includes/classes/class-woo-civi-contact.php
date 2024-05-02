@@ -686,10 +686,10 @@ class WPCV_Woo_Civi_Contact {
 			$e     = new Exception();
 			$trace = $e->getTraceAsString();
 			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
-				//'backtrace' => $trace,
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
 			], true ) );
 			return false;
 		}
@@ -834,7 +834,7 @@ class WPCV_Woo_Civi_Contact {
 		$contact = $this->create( $contact );
 
 		// Bail if something went wrong.
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to create Contact', 'wpcv-woo-civi-integration' ) );
 			return false;
 		}
@@ -888,7 +888,7 @@ class WPCV_Woo_Civi_Contact {
 
 		// Try and find the Contact.
 		$contact = $this->get_by_id( $contact_id );
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			return false;
 		}
 
@@ -925,7 +925,7 @@ class WPCV_Woo_Civi_Contact {
 		$contact = $this->update( $contact );
 
 		// Bail if something went wrong.
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Contact', 'wpcv-woo-civi-integration' ) );
 			return false;
 		}
@@ -988,7 +988,7 @@ class WPCV_Woo_Civi_Contact {
 				$ufmatch = $this->get_ufmatch( $user_id, 'uf_id' );
 
 				// Return the Contact ID if found.
-				if ( $ufmatch !== false && ! empty( $ufmatch['contact_id'] ) ) {
+				if ( false !== $ufmatch && ! empty( $ufmatch['contact_id'] ) ) {
 					return (int) $ufmatch['contact_id'];
 				}
 
@@ -1149,7 +1149,7 @@ class WPCV_Woo_Civi_Contact {
 		$contact = $this->update( $contact );
 
 		// Bail if something went wrong.
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Contact after WooCommerce Signup', 'wpcv-woo-civi-integration' ) );
 			return;
 		}
@@ -1213,9 +1213,9 @@ class WPCV_Woo_Civi_Contact {
 		];
 
 		// Add param to query by.
-		if ( $mode === 'name' ) {
+		if ( 'name' === $mode ) {
 			$params['name'] = $contact_type;
-		} elseif ( $mode === 'id' ) {
+		} elseif ( 'id' === $mode ) {
 			$params['id'] = $contact_type;
 		}
 

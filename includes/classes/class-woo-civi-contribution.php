@@ -576,7 +576,7 @@ class WPCV_Woo_Civi_Contribution {
 		 *
 		 * @see https://lab.civicrm.org/dev/financial/-/issues/189
 		 */
-		//$params['total_amount'] = $order->get_total();
+		// $params['total_amount'] = $order->get_total();
 
 		/**
 		 * Filter the Order params before calling the CiviCRM API.
@@ -613,7 +613,7 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Go ahead.
 		$contribution = $this->order_create( $params );
-		if ( $contribution === false ) {
+		if ( false === $contribution ) {
 			return false;
 		}
 
@@ -722,7 +722,7 @@ class WPCV_Woo_Civi_Contribution {
 		if ( 0 === (float) $params['total_amount'] ) {
 
 			// Bail when there are no Products that should sync to CiviCRM.
-			if ( $params['has_synced_line_items'] === false ) {
+			if ( false === $params['has_synced_line_items'] ) {
 				return false;
 			}
 

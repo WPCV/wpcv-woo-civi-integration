@@ -121,7 +121,7 @@ class WPCV_Woo_Civi_Order {
 
 		// Add the Contribution record.
 		$contribution = WPCV_WCI()->contribution->create_from_order( $order );
-		if ( $contribution === false ) {
+		if ( false === $contribution ) {
 			return;
 		}
 
@@ -249,7 +249,7 @@ class WPCV_Woo_Civi_Order {
 		}
 
 		// Is this a completed Order?
-		if ( $new_status === 'completed' && $order->is_paid() ) {
+		if ( 'completed' === $new_status && $order->is_paid() ) {
 
 			// Yes - use the "Payment.create" route.
 			$payment = WPCV_WCI()->contribution->payment_create( $order_id, $order );

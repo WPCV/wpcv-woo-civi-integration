@@ -24,17 +24,10 @@
 		<exclude name="Squiz.PHP.CommentedOutCode.Found" />
 		<exclude name="Squiz.Commenting.BlockComment.HasEmptyLineBefore" />
 
-		<!-- Yoda? Really? -->
-		<exclude name="WordPress.PHP.YodaConditions.NotYoda" />
-
 		<!-- Remove some checks to allow phpcbf to run in bulk mode. -->
 		<exclude name="WordPress.PHP.StrictComparisons.LooseComparison" />
 		<exclude name="WordPress.PHP.StrictInArray.MissingTrueStrict" />
-		<exclude name="Squiz.Commenting.InlineComment.NoSpaceBefore" />
-		<exclude name="PSR2.ControlStructures.SwitchDeclaration.BodyOnNextLineCASE" />
-		<exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase" />
 		<exclude name="Squiz.Commenting.InlineComment.SpacingAfterAtFunctionEnd" />
-		<exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect" />
 
 		<exclude name="Generic.CodeAnalysis.EmptyStatement.DetectedIf" />
 		<exclude name="WordPress.Security.NonceVerification.Recommended" />
