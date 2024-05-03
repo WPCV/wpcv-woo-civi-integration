@@ -1,17 +1,18 @@
 <?php
 /**
- * Plugin Name: Integrate CiviCRM with WooCommerce
- * Plugin URI: https://github.com/WPCV/wpcv-woo-civi-integration
+ * Integrate CiviCRM with WooCommerce
+ *
+ * Plugin Name:       Integrate CiviCRM with WooCommerce
+ * Description:       Provides integration between CiviCRM and WooCommerce.
+ * Plugin URI:        https://github.com/WPCV/wpcv-woo-civi-integration
  * GitHub Plugin URI: https://github.com/WPCV/wpcv-woo-civi-integration
- * Description: Provides integration between CiviCRM and WooCommerce.
- * Author: WPCV
- * Author URI: https://github.com/WPCV
- * Version: 3.1.1a
+ * Version:           3.1.1a
+ * Author:            WPCV
+ * Author URI:        https://github.com/WPCV
  * Requires at least: 5.7
- * Requires PHP: 7.4
- * Text Domain: wpcv-woo-civi-integration
- * Domain Path: /languages
- * Depends: CiviCRM
+ * Requires PHP:      7.4
+ * Text Domain:       wpcv-woo-civi-integration
+ * Domain Path:       /languages
  *
  * @package WPCV_Woo_Civi
  */
