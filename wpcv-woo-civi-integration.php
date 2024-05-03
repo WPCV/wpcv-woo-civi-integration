@@ -8,7 +8,7 @@
  * Author URI: https://github.com/WPCV
  * Version: 3.1.1a
  * Requires at least: 5.7
- * Requires PHP: 7.1
+ * Requires PHP: 7.4
  * Text Domain: wpcv-woo-civi-integration
  * Domain Path: /languages
  * Depends: CiviCRM
