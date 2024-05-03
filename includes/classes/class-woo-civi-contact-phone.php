@@ -447,7 +447,7 @@ class WPCV_Woo_Civi_Contact_Phone {
 		// Call the API.
 		$result = civicrm_api( 'Phone', 'create', $params );
 
-		// Log and bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new Exception();
 			$trace = $e->getTraceAsString();

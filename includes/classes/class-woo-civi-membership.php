@@ -311,10 +311,8 @@ class WPCV_Woo_Civi_Membership {
 
 		$result = civicrm_api( 'MembershipType', 'get', $params );
 
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -324,9 +322,7 @@ class WPCV_Woo_Civi_Membership {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return [];
-
 		}
 
 		$membership_types = [];
@@ -377,16 +373,26 @@ class WPCV_Woo_Civi_Membership {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Membership Types.', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
@@ -440,16 +446,26 @@ class WPCV_Woo_Civi_Membership {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Membership Type.', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
@@ -493,16 +509,26 @@ class WPCV_Woo_Civi_Membership {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve default Membership Price Field ID', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );

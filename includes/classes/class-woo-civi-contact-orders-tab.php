@@ -170,27 +170,38 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 		$this->fix_site();
 		$uid = abs( CRM_Core_BAO_UFMatch::getUFId( $contact_id ) );
 		if ( ! $uid ) {
-			try {
 
-				$params = [
-					'contact_id' => $contact_id,
-					'return'     => [ 'email' ],
-				];
+			$params = [
+				'contact_id' => $contact_id,
+				'return'     => [ 'email' ],
+			];
+
+			try {
 
 				$contact = civicrm_api3( 'Contact', 'getsingle', $params );
 
 			} catch ( Exception $e ) {
 
+				// Grab the error data.
+				$message = $e->getMessage();
+				$code    = $e->getErrorCode();
+				$extra   = $e->getExtraParams();
+
 				// Write to CiviCRM log.
 				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
-				CRM_Core_Error::debug_log_message( $e->getMessage() );
+				CRM_Core_Error::debug_log_message( $message );
+				CRM_Core_Error::debug_log_message( $code );
+				CRM_Core_Error::debug_log_message( $extra );
 
-				// Write details to PHP log.
+				// Write to PHP log.
 				$e     = new \Exception();
 				$trace = $e->getTraceAsString();
 				$log   = [
 					'method'    => __METHOD__,
 					'params'    => $params,
+					'message'   => $message,
+					'code'      => $code,
+					'extra'     => $extra,
 					'backtrace' => $trace,
 				];
 				WPCV_WCI()->log_error( $log );

@@ -233,10 +233,8 @@ class WPCV_Woo_Civi_Tax {
 		// Call the CiviCRM API.
 		$result = civicrm_api( 'EntityFinancialAccount', 'get', $params );
 
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -246,9 +244,7 @@ class WPCV_Woo_Civi_Tax {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return false;
-
 		}
 
 		// Return early if there's nothing to see.

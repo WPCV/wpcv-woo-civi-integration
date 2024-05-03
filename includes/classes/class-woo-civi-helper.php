@@ -90,21 +90,32 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			/* translators: %s: The name of the requested CiviCRM Setting */
 			$human_readable = sprintf( __( 'Unable to fetch the "%s" setting.', 'wpcv-woo-civi-integration' ), $name );
 
 			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to create Payment record.', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $human_readable );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
 			// Write extra details to PHP log.
-			$log = [
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
 				'method'    => __METHOD__,
-				'error'     => $human_readable,
-				'message'   => $e->getMessage(),
 				'params'    => $params,
-				'setting'   => $setting,
-				'backtrace' => $e->getTraceAsString(),
+				'error'     => $human_readable,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
+				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
 
@@ -222,10 +233,8 @@ class WPCV_Woo_Civi_Helper {
 
 		$result = civicrm_api( 'FinancialType', 'get', $params );
 
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -235,9 +244,7 @@ class WPCV_Woo_Civi_Helper {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return [];
-
 		}
 
 		// Assign result to property.
@@ -304,16 +311,26 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Price Sets', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
@@ -364,16 +381,26 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Price Field Values', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
@@ -660,16 +687,26 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Decimal Separator', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
@@ -719,16 +756,26 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Thousand Separator', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );

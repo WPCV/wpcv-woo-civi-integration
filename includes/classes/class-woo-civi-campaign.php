@@ -225,10 +225,8 @@ class WPCV_Woo_Civi_Campaign {
 
 		$result = civicrm_api( 'Campaign', 'get', $params );
 
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -238,9 +236,7 @@ class WPCV_Woo_Civi_Campaign {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return [];
-
 		}
 
 		$campaigns = [
@@ -304,10 +300,8 @@ class WPCV_Woo_Civi_Campaign {
 
 		$result = civicrm_api( 'Campaign', 'get', $params );
 
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -317,9 +311,7 @@ class WPCV_Woo_Civi_Campaign {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return [];
-
 		}
 
 		$campaign_statuses = $this->get_campaign_statuses();
@@ -374,10 +366,8 @@ class WPCV_Woo_Civi_Campaign {
 
 		$result = civicrm_api( 'Campaign', 'get', $params );
 
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -387,9 +377,7 @@ class WPCV_Woo_Civi_Campaign {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return false;
-
 		}
 
 		// Bail if there are no results.
@@ -435,10 +423,8 @@ class WPCV_Woo_Civi_Campaign {
 
 		$result = civicrm_api( 'Campaign', 'get', $params );
 
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -448,9 +434,7 @@ class WPCV_Woo_Civi_Campaign {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return false;
-
 		}
 
 		// Bail if there are no results.
@@ -513,10 +497,8 @@ class WPCV_Woo_Civi_Campaign {
 
 		$result = civicrm_api( 'OptionValue', 'get', $params );
 
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -526,9 +508,7 @@ class WPCV_Woo_Civi_Campaign {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return [];
-
 		}
 
 		$campaign_statuses = [];
@@ -689,14 +669,10 @@ class WPCV_Woo_Civi_Campaign {
 			return true;
 		}
 
-		// Bail if the new Campaign cannot be found.
+		// Log and bail if something went wrong.
 		$new_campaign = $this->get_campaign_by_id( $new_campaign_id );
 		if ( false === $new_campaign_id ) {
-
-			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Campaign', 'wpcv-woo-civi-integration' ) );
-
-			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -707,9 +683,7 @@ class WPCV_Woo_Civi_Campaign {
 				'backtrace'       => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return false;
-
 		}
 
 		// Get Campaign name.

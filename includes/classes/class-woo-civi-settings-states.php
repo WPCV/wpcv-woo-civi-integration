@@ -134,7 +134,7 @@ class WPCV_Woo_Civi_Settings_States {
 		$result = civicrm_api( 'Country', 'get', $params );
 
 		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $this->civicrm_countries;
 		}
 
@@ -174,10 +174,8 @@ class WPCV_Woo_Civi_Settings_States {
 
 		$result = civicrm_api( 'Country', 'getsingle', $params );
 
-		// Bail if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -187,9 +185,7 @@ class WPCV_Woo_Civi_Settings_States {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return false;
-
 		}
 
 		return (int) $result['id'];
@@ -224,10 +220,8 @@ class WPCV_Woo_Civi_Settings_States {
 
 		$result = civicrm_api( 'Country', 'getsingle', $params );
 
-		// Bail if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -237,9 +231,7 @@ class WPCV_Woo_Civi_Settings_States {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return false;
-
 		}
 
 		return $result['iso_code'];

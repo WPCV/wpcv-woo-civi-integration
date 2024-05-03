@@ -595,7 +595,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		// Call the API.
 		$result = civicrm_api( 'Address', 'create', $params );
 
-		// Log and bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new Exception();
 			$trace = $e->getTraceAsString();
@@ -915,7 +915,7 @@ class WPCV_Woo_Civi_Contact_Address {
 		$result = civicrm_api( 'Address', 'getoptions', $params );
 
 		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 
 			// Write details to PHP log.
 			$e     = new \Exception();

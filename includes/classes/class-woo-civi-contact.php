@@ -327,7 +327,7 @@ class WPCV_Woo_Civi_Contact {
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Failed to get Contact by ID', 'wpcv-woo-civi-integration' ) );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -386,7 +386,7 @@ class WPCV_Woo_Civi_Contact {
 		$result = civicrm_api( 'Contact', 'get', $params );
 
 		// If there's an error.
-		if ( ! empty( $result['is_error'] ) ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Failed to get Contact by Email', 'wpcv-woo-civi-integration' ) );
@@ -684,7 +684,7 @@ class WPCV_Woo_Civi_Contact {
 		 */
 		$result = civicrm_api( 'Contact', 'create', $params );
 
-		// Log and bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new Exception();
 			$trace = $e->getTraceAsString();

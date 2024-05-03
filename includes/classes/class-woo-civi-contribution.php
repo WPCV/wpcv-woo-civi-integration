@@ -150,7 +150,7 @@ class WPCV_Woo_Civi_Contribution {
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Error trying to find Contribution by ID', 'wpcv-woo-civi-integration' ) );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -270,7 +270,7 @@ class WPCV_Woo_Civi_Contribution {
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Error try to find Contribution by Invoice ID', 'wpcv-woo-civi-integration' ) );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -363,12 +363,12 @@ class WPCV_Woo_Civi_Contribution {
 		$result = civicrm_api( 'Contribution', 'create', $params );
 
 		// Sanity check.
-		if ( ! empty( $result['error'] ) ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Error when creating/updating a Contribution', 'wpcv-woo-civi-integration' ) );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -447,17 +447,27 @@ class WPCV_Woo_Civi_Contribution {
 
 		} catch ( Exception $e ) {
 
-			// Write to CiviCRM log and continue.
-			CRM_Core_Error::debug_log_message( __( 'Unable to create an Order via the CiviCRM Order API', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-			CRM_Core_Error::debug_log_message( $e->getErrorCode() );
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
 
-			// Write extra details to PHP log.
-			$log = [
-				'method'       => __METHOD__,
-				'params'       => $params,
-				'extra_params' => $e->getExtraParams(),
-				'backtrace'    => $e->getTraceAsString(),
+			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to create an Order via the CiviCRM Order API', 'wpcv-woo-civi-integration' ) );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
+
+			// Write to PHP log.
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
+				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
 
@@ -467,8 +477,6 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Sanity check.
 		if ( empty( $result['id'] ) || ! is_numeric( $result['id'] ) ) {
-
-			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
@@ -478,9 +486,7 @@ class WPCV_Woo_Civi_Contribution {
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
-
 			return false;
-
 		}
 
 		// Init as empty.
@@ -743,19 +749,26 @@ class WPCV_Woo_Civi_Contribution {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to create Payment record.', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-			CRM_Core_Error::debug_log_message( $e->getErrorCode() );
-			CRM_Core_Error::debug_log_message( $e->getExtraParams() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
 				'method'    => __METHOD__,
-				'message'   => $e->getMessage(),
 				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
@@ -819,7 +832,7 @@ class WPCV_Woo_Civi_Contribution {
 		$result = civicrm_api( 'FinancialTrxn', 'get', $params );
 
 		// Bail if there's an error.
-		if ( ! empty( $result['error'] ) ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return;
 		}
 
@@ -864,19 +877,26 @@ class WPCV_Woo_Civi_Contribution {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to create a Note for a Contribution.', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
-			CRM_Core_Error::debug_log_message( $e->getErrorCode() );
-			CRM_Core_Error::debug_log_message( $e->getExtraParams() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
 				'method'    => __METHOD__,
-				'message'   => $e->getMessage(),
 				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
 			];
 			WPCV_WCI()->log_error( $log );
@@ -943,7 +963,7 @@ class WPCV_Woo_Civi_Contribution {
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Contribution Status', 'wpcv-woo-civi-integration' ) );
 
-			// Write details to PHP log.
+			// Write to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
 			$log   = [
