@@ -27,15 +27,18 @@ defined( 'ABSPATH' ) || exit;
 
 		<?php
 
-		// Always render the Entity Type select.
-		woocommerce_wp_select( [
-			'id' => $this->entity_key,
-			'name' => $this->entity_key,
-			'label' => __( 'Entity Type', 'wpcv-woo-civi-integration' ),
-			'desc_tip' => 'true',
+		// Build args.
+		$args = [
+			'id'          => $this->entity_key,
+			'name'        => $this->entity_key,
+			'label'       => __( 'Entity Type', 'wpcv-woo-civi-integration' ),
+			'desc_tip'    => 'true',
 			'description' => __( 'The CiviCRM Entity Type for this Product. Other CiviCRM settings are applied in the Variations.', 'wpcv-woo-civi-integration' ),
-			'options' => $entity_options,
-		] );
+			'options'     => $entity_options,
+		];
+
+		// Always render the Entity Type select.
+		woocommerce_wp_select( $args );
 
 		?>
 

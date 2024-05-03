@@ -79,9 +79,9 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'name' => $name,
+			'name'       => $name,
 		];
 
 		try {
@@ -90,22 +90,34 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			/* translators: %s: The name of the requested CiviCRM Setting */
 			$human_readable = sprintf( __( 'Unable to fetch the "%s" setting.', 'wpcv-woo-civi-integration' ), $name );
 
 			// Write to CiviCRM log.
+			CRM_Core_Error::debug_log_message( __( 'Unable to create Payment record.', 'wpcv-woo-civi-integration' ) );
 			CRM_Core_Error::debug_log_message( $human_readable );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
 			// Write extra details to PHP log.
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'error' => $human_readable,
-				'message' => $e->getMessage(),
-				'params' => $params,
-				'setting' => $setting,
-				'backtrace' => $e->getTraceAsString(),
-			], true ) );
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'error'     => $human_readable,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -129,7 +141,7 @@ class WPCV_Woo_Civi_Helper {
 		$entity_options = [];
 
 		// Build options for the Entity Types select.
-		$entity_options['civicrm_exclude'] = __( 'Do not sync to CiviCRM', 'wpcv-woo-civi-integration' );
+		$entity_options['civicrm_exclude']      = __( 'Do not sync to CiviCRM', 'wpcv-woo-civi-integration' );
 		$entity_options['civicrm_contribution'] = __( 'CiviCRM Contribution', 'wpcv-woo-civi-integration' );
 
 		/**
@@ -165,7 +177,7 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		$this->mapped_location_types = [
-			'billing' => (int) get_option( 'woocommerce_civicrm_billing_location_type_id' ),
+			'billing'  => (int) get_option( 'woocommerce_civicrm_billing_location_type_id' ),
 			'shipping' => (int) get_option( 'woocommerce_civicrm_shipping_location_type_id' ),
 		];
 
@@ -202,10 +214,10 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'is_active' => 1,
-			'options' => [
+			'is_active'  => 1,
+			'options'    => [
 				'limit' => 0,
 			],
 		];
@@ -221,21 +233,18 @@ class WPCV_Woo_Civi_Helper {
 
 		$result = civicrm_api( 'FinancialType', 'get', $params );
 
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
-			$e = new \Exception();
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
-
+			];
+			WPCV_WCI()->log_error( $log );
 			return [];
-
 		}
 
 		// Assign result to property.
@@ -284,15 +293,15 @@ class WPCV_Woo_Civi_Helper {
 
 		// Define Price Set query params.
 		$params = [
-			'sequential' => 1,
-			'is_active' => 1,
-			'is_reserved' => 0,
-			'options' => [ 'limit' => 0 ],
+			'sequential'         => 1,
+			'is_active'          => 1,
+			'is_reserved'        => 0,
+			'options'            => [ 'limit' => 0 ],
 			'api.PriceField.get' => [
-				'sequential' => 0,
-				'price_set_id' => "\$value.id",
-				'is_active' => 1,
-				'options' => [ 'limit' => 0 ],
+				'sequential'   => 0,
+				'price_set_id' => '$value.id',
+				'is_active'    => 1,
+				'options'      => [ 'limit' => 0 ],
 			],
 		];
 
@@ -302,18 +311,29 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Price Sets', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
-			$e = new \Exception();
+			// Write to PHP log.
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -348,10 +368,10 @@ class WPCV_Woo_Civi_Helper {
 		// Define Price Field Value query params.
 		$params = [
 			'sequential' => 0,
-			'is_active' => 1,
-			'options' => [
+			'is_active'  => 1,
+			'options'    => [
 				'limit' => 0,
-				'sort' => 'weight ASC',
+				'sort'  => 'weight ASC',
 			],
 		];
 
@@ -361,18 +381,29 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Price Field Values', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
-			$e = new \Exception();
+			// Write to PHP log.
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -421,7 +452,7 @@ class WPCV_Woo_Civi_Helper {
 		}
 
 		// Get the CiviCRM Tax Rates and "Tax Enabled" status.
-		$tax_rates = WPCV_WCI()->tax->rates_get();
+		$tax_rates   = WPCV_WCI()->tax->rates_get();
 		$tax_enabled = WPCV_WCI()->tax->is_tax_enabled();
 
 		$price_sets_data = [];
@@ -429,7 +460,7 @@ class WPCV_Woo_Civi_Helper {
 		foreach ( $price_sets as $key => $price_set ) {
 
 			// Add renamed ID.
-			$price_set_id = (int) $price_set['id'];
+			$price_set_id              = (int) $price_set['id'];
 			$price_set['price_set_id'] = $price_set_id;
 
 			// Let's give the chained API result array a nicer name.
@@ -452,7 +483,7 @@ class WPCV_Woo_Civi_Helper {
 
 					// Add Tax data if necessary.
 					if ( $tax_enabled && ! empty( $tax_rates ) && array_key_exists( $price_field_value['financial_type_id'], $tax_rates ) ) {
-						$price_field_value['tax_rate'] = $tax_rates[ $price_field_value['financial_type_id'] ];
+						$price_field_value['tax_rate']   = $tax_rates[ $price_field_value['financial_type_id'] ];
 						$price_field_value['tax_amount'] = $this->percentage( $price_field_value['amount'], $price_field_value['tax_rate'] );
 					}
 
@@ -508,7 +539,7 @@ class WPCV_Woo_Civi_Helper {
 
 		// Init options array.
 		$price_set_options = [];
-		if ( $zero_option === true ) {
+		if ( true === $zero_option ) {
 			$price_set_options[0] = __( 'Select a Price Field', 'wpcv-woo-civi-integration' );
 		}
 
@@ -516,7 +547,7 @@ class WPCV_Woo_Civi_Helper {
 		foreach ( $price_sets as $price_set_id => $price_set ) {
 			foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) {
 				/* translators: 1: Price Set title, 2: Price Field label */
-				$optgroup_label = sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] );
+				$optgroup_label   = sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] );
 				$optgroup_content = [];
 				foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) {
 					$optgroup_content[ esc_attr( $price_field_value_id ) ] = esc_html( $price_field_value['label'] );
@@ -647,7 +678,7 @@ class WPCV_Woo_Civi_Helper {
 
 		$params = [
 			'sequential' => 1,
-			'name' => 'monetaryDecimalPoint',
+			'name'       => 'monetaryDecimalPoint',
 		];
 
 		try {
@@ -656,18 +687,29 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Decimal Separator', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
-			$e = new \Exception();
+			// Write to PHP log.
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -705,7 +747,7 @@ class WPCV_Woo_Civi_Helper {
 
 		$params = [
 			'sequential' => 1,
-			'name' => 'monetaryThousandSeparator',
+			'name'       => 'monetaryThousandSeparator',
 		];
 
 		try {
@@ -714,18 +756,29 @@ class WPCV_Woo_Civi_Helper {
 
 		} catch ( Exception $e ) {
 
+			// Grab the error data.
+			$message = $e->getMessage();
+			$code    = $e->getErrorCode();
+			$extra   = $e->getExtraParams();
+
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Thousand Separator', 'wpcv-woo-civi-integration' ) );
-			CRM_Core_Error::debug_log_message( $e->getMessage() );
+			CRM_Core_Error::debug_log_message( $message );
+			CRM_Core_Error::debug_log_message( $code );
+			CRM_Core_Error::debug_log_message( $extra );
 
-			// Write details to PHP log.
-			$e = new \Exception();
+			// Write to PHP log.
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'message'   => $message,
+				'code'      => $code,
+				'extra'     => $extra,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -752,9 +805,9 @@ class WPCV_Woo_Civi_Helper {
 	public function get_civicrm_float( $number ) {
 
 		// Return incoming value on error.
-		$decimal_separator = $this->get_decimal_separator();
+		$decimal_separator  = $this->get_decimal_separator();
 		$thousand_separator = $this->get_thousand_separator();
-		if ( $decimal_separator === false || $thousand_separator === false ) {
+		if ( false === $decimal_separator || false === $thousand_separator ) {
 			return $number;
 		}
 
@@ -807,8 +860,12 @@ class WPCV_Woo_Civi_Helper {
 
 		$gateways = [];
 
+		/*
+		// Get available Payment Gateways.
+		$available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+		*/
+
 		// Get all Payment Gateways.
-		//$available_gateways = WC()->payment_gateways->get_available_payment_gateways();
 		$all_gateways = WC()->payment_gateways->payment_gateways();
 		if ( empty( $all_gateways ) ) {
 			return $gateways;
@@ -865,9 +922,9 @@ class WPCV_Woo_Civi_Helper {
 		$map = [
 			'paypal' => 1,
 			'stripe' => 1,
-			'cod' => 3,
+			'cod'    => 3,
 			'cheque' => 4,
-			'bacs' => 5,
+			'bacs'   => 5,
 		];
 
 		if ( array_key_exists( $payment_method, $map ) ) {
@@ -1014,7 +1071,7 @@ class WPCV_Woo_Civi_Helper {
 		$timezone = false;
 
 		$tzstring = get_option( 'timezone_string' );
-		$offset = get_option( 'gmt_offset' );
+		$offset   = get_option( 'gmt_offset' );
 
 		/*
 		 * Setting manual offsets should be discouraged.
@@ -1027,9 +1084,9 @@ class WPCV_Woo_Civi_Helper {
 		 * @see https://bugs.php.net/bug.php?id=45543
 		 * @see https://bugs.php.net/bug.php?id=45528
 		 */
-		if ( empty( $tzstring ) && 0 != $offset && floor( $offset ) == $offset ) {
+		if ( empty( $tzstring ) && 0 != $offset && floor( $offset ) == $offset ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 			$offset_string = $offset > 0 ? "-$offset" : '+' . absint( $offset );
-			$tzstring = 'Etc/GMT' . $offset_string;
+			$tzstring      = 'Etc/GMT' . $offset_string;
 		}
 
 		// Default to 'UTC' if the timezone string is empty.

@@ -37,18 +37,18 @@ class WPCV_Woo_Civi_Products_Variable {
 	public $product_variation_meta = [
 		'civicrm_contribution' => [
 			'financial_type_id' => '_wpcv_wci_variable_contribution_financial_type_id',
-			'pfv_id' => '_wpcv_wci_variable_contribution_pfv_id',
+			'pfv_id'            => '_wpcv_wci_variable_contribution_pfv_id',
 		],
-		'civicrm_membership' => [
+		'civicrm_membership'   => [
 			'financial_type_id' => '_wpcv_wci_variable_membership_financial_type_id',
-			'pfv_id' => '_wpcv_wci_variable_membership_pfv_id',
-			'type_id' => '_wpcv_wci_variable_membership_type_id',
+			'pfv_id'            => '_wpcv_wci_variable_membership_pfv_id',
+			'type_id'           => '_wpcv_wci_variable_membership_type_id',
 		],
-		'civicrm_participant' => [
+		'civicrm_participant'  => [
 			'financial_type_id' => '_wpcv_wci_variable_participant_financial_type_id',
-			'pfv_id' => '_wpcv_wci_variable_participant_pfv_id',
-			'event_id' => '_wpcv_wci_variable_participant_event_id',
-			'role_id' => '_wpcv_wci_variable_participant_role_id',
+			'pfv_id'            => '_wpcv_wci_variable_participant_pfv_id',
+			'event_id'          => '_wpcv_wci_variable_participant_event_id',
+			'role_id'           => '_wpcv_wci_variable_participant_role_id',
 		],
 	];
 
@@ -108,11 +108,15 @@ class WPCV_Woo_Civi_Products_Variable {
 		// Save the Entity Type of a Variable Product Type.
 		add_action( 'wpcv_woo_civi/product/save/entity_type', [ $this, 'entity_type_save' ], 20, 2 );
 
+		/*
 		// Get the Financial Type ID of a Product Variation.
-		//add_filter( 'wpcv_woo_civi/product/query/financial_type_id', [ $this, 'financial_type_id_get' ], 20, 3 );
+		add_filter( 'wpcv_woo_civi/product/query/financial_type_id', [ $this, 'financial_type_id_get' ], 20, 3 );
+		*/
 
+		/*
 		// Save the Financial Type ID of a Product Variation.
-		//add_action( 'wpcv_woo_civi/product/save/financial_type_id', [ $this, 'financial_type_id_save' ], 20, 2 );
+		add_action( 'wpcv_woo_civi/product/save/financial_type_id', [ $this, 'financial_type_id_save' ], 20, 2 );
+		*/
 
 		// Filter the Product Type options to exclude Variable Product Type.
 		add_filter( 'wpcv_woo_civi/product_types/get/options', [ $this, 'product_types_filter' ], 20 );
@@ -136,9 +140,9 @@ class WPCV_Woo_Civi_Products_Variable {
 	public function tab_add( $tabs ) {
 
 		$tabs['civicrm_variable'] = [
-			'label' => __( 'CiviCRM Entity', 'wpcv-woo-civi-integration' ),
+			'label'  => __( 'CiviCRM Entity', 'wpcv-woo-civi-integration' ),
 			'target' => 'civicrm_variable',
-			'class' => [
+			'class'  => [
 				'show_if_variable',
 			],
 		];
@@ -199,9 +203,9 @@ class WPCV_Woo_Civi_Products_Variable {
 		 */
 		do_action( 'wpcv_woo_civi/product/variable/panel/saved/before', $product );
 
-		// Save the Entity Type.
-		if ( isset( $_POST[ $this->entity_key ] ) ) {
-			$entity_type = sanitize_key( $_POST[ $this->entity_key ] );
+		// Save the Entity Type. Nonce has been verified by WooCommerce.
+		if ( isset( $_POST[ $this->entity_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$entity_type = sanitize_key( $_POST[ $this->entity_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$product->add_meta_data( $this->entity_key, $entity_type, true );
 		}
 
@@ -219,6 +223,8 @@ class WPCV_Woo_Civi_Products_Variable {
 	/**
 	 * Clears the metadata for this Variable Product.
 	 *
+	 * TODO: What happens to Product Variations when the Product Type is switched?
+	 *
 	 * @since 3.0
 	 *
 	 * @param WC_Product $product The Product object.
@@ -227,8 +233,6 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Clear the current Variable Product metadata.
 		$product->delete_meta_data( $this->entity_key );
-
-		// TODO: What happens to Product Variations when the Product Type is switched?
 
 	}
 
@@ -250,7 +254,7 @@ class WPCV_Woo_Civi_Products_Variable {
 		$entity = $parent->get_meta( $this->entity_key );
 
 		// Bail there isn't one or it's excluded from sync.
-		if ( empty( $entity ) || $entity === 'civicrm_exclude' ) {
+		if ( empty( $entity ) || 'civicrm_exclude' === $entity ) {
 			return;
 		}
 
@@ -264,15 +268,15 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Get common meta keys for the form elements.
 		$financial_type_id_key = $this->get_meta_key( $entity, 'financial_type_id' );
-		$pfv_id_key = $this->get_meta_key( $entity, 'pfv_id' );
+		$pfv_id_key            = $this->get_meta_key( $entity, 'pfv_id' );
 
 		// Add loop item.
 		$financial_type_id_key .= '-' . $loop;
-		$pfv_id_key .= '-' . $loop;
+		$pfv_id_key            .= '-' . $loop;
 
 		// Get common metadata.
 		$financial_type_id = $this->get_meta( $variation->ID, $entity, 'financial_type_id' );
-		$pfv_id = $this->get_meta( $variation->ID, $entity, 'pfv_id' );
+		$pfv_id            = $this->get_meta( $variation->ID, $entity, 'pfv_id' );
 
 		// Include template.
 		$directory = 'assets/templates/woocommerce/admin/meta-boxes/views/';
@@ -312,27 +316,27 @@ class WPCV_Woo_Civi_Products_Variable {
 		$entity_type = $this->entity_type_get_from_parent( $variation );
 
 		// Bail there isn't one or it's excluded from sync.
-		if ( empty( $entity_type ) || $entity_type === 'civicrm_exclude' ) {
+		if ( empty( $entity_type ) || 'civicrm_exclude' === $entity_type ) {
 			return;
 		}
 
 		// Get meta keys.
 		$financial_type_key = $this->get_meta_key( $entity_type, 'financial_type_id' );
-		$pfv_key = $this->get_meta_key( $entity_type, 'pfv_id' );
+		$pfv_key            = $this->get_meta_key( $entity_type, 'pfv_id' );
 
 		// Add loop item.
 		$financial_type_loop_key = $financial_type_key . '-' . $loop;
-		$pfv_loop_key = $pfv_key . '-' . $loop;
+		$pfv_loop_key            = $pfv_key . '-' . $loop;
 
-		// Save the Financial Type.
-		if ( isset( $_POST[ $financial_type_loop_key ] ) ) {
-			$value = sanitize_key( $_POST[ $financial_type_loop_key ] );
+		// Save the Financial Type. Nonce has been verified by WooCommerce.
+		if ( isset( $_POST[ $financial_type_loop_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$value = sanitize_key( $_POST[ $financial_type_loop_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$variation->add_meta_data( $financial_type_key, $value, true );
 		}
 
 		// Save the Price Field Value.
-		if ( isset( $_POST[ $pfv_loop_key ] ) ) {
-			$value = sanitize_key( $_POST[ $pfv_loop_key ] );
+		if ( isset( $_POST[ $pfv_loop_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$value = sanitize_key( $_POST[ $pfv_loop_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$variation->add_meta_data( $pfv_key, $value, true );
 		}
 
@@ -393,7 +397,7 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Bail if not a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variation' ) {
+		if ( 'variation' !== $product_type ) {
 			return $line_item;
 		}
 
@@ -466,10 +470,10 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// TODO: Are there other params for the Line Item data?
 		$contribution_line_item_data = [
-			'financial_type_id' => $financial_type_id,
-			'price_field_id' => $price_field_value['price_field_id'],
+			'financial_type_id'    => $financial_type_id,
+			'price_field_id'       => $price_field_value['price_field_id'],
 			'price_field_value_id' => $price_field_value_id,
-			'label' => $price_field_value['label'],
+			'label'                => $price_field_value['label'],
 		];
 
 		// TODO: Look at the Line Item.
@@ -477,7 +481,7 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Apply Contribution to Line Item.
 		$line_item = [
-			'params' => $line_item_params,
+			'params'    => $line_item_params,
 			'line_item' => [
 				array_merge( $line_item_data, $contribution_line_item_data ),
 			],
@@ -537,12 +541,12 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Make an array of the params.
 		$args = [
-			'item' => $item,
-			'product' => $product,
-			'order' => $order,
-			'params' => $params,
-			'financial_type_id' => $financial_type_id,
-			'membership_type_id' => $membership_type_id,
+			'item'                 => $item,
+			'product'              => $product,
+			'order'                => $order,
+			'params'               => $params,
+			'financial_type_id'    => $financial_type_id,
+			'membership_type_id'   => $membership_type_id,
 			'price_field_value_id' => $price_field_value_id,
 		];
 
@@ -609,13 +613,13 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Make an array of the params.
 		$args = [
-			'item' => $item,
-			'product' => $product,
-			'order' => $order,
-			'params' => $params,
-			'financial_type_id' => $financial_type_id,
-			'event_id' => $event_id,
-			'participant_role_id' => $participant_role_id,
+			'item'                 => $item,
+			'product'              => $product,
+			'order'                => $order,
+			'params'               => $params,
+			'financial_type_id'    => $financial_type_id,
+			'event_id'             => $event_id,
+			'participant_role_id'  => $participant_role_id,
 			'price_field_value_id' => $price_field_value_id,
 		];
 
@@ -643,14 +647,15 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Log when incorrectly called.
 		if ( empty( $this->product_variation_meta[ $type ][ $key ] ) ) {
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'type' => $type,
-				'key' => $key,
-				//'backtrace' => $trace,
-			], true ) );
+			$log   = [
+				'method'    => __METHOD__,
+				'type'      => $type,
+				'key'       => $key,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 		}
 
 		return $this->product_variation_meta[ $type ][ $key ];
@@ -711,13 +716,13 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Bail if not a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variation' ) {
+		if ( 'variation' !== $product_type ) {
 			return $entity_type;
 		}
 
 		// Get parent Product.
 		$parent_id = $product->get_parent_id();
-		$parent = wc_get_product( $parent_id );
+		$parent    = wc_get_product( $parent_id );
 		if ( empty( $parent ) ) {
 			return $entity_type;
 		}
@@ -742,7 +747,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	public function entity_type_get( $entity_type, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $entity_type !== '' ) {
+		if ( '' !== $entity_type ) {
 			return $entity_type;
 		}
 
@@ -758,17 +763,17 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Pass through if not a Variable Product or a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variable' && $product_type !== 'variation' ) {
+		if ( 'variable' !== $product_type && 'variation' !== $product_type ) {
 			return $entity_type;
 		}
 
 		// Get Entity Type from meta when Variable Product.
-		if ( $product_type === 'variable' ) {
+		if ( 'variable' === $product_type ) {
 			$entity_type = $product->get_meta( $this->entity_key );
 		}
 
 		// Get Entity Type from parent meta when Product Variation.
-		if ( $product_type === 'variation' ) {
+		if ( 'variation' === $product_type ) {
 			$entity_type = $this->entity_type_get_from_parent( $product );
 		}
 
@@ -793,20 +798,20 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Bail if not a Variable Product or a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variable' && $product_type !== 'variation' ) {
+		if ( 'variable' !== $product_type && 'variation' !== $product_type ) {
 			return;
 		}
 
 		// Save Entity Type to meta.
-		if ( $product_type === 'variable' ) {
+		if ( 'variable' === $product_type ) {
 			$product->add_meta_data( $this->entity_key, $entity_type, true );
 			$id = $product->save();
 		}
 
 		// Get Entity Type from parent meta when Product Variation.
-		if ( $product_type === 'variation' ) {
+		if ( 'variation' === $product_type ) {
 			$parent_id = $product->get_parent_id();
-			$parent = wc_get_product( $parent_id );
+			$parent    = wc_get_product( $parent_id );
 			$parent->add_meta_data( $this->entity_key, $entity_type, true );
 			$id = $parent->save();
 		}
@@ -826,7 +831,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	public function financial_type_id_get( $financial_type_id, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $financial_type_id !== 0 ) {
+		if ( 0 !== $financial_type_id ) {
 			return $financial_type_id;
 		}
 
@@ -842,7 +847,7 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Pass through if not a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variation' ) {
+		if ( 'variation' !== $product_type ) {
 			return $entity_type;
 		}
 
@@ -850,7 +855,7 @@ class WPCV_Woo_Civi_Products_Variable {
 		$entity_type = $this->entity_type_get_from_parent( $product );
 
 		// Return Financial Type ID if found.
-		$financial_type_id_key = $this->get_meta_key( $entity_type, 'financial_type_id' );
+		$financial_type_id_key     = $this->get_meta_key( $entity_type, 'financial_type_id' );
 		$product_financial_type_id = $product->get_meta( $financial_type_id_key );
 		if ( ! empty( $product_financial_type_id ) ) {
 			return $product_financial_type_id;
@@ -878,7 +883,7 @@ class WPCV_Woo_Civi_Products_Variable {
 
 		// Bail if not a Product Variation.
 		$product_type = $product->get_type();
-		if ( $product_type !== 'variation' ) {
+		if ( 'variation' !== $product_type ) {
 			return;
 		}
 

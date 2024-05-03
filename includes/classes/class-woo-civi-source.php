@@ -55,12 +55,18 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function register_hooks() {
 
+		/*
+		// Allow Source to be set on new Orders in WordPress admin.
+		add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
+		*/
+
 		// Allow Source to be set on Orders in WordPress admin.
-		//add_action( 'wpcv_woo_civi/order/new', [ $this, 'order_new' ], 10, 2 );
 		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 10, 2 );
 
+		/*
 		// Hook into WooCommerce Order processed.
-		//add_action( 'wpcv_woo_civi/order/processed', [ $this, 'order_processed' ], 10, 2 );
+		add_action( 'wpcv_woo_civi/order/processed', [ $this, 'order_processed' ], 10, 2 );
+		*/
 
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'wpcv_woo_civi/order/form/before', [ $this, 'order_details_add' ] );
@@ -68,8 +74,10 @@ class WPCV_Woo_Civi_Source {
 		// Add Source to Order.
 		add_filter( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'source_get_for_order' ], 10, 2 );
 
+		/*
 		// Add Source to plugin settings fields.
-		//add_filter( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', [ $this, 'source_settings_add' ] );
+		add_filter( 'wpcv_woo_civi/woo_settings/fields/contribution/settings', [ $this, 'source_settings_add' ] );
+		*/
 
 		// Show Source on Orders listing screen.
 		add_filter( 'manage_shop_order_posts_columns', [ $this, 'columns_head' ], 30 );
@@ -119,8 +127,11 @@ class WPCV_Woo_Civi_Source {
 		// Retrieve the current Source.
 		$current_source = $this->get_order_meta( $order_id );
 
+		// Get new Source.
+		$new_source = filter_input( INPUT_POST, 'order_civicrmsource' );
+		$new_source = sanitize_text_field( wp_unslash( $new_source ) );
+
 		// Generate the new Source if there isn't one.
-		$new_source = filter_input( INPUT_POST, 'order_civicrmsource', FILTER_SANITIZE_STRING );
 		if ( empty( $new_source ) ) {
 			if ( empty( $order ) ) {
 				$order = wc_get_order( $order_id );
@@ -160,7 +171,7 @@ class WPCV_Woo_Civi_Source {
 
 		// This only needs to be done once.
 		static $done;
-		if ( isset( $done ) && $done === true ) {
+		if ( isset( $done ) && true === $done ) {
 			return;
 		}
 
@@ -312,11 +323,11 @@ class WPCV_Woo_Civi_Source {
 	 */
 	public function columns_head( $defaults ) {
 
-		$nb_cols = count( $defaults );
+		$nb_cols  = count( $defaults );
 		$new_cols = [
 			'source' => __( 'Source', 'wpcv-woo-civi-integration' ),
 		];
-		$columns = array_slice( $defaults, 0, $nb_cols - 2, true )
+		$columns  = array_slice( $defaults, 0, $nb_cols - 2, true )
 			+ $new_cols
 			+ array_slice( $defaults, $nb_cols - 2, $nb_cols, true );
 
@@ -359,9 +370,11 @@ class WPCV_Woo_Civi_Source {
 		}
 
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results( $wpdb->prepare( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = %s", $this->meta_key ) );
 		if ( count( $results ) > 0 ) {
 			$selected = filter_input( INPUT_GET, 'shop_order_source' );
+			$selected = sanitize_text_field( wp_unslash( $selected ) );
 
 			?>
 			<select name='shop_order_source' id='dropdown_shop_order_source'>
@@ -399,18 +412,20 @@ class WPCV_Woo_Civi_Source {
 		}
 
 		$source = filter_input( INPUT_GET, 'shop_order_source' );
+		$source = sanitize_text_field( wp_unslash( $source ) );
 		if ( empty( $source ) ) {
 			return;
 		}
 
 		// Modify meta query.
 		$mq = $query->get( 'meta_query' );
+		// phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 		$meta_query = false !== $mq ? [ 'relation' => 'AND', $mq ] : [];
 
 		// Add Source meta query.
 		$meta_query['source_clause'] = [
-			'key' => $this->meta_key,
-			'value' => $source,
+			'key'     => $this->meta_key,
+			'value'   => $source,
 			'compare' => '==',
 		];
 
@@ -435,6 +450,7 @@ class WPCV_Woo_Civi_Source {
 
 		// Query database directly.
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results( $wpdb->prepare( "SELECT DISTINCT meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = %s", $this->meta_key ) );
 
 		?>

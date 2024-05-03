@@ -1,10 +1,10 @@
 === Integrate CiviCRM with WooCommerce ===
 Contributors: needle, bastho, mecachisenros, rajeshrhino, kcristiano, tadpolecc
 Tags: civicrm, woocommerce, integration
-Requires PHP: 7.3
+Requires PHP: 7.4
 Requires at least: 5.7
-Tested up to: 6.4
-Stable tag: 3.1.1a
+Tested up to: 6.5
+Stable tag: 3.1.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -114,9 +114,14 @@ Creating Orders in WooCommerce admin is not fully supported. It is best to creat
 
 == Changelog ==
 
+= 3.1.1 =
+
+* Improved codestyle compatibility.
+* Misc fixes to APIv3 error handling.
+
 = 3.1.0 =
 
-* Improved CiviCRM API error handling
+* Improved CiviCRM API error handling.
 
 = 3.0 =
 

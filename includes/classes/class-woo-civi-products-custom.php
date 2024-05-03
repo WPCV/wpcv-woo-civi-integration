@@ -28,18 +28,18 @@ class WPCV_Woo_Civi_Products_Custom {
 	public $product_types_meta = [
 		'civicrm_contribution' => [
 			'financial_type_id' => '_wpcv_woo_civicrm_contribution_financial_type_id',
-			'pfv_id' => '_wpcv_woo_civicrm_contribution_pfv_id',
+			'pfv_id'            => '_wpcv_woo_civicrm_contribution_pfv_id',
 		],
-		'civicrm_membership' => [
+		'civicrm_membership'   => [
 			'financial_type_id' => '_wpcv_woo_civicrm_membership_financial_type_id',
-			'pfv_id' => '_wpcv_woo_civicrm_membership_pfv_id',
-			'type_id' => '_wpcv_woo_civicrm_membership_type_id',
+			'pfv_id'            => '_wpcv_woo_civicrm_membership_pfv_id',
+			'type_id'           => '_wpcv_woo_civicrm_membership_type_id',
 		],
-		'civicrm_participant' => [
+		'civicrm_participant'  => [
 			'financial_type_id' => '_wpcv_woo_civicrm_participant_financial_type_id',
-			'pfv_id' => '_wpcv_woo_civicrm_participant_pfv_id',
-			'event_id' => '_wpcv_woo_civicrm_participant_event_id',
-			'role_id' => '_wpcv_woo_civicrm_participant_role_id',
+			'pfv_id'            => '_wpcv_woo_civicrm_participant_pfv_id',
+			'event_id'          => '_wpcv_woo_civicrm_participant_event_id',
+			'role_id'           => '_wpcv_woo_civicrm_participant_role_id',
 		],
 	];
 
@@ -76,8 +76,8 @@ class WPCV_Woo_Civi_Products_Custom {
 		// The translatable names of our Custom Product Types.
 		$this->product_names = [
 			'civicrm_contribution' => __( 'CiviCRM Contribution', 'wpcv-woo-civi-integration' ),
-			'civicrm_membership' => __( 'CiviCRM Membership', 'wpcv-woo-civi-integration' ),
-			'civicrm_participant' => __( 'CiviCRM Participant', 'wpcv-woo-civi-integration' ),
+			'civicrm_membership'   => __( 'CiviCRM Membership', 'wpcv-woo-civi-integration' ),
+			'civicrm_participant'  => __( 'CiviCRM Participant', 'wpcv-woo-civi-integration' ),
 		];
 
 		// Set up Custom Product Types.
@@ -120,7 +120,7 @@ class WPCV_Woo_Civi_Products_Custom {
 		foreach ( $this->product_names as $type => $name ) {
 
 			// Handle CiviCRM Contribution.
-			if ( $name === 'civicrm_contribution' ) {
+			if ( 'civicrm_contribution' === $name ) {
 				if ( ! WPCV_WCI()->helper->is_component_enabled( 'CiviContribute' ) ) {
 					$this->term_delete( $type );
 					unset( $this->product_names['civicrm_contribution'] );
@@ -132,7 +132,7 @@ class WPCV_Woo_Civi_Products_Custom {
 			}
 
 			// Handle CiviCRM Membership.
-			if ( $name === 'civicrm_membership' ) {
+			if ( 'civicrm_membership' === $name ) {
 				if ( ! WPCV_WCI()->membership->active ) {
 					$this->term_delete( $type );
 					unset( $this->product_names['civicrm_membership'] );
@@ -144,7 +144,7 @@ class WPCV_Woo_Civi_Products_Custom {
 			}
 
 			// Handle CiviCRM Participant.
-			if ( $name === 'civicrm_participant' ) {
+			if ( 'civicrm_participant' === $name ) {
 				if ( ! WPCV_WCI()->participant->active ) {
 					$this->term_delete( $type );
 					unset( $this->product_names['civicrm_participant'] );
@@ -278,11 +278,11 @@ class WPCV_Woo_Civi_Products_Custom {
 	public function tabs_add( $tabs ) {
 
 		foreach ( $this->product_names as $type => $name ) {
-			$target = $type . '_settings';
+			$target          = $type . '_settings';
 			$tabs[ $target ] = [
-				'label' => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
-				'target' => $target,
-				'class' => [
+				'label'    => __( 'CiviCRM Settings', 'wpcv-woo-civi-integration' ),
+				'target'   => $target,
+				'class'    => [
 					'show_if_' . $type,
 				],
 				'priority' => 15,
@@ -401,7 +401,7 @@ class WPCV_Woo_Civi_Products_Custom {
 		}
 
 		// Bail if we are not editing a Product.
-		if ( $screen->id !== 'product' && $screen->base !== 'post' && $screen->post_type !== 'product' ) {
+		if ( 'product' !== $screen->id && 'post' !== $screen->base && 'product' !== $screen->post_type ) {
 			return;
 		}
 
@@ -413,7 +413,7 @@ class WPCV_Woo_Civi_Products_Custom {
 		}
 
 		// Bail if we don't have a Product Post object.
-		if ( 'product' != $post->post_type ) {
+		if ( 'product' !== $post->post_type ) {
 			return;
 		}
 
@@ -428,20 +428,24 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// Add "show_if" classes to relevant sections.
 		foreach ( $this->product_names as $type => $name ) {
-			echo "\t\t" . "jQuery('#general_product_data .pricing').addClass('show_if_{$type}');\n";
+			// phpcs:disable Generic.Strings.UnnecessaryStringConcat.Found
+			echo "\t\t" . "jQuery('#general_product_data .pricing').addClass('show_if_" . esc_attr( $type ) . "');\n";
 			echo "\t\t" . 'var tax = jQuery("#general_product_data").find("._tax_status_field");' . "\n";
 			echo "\t\t" . 'if (tax.length) {' . "\n";
-			echo "\t\t\t" . "tax.parent().addClass('show_if_{$type}');\n";
+			echo "\t\t\t" . "tax.parent().addClass('show_if_" . esc_attr( $type ) . "');\n";
 			echo "\t\t" . '}' . "\n";
+			// phpcs:enable Generic.Strings.UnnecessaryStringConcat.Found
 		}
 
 		// Show it if this is one of our Product Types.
 		$product_type = $product_object->get_type();
 		if ( array_key_exists( $product_type, $this->product_names ) ) {
+			// phpcs:disable Generic.Strings.UnnecessaryStringConcat.Found
 			echo "\t\t" . 'jQuery("#general_product_data .pricing").show();' . "\n";
 			echo "\t\t" . 'if (tax.length) {' . "\n";
 			echo "\t\t\t" . "tax.parent().show();\n";
 			echo "\t\t" . '}' . "\n";
+			// phpcs:enable Generic.Strings.UnnecessaryStringConcat.Found
 		}
 
 		// Close script.
@@ -481,10 +485,10 @@ class WPCV_Woo_Civi_Products_Custom {
 		 */
 		do_action( 'wpcv_woo_civi/product/custom/panel/saved/before', $product );
 
-		// Save relevant metadata for this Product Type.
+		// Save relevant metadata for this Product Type. Nonce has been verified by WooCommerce.
 		foreach ( $this->product_types_meta[ $product_type ] as $code => $meta_key ) {
-			if ( isset( $_POST[ $meta_key ] ) ) {
-				$value = sanitize_key( $_POST[ $meta_key ] );
+			if ( isset( $_POST[ $meta_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$value = sanitize_key( $_POST[ $meta_key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				$product->add_meta_data( $meta_key, $value, true );
 			}
 		}
@@ -563,7 +567,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	public function pfv_id_get( $pfv_id, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $pfv_id !== 0 ) {
+		if ( 0 !== $pfv_id ) {
 			return $pfv_id;
 		}
 
@@ -754,10 +758,10 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// TODO: Are there other params for the Line Item data?
 		$contribution_line_item_data = [
-			'financial_type_id' => $financial_type_id,
-			'price_field_id' => $price_field_value['price_field_id'],
+			'financial_type_id'    => $financial_type_id,
+			'price_field_id'       => $price_field_value['price_field_id'],
 			'price_field_value_id' => $price_field_value_id,
-			'label' => $price_field_value['label'],
+			'label'                => $price_field_value['label'],
 		];
 
 		// TODO: Look at the Line Item.
@@ -765,7 +769,7 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// Apply Contribution to Line Item.
 		$line_item = [
-			'params' => $line_item_params,
+			'params'    => $line_item_params,
 			'line_item' => [
 				array_merge( $line_item_data, $contribution_line_item_data ),
 			],
@@ -825,12 +829,12 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// Make an array of the params.
 		$args = [
-			'item' => $item,
-			'product' => $product,
-			'order' => $order,
-			'params' => $params,
-			'financial_type_id' => $financial_type_id,
-			'membership_type_id' => $membership_type_id,
+			'item'                 => $item,
+			'product'              => $product,
+			'order'                => $order,
+			'params'               => $params,
+			'financial_type_id'    => $financial_type_id,
+			'membership_type_id'   => $membership_type_id,
 			'price_field_value_id' => $price_field_value_id,
 		];
 
@@ -897,13 +901,13 @@ class WPCV_Woo_Civi_Products_Custom {
 
 		// Make an array of the params.
 		$args = [
-			'item' => $item,
-			'product' => $product,
-			'order' => $order,
-			'params' => $params,
-			'financial_type_id' => $financial_type_id,
-			'event_id' => $event_id,
-			'participant_role_id' => $participant_role_id,
+			'item'                 => $item,
+			'product'              => $product,
+			'order'                => $order,
+			'params'               => $params,
+			'financial_type_id'    => $financial_type_id,
+			'event_id'             => $event_id,
+			'participant_role_id'  => $participant_role_id,
 			'price_field_value_id' => $price_field_value_id,
 		];
 
@@ -927,7 +931,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	public function entity_type_get( $entity_type, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $entity_type !== '' ) {
+		if ( '' !== $entity_type ) {
 			return $entity_type;
 		}
 
@@ -965,7 +969,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	public function financial_type_id_get( $financial_type_id, $product_id, $product = null ) {
 
 		// Pass through if already found.
-		if ( $financial_type_id !== 0 ) {
+		if ( 0 !== $financial_type_id ) {
 			return $financial_type_id;
 		}
 

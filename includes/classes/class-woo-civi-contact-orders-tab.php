@@ -58,14 +58,14 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 			return false;
 		}
 
-		$option = WPCV_WCI()->settings_network->settings_key;
+		$option  = WPCV_WCI()->settings_network->settings_key;
 		$options = get_site_option( $option );
 		if ( ! $options ) {
 			return false;
 		}
 
 		$wc_site_id = (int) $options['wc_blog_id'];
-		if ( $wc_site_id === get_current_blog_id() ) {
+		if ( get_current_blog_id() === $wc_site_id ) {
 			return false;
 		}
 
@@ -137,8 +137,8 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 		$contact_id = $context['contact_id'];
 
 		// Bail if Contact has no Orders and "Hide Order" is enabled.
-		$order_count = $this->count_orders( $contact_id );
-		$option = get_option( 'woocommerce_civicrm_hide_orders_tab_for_non_customers', false );
+		$order_count     = $this->count_orders( $contact_id );
+		$option          = get_option( 'woocommerce_civicrm_hide_orders_tab_for_non_customers', false );
 		$hide_orders_tab = WPCV_WCI()->helper->check_yes_no_value( $option );
 		if ( $hide_orders_tab && ! $order_count ) {
 			return;
@@ -147,10 +147,10 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 		$url = CRM_Utils_System::url( 'civicrm/contact/view/purchases', "reset=1&cid=$contact_id&no_redirect=1" );
 
 		$tabs[] = [
-			'id' => 'woocommerce-orders',
-			'url' => $url,
-			'title' => __( 'Woo Orders', 'wpcv-woo-civi-integration' ),
-			'count' => $order_count,
+			'id'     => 'woocommerce-orders',
+			'url'    => $url,
+			'title'  => __( 'Woo Orders', 'wpcv-woo-civi-integration' ),
+			'count'  => $order_count,
 			'weight' => 99,
 		];
 
@@ -170,29 +170,41 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 		$this->fix_site();
 		$uid = abs( CRM_Core_BAO_UFMatch::getUFId( $contact_id ) );
 		if ( ! $uid ) {
-			try {
 
-				$params = [
-					'contact_id' => $contact_id,
-					'return' => [ 'email' ],
-				];
+			$params = [
+				'contact_id' => $contact_id,
+				'return'     => [ 'email' ],
+			];
+
+			try {
 
 				$contact = civicrm_api3( 'Contact', 'getsingle', $params );
 
 			} catch ( Exception $e ) {
 
+				// Grab the error data.
+				$message = $e->getMessage();
+				$code    = $e->getErrorCode();
+				$extra   = $e->getExtraParams();
+
 				// Write to CiviCRM log.
 				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
-				CRM_Core_Error::debug_log_message( $e->getMessage() );
+				CRM_Core_Error::debug_log_message( $message );
+				CRM_Core_Error::debug_log_message( $code );
+				CRM_Core_Error::debug_log_message( $extra );
 
-				// Write details to PHP log.
-				$e = new \Exception();
+				// Write to PHP log.
+				$e     = new \Exception();
 				$trace = $e->getTraceAsString();
-				error_log( print_r( [
-					'method' => __METHOD__,
-					'params' => $params,
+				$log   = [
+					'method'    => __METHOD__,
+					'params'    => $params,
+					'message'   => $message,
+					'code'      => $code,
+					'extra'     => $extra,
 					'backtrace' => $trace,
-				], true ) );
+				];
+				WPCV_WCI()->log_error( $log );
 
 				$this->unfix_site();
 				return [];
@@ -275,8 +287,8 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 	public function get_orders( $contact_id ) {
 
 		$customer_orders = $this->get_orders_raw( $contact_id );
-		$orders = [];
-		$date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+		$orders          = [];
+		$date_format     = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
 
 		// FIXME: For now, get partial data.
 		// TODO: Fetch real data.
@@ -288,16 +300,16 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 			foreach ( $customer_orders as $customer_order ) {
 
 				$order_id = $customer_order->ID;
-				$order = $customer_order;
+				$order    = $customer_order;
 
-				$orders[ $order_id ]['order_number'] = $order_id;
-				$orders[ $order_id ]['order_date'] = date_i18n( $date_format, strtotime( $order->post_date ) );
-				$orders[ $order_id ]['order_billing_name'] = get_post_meta( $order_id, '_billing_first_name', true ) . ' ' . get_post_meta( $order_id, '_billing_last_name', true );
+				$orders[ $order_id ]['order_number']        = $order_id;
+				$orders[ $order_id ]['order_date']          = date_i18n( $date_format, strtotime( $order->post_date ) );
+				$orders[ $order_id ]['order_billing_name']  = get_post_meta( $order_id, '_billing_first_name', true ) . ' ' . get_post_meta( $order_id, '_billing_last_name', true );
 				$orders[ $order_id ]['order_shipping_name'] = get_post_meta( $order_id, '_shipping_first_name', true ) . ' ' . get_post_meta( $order_id, '_shipping_last_name', true );
-				$orders[ $order_id ]['item_count'] = '--';
-				$orders[ $order_id ]['order_total'] = get_post_meta( $order_id, '_order_total', true );
-				$orders[ $order_id ]['order_status'] = $order->post_status;
-				$orders[ $order_id ]['order_link'] = admin_url( 'post.php?action=edit&post=' . $order_id );
+				$orders[ $order_id ]['item_count']          = '--';
+				$orders[ $order_id ]['order_total']         = get_post_meta( $order_id, '_order_total', true );
+				$orders[ $order_id ]['order_status']        = $order->post_status;
+				$orders[ $order_id ]['order_link']          = admin_url( 'post.php?action=edit&post=' . $order_id );
 
 			}
 
@@ -308,19 +320,19 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 		// Else continue the main way.
 		foreach ( $customer_orders as $customer_order ) {
 
-			$order_id = $customer_order->ID;
-			$order = new WC_Order( $customer_order );
+			$order_id   = $customer_order->ID;
+			$order      = new WC_Order( $customer_order );
 			$item_count = $order->get_item_count();
-			$total = $order->get_total();
+			$total      = $order->get_total();
 
-			$orders[ $order_id ]['order_number'] = $order->get_order_number();
-			$orders[ $order_id ]['order_date'] = $order->get_date_created()->date_i18n( $date_format );
-			$orders[ $order_id ]['order_billing_name'] = $order->get_formatted_billing_full_name();
+			$orders[ $order_id ]['order_number']        = $order->get_order_number();
+			$orders[ $order_id ]['order_date']          = $order->get_date_created()->date_i18n( $date_format );
+			$orders[ $order_id ]['order_billing_name']  = $order->get_formatted_billing_full_name();
 			$orders[ $order_id ]['order_shipping_name'] = $order->get_formatted_shipping_full_name();
-			$orders[ $order_id ]['item_count'] = $item_count;
-			$orders[ $order_id ]['order_total'] = $total;
-			$orders[ $order_id ]['order_status'] = $order->get_status();
-			$orders[ $order_id ]['order_link'] = admin_url( 'post.php?action=edit&post=' . $order->get_order_number() );
+			$orders[ $order_id ]['item_count']          = $item_count;
+			$orders[ $order_id ]['order_total']         = $total;
+			$orders[ $order_id ]['order_status']        = $order->get_status();
+			$orders[ $order_id ]['order_link']          = admin_url( 'post.php?action=edit&post=' . $order->get_order_number() );
 
 		}
 

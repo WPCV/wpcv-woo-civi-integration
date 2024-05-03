@@ -60,8 +60,10 @@ class WPCV_Woo_Civi_Tax {
 	 */
 	public function register_hooks() {
 
+		/*
 		// Modify params when an Order has a tax value.
-		//add_action( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'contribution_tax_add' ], 100, 2 );
+		add_action( 'wpcv_woo_civi/contribution/create_from_order/params', [ $this, 'contribution_tax_add' ], 100, 2 );
+		*/
 
 		// Add Tax to Line Item.
 		add_filter( 'wpcv_woo_civi/products/line_item', [ $this, 'line_item_tax_add' ], 10, 5 );
@@ -84,7 +86,7 @@ class WPCV_Woo_Civi_Tax {
 		}
 
 		$setting = false;
-		$result = WPCV_WCI()->helper->get_civicrm_setting( 'invoicing' );
+		$result  = WPCV_WCI()->helper->get_civicrm_setting( 'invoicing' );
 		if ( ! empty( $result ) ) {
 			$setting = $result;
 		}
@@ -178,7 +180,7 @@ class WPCV_Woo_Civi_Tax {
 
 		// Apply Tax to Line Item.
 		$line_item = [
-			//'params' => $line_item_params,
+			// 'params' => $line_item_params,
 			'line_item' => [
 				$line_item_data,
 			],
@@ -211,8 +213,8 @@ class WPCV_Woo_Civi_Tax {
 		}
 
 		$params = [
-			'version' => 3,
-			'return' => [
+			'version'                        => 3,
+			'return'                         => [
 				'id',
 				'entity_table',
 				'entity_id',
@@ -222,8 +224,8 @@ class WPCV_Woo_Civi_Tax {
 				'financial_account_id.tax_rate',
 			],
 			'financial_account_id.is_active' => 1,
-			'financial_account_id.is_tax' => 1,
-			'options' => [
+			'financial_account_id.is_tax'    => 1,
+			'options'                        => [
 				'limit' => 0,
 			],
 		];
@@ -231,21 +233,18 @@ class WPCV_Woo_Civi_Tax {
 		// Call the CiviCRM API.
 		$result = civicrm_api( 'EntityFinancialAccount', 'get', $params );
 
-		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
-			$e = new \Exception();
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
-
+			];
+			WPCV_WCI()->log_error( $log );
 			return false;
-
 		}
 
 		// Return early if there's nothing to see.
@@ -283,7 +282,7 @@ class WPCV_Woo_Civi_Tax {
 		}
 
 		$setting = '';
-		$result = WPCV_WCI()->helper->get_civicrm_setting( 'tax_term' );
+		$result  = WPCV_WCI()->helper->get_civicrm_setting( 'tax_term' );
 		if ( ! empty( $result ) ) {
 			$setting = $result;
 		}
@@ -308,7 +307,7 @@ class WPCV_Woo_Civi_Tax {
 		}
 
 		$setting = '';
-		$result = WPCV_WCI()->helper->get_civicrm_setting( 'tax_display_settings' );
+		$result  = WPCV_WCI()->helper->get_civicrm_setting( 'tax_display_settings' );
 		if ( ! empty( $result ) ) {
 			$setting = $result;
 		}

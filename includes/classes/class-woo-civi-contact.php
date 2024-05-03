@@ -132,8 +132,8 @@ class WPCV_Woo_Civi_Contact {
 	public function setup_objects() {
 
 		// Init Account objects.
-		$this->email = new WPCV_Woo_Civi_Contact_Email();
-		$this->phone = new WPCV_Woo_Civi_Contact_Phone();
+		$this->email   = new WPCV_Woo_Civi_Contact_Email();
+		$this->phone   = new WPCV_Woo_Civi_Contact_Phone();
 		$this->address = new WPCV_Woo_Civi_Contact_Address();
 
 		// Init CiviCRM Contact Orders Tab object.
@@ -310,10 +310,10 @@ class WPCV_Woo_Civi_Contact {
 
 		// Define params to get queried Contact.
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'id' => $contact_id,
-			'options' => [
+			'id'         => $contact_id,
+			'options'    => [
 				'limit' => 1, // Only one please.
 			],
 		];
@@ -327,15 +327,16 @@ class WPCV_Woo_Civi_Contact {
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Failed to get Contact by ID', 'wpcv-woo-civi-integration' ) );
 
-			// Write details to PHP log.
-			$e = new \Exception();
+			// Write to PHP log.
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -345,7 +346,7 @@ class WPCV_Woo_Civi_Contact {
 
 		// The result set should contain only one item.
 		if ( ! empty( $result['values'] ) ) {
-			$contact_data = array_pop( $result['values'] );
+			$contact_data       = array_pop( $result['values'] );
 			$contact_data['id'] = $contact_data['contact_id'];
 		}
 
@@ -377,28 +378,29 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'email' => $email,
+			'email'      => $email,
 		];
 
 		$result = civicrm_api( 'Contact', 'get', $params );
 
 		// If there's an error.
-		if ( ! empty( $result['is_error'] ) ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Failed to get Contact by Email', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -440,7 +442,7 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		// Get the Dedupe params.
-		$dedupe_params = CRM_Dedupe_Finder::formatParams( $contact, $contact_type );
+		$dedupe_params                     = CRM_Dedupe_Finder::formatParams( $contact, $contact_type );
 		$dedupe_params['check_permission'] = false;
 
 		// Use Dedupe Rules to find possible Contact IDs.
@@ -451,7 +453,7 @@ class WPCV_Woo_Civi_Contact {
 		// Return the suggested Contact ID.
 		if ( ! empty( $contact_ids ) ) {
 			$contact_ids = array_reverse( $contact_ids );
-			$contact_id = array_pop( $contact_ids );
+			$contact_id  = array_pop( $contact_ids );
 		}
 
 		return $contact_id;
@@ -481,7 +483,7 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		// Build the Dedupe params.
-		$dedupe_params = CRM_Dedupe_Finder::formatParams( $contact, $contact_type );
+		$dedupe_params                     = CRM_Dedupe_Finder::formatParams( $contact, $contact_type );
 		$dedupe_params['check_permission'] = false;
 
 		$contact_id = 0;
@@ -492,7 +494,7 @@ class WPCV_Woo_Civi_Contact {
 		// Return the suggested Contact ID.
 		if ( ! empty( $contact_ids ) ) {
 			$contact_ids = array_reverse( $contact_ids );
-			$contact_id = array_pop( $contact_ids );
+			$contact_id  = array_pop( $contact_ids );
 		}
 
 		return $contact_id;
@@ -530,7 +532,7 @@ class WPCV_Woo_Civi_Contact {
 
 			// Build params to get Dedupe Rule Groups.
 			$params = [
-				'limit' => 0,
+				'limit'            => 0,
 				'checkPermissions' => false,
 			];
 
@@ -602,9 +604,9 @@ class WPCV_Woo_Civi_Contact {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			$property => $id,
+			$property    => $id,
 		];
 
 		$result = civicrm_api( 'UFMatch', 'get', $params );
@@ -616,13 +618,14 @@ class WPCV_Woo_Civi_Contact {
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM UFMatch data.', 'wpcv-woo-civi-integration' ) );
 
 			// Write details to PHP log.
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return $ufmatch;
 
@@ -663,7 +666,7 @@ class WPCV_Woo_Civi_Contact {
 		// Maybe debug?
 		$params = [
 			'version' => 3,
-			'debug' => 1,
+			'debug'   => 1,
 		] + $contact;
 
 		/*
@@ -681,16 +684,17 @@ class WPCV_Woo_Civi_Contact {
 		 */
 		$result = civicrm_api( 'Contact', 'create', $params );
 
-		// Log and bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
-			$e = new Exception();
+			$e     = new Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
-				//'backtrace' => $trace,
-			], true ) );
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 			return false;
 		}
 
@@ -699,7 +703,7 @@ class WPCV_Woo_Civi_Contact {
 
 		// The result set should contain only one item.
 		if ( ! empty( $result['values'] ) ) {
-			$contact_data = array_pop( $result['values'] );
+			$contact_data               = array_pop( $result['values'] );
 			$contact_data['contact_id'] = $contact_data['id'];
 		}
 
@@ -722,14 +726,15 @@ class WPCV_Woo_Civi_Contact {
 
 		// Log and bail if there's no Contact ID.
 		if ( empty( $contact['id'] ) ) {
-			$e = new \Exception();
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'message' => __( 'A numeric ID must be present to update a Contact.', 'wpcv-woo-civi-integration' ),
-				'contact' => $contact,
+			$log   = [
+				'method'    => __METHOD__,
+				'message'   => __( 'A numeric ID must be present to update a Contact.', 'wpcv-woo-civi-integration' ),
+				'contact'   => $contact,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 			return false;
 		}
 
@@ -750,8 +755,8 @@ class WPCV_Woo_Civi_Contact {
 
 		$contact = [
 			'first_name' => '',
-			'last_name' => '',
-			'email' => '',
+			'last_name'  => '',
+			'email'      => '',
 		];
 
 		// Maybe populate First Name.
@@ -793,7 +798,7 @@ class WPCV_Woo_Civi_Contact {
 		 *
 		 * @since 3.0
 		 *
-		 * @param bool False by default: do not bypass.
+		 * @param bool   False by default: do not bypass.
 		 * @param object $order The WooCommerce Order object.
 		 */
 		if ( true === apply_filters( 'wpcv_woo_civi/contact/create_from_order/bypass', false, $order ) ) {
@@ -834,7 +839,7 @@ class WPCV_Woo_Civi_Contact {
 		$contact = $this->create( $contact );
 
 		// Bail if something went wrong.
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to create Contact', 'wpcv-woo-civi-integration' ) );
 			return false;
 		}
@@ -878,9 +883,9 @@ class WPCV_Woo_Civi_Contact {
 		 *
 		 * @since 3.0
 		 *
-		 * @param bool False by default: do not bypass.
+		 * @param bool    False by default: do not bypass.
 		 * @param integer $contact_id The numeric ID of the Contact.
-		 * @param object $order The WooCommerce Order object.
+		 * @param object  $order The WooCommerce Order object.
 		 */
 		if ( true === apply_filters( 'wpcv_woo_civi/contact/update_from_order/bypass', false, $contact_id, $order ) ) {
 			return $contact_id;
@@ -888,7 +893,7 @@ class WPCV_Woo_Civi_Contact {
 
 		// Try and find the Contact.
 		$contact = $this->get_by_id( $contact_id );
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			return false;
 		}
 
@@ -925,7 +930,7 @@ class WPCV_Woo_Civi_Contact {
 		$contact = $this->update( $contact );
 
 		// Bail if something went wrong.
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Contact', 'wpcv-woo-civi-integration' ) );
 			return false;
 		}
@@ -988,7 +993,7 @@ class WPCV_Woo_Civi_Contact {
 				$ufmatch = $this->get_ufmatch( $user_id, 'uf_id' );
 
 				// Return the Contact ID if found.
-				if ( $ufmatch !== false && ! empty( $ufmatch['contact_id'] ) ) {
+				if ( false !== $ufmatch && ! empty( $ufmatch['contact_id'] ) ) {
 					return (int) $ufmatch['contact_id'];
 				}
 
@@ -1033,9 +1038,10 @@ class WPCV_Woo_Civi_Contact {
 	 */
 	public function types_get() {
 
+		// TODO: Get these from CiviCRM.
 		$contact_types = [
-			'Individual' => __( 'Individual', 'wpcv-woo-civi-integration' ),
-			'Household' => __( 'Household', 'wpcv-woo-civi-integration' ),
+			'Individual'   => __( 'Individual', 'wpcv-woo-civi-integration' ),
+			'Household'    => __( 'Household', 'wpcv-woo-civi-integration' ),
 			'Organization' => __( 'Organization', 'wpcv-woo-civi-integration' ),
 		];
 
@@ -1071,10 +1077,10 @@ class WPCV_Woo_Civi_Contact {
 
 		// Define params to get all Contact Types.
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'is_active' => 1,
-			'options' => [
+			'is_active'  => 1,
+			'options'    => [
 				'limit' => 0, // No limit.
 			],
 		];
@@ -1122,8 +1128,8 @@ class WPCV_Woo_Civi_Contact {
 	 * @since 3.0
 	 *
 	 * @param integer $customer_id New customer (user) ID.
-	 * @param array $new_customer_data Array of customer (user) data.
-	 * @param string $password_generated The generated password for the account.
+	 * @param array   $new_customer_data Array of customer (user) data.
+	 * @param string  $password_generated The generated password for the account.
 	 */
 	public function types_apply( $customer_id, $new_customer_data, $password_generated ) {
 
@@ -1135,7 +1141,7 @@ class WPCV_Woo_Civi_Contact {
 
 		// Build Contact data to match the settings for this plugin.
 		$contact = [
-			'id' => $ufmatch['contact_id'],
+			'id'             => $ufmatch['contact_id'],
 			'contact_source' => __( 'WooCommerce Account', 'wpcv-woo-civi-integration' ),
 		];
 
@@ -1149,17 +1155,17 @@ class WPCV_Woo_Civi_Contact {
 		$contact = $this->update( $contact );
 
 		// Bail if something went wrong.
-		if ( $contact === false ) {
+		if ( false === $contact ) {
 			CRM_Core_Error::debug_log_message( __( 'Unable to update Contact after WooCommerce Signup', 'wpcv-woo-civi-integration' ) );
 			return;
 		}
 
 		// Let's make an array of the data.
 		$args = [
-			'customer_id' => $customer_id,
-			'new_customer_data' => $new_customer_data,
+			'customer_id'        => $customer_id,
+			'new_customer_data'  => $new_customer_data,
 			'password_generated' => $password_generated,
-			'contact' => $contact,
+			'contact'            => $contact,
 		];
 
 		/**
@@ -1205,17 +1211,17 @@ class WPCV_Woo_Civi_Contact {
 
 		// Define params to get queried Contact Type.
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'options' => [
+			'options'    => [
 				'limit' => 0, // No limit.
 			],
 		];
 
 		// Add param to query by.
-		if ( $mode === 'name' ) {
+		if ( 'name' === $mode ) {
 			$params['name'] = $contact_type;
-		} elseif ( $mode === 'id' ) {
+		} elseif ( 'id' === $mode ) {
 			$params['id'] = $contact_type;
 		}
 
@@ -1284,7 +1290,7 @@ class WPCV_Woo_Civi_Contact {
 
 		// Bail if not the synced Contact Sub-type.
 		if ( ! empty( $contact_type['sub_type'] ) ) {
-			if ( ! in_array( $contact_type['sub_type'], $contact['contact_sub_type'] ) ) {
+			if ( ! in_array( $contact_type['sub_type'], $contact['contact_sub_type'], true ) ) {
 				return false;
 			}
 		}
@@ -1309,7 +1315,7 @@ class WPCV_Woo_Civi_Contact {
 
 		// Init settings array.
 		$contact_type = [
-			'type' => '',
+			'type'     => '',
 			'sub_type' => '',
 		];
 
@@ -1413,7 +1419,7 @@ class WPCV_Woo_Civi_Contact {
 		if ( is_array( $contact['contact_sub_type'] ) ) {
 
 			// Add ours if it's not present.
-			if ( ! in_array( $contact_sub_type['name'], $contact['contact_sub_type'] ) ) {
+			if ( ! in_array( $contact_sub_type['name'], $contact['contact_sub_type'], true ) ) {
 				$contact['contact_sub_type'][] = $contact_sub_type['name'];
 			}
 
@@ -1421,8 +1427,8 @@ class WPCV_Woo_Civi_Contact {
 
 			// Make an array of both when the existing is different.
 			if ( $contact_sub_type['name'] !== $contact['contact_sub_type'] ) {
-				$new_contact_sub_types = [ $contact['contact_sub_type'] ];
-				$new_contact_sub_types[] = $contact_sub_type['name'];
+				$new_contact_sub_types       = [ $contact['contact_sub_type'] ];
+				$new_contact_sub_types[]     = $contact_sub_type['name'];
 				$contact['contact_sub_type'] = $new_contact_sub_types;
 			}
 

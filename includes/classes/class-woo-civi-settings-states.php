@@ -90,8 +90,8 @@ class WPCV_Woo_Civi_Settings_States {
 		}
 
 		// Start from scratch.
-		$states = [];
-		$civicrm_states = $this->get_civicrm_states();
+		$states            = [];
+		$civicrm_states    = $this->get_civicrm_states();
 		$civicrm_countries = $this->get_civicrm_countries();
 
 		foreach ( $civicrm_states as $state_id => $state ) {
@@ -124,9 +124,9 @@ class WPCV_Woo_Civi_Settings_States {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'options' => [
+			'options'    => [
 				'limit' => 0,
 			],
 		];
@@ -134,7 +134,7 @@ class WPCV_Woo_Civi_Settings_States {
 		$result = civicrm_api( 'Country', 'get', $params );
 
 		// Return early if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			return $this->civicrm_countries;
 		}
 
@@ -167,28 +167,25 @@ class WPCV_Woo_Civi_Settings_States {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'iso_code' => $woo_country,
+			'iso_code'   => $woo_country,
 		];
 
 		$result = civicrm_api( 'Country', 'getsingle', $params );
 
-		// Bail if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
-			$e = new \Exception();
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
-
+			];
+			WPCV_WCI()->log_error( $log );
 			return false;
-
 		}
 
 		return (int) $result['id'];
@@ -216,28 +213,25 @@ class WPCV_Woo_Civi_Settings_States {
 		}
 
 		$params = [
-			'version' => 3,
+			'version'    => 3,
 			'sequential' => 1,
-			'id' => $country_id,
+			'id'         => $country_id,
 		];
 
 		$result = civicrm_api( 'Country', 'getsingle', $params );
 
-		// Bail if something went wrong.
-		if ( ! empty( $result['error'] ) ) {
-
-			// Write details to PHP log.
-			$e = new \Exception();
+		// Log and bail if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
-				'method' => __METHOD__,
-				'params' => $params,
-				'result' => $result,
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
-
+			];
+			WPCV_WCI()->log_error( $log );
 			return false;
-
 		}
 
 		return $result['iso_code'];
@@ -270,14 +264,14 @@ class WPCV_Woo_Civi_Settings_States {
 
 		// Perform direct query.
 		$query = 'SELECT name, id, country_id, abbreviation FROM civicrm_state_province';
-		$dao = CRM_Core_DAO::executeQuery( $query );
+		$dao   = CRM_Core_DAO::executeQuery( $query );
 
 		while ( $dao->fetch() ) {
 			$this->civicrm_states[ $dao->id ] = [
-				'id' => $dao->id,
-				'name' => $dao->name,
+				'id'           => $dao->id,
+				'name'         => $dao->name,
 				'abbreviation' => $dao->abbreviation,
-				'country_id' => $dao->country_id,
+				'country_id'   => $dao->country_id,
 			];
 		}
 

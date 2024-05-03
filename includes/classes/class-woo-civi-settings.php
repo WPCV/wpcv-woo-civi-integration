@@ -78,7 +78,7 @@ class WPCV_Woo_Civi_Settings {
 		$this->upgrade_tasks();
 
 		// Store version for later reference if there has been a change.
-		if ( $this->plugin_version !== WPCV_WOO_CIVI_VERSION ) {
+		if ( WPCV_WOO_CIVI_VERSION !== $this->plugin_version ) {
 			$this->option_set( 'wpcv_woo_civi_version', WPCV_WOO_CIVI_VERSION );
 		}
 
@@ -91,15 +91,19 @@ class WPCV_Woo_Civi_Settings {
 	 */
 	public function upgrade_tasks() {
 
+		/*
 		// If this is a new install (or a migration from a version prior to 3.0).
-		if ( $this->plugin_version === false ) {
+		if ( false === $this->plugin_version ) {
 			// Already handled by migration.
 		}
+		*/
 
+		/*
 		// If this is an upgrade.
-		if ( $this->plugin_version !== WPCV_WOO_CIVI_VERSION ) {
+		if ( WPCV_WOO_CIVI_VERSION !== $this->plugin_version ) {
 			// Do something.
 		}
+		*/
 
 		/*
 		// For future upgrades, use something like the following.
@@ -178,12 +182,12 @@ class WPCV_Woo_Civi_Settings {
 	public function fields_define() {
 
 		// Define and combine plugin settings fields.
-		$order_fields = $this->fields_order();
+		$order_fields   = $this->fields_order();
 		$product_fields = $this->fields_product();
 		$contact_fields = $this->fields_contact();
 		$address_fields = $this->fields_address();
-		$other_fields = $this->fields_other();
-		$fields = $order_fields + $product_fields + $contact_fields + $address_fields + $other_fields;
+		$other_fields   = $this->fields_other();
+		$fields         = $order_fields + $product_fields + $contact_fields + $address_fields + $other_fields;
 
 		/**
 		 * Filter the plugin fields array.
@@ -211,9 +215,9 @@ class WPCV_Woo_Civi_Settings {
 		$section_start = [
 			'order_title' => [
 				'title' => __( 'Order settings', 'wpcv-woo-civi-integration' ),
-				'type' => 'title',
-				'desc' => __( 'This plugin needs to know some information to configure the Orders that are created in CiviCRM.', 'wpcv-woo-civi-integration' ),
-				'id' => 'order_title',
+				'type'  => 'title',
+				'desc'  => __( 'This plugin needs to know some information to configure the Orders that are created in CiviCRM.', 'wpcv-woo-civi-integration' ),
+				'id'    => 'order_title',
 			],
 		];
 
@@ -230,35 +234,35 @@ class WPCV_Woo_Civi_Settings {
 
 		// Init Order settings.
 		$settings = [
-			'pay_later_gateways' => [
-				'title' => __( 'Pay Later Payment Methods', 'wpcv-woo-civi-integration' ),
-				'type' => 'multiselect',
-				'options' => WPCV_WCI()->helper->get_payment_gateway_options(),
-				'id'   => 'woocommerce_civicrm_pay_later_gateways',
+			'pay_later_gateways'         => [
+				'title'    => __( 'Pay Later Payment Methods', 'wpcv-woo-civi-integration' ),
+				'type'     => 'multiselect',
+				'options'  => WPCV_WCI()->helper->get_payment_gateway_options(),
+				'id'       => 'woocommerce_civicrm_pay_later_gateways',
 				'autoload' => false,
-				'desc' => __( 'Select all the WooCommerce Payment Methods that are considered "Pay Later" in CiviCRM.', 'wpcv-woo-civi-integration' ),
-				'class' => 'wc-enhanced-select',
+				'desc'     => __( 'Select all the WooCommerce Payment Methods that are considered "Pay Later" in CiviCRM.', 'wpcv-woo-civi-integration' ),
+				'class'    => 'wc-enhanced-select',
 			],
-			'ignore_0_amount_orders' => [
+			'ignore_0_amount_orders'     => [
 				'title' => __( 'Do not create 0 amount Contributions', 'wpcv-woo-civi-integration' ),
-				'type' => 'checkbox',
-				'desc' => __( 'Do not create Contributions for Orders with a total of 0, e.g. for free Products or when using a Coupon.', 'wpcv-woo-civi-integration' ),
-				'id'   => 'woocommerce_civicrm_ignore_0_amount_orders',
+				'type'  => 'checkbox',
+				'desc'  => __( 'Do not create Contributions for Orders with a total of 0, e.g. for free Products or when using a Coupon.', 'wpcv-woo-civi-integration' ),
+				'id'    => 'woocommerce_civicrm_ignore_0_amount_orders',
 			],
-			'financial_type_id' => [
-				'title' => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
-				'type' => 'select',
-				'desc' => __( 'CiviCRM needs to know what Financial Type to assign to an Order when there are multiple Products in that Order. (Note: every Product that creates a Contribution in CiviCRM should have its Entity Type, Financial Type and Price Field specified in its "CiviCRM Settings" tab.)', 'wpcv-woo-civi-integration' ),
+			'financial_type_id'          => [
+				'title'   => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
+				'type'    => 'select',
+				'desc'    => __( 'CiviCRM needs to know what Financial Type to assign to an Order when there are multiple Products in that Order. (Note: every Product that creates a Contribution in CiviCRM should have its Entity Type, Financial Type and Price Field specified in its "CiviCRM Settings" tab.)', 'wpcv-woo-civi-integration' ),
 				'options' => WPCV_WCI()->helper->get_financial_types(),
-				'id'   => 'woocommerce_civicrm_financial_type_id',
+				'id'      => 'woocommerce_civicrm_financial_type_id',
 			],
 			'financial_type_shipping_id' => [
-				'title' => __( 'Shipping Financial Type', 'wpcv-woo-civi-integration' ),
-				'type' => 'select',
+				'title'   => __( 'Shipping Financial Type', 'wpcv-woo-civi-integration' ),
+				'type'    => 'select',
 				/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
-				'desc' => sprintf( __( 'Tip: you can manage your %1$sFinancial Types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/financial/financialType', 'reset=1' ) . '">', '</a>' ),
+				'desc'    => sprintf( __( 'Tip: you can manage your %1$sFinancial Types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/financial/financialType', 'reset=1' ) . '">', '</a>' ),
 				'options' => WPCV_WCI()->helper->get_financial_types(),
-				'id'   => 'woocommerce_civicrm_financial_type_shipping_id',
+				'id'      => 'woocommerce_civicrm_financial_type_shipping_id',
 			],
 		];
 
@@ -281,7 +285,7 @@ class WPCV_Woo_Civi_Settings {
 		$section_end = [
 			'order_section_end' => [
 				'type' => 'sectionend',
-				'id' => 'order_title',
+				'id'   => 'order_title',
 			],
 		];
 
@@ -312,22 +316,22 @@ class WPCV_Woo_Civi_Settings {
 		$section_start = [
 			'product_title' => [
 				'title' => __( 'Product settings', 'wpcv-woo-civi-integration' ),
-				'type' => 'title',
-				//'desc' => __( 'This plugin needs to know some information to configure WooCommerce Products.', 'wpcv-woo-civi-integration' ),
-				'id' => 'product_title',
+				'type'  => 'title',
+				// 'desc' => __( 'This plugin needs to know some information to configure WooCommerce Products.', 'wpcv-woo-civi-integration' ),
+				'id'    => 'product_title',
 			],
 		];
 
 		// Init Product settings.
 		$settings = [
 			'product_types_with_panel' => [
-				'title' => __( 'Product Types with CiviCRM Settings', 'wpcv-woo-civi-integration' ),
-				'type' => 'multiselect',
-				'options' => WPCV_WCI()->helper->get_product_types_options( false ),
-				'id'   => 'woocommerce_civicrm_product_types_with_panel',
+				'title'    => __( 'Product Types with CiviCRM Settings', 'wpcv-woo-civi-integration' ),
+				'type'     => 'multiselect',
+				'options'  => WPCV_WCI()->helper->get_product_types_options( false ),
+				'id'       => 'woocommerce_civicrm_product_types_with_panel',
 				'autoload' => false,
-				'desc' => __( 'Select the WooCommerce Product Types to show the CiviCRM Settings panel on. You will need to update this setting if you enable additional plugins that provide Custom Product Types that you want to include as Line Items in CiviCRM Orders.', 'wpcv-woo-civi-integration' ),
-				'class' => 'wc-enhanced-select',
+				'desc'     => __( 'Select the WooCommerce Product Types to show the CiviCRM Settings panel on. You will need to update this setting if you enable additional plugins that provide Custom Product Types that you want to include as Line Items in CiviCRM Orders.', 'wpcv-woo-civi-integration' ),
+				'class'    => 'wc-enhanced-select',
 			],
 		];
 
@@ -357,7 +361,7 @@ class WPCV_Woo_Civi_Settings {
 		$section_end = [
 			'product_section_end' => [
 				'type' => 'sectionend',
-				'id' => 'product_title',
+				'id'   => 'product_title',
 			],
 		];
 
@@ -388,35 +392,35 @@ class WPCV_Woo_Civi_Settings {
 		$section_start = [
 			'contact_title' => [
 				'title' => __( 'Contact settings', 'wpcv-woo-civi-integration' ),
-				'type' => 'title',
-				//'desc' => __( 'This plugin needs to know some information to configure WooCommerce Contacts.', 'wpcv-woo-civi-integration' ),
-				'id' => 'contact_title',
+				'type'  => 'title',
+				// 'desc' => __( 'This plugin needs to know some information to configure WooCommerce Contacts.', 'wpcv-woo-civi-integration' ),
+				'id'    => 'contact_title',
 			],
 		];
 
 		// Init Contact settings.
 		$settings = [
-			'contact_type' => [
-				'title' => __( 'Contact Type', 'wpcv-woo-civi-integration' ),
-				'type' => 'select_optgroup',
-				'desc' => __( 'Select the type of Contact that is created when an Order is processed. The most common (and recommended) configuration is to have this set to "Individual". Stick with the default unless you have a good reason to change it.', 'wpcv-woo-civi-integration' ),
+			'contact_type'    => [
+				'title'   => __( 'Contact Type', 'wpcv-woo-civi-integration' ),
+				'type'    => 'select_optgroup',
+				'desc'    => __( 'Select the type of Contact that is created when an Order is processed. The most common (and recommended) configuration is to have this set to "Individual". Stick with the default unless you have a good reason to change it.', 'wpcv-woo-civi-integration' ),
 				'options' => WPCV_WCI()->contact->types_get(),
-				'id'   => 'woocommerce_civicrm_contact_type',
+				'id'      => 'woocommerce_civicrm_contact_type',
 			],
 			'contact_subtype' => [
-				'title' => __( 'Contact Sub-type', 'wpcv-woo-civi-integration' ),
-				'type' => 'select_optgroup',
+				'title'   => __( 'Contact Sub-type', 'wpcv-woo-civi-integration' ),
+				'type'    => 'select_optgroup',
 				/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
-				'desc' => sprintf( __( 'Select the sub-type that is assigned to Contacts created (or updated) when an Order is processed. Leave this set to "No Sub-type selected" if you do not want new Contacts to have a sub-type. Tip: you can manage your %1$sContact Sub-types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/options/subtype', 'reset=1' ) . '">', '</a>' ),
+				'desc'    => sprintf( __( 'Select the sub-type that is assigned to Contacts created (or updated) when an Order is processed. Leave this set to "No Sub-type selected" if you do not want new Contacts to have a sub-type. Tip: you can manage your %1$sContact Sub-types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/options/subtype', 'reset=1' ) . '">', '</a>' ),
 				'options' => WPCV_WCI()->contact->subtypes_get_options(),
-				'id'   => 'woocommerce_civicrm_contact_subtype',
+				'id'      => 'woocommerce_civicrm_contact_subtype',
 			],
-			'dedupe_rule' => [
-				'title' => __( 'Dedupe Rule', 'wpcv-woo-civi-integration' ),
-				'type' => 'select_optgroup',
-				'desc' => __( 'Select the Dedupe Rule to use when matching Users to Contacts.', 'wpcv-woo-civi-integration' ),
+			'dedupe_rule'     => [
+				'title'   => __( 'Dedupe Rule', 'wpcv-woo-civi-integration' ),
+				'type'    => 'select_optgroup',
+				'desc'    => __( 'Select the Dedupe Rule to use when matching Users to Contacts.', 'wpcv-woo-civi-integration' ),
 				'options' => WPCV_WCI()->contact->dedupe_rules_get(),
-				'id'   => 'woocommerce_civicrm_dedupe_rule',
+				'id'      => 'woocommerce_civicrm_dedupe_rule',
 			],
 		];
 
@@ -446,7 +450,7 @@ class WPCV_Woo_Civi_Settings {
 		$section_end = [
 			'contact_section_end' => [
 				'type' => 'sectionend',
-				'id' => 'contact_title',
+				'id'   => 'contact_title',
 			],
 		];
 
@@ -477,10 +481,10 @@ class WPCV_Woo_Civi_Settings {
 		$section_start = [
 			'address_title' => [
 				'title' => __( 'Address, Phone and Email settings', 'wpcv-woo-civi-integration' ),
-				'type' => 'title',
-				'desc' => '',
-				//'desc' => __( 'Default settings for synchronizing Addresses in CiviCRM.', 'wpcv-woo-civi-integration' ),
-				'id' => 'address_title',
+				'type'  => 'title',
+				'desc'  => '',
+				// 'desc' => __( 'Default settings for synchronizing Addresses in CiviCRM.', 'wpcv-woo-civi-integration' ),
+				'id'    => 'address_title',
 			],
 		];
 
@@ -497,37 +501,37 @@ class WPCV_Woo_Civi_Settings {
 
 		// Init Address settings.
 		$settings = [
-			'billing_location_type_id' => [
-				'title' => __( 'Billing Location Type', 'wpcv-woo-civi-integration' ),
-				'type' => 'select',
+			'billing_location_type_id'  => [
+				'title'   => __( 'Billing Location Type', 'wpcv-woo-civi-integration' ),
+				'type'    => 'select',
 				'options' => WPCV_WCI()->contact->address->get_location_types(),
-				'id'   => 'woocommerce_civicrm_billing_location_type_id',
+				'id'      => 'woocommerce_civicrm_billing_location_type_id',
 			],
 			'shipping_location_type_id' => [
-				'title' => __( 'Shipping Location Type', 'wpcv-woo-civi-integration' ),
-				'type' => 'select',
+				'title'   => __( 'Shipping Location Type', 'wpcv-woo-civi-integration' ),
+				'type'    => 'select',
 				/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
-				'desc' => sprintf( __( 'Tip: you can manage your %1$sLocation Types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/locationType', 'reset=1' ) . '">', '</a>' ),
+				'desc'    => sprintf( __( 'Tip: you can manage your %1$sLocation Types in CiviCRM%2$s.', 'wpcv-woo-civi-integration' ), '<a href="' . WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/admin/locationType', 'reset=1' ) . '">', '</a>' ),
 				'options' => WPCV_WCI()->contact->address->get_location_types(),
-				'id'   => 'woocommerce_civicrm_shipping_location_type_id',
+				'id'      => 'woocommerce_civicrm_shipping_location_type_id',
 			],
-			'sync_contact_address' => [
+			'sync_contact_address'      => [
 				'title' => __( 'Sync Address', 'wpcv-woo-civi-integration' ),
-				'type' => 'checkbox',
-				'desc' => __( 'Synchronize WooCommerce User Address with its matching CiviCRM Contact Address and vice versa.', 'wpcv-woo-civi-integration' ),
-				'id'   => 'woocommerce_civicrm_sync_contact_address',
+				'type'  => 'checkbox',
+				'desc'  => __( 'Synchronize WooCommerce User Address with its matching CiviCRM Contact Address and vice versa.', 'wpcv-woo-civi-integration' ),
+				'id'    => 'woocommerce_civicrm_sync_contact_address',
 			],
-			'sync_contact_phone' => [
+			'sync_contact_phone'        => [
 				'title' => __( 'Sync Billing Phone', 'wpcv-woo-civi-integration' ),
-				'type' => 'checkbox',
-				'desc' => __( 'Synchronize WooCommerce User Billing Phone Number with its matching CiviCRM Contact Billing Phone Number and vice versa.', 'wpcv-woo-civi-integration' ),
-				'id'   => 'woocommerce_civicrm_sync_contact_phone',
+				'type'  => 'checkbox',
+				'desc'  => __( 'Synchronize WooCommerce User Billing Phone Number with its matching CiviCRM Contact Billing Phone Number and vice versa.', 'wpcv-woo-civi-integration' ),
+				'id'    => 'woocommerce_civicrm_sync_contact_phone',
 			],
-			'sync_contact_email' => [
+			'sync_contact_email'        => [
 				'title' => __( 'Sync Billing Email', 'wpcv-woo-civi-integration' ),
-				'type' => 'checkbox',
-				'desc' => __( 'Synchronize WooCommerce User Billing Email with its matching CiviCRM Contact Billing Email and vice versa.', 'wpcv-woo-civi-integration' ),
-				'id'   => 'woocommerce_civicrm_sync_contact_email',
+				'type'  => 'checkbox',
+				'desc'  => __( 'Synchronize WooCommerce User Billing Email with its matching CiviCRM Contact Billing Email and vice versa.', 'wpcv-woo-civi-integration' ),
+				'id'    => 'woocommerce_civicrm_sync_contact_email',
 			],
 		];
 
@@ -546,7 +550,7 @@ class WPCV_Woo_Civi_Settings {
 		$section_end = [
 			'address_section_end' => [
 				'type' => 'sectionend',
-				'id' => 'address_title',
+				'id'   => 'address_title',
 			],
 		];
 
@@ -577,9 +581,9 @@ class WPCV_Woo_Civi_Settings {
 		$section_start = [
 			'other_title' => [
 				'title' => __( 'Other settings', 'wpcv-woo-civi-integration' ),
-				'type' => 'title',
-				'desc' => '',
-				'id' => 'other_title',
+				'type'  => 'title',
+				'desc'  => '',
+				'id'    => 'other_title',
 			],
 		];
 
@@ -598,15 +602,15 @@ class WPCV_Woo_Civi_Settings {
 		$settings = [
 			'hide_orders_tab_for_non_customers' => [
 				'title' => __( 'Hide "Woo Orders" Tab for non-customers', 'wpcv-woo-civi-integration' ),
-				'type' => 'checkbox',
-				'desc' => __( 'Remove the "Woo Orders" Tab from the CiviCRM Contact screen for non-customer Contacts.', 'wpcv-woo-civi-integration' ),
-				'id'   => 'woocommerce_civicrm_hide_orders_tab_for_non_customers',
+				'type'  => 'checkbox',
+				'desc'  => __( 'Remove the "Woo Orders" Tab from the CiviCRM Contact screen for non-customer Contacts.', 'wpcv-woo-civi-integration' ),
+				'id'    => 'woocommerce_civicrm_hide_orders_tab_for_non_customers',
 			],
-			'replace_woocommerce_states' => [
+			'replace_woocommerce_states'        => [
 				'title' => __( 'Replace WooCommerce States', 'wpcv-woo-civi-integration' ),
-				'type' => 'checkbox',
-				'desc' => __( 'WARNING, POSSIBLE DATA LOSS! If enabled, this plugin will replace the list of States/Countries in WooCommerce with the States/Provinces list from CiviCRM. If this is not a fresh install of WooCommerce and CiviCRM, then you WILL lose any existing State/Country data for existing Customers. Any WooCommerce Settings that rely on State/Country will have to be reconfigured.', 'wpcv-woo-civi-integration' ),
-				'id'   => 'woocommerce_civicrm_replace_woocommerce_states',
+				'type'  => 'checkbox',
+				'desc'  => __( 'WARNING, POSSIBLE DATA LOSS! If enabled, this plugin will replace the list of States/Countries in WooCommerce with the States/Provinces list from CiviCRM. If this is not a fresh install of WooCommerce and CiviCRM, then you WILL lose any existing State/Country data for existing Customers. Any WooCommerce Settings that rely on State/Country will have to be reconfigured.', 'wpcv-woo-civi-integration' ),
+				'id'    => 'woocommerce_civicrm_replace_woocommerce_states',
 			],
 		];
 
@@ -625,7 +629,7 @@ class WPCV_Woo_Civi_Settings {
 		$section_end = [
 			'other_section_end' => [
 				'type' => 'sectionend',
-				'id' => 'other_title',
+				'id'   => 'other_title',
 			],
 		];
 
@@ -771,7 +775,7 @@ class WPCV_Woo_Civi_Settings {
 							<option value="<?php echo esc_attr( $option_key ); ?>" <?php selected( (string) $option_key, (string) esc_attr( $value['value'] ) ); ?>><?php echo esc_html( $option_value ); ?></option>
 						<?php endif; ?>
 					<?php endforeach; ?>
-				</select> <?php echo $description; ?>
+				</select> <?php echo $description; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</td>
 		</tr>
 		<?php

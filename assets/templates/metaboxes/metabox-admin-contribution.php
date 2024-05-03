@@ -9,7 +9,8 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
-?><!-- assets/templates/metaboxes/metabox-admin-contribution.php -->
+?>
+<!-- assets/templates/metaboxes/metabox-admin-contribution.php -->
 <?php
 
 /**
@@ -51,7 +52,7 @@ do_action( 'wpcv_woo_civi/admin/metabox/contribution/before' );
 				<p>
 					<select id="wpcv_wci_contribution_financial_type_id" name="wpcv_wci_contribution_financial_type_id">
 						<?php foreach ( $metabox['args']['financial_types'] as $key => $financial_type ) : ?>
-							<option value="<?php echo $key; ?>"><?php echo $financial_type; ?></option>
+							<option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $financial_type ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</p>
@@ -69,6 +70,7 @@ do_action( 'wpcv_woo_civi/admin/metabox/contribution/before' );
 					<select class="wc-enhanced-select" multiple="multiple" id="wpcv_wci_contribution_variations_pfv_ids" name="wpcv_wci_contribution_variations_pfv_ids[]" style="width: 100%">
 						<?php foreach ( $metabox['args']['price_sets'] as $price_set_id => $price_set ) : ?>
 							<?php foreach ( $price_set['price_fields'] as $price_field_id => $price_field ) : ?>
+								<?php /* translators: 1: The Price Set title, 2: The Price Set label. */ ?>
 								<optgroup label="<?php echo esc_attr( sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $price_set['title'], $price_field['label'] ) ); ?>">
 									<?php foreach ( $price_field['price_field_values'] as $price_field_value_id => $price_field_value ) : ?>
 										<option value="<?php echo esc_attr( $price_field_value_id ); ?>"><?php echo esc_html( $price_field_value['label'] ); ?></option>
@@ -87,10 +89,7 @@ do_action( 'wpcv_woo_civi/admin/metabox/contribution/before' );
 <div class="contribution_feedback">
 </div>
 
-<?php submit_button( $metabox['args']['button_title'], 'primary', 'wpcv_woocivi_contribution_process', false, [
-	'data-security' => esc_attr( wp_create_nonce( 'wpcv_manual_sync_contribution' ) ),
-	'style' => 'float: right;',
-] ); ?> <span class="spinner"></span>
+<?php submit_button( $metabox['args']['button_title'], 'primary', 'wpcv_woocivi_contribution_process', false, $metabox['args']['button_args'] ); ?> <span class="spinner"></span>
 <br class="clear">
 <?php
 

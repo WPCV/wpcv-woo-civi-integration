@@ -149,10 +149,10 @@ class WPCV_Woo_Civi_Settings_Network {
 			'woocommerce-civicrm-settings-network',
 			'woocommerce-civicrm-settings-network-general',
 			[
-				'name' => 'wc_blog_id',
-				'network' => true,
+				'name'        => 'wc_blog_id',
+				'network'     => true,
 				'description' => __( 'The ID of the Site where the WooCommerce Shop is located.', 'wpcv-woo-civi-integration' ),
-				'options' => WPCV_WCI()->helper->get_sites(),
+				'options'     => WPCV_WCI()->helper->get_sites(),
 			]
 		);
 
@@ -205,19 +205,22 @@ class WPCV_Woo_Civi_Settings_Network {
 	 */
 	public function network_settings_save() {
 
-		if ( ! wp_verify_nonce( filter_input( INPUT_POST, 'woocommerce-civicrm-settings', FILTER_SANITIZE_STRING ), 'woocommerce-civicrm-settings' ) ) {
+		// Verify our nonce.
+		$nonce = filter_input( INPUT_POST, 'woocommerce-civicrm-settings' );
+		$nonce = sanitize_text_field( wp_unslash( $nonce ) );
+		if ( ! wp_verify_nonce( $nonce, 'woocommerce-civicrm-settings' ) ) {
 			wp_die( esc_html__( 'Cheating uh?', 'wpcv-woo-civi-integration' ) );
 		}
 
 		if ( ! empty( $_POST[ $this->settings_key ]['wc_blog_id'] ) ) {
 			$settings = [
-				'wc_blog_id' => sanitize_text_field( $_POST[ $this->settings_key ]['wc_blog_id'] ),
+				'wc_blog_id' => (int) sanitize_text_field( wp_unslash( $_POST[ $this->settings_key ]['wc_blog_id'] ) ),
 			];
 			update_site_option( $this->settings_key, $settings );
 			wp_safe_redirect(
 				add_query_arg(
 					[
-						'page' => 'woocommerce-civicrm-settings',
+						'page'    => 'woocommerce-civicrm-settings',
 						'confirm' => 'success',
 					],
 					( network_admin_url( 'settings.php' ) )
@@ -227,7 +230,7 @@ class WPCV_Woo_Civi_Settings_Network {
 			wp_safe_redirect(
 				add_query_arg(
 					[
-						'page' => 'woocommerce-civicrm-settings',
+						'page'    => 'woocommerce-civicrm-settings',
 						// FIXME: Not sure this is correct.
 						'confirm' => 'error',
 					],

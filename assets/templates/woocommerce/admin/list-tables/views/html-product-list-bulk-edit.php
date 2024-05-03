@@ -42,7 +42,10 @@ do_action( 'wpcv_woo_civi/product/bulk_edit/before' );
 	</span>
 </label>
 
-<?php /* if ( ! empty( $price_sets ) ) : ?>
+<?php
+/*
+?>
+<?php if ( ! empty( $price_sets ) ) : ?>
 	<label class="wpcv_woo_civi_bulk_contribution_pfv_id">
 		<span class="title"><?php esc_html_e( 'Price Field Value', 'wpcv-woo-civi-integration' ); ?></span>
 		<span class="input-text-wrap">
@@ -60,7 +63,10 @@ do_action( 'wpcv_woo_civi/product/bulk_edit/before' );
 			</select>
 		</span>
 	</label>
-<?php endif; */ ?>
+<?php endif; ?>
+<?php
+*/
+?>
 <?php
 
 /**

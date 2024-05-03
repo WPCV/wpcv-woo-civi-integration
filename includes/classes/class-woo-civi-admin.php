@@ -122,8 +122,10 @@ class WPCV_Woo_Civi_Admin {
 		// Register our form submit hander.
 		add_action( 'load-' . $this->admin_page, [ $this, 'form_submitted' ] );
 
-		// Add styles and scripts only on our Admin page.
-		// @see wp-admin/admin-header.php
+		/*
+		 * Add styles and scripts only on our Admin page.
+		 * @see wp-admin/admin-header.php
+		 */
 		add_action( 'admin_head-' . $this->admin_page, [ $this, 'admin_head' ] );
 		add_action( 'admin_print_styles-' . $this->admin_page, [ $this, 'admin_styles' ] );
 		add_action( 'admin_print_scripts-' . $this->admin_page, [ $this, 'admin_scripts' ] );
@@ -173,18 +175,18 @@ class WPCV_Woo_Civi_Admin {
 
 		$localisation = [
 			'event_button' => esc_html__( 'Create Product', 'wpcv-woo-civi-integration' ),
-			'creating' => esc_html__( 'Creating...', 'wpcv-woo-civi-integration' ),
+			'creating'     => esc_html__( 'Creating...', 'wpcv-woo-civi-integration' ),
 		];
 
 		$settings = [
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'ajax_url'       => admin_url( 'admin-ajax.php' ),
 			'notice_success' => '<div class="event_success notice notice-success inline is-dismissible" style="background-color: #f7f7f7; display: none;"><p></p><button type="button" class="notice-dismiss"><span class="screen-reader-text">' . esc_html__( 'Dismiss this notice.', 'wpcv-woo-civi-integration' ) . '</span></button></div>',
-			'notice_error' => '<div class="event_error notice notice-error inline is-dismissible" style="background-color: #f7f7f7; display: none;"><p></p><button type="button" class="notice-dismiss"><span class="screen-reader-text">' . esc_html__( 'Dismiss this notice.', 'wpcv-woo-civi-integration' ) . '</span></button></div>',
+			'notice_error'   => '<div class="event_error notice notice-error inline is-dismissible" style="background-color: #f7f7f7; display: none;"><p></p><button type="button" class="notice-dismiss"><span class="screen-reader-text">' . esc_html__( 'Dismiss this notice.', 'wpcv-woo-civi-integration' ) . '</span></button></div>',
 		];
 
 		$vars = [
 			'localisation' => $localisation,
-			'settings' => $settings,
+			'settings'     => $settings,
 		];
 
 		/**
@@ -251,12 +253,12 @@ class WPCV_Woo_Civi_Admin {
 
 		// We must be network admin in Multisite.
 		if ( is_multisite() && ! is_super_admin() ) {
-			wp_die( __( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
 		}
 
 		// Check user permissions.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( __( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'wpcv-woo-civi-integration' ) );
 		}
 
 		// Get current screen.
@@ -274,7 +276,7 @@ class WPCV_Woo_Civi_Admin {
 		do_action( 'add_meta_boxes', $screen->id, null );
 
 		// Get the column CSS class.
-		$columns = absint( $screen->get_columns() );
+		$columns     = absint( $screen->get_columns() );
 		$columns_css = '';
 		if ( $columns ) {
 			$columns_css = " columns-$columns";
@@ -314,7 +316,7 @@ class WPCV_Woo_Civi_Admin {
 		];
 
 		// Bail if not the Screen ID we want.
-		if ( ! in_array( $screen_id, $screen_ids ) ) {
+		if ( ! in_array( $screen_id, $screen_ids, true ) ) {
 			return;
 		}
 
@@ -395,8 +397,10 @@ class WPCV_Woo_Civi_Admin {
 			$data
 		);
 
+		/*
 		// Make this metabox closed by default.
-		//add_filter( "postbox_classes_{$screen_id}_{$handle}", [ $this, 'meta_box_closed' ] );
+		add_filter( "postbox_classes_{$screen_id}_{$handle}", [ $this, 'meta_box_closed' ] );
+		*/
 
 		/**
 		 * Broadcast that the metaboxes have been added.
@@ -421,7 +425,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Add closed class.
 		if ( is_array( $classes ) ) {
-			if ( ! in_array( 'closed', $classes ) ) {
+			if ( ! in_array( 'closed', $classes, true ) ) {
 				$classes[] = 'closed';
 			}
 		}
@@ -440,8 +444,12 @@ class WPCV_Woo_Civi_Admin {
 	 */
 	public function meta_box_contribution_render( $unused, $metabox ) {
 
-		// Set the Event button title.
+		// Configure the submit button.
 		$metabox['args']['button_title'] = esc_html__( 'Create Product', 'wpcv-woo-civi-integration' );
+		$metabox['args']['button_args']  = [
+			'data-security' => esc_attr( wp_create_nonce( 'wpcv_manual_sync_contribution' ) ),
+			'style'         => 'float: right;',
+		];
 
 		// Assume there is no Custom Contribution Product Type.
 		$metabox['args']['custom_product_type_exists'] = false;
@@ -467,8 +475,12 @@ class WPCV_Woo_Civi_Admin {
 		// Get the array of Membership Types.
 		$metabox['args']['types'] = WPCV_WCI()->membership->get_membership_types_options();
 
-		// Set the Event button title.
+		// Configure the submit button.
 		$metabox['args']['button_title'] = esc_html__( 'Create Product', 'wpcv-woo-civi-integration' );
+		$metabox['args']['button_args']  = [
+			'data-security' => esc_attr( wp_create_nonce( 'wpcv_manual_sync_membership' ) ),
+			'style'         => 'float: right;',
+		];
 
 		// Assume there is no Custom Membership Product Type.
 		$metabox['args']['custom_product_type_exists'] = false;
@@ -497,8 +509,12 @@ class WPCV_Woo_Civi_Admin {
 		// Get the array of Participant Roles.
 		$metabox['args']['roles'] = WPCV_WCI()->participant->get_participant_roles_options();
 
-		// Set the Event button title.
+		// Configure the submit button.
 		$metabox['args']['button_title'] = esc_html__( 'Create Product', 'wpcv-woo-civi-integration' );
+		$metabox['args']['button_args']  = [
+			'data-security' => esc_attr( wp_create_nonce( 'wpcv_manual_sync_event' ) ),
+			'style'         => 'float: right;',
+		];
 
 		// Assume there is no Custom Participant Product Type.
 		$metabox['args']['custom_product_type_exists'] = false;
@@ -523,6 +539,7 @@ class WPCV_Woo_Civi_Admin {
 
 		/*
 		// If our "Create Product for Contribution" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_contribution_process'] ) ) {
 			$this->form_nonce_check();
 			$this->contribution_process();
@@ -532,6 +549,7 @@ class WPCV_Woo_Civi_Admin {
 
 		/*
 		// If our "Create Product for Membership" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_membership_process'] ) ) {
 			$this->form_nonce_check();
 			$this->membership_process();
@@ -540,6 +558,7 @@ class WPCV_Woo_Civi_Admin {
 		*/
 
 		// If our "Create Product for Event" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_event_process'] ) ) {
 			$this->form_nonce_check();
 			$this->event_process();
@@ -582,7 +601,7 @@ class WPCV_Woo_Civi_Admin {
 		];
 
 		// Maybe append param.
-		if ( $mode === 'updated' ) {
+		if ( 'updated' === $mode ) {
 			$args['settings-updated'] = 'true';
 		}
 
@@ -601,8 +620,8 @@ class WPCV_Woo_Civi_Admin {
 
 		// Default response.
 		$data = [
-			'notice' => __( 'Could not create WooCommerce Product.', 'wpcv-woo-civi-integration' ),
-			'saved' => false,
+			'notice' => esc_html__( 'Could not create WooCommerce Product.', 'wpcv-woo-civi-integration' ),
+			'saved'  => false,
 		];
 
 		// If this is an AJAX request, check security.
@@ -612,8 +631,8 @@ class WPCV_Woo_Civi_Admin {
 		}
 
 		// If we get an error.
-		if ( $result === false ) {
-			$data['notice'] = __( 'Authentication failed.', 'wpcv-woo-civi-integration' );
+		if ( false === $result ) {
+			$data['notice'] = esc_html__( 'Authentication failed.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
@@ -622,14 +641,14 @@ class WPCV_Woo_Civi_Admin {
 
 		// Get the CiviCRM Event data.
 		$event = WPCV_WCI()->participant->get_event_by_id( $inputs['event_id'] );
-		if ( $event === false ) {
-			$data['notice'] = __( 'Unrecognised Event.', 'wpcv-woo-civi-integration' );
+		if ( false === $event ) {
+			$data['notice'] = esc_html__( 'Unrecognised Event.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Create Product based on Price Field Value count and selected type.
 		if ( count( $inputs['pfv_ids'] ) === 1 ) {
-			if ( $inputs['product_type'] === 'simple' ) {
+			if ( 'simple' === $inputs['product_type'] ) {
 				$product = $this->event_product_create_simple( $inputs, $event );
 			} else {
 				$product = $this->event_product_create_custom( $inputs, $event );
@@ -639,11 +658,12 @@ class WPCV_Woo_Civi_Admin {
 		}
 
 		// Build success data.
-		$data['saved'] = true;
+		$data['saved']  = true;
 		$data['notice'] = sprintf(
 			/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
-			__( 'WooCommerce Product successfully created. %1$sView Product%1$s', 'wpcv-woo-civi-integration' ),
-			'<a href="' . $product['permalink'] . '">', '</a>'
+			esc_html__( 'WooCommerce Product successfully created. %1$sView Product%1$s', 'wpcv-woo-civi-integration' ),
+			'<a href="' . $product['permalink'] . '">',
+			'</a>'
 		);
 
 		// Return the data.
@@ -662,54 +682,54 @@ class WPCV_Woo_Civi_Admin {
 	public function event_inputs_parse( $data ) {
 
 		// Bail if there are no valid values.
-		$values = isset( $_POST['value'] ) ? (array) $_POST['value'] : [];
+		$values = filter_input( INPUT_POST, 'value', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 		if ( empty( $values ) ) {
-			$data['notice'] = __( 'Unrecognised parameters.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised parameters.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Product Type is not valid.
-		$product_type = isset( $_POST['value']['product_type'] ) ? sanitize_key( $_POST['value']['product_type'] ) : '';
-		if ( empty( $product_type ) || ! in_array( $product_type, [ 'simple', 'custom' ] ) ) {
-			$data['notice'] = __( 'Unrecognised Product Type.', 'wpcv-woo-civi-integration' );
+		$product_type = isset( $values['product_type'] ) ? sanitize_key( wp_unslash( $values['product_type'] ) ) : '';
+		if ( empty( $product_type ) || ! in_array( $product_type, [ 'simple', 'custom' ], true ) ) {
+			$data['notice'] = esc_html__( 'Unrecognised Product Type.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Financial Type is not valid.
-		$financial_type_id = isset( $_POST['value']['financial_type'] ) ? (int) $_POST['value']['financial_type'] : 0;
+		$financial_type_id = isset( $values['financial_type'] ) ? (int) sanitize_text_field( wp_unslash( $values['financial_type'] ) ) : 0;
 		if ( empty( $financial_type_id ) ) {
-			$data['notice'] = __( 'Unrecognised Financial Type.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Financial Type.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Price Field Values are not valid.
-		$pfv_ids = isset( $_POST['value']['pfv_ids'] ) ? array_map( 'intval', $_POST['value']['pfv_ids'] ) : [];
+		$pfv_ids = isset( $values['pfv_ids'] ) ? array_map( 'intval', $values['pfv_ids'] ) : [];
 		if ( empty( $pfv_ids ) ) {
-			$data['notice'] = __( 'Unrecognised Price Field Values.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Price Field Values.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Event ID is not valid.
-		$event_id = isset( $_POST['value']['event_id'] ) ? (int) $_POST['value']['event_id'] : 0;
+		$event_id = isset( $values['event_id'] ) ? (int) sanitize_text_field( wp_unslash( $values['event_id'] ) ) : 0;
 		if ( empty( $event_id ) ) {
-			$data['notice'] = __( 'Unrecognised Event ID.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Event ID.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Participant Role is not valid.
-		$role_id = isset( $_POST['value']['role'] ) ? (int) $_POST['value']['role'] : 0;
+		$role_id = isset( $values['role'] ) ? (int) sanitize_text_field( wp_unslash( $values['role'] ) ) : 0;
 		if ( empty( $role_id ) ) {
-			$data['notice'] = __( 'Unrecognised Participant Role.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Participant Role.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Combine inputs into an array.
 		$inputs = [
-			'product_type' => $product_type,
+			'product_type'      => $product_type,
 			'financial_type_id' => $financial_type_id,
-			'pfv_ids' => $pfv_ids,
-			'event_id' => $event_id,
-			'role_id' => $role_id,
+			'pfv_ids'           => $pfv_ids,
+			'event_id'          => $event_id,
+			'role_id'           => $role_id,
 		];
 
 		return $inputs;
@@ -729,13 +749,13 @@ class WPCV_Woo_Civi_Admin {
 
 		// Init default Simple Product.
 		$params = [
-			'name' => $event['title'],
-			'description' => ! empty( $event['description'] ) ? $event['description'] : '',
-			'status' => 'publish',
-			'type' => 'simple',
-			'virtual' => true,
+			'name'         => $event['title'],
+			'description'  => ! empty( $event['description'] ) ? $event['description'] : '',
+			'status'       => 'publish',
+			'type'         => 'simple',
+			'virtual'      => true,
 			'downloadable' => false,
-			//'catalog_visibility' => 'hidden',
+			// 'catalog_visibility' => 'hidden',
 		];
 
 		// Init Product meta data.
@@ -743,32 +763,32 @@ class WPCV_Woo_Civi_Admin {
 
 		// Add CiviCRM Entity.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products->entity_key,
+			'key'   => WPCV_WCI()->products->entity_key,
 			'value' => 'civicrm_participant',
 		];
 
 		// Add Financial Type ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products->financial_type_key,
+			'key'   => WPCV_WCI()->products->financial_type_key,
 			'value' => $inputs['financial_type_id'],
 		];
 
 		// Get the Price Field Value ID and add to metadata.
-		$pfv_id = array_pop( $inputs['pfv_ids'] );
+		$pfv_id                = array_pop( $inputs['pfv_ids'] );
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->participant->pfv_key,
+			'key'   => WPCV_WCI()->participant->pfv_key,
 			'value' => $pfv_id,
 		];
 
 		// Add Event ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->participant->event_key,
+			'key'   => WPCV_WCI()->participant->event_key,
 			'value' => $inputs['event_id'],
 		];
 
 		// Add Participant Role ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->participant->role_key,
+			'key'   => WPCV_WCI()->participant->role_key,
 			'value' => $inputs['role_id'],
 		];
 
@@ -776,7 +796,7 @@ class WPCV_Woo_Civi_Admin {
 		$pfv = WPCV_WCI()->helper->get_price_field_value_by_id( $pfv_id );
 
 		if ( empty( $pfv ) ) {
-			$data['notice'] = __( 'Unrecognised Price Field Value.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Price Field Value.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
@@ -786,7 +806,7 @@ class WPCV_Woo_Civi_Admin {
 		// Append to the Product title.
 		$params['name'] = sprintf(
 			/* translators: 1: Event Title, 2: Price Field Value label */
-			__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
+			esc_html__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
 			$params['name'],
 			$pfv['label']
 		);
@@ -811,13 +831,13 @@ class WPCV_Woo_Civi_Admin {
 
 		// Init default Custom Product.
 		$params = [
-			'name' => $event['title'],
-			'description' => ! empty( $event['description'] ) ? $event['description'] : '',
-			'status' => 'publish',
-			'type' => 'civicrm_participant',
-			'virtual' => true,
+			'name'         => $event['title'],
+			'description'  => ! empty( $event['description'] ) ? $event['description'] : '',
+			'status'       => 'publish',
+			'type'         => 'civicrm_participant',
+			'virtual'      => true,
 			'downloadable' => false,
-			//'catalog_visibility' => 'hidden',
+			// 'catalog_visibility' => 'hidden',
 		];
 
 		// Declare CiviCRM Entity.
@@ -828,26 +848,26 @@ class WPCV_Woo_Civi_Admin {
 
 		// Add Financial Type ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products_custom->get_meta_key( $entity, 'financial_type_id' ),
+			'key'   => WPCV_WCI()->products_custom->get_meta_key( $entity, 'financial_type_id' ),
 			'value' => $inputs['financial_type_id'],
 		];
 
 		// Get the Price Field Value ID and add to metadata.
-		$pfv_id = array_pop( $inputs['pfv_ids'] );
+		$pfv_id                = array_pop( $inputs['pfv_ids'] );
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products_custom->get_meta_key( $entity, 'pfv_id' ),
+			'key'   => WPCV_WCI()->products_custom->get_meta_key( $entity, 'pfv_id' ),
 			'value' => $pfv_id,
 		];
 
 		// Add Event ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products_custom->get_meta_key( $entity, 'event_id' ),
+			'key'   => WPCV_WCI()->products_custom->get_meta_key( $entity, 'event_id' ),
 			'value' => $inputs['event_id'],
 		];
 
 		// Add Participant Role ID.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products_custom->get_meta_key( $entity, 'role_id' ),
+			'key'   => WPCV_WCI()->products_custom->get_meta_key( $entity, 'role_id' ),
 			'value' => $inputs['role_id'],
 		];
 
@@ -855,7 +875,7 @@ class WPCV_Woo_Civi_Admin {
 		$pfv = WPCV_WCI()->helper->get_price_field_value_by_id( $pfv_id );
 
 		if ( empty( $pfv ) ) {
-			$data['notice'] = __( 'Unrecognised Price Field Value.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Price Field Value.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
@@ -865,7 +885,7 @@ class WPCV_Woo_Civi_Admin {
 		// Append to the Product title.
 		$params['name'] = sprintf(
 			/* translators: 1: Event Title, 2: Price Field Value label */
-			__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
+			esc_html__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
 			$params['name'],
 			$pfv['label']
 		);
@@ -890,13 +910,13 @@ class WPCV_Woo_Civi_Admin {
 
 		// Init default Product.
 		$params = [
-			'name' => $event['title'],
-			'description' => ! empty( $event['description'] ) ? $event['description'] : '',
-			'status' => 'publish',
-			'type' => 'variable',
-			'virtual' => true,
+			'name'         => $event['title'],
+			'description'  => ! empty( $event['description'] ) ? $event['description'] : '',
+			'status'       => 'publish',
+			'type'         => 'variable',
+			'virtual'      => true,
 			'downloadable' => false,
-			//'catalog_visibility' => 'hidden',
+			// 'catalog_visibility' => 'hidden',
 		];
 
 		// Get Price Field data.
@@ -911,17 +931,17 @@ class WPCV_Woo_Civi_Admin {
 
 		// Bail if there is no Price Field.
 		if ( empty( $price_field_data ) ) {
-			$data['notice'] = __( 'Unrecognised Price Field.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Price Field.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Init Price Field Attributes.
 		$pfv_attributes = [
-			'name' => $price_field_data['label'],
-			'position' => 0,
-			'visible' => true,
+			'name'      => $price_field_data['label'],
+			'position'  => 0,
+			'visible'   => true,
 			'variation' => true,
-			'options' => [],
+			'options'   => [],
 		];
 
 		// Build Attribute options.
@@ -948,7 +968,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Add CiviCRM Entity to Product metadata.
 		$params['meta_data'][] = [
-			'key' => WPCV_WCI()->products_variable->entity_key,
+			'key'   => WPCV_WCI()->products_variable->entity_key,
 			'value' => 'civicrm_participant',
 		];
 
@@ -973,18 +993,18 @@ class WPCV_Woo_Civi_Admin {
 			// Init default Product Variation.
 			$variant = [
 				/* translators: 1: Event Title, 2: Price Field Value label */
-				'title' => sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $event['title'], $pfv['label'] ),
-				'product_id' => $product['id'],
+				'title'         => sprintf( esc_html__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $event['title'], $pfv['label'] ),
+				'product_id'    => $product['id'],
 				'regular_price' => (float) $pfv['amount'],
-				'menu_order' => $menu_order,
-				'virtual' => true,
-				'downloadable' => false,
+				'menu_order'    => $menu_order,
+				'virtual'       => true,
+				'downloadable'  => false,
 			];
 
 			// Build Variation Attributes.
-			$attributes = [];
+			$attributes   = [];
 			$attributes[] = [
-				'name' => $pfv_attributes['name'],
+				'name'   => $pfv_attributes['name'],
 				'option' => $pfv['label'],
 			];
 
@@ -996,24 +1016,24 @@ class WPCV_Woo_Civi_Admin {
 
 			// Add Financial Type ID.
 			$variant['meta_data'][] = [
-				'key' => WPCV_WCI()->products_variable->get_meta_key( $entity, 'financial_type_id' ),
+				'key'   => WPCV_WCI()->products_variable->get_meta_key( $entity, 'financial_type_id' ),
 				'value' => $inputs['financial_type_id'],
 			];
 
 			// Add Price Field Value ID.
 			$variant['meta_data'][] = [
-				'key' => WPCV_WCI()->products_variable->get_meta_key( $entity, 'pfv_id' ),
+				'key'   => WPCV_WCI()->products_variable->get_meta_key( $entity, 'pfv_id' ),
 				'value' => $pfv_id,
 			];
 
 			// Add Event ID.
 			$variant['meta_data'][] = [
-				'key' => WPCV_WCI()->products_variable->get_meta_key( $entity, 'event_id' ),
+				'key'   => WPCV_WCI()->products_variable->get_meta_key( $entity, 'event_id' ),
 				'value' => $inputs['event_id'],
 			];
 			// Add Participant Role ID.
 			$variant['meta_data'][] = [
-				'key' => WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' ),
+				'key'   => WPCV_WCI()->products_variable->get_meta_key( $entity, 'role_id' ),
 				'value' => $inputs['role_id'],
 			];
 

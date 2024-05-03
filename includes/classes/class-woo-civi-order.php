@@ -63,7 +63,11 @@ class WPCV_Woo_Civi_Order {
 		add_action( 'woocommerce_new_order', [ $this, 'order_new' ], 20, 2 );
 		add_action( 'woocommerce_update_order', [ $this, 'order_updated' ], 20, 2 );
 		add_action( 'woocommerce_order_status_changed', [ $this, 'order_status_changed' ], 99, 4 );
-		//add_action( 'woocommerce_order_payment_status_changed', [ $this, 'order_status_changed_to_paid' ], 10, 2 );
+
+		/*
+		// Process changes when Payment Status changes in WooCommerce Orders.
+		add_action( 'woocommerce_order_payment_status_changed', [ $this, 'order_status_changed_to_paid' ], 10, 2 );
+		*/
 
 		// Add CiviCRM options to Edit Order screen.
 		add_action( 'woocommerce_admin_order_data_after_order_details', [ $this, 'order_details_add' ], 30 );
@@ -117,7 +121,7 @@ class WPCV_Woo_Civi_Order {
 
 		// Add the Contribution record.
 		$contribution = WPCV_WCI()->contribution->create_from_order( $order );
-		if ( $contribution === false ) {
+		if ( false === $contribution ) {
 			return;
 		}
 
@@ -245,7 +249,7 @@ class WPCV_Woo_Civi_Order {
 		}
 
 		// Is this a completed Order?
-		if ( $new_status === 'completed' && $order->is_paid() ) {
+		if ( 'completed' === $new_status && $order->is_paid() ) {
 
 			// Yes - use the "Payment.create" route.
 			$payment = WPCV_WCI()->contribution->payment_create( $order_id, $order );
@@ -296,8 +300,8 @@ class WPCV_Woo_Civi_Order {
 	public function note_add_contact_created( $contact, $order ) {
 
 		// Get the link to the Contact in CiviCRM.
-		$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
-		$contact_url = '<a href="' . $link . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
+		$link        = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
+		$contact_url = '<a href="' . esc_url( $link ) . '">' . esc_html__( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
 
 		/* translators: %s: The link to the Contact in CiviCRM */
 		$note = sprintf( __( 'Created new CiviCRM Contact - %s', 'wpcv-woo-civi-integration' ), $contact_url );
@@ -318,8 +322,8 @@ class WPCV_Woo_Civi_Order {
 	public function note_add_contact_updated( $contact, $order ) {
 
 		// Get the link to the Contact in CiviCRM.
-		$link = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
-		$contact_url = '<a href="' . $link . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
+		$link        = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
+		$contact_url = '<a href="' . esc_url( $link ) . '">' . esc_html__( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
 
 		/* translators: %s: The link to the Contact in CiviCRM */
 		$note = sprintf( __( 'CiviCRM Contact Updated - %s', 'wpcv-woo-civi-integration' ), $contact_url );
@@ -361,7 +365,7 @@ class WPCV_Woo_Civi_Order {
 
 		?>
 		<p class="form-field form-field-wide wc-civicrmcontact" style="margin: 1.5em 0 1em 0">
-			<strong style="display: block;"><?php esc_html_e( 'CiviCRM Contact:', 'wpcv-woo-civi-integration' ); ?></strong> <a href="<?php echo $link; ?>" target="_blank"><?php esc_html_e( 'View Contact in CiviCRM', 'wpcv-woo-civi-integration' ); ?></a>
+			<strong style="display: block;"><?php esc_html_e( 'CiviCRM Contact:', 'wpcv-woo-civi-integration' ); ?></strong> <a href="<?php echo esc_url( $link ); ?>" target="_blank"><?php esc_html_e( 'View Contact in CiviCRM', 'wpcv-woo-civi-integration' ); ?></a>
 		</p>
 		<?php
 

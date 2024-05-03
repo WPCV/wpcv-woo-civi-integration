@@ -118,35 +118,35 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// Bail if we are on our "Migration" page.
-		if ( $screen->id === 'civicrm_page_' . $this->migrate_page_slug ) {
+		if ( 'civicrm_page_' . $this->migrate_page_slug === $screen->id ) {
 			return;
 		}
 
 		// Have we already migrated?
-		if ( in_array( 'accepted', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'accepted', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 
 			// Show general "Call to Action".
 			$message = sprintf(
 				/* translators: 1: Opening strong tag, 2: Closing strong tag */
-				__( 'You can now deactivate %1$sWooCommerce CiviCRM%2$s.', 'wpcv-woo-civi-integration' ),
+				esc_html__( 'You can now deactivate %1$sWooCommerce CiviCRM%2$s.', 'wpcv-woo-civi-integration' ),
 				'<strong>',
 				'</strong>'
 			);
 
 			// Add a link if we are not on the "Plugins" page.
-			if ( $screen->id !== 'plugins' ) {
+			if ( 'plugins' !== $screen->id ) {
 
 				// Add link.
 				$link = sprintf(
 					/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
-					__( 'Please visit the %1$sPlugins Page%2$s to deactivate it.', 'wpcv-woo-civi-integration' ),
-					'<a href="' . admin_url( 'plugins.php' ) . '">',
+					esc_html__( 'Please visit the %1$sPlugins Page%2$s to deactivate it.', 'wpcv-woo-civi-integration' ),
+					'<a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">',
 					'</a>'
 				);
 
 				// Merge.
 				/* translators: 1: Message, 2: Link */
-				$message = sprintf( __( '%1$s %2$s', 'wpcv-woo-civi-integration' ), $message, $link );
+				$message = sprintf( esc_html__( '%1$s %2$s', 'wpcv-woo-civi-integration' ), $message, $link );
 
 			}
 
@@ -155,10 +155,10 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			// Show general "Call to Action".
 			$message = sprintf(
 				/* translators: 1: Opening strong tag, 2: Closing strong tag, 3: Opening anchor tag, 4: Closing anchor tag */
-				__( '%1$sWooCommerce CiviCRM%2$s has become %1$sIntegrate CiviCRM with WooCommerce%2$s. Please visit the %3$sMigration Page%4$s to switch over.', 'wpcv-woo-civi-integration' ),
+				esc_html__( '%1$sWooCommerce CiviCRM%2$s has become %1$sIntegrate CiviCRM with WooCommerce%2$s. Please visit the %3$sMigration Page%4$s to switch over.', 'wpcv-woo-civi-integration' ),
 				'<strong>',
 				'</strong>',
-				'<a href="' . menu_page_url( 'wpcv_woocivi_migrate', false ) . '">',
+				'<a href="' . menu_page_url( 'wpcv_woocivi_migrate', false ) . '">', // The returned URL is already escaped.
 				'</a>'
 			);
 
@@ -166,7 +166,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Show it.
 		echo '<div id="message" class="notice notice-warning">';
-		echo '<p>' . $message . '</p>';
+		echo '<p>' . $message . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</div>';
 
 	}
@@ -245,37 +245,37 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		);
 
 		$localisation = [
-			'total_products' => esc_html__( '{{total_products}} Products to clean up...', 'wpcv-woo-civi-integration' ),
-			'current_products' => esc_html__( 'Processing Products {{from_product}} to {{to_product}}', 'wpcv-woo-civi-integration' ),
+			'total_products'    => esc_html__( '{{total_products}} Products to clean up...', 'wpcv-woo-civi-integration' ),
+			'current_products'  => esc_html__( 'Processing Products {{from_product}} to {{to_product}}', 'wpcv-woo-civi-integration' ),
 			'complete_products' => esc_html__( 'Processing Products {{from_product}} to {{to_product}} complete', 'wpcv-woo-civi-integration' ),
-			'total_orders' => esc_html__( '{{total_orders}} Orders to clean up...', 'wpcv-woo-civi-integration' ),
-			'current_orders' => esc_html__( 'Upgrading Orders {{from_order}} to {{to_order}}', 'wpcv-woo-civi-integration' ),
-			'complete_orders' => esc_html__( 'Upgrading Orders {{from_order}} to {{to_order}} complete', 'wpcv-woo-civi-integration' ),
-			'done' => esc_html__( 'All done!', 'wpcv-woo-civi-integration' ),
+			'total_orders'      => esc_html__( '{{total_orders}} Orders to clean up...', 'wpcv-woo-civi-integration' ),
+			'current_orders'    => esc_html__( 'Upgrading Orders {{from_order}} to {{to_order}}', 'wpcv-woo-civi-integration' ),
+			'complete_orders'   => esc_html__( 'Upgrading Orders {{from_order}} to {{to_order}} complete', 'wpcv-woo-civi-integration' ),
+			'done'              => esc_html__( 'All done!', 'wpcv-woo-civi-integration' ),
 		];
 
 		$settings = [
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'ajax_url'       => admin_url( 'admin-ajax.php' ),
 			'total_products' => $this->products_get_count(),
-			'total_orders' => $this->orders_get_count(),
-			'batch_count' => $this->step_count,
+			'total_orders'   => $this->orders_get_count(),
+			'batch_count'    => $this->step_count,
 		];
 
 		// Add flag when Products have been migrated.
 		$settings['products_migrated'] = 'n';
-		if ( in_array( 'products-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'products-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 			$settings['products_migrated'] = 'y';
 		}
 
 		// Add flag when Orders have been migrated.
 		$settings['orders_migrated'] = 'n';
-		if ( in_array( 'orders-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'orders-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 			$settings['orders_migrated'] = 'y';
 		}
 
 		$vars = [
 			'localisation' => $localisation,
-			'settings' => $settings,
+			'settings'     => $settings,
 		];
 
 		// Localise the WordPress way.
@@ -369,7 +369,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		];
 
 		// Bail if not the Screen ID we want.
-		if ( ! in_array( $screen_id, $screen_ids ) ) {
+		if ( ! in_array( $screen_id, $screen_ids, true ) ) {
 			return;
 		}
 
@@ -383,19 +383,19 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Have we already migrated?
 		$data['migrated'] = false;
-		if ( in_array( 'accepted', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'accepted', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 			$data['migrated'] = true;
 		}
 
 		// Init meta box title.
 		$title = __( 'Migration Tasks', 'wpcv-woo-civi-integration' );
-		if ( $data['migrated'] === true ) {
+		if ( true === $data['migrated'] ) {
 			$title = __( 'Migration Complete', 'wpcv-woo-civi-integration' );
 		}
 
 		// Have we already resolved Product metadata?
 		$data['product-metadata'] = false;
-		if ( in_array( 'products-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'products-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 			$data['product-metadata'] = true;
 		}
 
@@ -404,13 +404,13 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Set the Product button title.
 		$data['product-button_title'] = esc_html__( 'Upgrade Products', 'wpcv-woo-civi-integration' );
-		if ( $data['product-offset'] !== false ) {
+		if ( false !== $data['product-offset'] ) {
 			$data['product-button_title'] = esc_html__( 'Continue Upgrading', 'wpcv-woo-civi-integration' );
 		}
 
 		// Have we already resolved Order metadata?
 		$data['order-metadata'] = false;
-		if ( in_array( 'orders-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ) ) ) {
+		if ( in_array( 'orders-migrated', get_site_option( 'wpcv_woo_civi_migration', [] ), true ) ) {
 			$data['order-metadata'] = true;
 		}
 
@@ -419,16 +419,16 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Set the Order button title.
 		$data['order-button_title'] = esc_html__( 'Upgrade Orders', 'wpcv-woo-civi-integration' );
-		if ( $data['order-offset'] !== false ) {
+		if ( false !== $data['order-offset'] ) {
 			$data['order-button_title'] = esc_html__( 'Continue Upgrading', 'wpcv-woo-civi-integration' );
 		}
 
 		// Only show Submit if not migrated.
-		if ( $data['migrated'] === false ) {
+		if ( false === $data['migrated'] ) {
 
 			// Disable Submit if not fully migrated.
 			$data['submit-atts'] = [];
-			if ( $data['product-metadata'] === false || $data['order-metadata'] === false ) {
+			if ( false === $data['product-metadata'] || false === $data['order-metadata'] ) {
 				$data['submit-atts'] = [
 					'disabled' => 'disabled',
 				];
@@ -498,6 +498,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	public function form_submitted() {
 
 		// If our "Submit" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_save'] ) ) {
 			$this->form_nonce_check();
 			$this->form_migration_accept();
@@ -505,6 +506,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If our "Process Products" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_product_process'] ) ) {
 			$this->form_nonce_check();
 			$this->products_process();
@@ -512,6 +514,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If our "Stop Processing Products" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_product_process_stop'] ) ) {
 			$this->form_nonce_check();
 			$this->stepped_offset_delete( 'products' );
@@ -519,6 +522,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If our "Process Orders" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_order_process'] ) ) {
 			$this->form_nonce_check();
 			$this->orders_process();
@@ -526,6 +530,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If our "Stop Processing Orders" button was clicked.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! empty( $_POST['wpcv_woocivi_order_process_stop'] ) ) {
 			$this->form_nonce_check();
 			$this->stepped_offset_delete( 'orders' );
@@ -542,7 +547,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	private function form_migration_accept() {
 
 		// Do this by adding an element to the migration settings array.
-		$settings = get_site_option( 'wpcv_woo_civi_migration', [] );
+		$settings   = get_site_option( 'wpcv_woo_civi_migration', [] );
 		$settings[] = 'accepted';
 		update_site_option( 'wpcv_woo_civi_migration', $settings );
 
@@ -575,7 +580,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		];
 
 		// Maybe append param.
-		if ( $mode === 'updated' ) {
+		if ( 'updated' === $mode ) {
 			$args['settings-updated'] = 'true';
 		}
 
@@ -593,9 +598,9 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	public function products_get_count() {
 
 		$args = [
-			'post_type' => 'product',
+			'post_type'   => 'product',
 			'post_status' => 'any',
-			'nopaging' => true,
+			'nopaging'    => true,
 		];
 
 		$query = new WP_Query( $args );
@@ -624,7 +629,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If we get an error.
-		if ( $result === false ) {
+		if ( false === $result ) {
 
 			// Set finished flag.
 			$data['finished'] = 'true';
@@ -640,11 +645,11 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Construct args.
 		$query_args = [
-			'post_type' => 'product',
-			'post_status' => 'any',
+			'post_type'     => 'product',
+			'post_status'   => 'any',
 			'no_found_rows' => true,
-			'numberposts' => $this->step_count,
-			'offset' => $offset,
+			'numberposts'   => $this->step_count,
+			'offset'        => $offset,
 		];
 
 		// The query.
@@ -665,7 +670,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 			// Set from and to flags.
 			$data['from'] = (int) $offset;
-			$data['to'] = $data['from'] + $diff;
+			$data['to']   = $data['from'] + $diff;
 
 			// Find out if CiviMember is active.
 			$member_active = false;
@@ -703,7 +708,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			$this->stepped_offset_delete( $key );
 
 			// Add a unique string to the migration option.
-			$settings = get_site_option( 'wpcv_woo_civi_migration', [] );
+			$settings   = get_site_option( 'wpcv_woo_civi_migration', [] );
 			$settings[] = 'products-migrated';
 			update_site_option( 'wpcv_woo_civi_migration', $settings );
 
@@ -730,7 +735,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$duplicate = get_post_meta( $product_id, '_civicrm_contribution_type', true );
 
 		// When it does, update the proper meta and remove duplicate.
-		if ( ! empty( $duplicate ) || $duplicate === 0 ) {
+		if ( ! empty( $duplicate ) || 0 === $duplicate ) {
 			update_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id', $duplicate );
 			delete_post_meta( $product_id, '_civicrm_contribution_type' );
 		}
@@ -739,7 +744,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$financial_type_id = get_post_meta( $product_id, 'woocommerce_civicrm_financial_type_id', true );
 
 		// When it does, update the proper meta and remove old.
-		if ( ! empty( $financial_type_id ) || $financial_type_id === 0 ) {
+		if ( ! empty( $financial_type_id ) || 0 === $financial_type_id ) {
 			update_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id', $financial_type_id );
 			delete_post_meta( $product_id, 'woocommerce_civicrm_financial_type_id' );
 		}
@@ -748,7 +753,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		$membership_type_id = get_post_meta( $product_id, 'woocommerce_civicrm_membership_type_id', true );
 
 		// When it does, update the proper meta and remove old.
-		if ( ! empty( $membership_type_id ) || $membership_type_id === 0 ) {
+		if ( ! empty( $membership_type_id ) || 0 === $membership_type_id ) {
 			if ( $member_active ) {
 				update_post_meta( $product_id, '_woocommerce_civicrm_membership_type_id', $membership_type_id );
 				// Also set the Entity Type if applicable.
@@ -760,7 +765,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// Maybe transfer "exclude" setting to Entity Type and clean up.
-		if ( $financial_type_id === 'exclude' ) {
+		if ( 'exclude' === $financial_type_id ) {
 			update_post_meta( $product_id, '_woocommerce_civicrm_entity_type', 'civicrm_exclude' );
 			delete_post_meta( $product_id, '_woocommerce_civicrm_financial_type_id' );
 			delete_post_meta( $product_id, '_woocommerce_civicrm_membership_type_id' );
@@ -776,9 +781,9 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	public function orders_get_count() {
 
 		$args = [
-			'post_type' => 'shop_order',
+			'post_type'   => 'shop_order',
 			'post_status' => 'any',
-			'nopaging' => true,
+			'nopaging'    => true,
 		];
 
 		$query = new WP_Query( $args );
@@ -807,7 +812,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If we get an error.
-		if ( $result === false ) {
+		if ( false === $result ) {
 
 			// Set finished flag.
 			$data['finished'] = 'true';
@@ -823,11 +828,11 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 		// Construct args.
 		$query_args = [
-			'post_type' => 'shop_order',
-			'post_status' => 'any',
+			'post_type'     => 'shop_order',
+			'post_status'   => 'any',
 			'no_found_rows' => true,
-			'numberposts' => $this->step_count,
-			'offset' => $offset,
+			'numberposts'   => $this->step_count,
+			'offset'        => $offset,
 		];
 
 		// The query.
@@ -848,7 +853,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 
 			// Set from and to flags.
 			$data['from'] = (int) $offset;
-			$data['to'] = $data['from'] + $diff;
+			$data['to']   = $data['from'] + $diff;
 
 			// Find out if CiviCampaign is active.
 			$campaign_active = false;
@@ -886,7 +891,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 			$this->stepped_offset_delete( $key );
 
 			// Add a unique string to the migration option.
-			$settings = get_site_option( 'wpcv_woo_civi_migration', [] );
+			$settings   = get_site_option( 'wpcv_woo_civi_migration', [] );
 			$settings[] = 'orders-migrated';
 			update_site_option( 'wpcv_woo_civi_migration', $settings );
 
@@ -921,7 +926,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If that fails, try and find the Contact ID via the Invoice ID.
-		if ( $contact_id === false ) {
+		if ( false === $contact_id ) {
 			$contribution = WPCV_WCI()->contribution->get_by_order_id( $order_id );
 			if ( ! empty( $contribution ) ) {
 				$contact_id = (int) $contribution['contact_id'];
@@ -929,7 +934,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 		}
 
 		// If we find the Contact ID, create meta.
-		if ( $contact_id !== false ) {
+		if ( false !== $contact_id ) {
 			update_post_meta( $order_id, '_woocommerce_civicrm_contact_id', $contact_id );
 		}
 
