@@ -627,15 +627,14 @@ class WPCV_Woo_Civi {
 	 *
 	 * If any of these checks fail, this plugin will skip its load procedures.
 	 *
+	 * Note that no WooCommerce checks are made because this check takes place
+	 * in the callback to the "woocommerce_init" action and will not be called
+	 * if WooCommerce is not installed.
+	 *
 	 * @since 3.0
 	 * @since 3.1.2 Renamed.
 	 */
 	public function check_dependencies() {
-
-		// Bail if WooCommerce is not available.
-		if ( ! function_exists( 'WC' ) ) {
-			return false;
-		}
 
 		// Bail if CiviCRM is not installed.
 		if ( ! defined( 'CIVICRM_INSTALLED' ) || ! CIVICRM_INSTALLED ) {
