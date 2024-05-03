@@ -3,7 +3,7 @@ Contributors: needle, bastho, mecachisenros, rajeshrhino, kcristiano, tadpolecc
 Tags: civicrm, woocommerce, integration
 Requires PHP: 7.3
 Requires at least: 5.7
-Tested up to: 6.4
+Tested up to: 6.5
 Stable tag: 3.1.1a
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
