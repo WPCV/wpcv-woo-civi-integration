@@ -168,7 +168,8 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 	private function get_orders_raw( $contact_id ) {
 
 		$this->fix_site();
-		$uid = abs( CRM_Core_BAO_UFMatch::getUFId( $contact_id ) );
+		$uid = CRM_Core_BAO_UFMatch::getUFId( $contact_id );
+		$uid = ! is_null( $uid ) ? abs( $uid ) : 0;
 		if ( ! $uid ) {
 
 			$params = [
@@ -208,7 +209,9 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 
 				$this->unfix_site();
 				return [];
+
 			}
+
 		}
 
 		$order_statuses = [
