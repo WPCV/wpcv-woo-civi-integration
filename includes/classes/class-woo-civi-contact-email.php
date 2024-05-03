@@ -436,12 +436,13 @@ class WPCV_Woo_Civi_Contact_Email {
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
 			$e     = new Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 			return false;
 		}
 
@@ -472,12 +473,13 @@ class WPCV_Woo_Civi_Contact_Email {
 		if ( empty( $params['id'] ) ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'message'   => __( 'A numeric ID must be present to update an Email record.', 'wpcv-woo-civi-integration' ),
 				'email'     => $email,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 			return false;
 		}
 

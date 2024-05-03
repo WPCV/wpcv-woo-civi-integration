@@ -153,11 +153,12 @@ class WPCV_Woo_Civi_Contribution {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return $contribution;
 
@@ -272,11 +273,12 @@ class WPCV_Woo_Civi_Contribution {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return $contribution;
 
@@ -369,13 +371,14 @@ class WPCV_Woo_Civi_Contribution {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'       => __METHOD__,
 				'contribution' => $contribution,
 				'params'       => $params,
 				'result'       => $result,
 				'backtrace'    => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -408,12 +411,13 @@ class WPCV_Woo_Civi_Contribution {
 		if ( empty( $contribution['id'] ) ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'       => __METHOD__,
 				'message'      => __( 'A numeric ID must be present to update a Contribution.', 'wpcv-woo-civi-integration' ),
 				'contribution' => $contribution,
 				'backtrace'    => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 			return false;
 		}
 
@@ -449,12 +453,13 @@ class WPCV_Woo_Civi_Contribution {
 			CRM_Core_Error::debug_log_message( $e->getErrorCode() );
 
 			// Write extra details to PHP log.
-			error_log( print_r( [
+			$log = [
 				'method'       => __METHOD__,
 				'params'       => $params,
 				'extra_params' => $e->getExtraParams(),
 				'backtrace'    => $e->getTraceAsString(),
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -466,12 +471,13 @@ class WPCV_Woo_Civi_Contribution {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -746,12 +752,13 @@ class WPCV_Woo_Civi_Contribution {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'message'   => $e->getMessage(),
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -866,12 +873,13 @@ class WPCV_Woo_Civi_Contribution {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'message'   => $e->getMessage(),
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -938,12 +946,13 @@ class WPCV_Woo_Civi_Contribution {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'       => __METHOD__,
 				'contribution' => $contribution,
 				'result'       => $result,
 				'backtrace'    => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 

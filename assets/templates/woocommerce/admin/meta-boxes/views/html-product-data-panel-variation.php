@@ -29,8 +29,8 @@ defined( 'ABSPATH' ) || exit;
 
 	<?php
 
-	// Always render the Financial Type select.
-	woocommerce_wp_select( [
+	// Build args.
+	$args = [
 		'id'            => $financial_type_id_key,
 		'name'          => $financial_type_id_key,
 		'value'         => $financial_type_id,
@@ -39,7 +39,10 @@ defined( 'ABSPATH' ) || exit;
 		'description'   => __( 'The CiviCRM Financial Type for this Variation.', 'wpcv-woo-civi-integration' ),
 		'wrapper_class' => 'form-row form-row-full variable_civicrm_financial_type_id',
 		'options'       => $financial_type_options,
-	] );
+	];
+
+	// Always render the Financial Type select.
+	woocommerce_wp_select( $args );
 
 	?>
 

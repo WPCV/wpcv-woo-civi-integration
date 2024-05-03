@@ -98,14 +98,15 @@ class WPCV_Woo_Civi_Helper {
 			CRM_Core_Error::debug_log_message( $e->getMessage() );
 
 			// Write extra details to PHP log.
-			error_log( print_r( [
+			$log = [
 				'method'    => __METHOD__,
 				'error'     => $human_readable,
 				'message'   => $e->getMessage(),
 				'params'    => $params,
 				'setting'   => $setting,
 				'backtrace' => $e->getTraceAsString(),
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -227,12 +228,13 @@ class WPCV_Woo_Civi_Helper {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return [];
 
@@ -309,11 +311,12 @@ class WPCV_Woo_Civi_Helper {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -368,11 +371,12 @@ class WPCV_Woo_Civi_Helper {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -663,11 +667,12 @@ class WPCV_Woo_Civi_Helper {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -721,11 +726,12 @@ class WPCV_Woo_Civi_Helper {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 

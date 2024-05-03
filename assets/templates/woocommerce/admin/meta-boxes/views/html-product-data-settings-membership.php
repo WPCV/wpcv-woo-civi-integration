@@ -38,15 +38,18 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 
 		<?php
 
-		// Always render the Financial Type select.
-		woocommerce_wp_select( [
+		// Build args.
+		$args = [
 			'id'          => $financial_type_id_key,
 			'name'        => $financial_type_id_key,
 			'label'       => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
 			'desc_tip'    => 'true',
 			'description' => __( 'The CiviCRM Financial Type for this Product.', 'wpcv-woo-civi-integration' ),
 			'options'     => $financial_type_options,
-		] );
+		];
+
+		// Always render the Financial Type select.
+		woocommerce_wp_select( $args );
 
 		?>
 
@@ -61,14 +64,17 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 			'' => __( 'Select a Membership Type', 'wpcv-woo-civi-integration' ),
 		] + WPCV_WCI()->membership->get_membership_types_options();
 
-		woocommerce_wp_select( [
+		// Build args.
+		$args = [
 			'id'          => $type_id_key,
 			'name'        => $type_id_key,
 			'label'       => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
 			'desc_tip'    => 'true',
 			'description' => __( 'Select the Membership Type to be created in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
 			'options'     => $membership_types,
-		] );
+		];
+
+		woocommerce_wp_select( $args );
 
 		?>
 

@@ -56,15 +56,18 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 
 		<?php
 
-		// Always render the Financial Type select.
-		woocommerce_wp_select( [
+		// Build args.
+		$args = [
 			'id'          => $financial_type_id_key,
 			'name'        => $financial_type_id_key,
 			'label'       => __( 'Financial Type', 'wpcv-woo-civi-integration' ),
 			'desc_tip'    => 'true',
 			'description' => __( 'The CiviCRM Financial Type for this Product.', 'wpcv-woo-civi-integration' ),
 			'options'     => $financial_type_options,
-		] );
+		];
+
+		// Always render the Financial Type select.
+		woocommerce_wp_select( $args );
 
 		?>
 
@@ -92,15 +95,18 @@ $pfv_id = $this->get_meta( $product_id, $product_type_name, 'pfv_id' );
 			'' => __( 'Select a Participant Role', 'wpcv-woo-civi-integration' ),
 		] + WPCV_WCI()->participant->get_participant_roles_options();
 
-		// Show Participant Role.
-		woocommerce_wp_select( [
+		// Build args.
+		$args = [
 			'id'          => $role_id_key,
 			'name'        => $role_id_key,
 			'label'       => __( 'Participant Role', 'wpcv-woo-civi-integration' ),
 			'desc_tip'    => 'true',
 			'description' => __( 'Select a Participant Role for the Event Participant.', 'wpcv-woo-civi-integration' ),
 			'options'     => $participant_roles,
-		] );
+		];
+
+		// Show Participant Role.
+		woocommerce_wp_select( $args );
 
 		?>
 

@@ -661,8 +661,9 @@ class WPCV_Woo_Civi_Admin {
 		$data['saved']  = true;
 		$data['notice'] = sprintf(
 			/* translators: 1: Opening anchor tag, 2: Closing anchor tag */
-			__( 'WooCommerce Product successfully created. %1$sView Product%1$s', 'wpcv-woo-civi-integration' ),
-			'<a href="' . $product['permalink'] . '">', '</a>'
+			esc_html__( 'WooCommerce Product successfully created. %1$sView Product%1$s', 'wpcv-woo-civi-integration' ),
+			'<a href="' . $product['permalink'] . '">',
+			'</a>'
 		);
 
 		// Return the data.

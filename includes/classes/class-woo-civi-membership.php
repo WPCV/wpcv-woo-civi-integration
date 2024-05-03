@@ -317,12 +317,13 @@ class WPCV_Woo_Civi_Membership {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return [];
 
@@ -383,11 +384,12 @@ class WPCV_Woo_Civi_Membership {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return [];
 
@@ -445,11 +447,12 @@ class WPCV_Woo_Civi_Membership {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return null;
 
@@ -497,11 +500,12 @@ class WPCV_Woo_Civi_Membership {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return false;
 
@@ -602,14 +606,16 @@ class WPCV_Woo_Civi_Membership {
 				'' => __( 'Select a Membership Type', 'wpcv-woo-civi-integration' ),
 			] + WPCV_WCI()->membership->get_membership_types_options();
 
-			woocommerce_wp_select( [
+			$args = [
 				'id'          => $this->meta_key,
 				'name'        => $this->meta_key,
 				'label'       => __( 'Membership Type', 'wpcv-woo-civi-integration' ),
 				'desc_tip'    => 'true',
 				'description' => __( 'Select a Membership Type if you would like this Product to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
 				'options'     => $membership_types,
-			] );
+			];
+
+			woocommerce_wp_select( $args );
 
 			?>
 
@@ -668,8 +674,8 @@ class WPCV_Woo_Civi_Membership {
 		// Get the Membership Type ID.
 		$type_id = WPCV_WCI()->products_variable->get_meta( $variation->ID, $entity, 'type_id' );
 
-		// Show Participant Role.
-		woocommerce_wp_select( [
+		// Build args.
+		$args = [
 			'id'            => $type_key,
 			'name'          => $type_key,
 			'value'         => $type_id,
@@ -678,7 +684,10 @@ class WPCV_Woo_Civi_Membership {
 			'description'   => __( 'Select a Membership Type if you would like this Product Variation to create a Membership in CiviCRM. The Membership will be created (with duration, plan, etc.) based on the settings in CiviCRM.', 'wpcv-woo-civi-integration' ),
 			'wrapper_class' => 'form-row form-row-full variable_civicrm_type_id',
 			'options'       => $membership_types,
-		] );
+		];
+
+		// Show Participant Role.
+		woocommerce_wp_select( $args );
 
 	}
 

@@ -649,12 +649,13 @@ class WPCV_Woo_Civi_Products_Variable {
 		if ( empty( $this->product_variation_meta[ $type ][ $key ] ) ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'type'      => $type,
 				'key'       => $key,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 		}
 
 		return $this->product_variation_meta[ $type ][ $key ];

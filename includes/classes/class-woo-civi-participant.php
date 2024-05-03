@@ -669,11 +669,12 @@ class WPCV_Woo_Civi_Participant {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return [];
 
@@ -697,12 +698,13 @@ class WPCV_Woo_Civi_Participant {
 			// Write details to PHP log.
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();
-			error_log( print_r( [
+			$log   = [
 				'method'    => __METHOD__,
 				'params'    => $params,
 				'result'    => $result,
 				'backtrace' => $trace,
-			], true ) );
+			];
+			WPCV_WCI()->log_error( $log );
 
 			return [];
 
@@ -925,15 +927,18 @@ class WPCV_Woo_Civi_Participant {
 				'' => __( 'Select a Participant Role', 'wpcv-woo-civi-integration' ),
 			] + WPCV_WCI()->participant->get_participant_roles_options();
 
-			// Show Participant Role.
-			woocommerce_wp_select( [
+			// Build args.
+			$args = [
 				'id'          => $this->role_key,
 				'name'        => $this->role_key,
 				'label'       => __( 'Participant Role', 'wpcv-woo-civi-integration' ),
 				'desc_tip'    => 'true',
 				'description' => __( 'Select a Participant Role for the Event Participant.', 'wpcv-woo-civi-integration' ),
 				'options'     => $participant_roles,
-			] );
+			];
+
+			// Show Participant Role.
+			woocommerce_wp_select( $args );
 
 			?>
 
@@ -1034,8 +1039,7 @@ class WPCV_Woo_Civi_Participant {
 
 		<?php
 
-		// Show Participant Role.
-		woocommerce_wp_select( [
+		$args = [
 			'id'            => $role_key,
 			'name'          => $role_key,
 			'value'         => $role_id,
@@ -1044,7 +1048,10 @@ class WPCV_Woo_Civi_Participant {
 			'description'   => __( 'Select a Participant Role for the Event Participant.', 'wpcv-woo-civi-integration' ),
 			'wrapper_class' => 'form-row form-row-full variable_civicrm_role_id',
 			'options'       => $participant_roles,
-		] );
+		];
+
+		// Show Participant Role.
+		woocommerce_wp_select( $args );
 
 		?>
 

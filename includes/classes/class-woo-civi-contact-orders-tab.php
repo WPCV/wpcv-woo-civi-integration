@@ -188,11 +188,12 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 				// Write details to PHP log.
 				$e     = new \Exception();
 				$trace = $e->getTraceAsString();
-				error_log( print_r( [
+				$log   = [
 					'method'    => __METHOD__,
 					'params'    => $params,
 					'backtrace' => $trace,
-				], true ) );
+				];
+				WPCV_WCI()->log_error( $log );
 
 				$this->unfix_site();
 				return [];
