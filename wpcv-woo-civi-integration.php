@@ -852,7 +852,7 @@ class WPCV_Woo_Civi {
 	public function log_error( $data = [] ) {
 
 		// Skip if not debugging.
-		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+		if ( ! defined( 'WPCV_WOO_CIVI_DEBUG' ) || true !== WPCV_WOO_CIVI_DEBUG ) {
 			return;
 		}
 
