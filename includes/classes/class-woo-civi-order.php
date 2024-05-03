@@ -301,7 +301,7 @@ class WPCV_Woo_Civi_Order {
 
 		// Get the link to the Contact in CiviCRM.
 		$link        = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
-		$contact_url = '<a href="' . $link . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
+		$contact_url = '<a href="' . esc_url( $link ) . '">' . esc_html__( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
 
 		/* translators: %s: The link to the Contact in CiviCRM */
 		$note = sprintf( __( 'Created new CiviCRM Contact - %s', 'wpcv-woo-civi-integration' ), $contact_url );
@@ -323,7 +323,7 @@ class WPCV_Woo_Civi_Order {
 
 		// Get the link to the Contact in CiviCRM.
 		$link        = WPCV_WCI()->helper->get_civi_admin_link( 'civicrm/contact/view', 'reset=1&cid=' . $contact['contact_id'] );
-		$contact_url = '<a href="' . $link . '">' . __( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
+		$contact_url = '<a href="' . esc_url( $link ) . '">' . esc_html__( 'View', 'wpcv-woo-civi-integration' ) . '</a>';
 
 		/* translators: %s: The link to the Contact in CiviCRM */
 		$note = sprintf( __( 'CiviCRM Contact Updated - %s', 'wpcv-woo-civi-integration' ), $contact_url );

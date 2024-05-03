@@ -620,7 +620,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Default response.
 		$data = [
-			'notice' => __( 'Could not create WooCommerce Product.', 'wpcv-woo-civi-integration' ),
+			'notice' => esc_html__( 'Could not create WooCommerce Product.', 'wpcv-woo-civi-integration' ),
 			'saved'  => false,
 		];
 
@@ -632,7 +632,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// If we get an error.
 		if ( false === $result ) {
-			$data['notice'] = __( 'Authentication failed.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Authentication failed.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
@@ -642,7 +642,7 @@ class WPCV_Woo_Civi_Admin {
 		// Get the CiviCRM Event data.
 		$event = WPCV_WCI()->participant->get_event_by_id( $inputs['event_id'] );
 		if ( false === $event ) {
-			$data['notice'] = __( 'Unrecognised Event.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Event.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
@@ -684,42 +684,42 @@ class WPCV_Woo_Civi_Admin {
 		// Bail if there are no valid values.
 		$values = filter_input( INPUT_POST, 'value', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 		if ( empty( $values ) ) {
-			$data['notice'] = __( 'Unrecognised parameters.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised parameters.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Product Type is not valid.
 		$product_type = isset( $values['product_type'] ) ? sanitize_key( wp_unslash( $values['product_type'] ) ) : '';
 		if ( empty( $product_type ) || ! in_array( $product_type, [ 'simple', 'custom' ], true ) ) {
-			$data['notice'] = __( 'Unrecognised Product Type.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Product Type.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Financial Type is not valid.
 		$financial_type_id = isset( $values['financial_type'] ) ? (int) sanitize_text_field( wp_unslash( $values['financial_type'] ) ) : 0;
 		if ( empty( $financial_type_id ) ) {
-			$data['notice'] = __( 'Unrecognised Financial Type.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Financial Type.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Price Field Values are not valid.
 		$pfv_ids = isset( $values['pfv_ids'] ) ? array_map( 'intval', $values['pfv_ids'] ) : [];
 		if ( empty( $pfv_ids ) ) {
-			$data['notice'] = __( 'Unrecognised Price Field Values.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Price Field Values.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Event ID is not valid.
 		$event_id = isset( $values['event_id'] ) ? (int) sanitize_text_field( wp_unslash( $values['event_id'] ) ) : 0;
 		if ( empty( $event_id ) ) {
-			$data['notice'] = __( 'Unrecognised Event ID.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Event ID.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
 		// Bail if the Participant Role is not valid.
 		$role_id = isset( $values['role'] ) ? (int) sanitize_text_field( wp_unslash( $values['role'] ) ) : 0;
 		if ( empty( $role_id ) ) {
-			$data['notice'] = __( 'Unrecognised Participant Role.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Participant Role.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
@@ -796,7 +796,7 @@ class WPCV_Woo_Civi_Admin {
 		$pfv = WPCV_WCI()->helper->get_price_field_value_by_id( $pfv_id );
 
 		if ( empty( $pfv ) ) {
-			$data['notice'] = __( 'Unrecognised Price Field Value.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Price Field Value.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
@@ -806,7 +806,7 @@ class WPCV_Woo_Civi_Admin {
 		// Append to the Product title.
 		$params['name'] = sprintf(
 			/* translators: 1: Event Title, 2: Price Field Value label */
-			__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
+			esc_html__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
 			$params['name'],
 			$pfv['label']
 		);
@@ -875,7 +875,7 @@ class WPCV_Woo_Civi_Admin {
 		$pfv = WPCV_WCI()->helper->get_price_field_value_by_id( $pfv_id );
 
 		if ( empty( $pfv ) ) {
-			$data['notice'] = __( 'Unrecognised Price Field Value.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Price Field Value.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
@@ -885,7 +885,7 @@ class WPCV_Woo_Civi_Admin {
 		// Append to the Product title.
 		$params['name'] = sprintf(
 			/* translators: 1: Event Title, 2: Price Field Value label */
-			__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
+			esc_html__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ),
 			$params['name'],
 			$pfv['label']
 		);
@@ -931,7 +931,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Bail if there is no Price Field.
 		if ( empty( $price_field_data ) ) {
-			$data['notice'] = __( 'Unrecognised Price Field.', 'wpcv-woo-civi-integration' );
+			$data['notice'] = esc_html__( 'Unrecognised Price Field.', 'wpcv-woo-civi-integration' );
 			wp_send_json( $data );
 		}
 
@@ -993,7 +993,7 @@ class WPCV_Woo_Civi_Admin {
 			// Init default Product Variation.
 			$variant = [
 				/* translators: 1: Event Title, 2: Price Field Value label */
-				'title'         => sprintf( __( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $event['title'], $pfv['label'] ),
+				'title'         => sprintf( esc_html__( '%1$s (%2$s)', 'wpcv-woo-civi-integration' ), $event['title'], $pfv['label'] ),
 				'product_id'    => $product['id'],
 				'regular_price' => (float) $pfv['amount'],
 				'menu_order'    => $menu_order,

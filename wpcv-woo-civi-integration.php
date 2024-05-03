@@ -565,7 +565,7 @@ class WPCV_Woo_Civi {
 	public function add_action_links( $links, $file ) {
 
 		if ( plugin_basename( WPCV_WOO_CIVI_FILE ) === $file ) {
-			$links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=woocommerce_civicrm' ) . '">' . __( 'Settings', 'wpcv-woo-civi-integration' ) . '</a>';
+			$links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=woocommerce_civicrm' ) . '">' . esc_html__( 'Settings', 'wpcv-woo-civi-integration' ) . '</a>';
 		}
 
 		return $links;

@@ -1038,6 +1038,7 @@ class WPCV_Woo_Civi_Contact {
 	 */
 	public function types_get() {
 
+		// TODO: Get these from CiviCRM.
 		$contact_types = [
 			'Individual'   => __( 'Individual', 'wpcv-woo-civi-integration' ),
 			'Household'    => __( 'Household', 'wpcv-woo-civi-integration' ),
