@@ -7,7 +7,7 @@
  */
 
 // Exit if accessed directly.
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 
 /**
  * QuickForm class that renders the Purchases Tab on CiviCRM Contact screens.
