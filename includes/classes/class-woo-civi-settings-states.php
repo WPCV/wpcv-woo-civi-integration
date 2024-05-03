@@ -133,11 +133,26 @@ class WPCV_Woo_Civi_Settings_States {
 
 		$result = civicrm_api( 'Country', 'get', $params );
 
-		// Return early if something went wrong.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 			return $this->civicrm_countries;
 		}
 
+		// Bail if there are no results.
+		if ( empty( $result['values'] ) ) {
+			return $this->civicrm_countries;
+		}
+
+		// Build the return array.
 		foreach ( $result['values'] as $key => $country ) {
 			$this->civicrm_countries[ $country['id'] ] = $country['iso_code'];
 		}

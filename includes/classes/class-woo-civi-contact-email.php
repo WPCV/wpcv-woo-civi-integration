@@ -554,8 +554,17 @@ class WPCV_Woo_Civi_Contact_Email {
 		// Get Email details via API.
 		$result = civicrm_api( 'Email', 'get', $params );
 
-		// Bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 			return $email;
 		}
 
@@ -606,8 +615,17 @@ class WPCV_Woo_Civi_Contact_Email {
 		// Call the API.
 		$result = civicrm_api( 'Email', 'get', $params );
 
-		// Bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 			return $email_data;
 		}
 

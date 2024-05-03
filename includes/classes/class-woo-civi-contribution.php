@@ -824,15 +824,26 @@ class WPCV_Woo_Civi_Contribution {
 			return;
 		}
 
-		// Get the full data for the Payment.
+		// Build params to get the full data for the Payment.
 		$params = [
 			'version' => 3,
 			'id'      => (int) $payment_data['id'],
 		];
+
+		// Call the CiviCRM API.
 		$result = civicrm_api( 'FinancialTrxn', 'get', $params );
 
-		// Bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 			return;
 		}
 
@@ -845,6 +856,19 @@ class WPCV_Woo_Civi_Contribution {
 
 		// Okay, now update the Payment.
 		$result = civicrm_api( 'FinancialTrxn', 'create', $params );
+
+		// Log if something went wrong.
+		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
+		}
 
 	}
 
