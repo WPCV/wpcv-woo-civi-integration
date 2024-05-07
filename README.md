@@ -6,8 +6,8 @@
 **Requires at least:** 5.7<br/>
 **Tested up to:** 6.5<br/>
 **Stable tag:** 3.1.2a<br/>
-**License:** GPLv3<br/>
-**License URI:** https://www.gnu.org/licenses/gpl-3.0.html
+**License:** GPLv2 or later<br/>
+**License URI:** https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
 A WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WooCommerce Orders and keeps WooCommerce Customer Accounts in sync with CiviCRM Contact data.
 

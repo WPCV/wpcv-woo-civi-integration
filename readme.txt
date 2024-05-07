@@ -5,8 +5,9 @@ Requires PHP: 7.4
 Requires at least: 5.7
 Tested up to: 6.5
 Stable tag: 3.1.2a
-License: GPLv3
-License URI: https://www.gnu.org/licenses/gpl-3.0.html
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+Donate link: https://www.paypal.me/interactivist
 
 Creates CiviCRM Contributions, Memberships and Participants from WooCommerce Orders and keeps WooCommerce Customer Accounts in sync with CiviCRM Contact data.
 
