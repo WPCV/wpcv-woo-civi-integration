@@ -85,10 +85,12 @@ echo "Ignoring GitHub specific files and deployment script"
 svn propset svn:ignore "deploy.sh
 README.md
 phpcs.xml
+docs
 screenshots
 .git
 .editorconfig
 .gitignore
+.phpcs
 .DS_Store" "$SVNPATH/trunk/"
 
 echo "Changing directory to SVN and committing to trunk"
