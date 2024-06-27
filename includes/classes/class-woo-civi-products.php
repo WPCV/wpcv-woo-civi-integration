@@ -530,7 +530,7 @@ class WPCV_Woo_Civi_Products {
 					'qty'               => 1,
 					'line_total'        => $shipping_cost,
 					'unit_price'        => $shipping_cost,
-					'label'             => 'Shipping',
+					'label'             => __( 'Shipping', 'woocommerce' ), // phpcs:ignore
 					'financial_type_id' => $default_financial_type_shipping_id,
 				],
 			],
