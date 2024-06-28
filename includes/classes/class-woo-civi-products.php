@@ -262,10 +262,10 @@ class WPCV_Woo_Civi_Products {
 			$line_item_data = [
 				'entity_table'   => 'civicrm_contribution',
 				'price_field_id' => $default_price_field_id,
-				'unit_price'     => $product->get_price(),
 				'qty'            => $item->get_quantity(),
-				// The "line_total" must equal the unit_price × qty.
 				'line_total'     => $item->get_total(),
+				// The "line_total" must equal the unit_price × qty.
+				'unit_price'     => $item->get_total() / $item->get_quantity(),
 				'tax_amount'     => $item->get_total_tax(),
 				'label'          => $product->get_name(),
 			];
