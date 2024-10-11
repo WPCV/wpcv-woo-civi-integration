@@ -87,8 +87,8 @@ README.md
 phpcs.xml
 docs
 screenshots
-.git
 .editorconfig
+.git
 .gitignore
 .phpcs
 .DS_Store" "$SVNPATH/trunk/"
