@@ -63,8 +63,6 @@ Please refer to the [documentation](docs/SETUP.md).
 
 ## Known Issues
 
-This plugin currently relies on the `Order.create` and `Payment.create` API in CiviCRM to register WooCommerce Orders as CiviCRM Contributions. There is currently a push in CiviCRM to fix various aspects of this API, which is why this plugin should ideally be used with CiviCRM 5.42.1 or greater.
-
 Creating Orders in WooCommerce admin is not fully supported. It is best to create Orders via the Checkout.
 
 
