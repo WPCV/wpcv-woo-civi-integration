@@ -342,17 +342,28 @@ class WPCV_Woo_Civi_Settings_States {
 			return false;
 		}
 
-		// Get CiviCRM States.
+		// Get CiviCRM State.
 		$civicrm_states = $this->get_civicrm_states();
+		$civicrm_state = ! empty( $civicrm_states[ $state_province_id ] ) ? $civicrm_states[ $state_province_id ] : [];
+		if ( empty( $civicrm_state ) ) {
+			return false;
+		}
 
-		$civicrm_state = $civicrm_states[ $state_province_id ];
+		// Try to find corresponding CiviCRM state.
 		$woo_countries = new WC_Countries();
-
 		foreach ( $woo_countries->get_states() as $country => $states ) {
+
+			// Skip when there are no WooCommerce states.
+			if ( empty( $states ) ) {
+				continue;
+			}
+
+			// Return it if found.
 			$name = array_search( $civicrm_state['name'], $states, true );
-			if ( ! empty( $states ) && $name ) {
+			if ( ! empty( $name ) ) {
 				return $name;
 			}
+
 		}
 
 		// Fallback.
