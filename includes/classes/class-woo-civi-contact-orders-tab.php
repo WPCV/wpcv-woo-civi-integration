@@ -186,7 +186,7 @@ class WPCV_Woo_Civi_Contact_Orders_Tab {
 				// Grab the error data.
 				$message = $e->getMessage();
 				$code    = $e->getErrorCode();
-				$extra   = $e->getExtraParams();
+				$extra   = print_r( $e->getExtraParams(), true );
 
 				// Write to CiviCRM log.
 				CRM_Core_Error::debug_log_message( __( 'Unable to find Contact', 'wpcv-woo-civi-integration' ) );
