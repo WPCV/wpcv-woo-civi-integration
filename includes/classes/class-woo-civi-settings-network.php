@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Settings_Network {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $settings_key The Network Settings key.
+	 * @var string
 	 */
 	public $settings_key = 'woocommerce_civicrm_network_settings';
 

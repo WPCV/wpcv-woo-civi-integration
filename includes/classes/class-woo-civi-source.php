@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Source {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $meta_key The WooCommerce Order meta key.
+	 * @var string
 	 */
 	public $meta_key = '_order_source';
 

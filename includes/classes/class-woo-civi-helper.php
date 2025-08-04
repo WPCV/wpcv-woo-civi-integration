@@ -25,7 +25,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $financial_types The Financial Types.
+	 * @var array
 	 */
 	public $financial_types;
 
@@ -36,7 +36,7 @@ class WPCV_Woo_Civi_Helper {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $mapped_location_types The WooCommerce/CiviCRM mapped Address Location Types.
+	 * @var array
 	 */
 	public $mapped_location_types;
 

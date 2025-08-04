@@ -25,7 +25,7 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var array $active The status of the CiviCampaign component.
+	 * @var bool
 	 */
 	public $active = false;
 
@@ -34,7 +34,7 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $meta_key The WooCommerce Order meta key.
+	 * @var string
 	 */
 	public $meta_key = '_woocommerce_civicrm_campaign_id';
 
@@ -43,7 +43,7 @@ class WPCV_Woo_Civi_Campaign {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $utm The Urchin Tracking Module management object.
+	 * @var WPCV_Woo_Civi_UTM
 	 */
 	public $utm;
 

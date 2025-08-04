@@ -48,7 +48,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 * @access private
-	 * @var object $instance The class instance.
+	 * @var WPCV_Woo_Civi
 	 */
 	private static $instance;
 
@@ -57,7 +57,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $migrate The Migrate object.
+	 * @var WPCV_Woo_Civi_Admin_Migrate
 	 */
 	public $migrate;
 
@@ -66,7 +66,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $admin The Admin object.
+	 * @var WPCV_Woo_Civi_Admin
 	 */
 	public $admin;
 
@@ -75,7 +75,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var object $helper The Helper object.
+	 * @var WPCV_Woo_Civi_Helper
 	 */
 	public $helper;
 
@@ -84,7 +84,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var object $settings The Settings object.
+	 * @var WPCV_Woo_Civi_Settings
 	 */
 	public $settings;
 
@@ -93,7 +93,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $settings_network The Network Settings object.
+	 * @var WPCV_Woo_Civi_Settings_Network
 	 */
 	public $settings_network;
 
@@ -102,7 +102,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var object $settings_states The States/Provinces object.
+	 * @var WPCV_Woo_Civi_Settings_States
 	 */
 	public $settings_states;
 
@@ -111,7 +111,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var object $settings_products The WooCommerce Product Settings object.
+	 * @var WPCV_Woo_Civi_Settings_Products
 	 */
 	public $settings_products;
 
@@ -121,7 +121,7 @@ class WPCV_Woo_Civi {
 	 * @since 2.0
 	 * @since 3.0 Renamed from "sync".
 	 * @access public
-	 * @var object $contact The Contact object.
+	 * @var WPCV_Woo_Civi_Contact
 	 */
 	public $contact;
 
@@ -130,7 +130,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $contribution The CiviCRM Contribution integration object.
+	 * @var WPCV_Woo_Civi_Contribution
 	 */
 	public $contribution;
 
@@ -139,7 +139,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $order The WooCommerce Order integration object.
+	 * @var WPCV_Woo_Civi_Order
 	 */
 	public $order;
 
@@ -148,7 +148,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $source The Source management object.
+	 * @var WPCV_Woo_Civi_Source
 	 */
 	public $source;
 
@@ -157,7 +157,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $tax The Tax/VAT management object.
+	 * @var WPCV_Woo_Civi_Tax
 	 */
 	public $tax;
 
@@ -166,7 +166,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $products The Products object.
+	 * @var WPCV_Woo_Civi_Products
 	 */
 	public $products;
 
@@ -175,7 +175,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var object $products_custom The WooCommerce Custom Products object.
+	 * @var WPCV_Woo_Civi_Products_Custom
 	 */
 	public $products_custom;
 
@@ -184,7 +184,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 2.2
 	 * @access public
-	 * @var object $products_variable The WooCommerce Variable Products object.
+	 * @var WPCV_Woo_Civi_Products_Variable
 	 */
 	public $products_variable;
 
@@ -193,7 +193,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $campaign The Campaign management object.
+	 * @var WPCV_Woo_Civi_Campaign
 	 */
 	public $campaign;
 
@@ -202,7 +202,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $membership The Membership management object.
+	 * @var WPCV_Woo_Civi_Membership
 	 */
 	public $membership;
 
@@ -211,7 +211,7 @@ class WPCV_Woo_Civi {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var object $participant The Participant management object.
+	 * @var WPCV_Woo_Civi_Participant
 	 */
 	public $participant;
 

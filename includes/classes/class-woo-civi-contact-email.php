@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Contact_Email {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var bool $sync_enabled True when Email Sync is enabled, false otherwise.
+	 * @var bool
 	 */
 	public $sync_enabled = false;
 

@@ -25,7 +25,7 @@ class WPCV_Woo_Civi_Settings_States {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $civicrm_countries The CiviCRM countries.
+	 * @var array
 	 */
 	public $civicrm_countries = [];
 
@@ -35,7 +35,7 @@ class WPCV_Woo_Civi_Settings_States {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $civicrm_states The CiviCRM States.
+	 * @var array
 	 */
 	public $civicrm_states = [];
 

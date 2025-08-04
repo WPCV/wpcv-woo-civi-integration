@@ -25,7 +25,7 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var array $active The status of the CiviMember component.
+	 * @var bool
 	 */
 	public $active = false;
 
@@ -34,7 +34,7 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $meta_key The WooCommerce Product meta key.
+	 * @var string
 	 */
 	public $meta_key = '_woocommerce_civicrm_membership_type_id';
 
@@ -43,7 +43,7 @@ class WPCV_Woo_Civi_Membership {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $pfv_key The CiviCRM Membership Price Field Value ID meta key.
+	 * @var string
 	 */
 	public $pfv_key = '_woocommerce_civicrm_membership_pfv_id';
 

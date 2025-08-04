@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var array $product_types_meta The CiviCRM Custom Product Types meta keys.
+	 * @var array
 	 */
 	public $product_types_meta = [
 		'civicrm_contribution' => [
@@ -50,7 +50,7 @@ class WPCV_Woo_Civi_Products_Custom {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var array $product_names The WooCommerce Custom Product Type names.
+	 * @var array
 	 */
 	public $product_names = [];
 

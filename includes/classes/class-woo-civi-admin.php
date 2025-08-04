@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Admin {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $admin_page The Admin Page reference.
+	 * @var string
 	 */
 	public $admin_page;
 
@@ -32,7 +32,7 @@ class WPCV_Woo_Civi_Admin {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $admin_page_slug The slug of the Admin Page.
+	 * @var string
 	 */
 	public $admin_page_slug = 'wpcv_admin';
 

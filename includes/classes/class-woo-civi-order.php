@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Order {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $is_checkout True if in Checkout, false otherwise.
+	 * @var bool
 	 */
 	public $is_checkout = false;
 
