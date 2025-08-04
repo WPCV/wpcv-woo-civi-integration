@@ -409,8 +409,17 @@ class WPCV_Woo_Civi_Participant {
 		// Call the API.
 		$result = civicrm_api( 'Event', 'get', $params );
 
-		// Bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 			return $events_data;
 		}
 
@@ -463,8 +472,17 @@ class WPCV_Woo_Civi_Participant {
 		// Call the API.
 		$result = civicrm_api( 'Event', 'get', $params );
 
-		// Bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 			return $event_data;
 		}
 
@@ -513,8 +531,17 @@ class WPCV_Woo_Civi_Participant {
 		// Call the API.
 		$result = civicrm_api( 'Event', 'get', $params );
 
-		// Bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 			return $event_data;
 		}
 
@@ -610,8 +637,17 @@ class WPCV_Woo_Civi_Participant {
 		// Call the API.
 		$result = civicrm_api( 'Event', 'getlist', $params );
 
-		// Bail if there's an error.
+		// Log and bail if something went wrong.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
+			$e     = new \Exception();
+			$trace = $e->getTraceAsString();
+			$log   = [
+				'method'    => __METHOD__,
+				'params'    => $params,
+				'result'    => $result,
+				'backtrace' => $trace,
+			];
+			WPCV_WCI()->log_error( $log );
 			return $event_data;
 		}
 
@@ -665,7 +701,7 @@ class WPCV_Woo_Civi_Participant {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = $e->getExtraParams();
+			$extra   = print_r( $e->getExtraParams(), true );
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Participant Role Option Group.', 'wpcv-woo-civi-integration' ) );

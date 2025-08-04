@@ -9,12 +9,26 @@
  * Version:           3.1.2a
  * Author:            WPCV
  * Author URI:        https://github.com/WPCV
+ * License:           GPLv2 or later
+ * License URI:       https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * Requires at least: 5.7
  * Requires PHP:      7.4
  * Text Domain:       wpcv-woo-civi-integration
  * Domain Path:       /languages
  *
  * @package WPCV_Woo_Civi
+ * @link    https://github.com/WPCV/wpcv-woo-civi-integration
+ * @license GPL v2 or later
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  */
 
 // Exit if accessed directly.
@@ -202,15 +216,6 @@ class WPCV_Woo_Civi {
 	public $participant;
 
 	/**
-	 * Dependency check flag.
-	 *
-	 * @since 3.0
-	 * @access public
-	 * @var object $okay_to_load True if dependency check succeeds, false otherwise.
-	 */
-	public $okay_to_load = false;
-
-	/**
 	 * Dummy instance constructor.
 	 *
 	 * @since 3.0
@@ -265,7 +270,7 @@ class WPCV_Woo_Civi {
 		$this->helper = new WPCV_Woo_Civi_Helper();
 
 		// Bail if dependency check fails.
-		if ( ! $this->check_dependencies_on_load() ) {
+		if ( ! $this->check_dependencies() ) {
 			return;
 		}
 
@@ -423,7 +428,7 @@ class WPCV_Woo_Civi {
 	 */
 	public function activate() {
 
-		$this->check_dependencies();
+		// Try to clear the CiviCRM cache.
 		$this->clear_civi_cache();
 
 		/**
@@ -445,10 +450,7 @@ class WPCV_Woo_Civi {
 	public function boot_civi() {
 
 		// Init only when CiviCRM is fully installed.
-		if ( ! defined( 'CIVICRM_INSTALLED' ) ) {
-			return false;
-		}
-		if ( ! CIVICRM_INSTALLED ) {
+		if ( ! defined( 'CIVICRM_INSTALLED' ) || ! CIVICRM_INSTALLED ) {
 			return false;
 		}
 
@@ -644,16 +646,17 @@ class WPCV_Woo_Civi {
 	 * if WooCommerce is not installed.
 	 *
 	 * @since 3.0
+	 * @since 3.1.2 Renamed.
 	 */
-	public function check_dependencies_on_load() {
+	public function check_dependencies() {
 
-		// Bail if CiviCRM is not available.
-		if ( ! function_exists( 'civi_wp' ) ) {
+		// Bail if CiviCRM is not installed.
+		if ( ! defined( 'CIVICRM_INSTALLED' ) || ! CIVICRM_INSTALLED ) {
 			return false;
 		}
 
-		// Bail if CiviCRM is not installed.
-		if ( ! defined( 'CIVICRM_INSTALLED' ) ) {
+		// Bail if CiviCRM is not available.
+		if ( ! function_exists( 'civi_wp' ) ) {
 			return false;
 		}
 
@@ -664,7 +667,6 @@ class WPCV_Woo_Civi {
 		}
 
 		// We're good to go.
-		$this->okay_to_load = true;
 		return true;
 
 	}
@@ -685,161 +687,6 @@ class WPCV_Woo_Civi {
 
 		// When this plugin is compatible, switch to final param to "true".
 		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, false );
-
-	}
-
-	/**
-	 * Check plugin dependencies on plugin activation.
-	 *
-	 * If any of these checks fail, this plugin will self-deactivate and exit.
-	 *
-	 * @since 2.0
-	 */
-	public function check_dependencies() {
-
-		// Bail if WooCommerce is not available.
-		if ( ! function_exists( 'WC' ) ) {
-			$this->display_woocommerce_required_notice();
-		}
-
-		// Bail if CiviCRM is not available.
-		if ( ! function_exists( 'civi_wp' ) ) {
-			$this->display_civicrm_required_notice();
-		}
-
-		// Bail if CiviCRM is not installed.
-		if ( ! defined( 'CIVICRM_INSTALLED' ) ) {
-			$this->display_civicrm_initialised_notice();
-		}
-
-	}
-
-	/**
-	 * Display WooCommerce required notice.
-	 *
-	 * @since 2.0
-	 */
-	public function display_woocommerce_required_notice() {
-
-		$heading = esc_html__( 'Activation failed', 'wpcv-woo-civi-integration' );
-
-		$plugin = '<strong>' . esc_html__( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
-		$woo    = '<strong>' . esc_html__( 'WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
-
-		$requires = sprintf(
-			/* translators: 1: The plugin name, 2: WooCommerce */
-			esc_html__( '%1$s requires %2$s to be installed and activated.', 'wpcv-woo-civi-integration' ),
-			$plugin,
-			$woo
-		);
-		$deactivated = sprintf(
-			/* translators: %s: WooCommerce */
-			esc_html__( 'This plugin has been deactivated! Please activate %s and try again.', 'wpcv-woo-civi-integration' ),
-			$woo
-		);
-		$back = sprintf(
-			/* translators: 1: The opening anchor tag, 2: The closing anchor tag */
-			esc_html__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
-			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">',
-			'</a>'
-		);
-
-		$message  = '<h1>' . $heading . '</h1>';
-		$message .= '<p>' . $requires . '</p>';
-		$message .= '<p>' . $deactivated . '</p>';
-		$message .= '<p>' . $back . '</p>';
-
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		deactivate_plugins( plugin_basename( WPCV_WOO_CIVI_FILE ) );
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		wp_die( $message );
-
-	}
-
-	/**
-	 * Display CiviCRM required notice.
-	 *
-	 * @since 2.0
-	 */
-	public function display_civicrm_required_notice() {
-
-		$heading = esc_html__( 'Activation failed', 'wpcv-woo-civi-integration' );
-
-		$plugin  = '<strong>' . esc_html__( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
-		$civicrm = '<strong>' . esc_html__( 'CiviCRM', 'wpcv-woo-civi-integration' ) . '</strong>';
-
-		$requires = sprintf(
-			/* translators: 1: The plugin name, 2: CiviCRM */
-			esc_html__( '%1$s requires %2$s to be installed and activated.', 'wpcv-woo-civi-integration' ),
-			$plugin,
-			$civicrm
-		);
-		$deactivated = sprintf(
-			/* translators: %s: CiviCRM */
-			esc_html__( 'This plugin has been deactivated! Please activate %s and try again.', 'wpcv-woo-civi-integration' ),
-			$civicrm
-		);
-		$back = sprintf(
-			/* translators: 1: The opening anchor tag, 2: The closing anchor tag */
-			esc_html__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
-			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">',
-			'</a>'
-		);
-
-		$message  = '<h1>' . $heading . '</h1>';
-		$message .= '<p>' . $requires . '</p>';
-		$message .= '<p>' . $deactivated . '</p>';
-		$message .= '<p>' . $back . '</p>';
-
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		deactivate_plugins( plugin_basename( WPCV_WOO_CIVI_FILE ) );
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		wp_die( $message );
-
-	}
-
-	/**
-	 * Display CiviCRM not initialised notice.
-	 *
-	 * @since 2.0
-	 */
-	public function display_civicrm_initialised_notice() {
-
-		$heading = esc_html__( 'Activation failed', 'wpcv-woo-civi-integration' );
-
-		$plugin  = '<strong>' . esc_html__( 'Integrate CiviCRM with WooCommerce', 'wpcv-woo-civi-integration' ) . '</strong>';
-		$civicrm = '<strong>' . esc_html__( 'CiviCRM', 'wpcv-woo-civi-integration' ) . '</strong>';
-
-		$requires = sprintf(
-			/* translators: 1: The plugin name, 2: CiviCRM */
-			esc_html__( '%1$s requires %2$s to be fully installed and configured.', 'wpcv-woo-civi-integration' ),
-			$plugin,
-			$civicrm
-		);
-		$deactivated = sprintf(
-			/* translators: %s: CiviCRM */
-			esc_html__( 'This plugin has been deactivated! Please configure %s and try again.', 'wpcv-woo-civi-integration' ),
-			$civicrm
-		);
-		$back = sprintf(
-			/* translators: 1: The opening anchor tag, 2: The closing anchor tag */
-			esc_html__( 'Back to the WordPress %1$splugins page%2$s.', 'wpcv-woo-civi-integration' ),
-			'<a href="' . esc_url( get_admin_url( null, 'plugins.php' ) ) . '">',
-			'</a>'
-		);
-
-		$message  = '<h1>' . $heading . '</h1>';
-		$message .= '<p>' . $requires . '</p>';
-		$message .= '<p>' . $deactivated . '</p>';
-		$message .= '<p>' . $back . '</p>';
-
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		deactivate_plugins( plugin_basename( WPCV_WOO_CIVI_FILE ) );
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		wp_die( $message );
 
 	}
 
