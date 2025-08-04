@@ -54,6 +54,25 @@ class WPCV_Woo_Civi_Products {
 	 */
 	public $purchase_activity = [];
 
+
+	/**
+	 * WooCommerce Products Controller.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var WC_REST_Products_Controller
+	 */
+	public $products_controller;
+
+	/**
+	 * WooCommerce Variations Controller.
+	 *
+	 * @since 3.0
+	 * @access public
+	 * @var WC_REST_Product_Variations_Controller
+	 */
+	public $variations_controller;
+
 	/**
 	 * Class constructor.
 	 *
