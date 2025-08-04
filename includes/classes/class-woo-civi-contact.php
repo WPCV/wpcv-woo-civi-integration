@@ -903,15 +903,19 @@ class WPCV_Woo_Civi_Contact {
 		// Get the primed Contact data from the Order.
 		$prepared_contact = $this->prepare_from_order( $order );
 
-		// FIXME: Shouldn't the following depend on if there is existing data?
+		/*
+		 * The following updates depend on whether there is existing data in CiviCRM.
+		 * It is assumed that existing data in CiviCRM is correct, so does not overwrite
+		 * it when it exists.
+		 */
 
-		// Overwrite First Name with data from Order.
-		if ( ! empty( $prepared_contact['first_name'] ) ) {
+		// Use First Name from Order if existing First Name is empty.
+		if ( empty( $contact['first_name'] ) && ! empty( $prepared_contact['first_name'] ) ) {
 			$contact['first_name'] = $prepared_contact['first_name'];
 		}
 
-		// Overwrite Last Name with data from Order.
-		if ( ! empty( $prepared_contact['last_name'] ) ) {
+		// Use Last Name from Order if existing Last Name is empty.
+		if ( empty( $contact['last_name'] ) && ! empty( $prepared_contact['last_name'] ) ) {
 			$contact['last_name'] = $prepared_contact['last_name'];
 		}
 
