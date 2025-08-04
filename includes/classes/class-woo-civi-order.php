@@ -113,8 +113,20 @@ class WPCV_Woo_Civi_Order {
 	 */
 	public function checkout_order_processed( $order_id, $posted_data, $order ) {
 
-		// Bail if Order is 'free' (0 amount) and 0 amount setting is enabled.
+		// Get our zero amount setting.
 		$ignore_zero_orders = WPCV_WCI()->helper->check_yes_no_value( get_option( 'woocommerce_civicrm_ignore_0_amount_orders', false ) );
+
+		/**
+		 * Filter the "Do not create 0 amount Contributions" setting.
+		 *
+		 * @since 3.1.2
+		 *
+		 * @param bool   $ignore_zero_orders The value of the setting.
+		 * @param object $order The Order object.
+		 */
+		$ignore_zero_orders = apply_filters( 'wpcv_woo_civi/setting/ignore_0_amount_orders', $ignore_zero_orders, $order );
+
+		// Bail if Order is 'free' (0 amount) and 0 amount setting is enabled.
 		if ( $ignore_zero_orders && $order->get_total() === 0 ) {
 			return;
 		}
