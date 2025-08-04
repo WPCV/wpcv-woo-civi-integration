@@ -93,7 +93,7 @@ class WPCV_Woo_Civi_Helper {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = print_r( $e->getExtraParams(), true );
+			$extra   = print_r( $e->getExtraParams(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 			/* translators: %s: The name of the requested CiviCRM Setting */
 			$human_readable = sprintf( __( 'Unable to fetch the "%s" setting.', 'wpcv-woo-civi-integration' ), $name );
@@ -314,7 +314,7 @@ class WPCV_Woo_Civi_Helper {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = print_r( $e->getExtraParams(), true );
+			$extra   = print_r( $e->getExtraParams(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Price Sets', 'wpcv-woo-civi-integration' ) );
@@ -384,7 +384,7 @@ class WPCV_Woo_Civi_Helper {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = print_r( $e->getExtraParams(), true );
+			$extra   = print_r( $e->getExtraParams(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Price Field Values', 'wpcv-woo-civi-integration' ) );
@@ -690,7 +690,7 @@ class WPCV_Woo_Civi_Helper {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = print_r( $e->getExtraParams(), true );
+			$extra   = print_r( $e->getExtraParams(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Decimal Separator', 'wpcv-woo-civi-integration' ) );
@@ -759,7 +759,7 @@ class WPCV_Woo_Civi_Helper {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = print_r( $e->getExtraParams(), true );
+			$extra   = print_r( $e->getExtraParams(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to fetch Thousand Separator', 'wpcv-woo-civi-integration' ) );

@@ -344,7 +344,7 @@ class WPCV_Woo_Civi_Settings_States {
 
 		// Get CiviCRM State.
 		$civicrm_states = $this->get_civicrm_states();
-		$civicrm_state = ! empty( $civicrm_states[ $state_province_id ] ) ? $civicrm_states[ $state_province_id ] : [];
+		$civicrm_state  = ! empty( $civicrm_states[ $state_province_id ] ) ? $civicrm_states[ $state_province_id ] : [];
 		if ( empty( $civicrm_state ) ) {
 			return false;
 		}

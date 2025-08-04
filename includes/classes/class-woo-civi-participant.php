@@ -701,7 +701,7 @@ class WPCV_Woo_Civi_Participant {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = print_r( $e->getExtraParams(), true );
+			$extra   = print_r( $e->getExtraParams(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Participant Role Option Group.', 'wpcv-woo-civi-integration' ) );
