@@ -25,7 +25,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var array $active The status of the CiviEvent component.
+	 * @var bool
 	 */
 	public $active = false;
 
@@ -34,7 +34,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $event_key The WooCommerce Product meta key.
+	 * @var string
 	 */
 	public $event_key = '_woocommerce_civicrm_event_id';
 
@@ -43,7 +43,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $role_key The WooCommerce Product meta key.
+	 * @var string
 	 */
 	public $role_key = '_woocommerce_civicrm_participant_role_id';
 
@@ -52,7 +52,7 @@ class WPCV_Woo_Civi_Participant {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $pfv_key The CiviCRM Participant Price Field Value ID meta key.
+	 * @var string
 	 */
 	public $pfv_key = '_woocommerce_civicrm_participant_pfv_id';
 

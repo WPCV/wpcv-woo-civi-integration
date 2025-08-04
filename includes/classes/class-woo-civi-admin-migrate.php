@@ -24,7 +24,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $migrate_page The Migration Page reference.
+	 * @var string
 	 */
 	public $migrate_page;
 
@@ -33,7 +33,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $migrate_page_slug The slug of the Migration Page.
+	 * @var string
 	 */
 	public $migrate_page_slug = 'wpcv_woocivi_migrate';
 
@@ -42,7 +42,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var integer $step_count The number of Products to process per AJAX request.
+	 * @var integer
 	 */
 	public $step_count = 10;
 

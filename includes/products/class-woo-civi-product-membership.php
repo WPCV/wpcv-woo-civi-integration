@@ -23,7 +23,7 @@ class WC_Product_CiviCRM_Membership extends WC_Product_Simple {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $product_type The WooCommerce Product Type.
+	 * @var string
 	 */
 	public $product_type = 'civicrm_membership';
 

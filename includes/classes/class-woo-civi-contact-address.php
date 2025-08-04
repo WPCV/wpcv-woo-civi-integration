@@ -37,7 +37,7 @@ class WPCV_Woo_Civi_Contact_Address {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var bool $sync_enabled True when Address Sync is enabled, false otherwise.
+	 * @var bool
 	 */
 	public $sync_enabled = false;
 
@@ -48,7 +48,7 @@ class WPCV_Woo_Civi_Contact_Address {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var array $location_types The Address Location Types.
+	 * @var array
 	 */
 	public $location_types;
 

@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $entity_key The CiviCRM Entity Type meta key.
+	 * @var string
 	 */
 	public $entity_key = '_woocommerce_civicrm_entity_type';
 
@@ -32,7 +32,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $financial_type_key The CiviCRM Financial Type ID meta key.
+	 * @var string
 	 */
 	public $financial_type_key = '_woocommerce_civicrm_financial_type_id';
 
@@ -41,7 +41,7 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $pfv_key The CiviCRM Contribution Price Field Value ID meta key.
+	 * @var string
 	 */
 	public $pfv_key = '_woocommerce_civicrm_contribution_pfv_id';
 
@@ -50,10 +50,9 @@ class WPCV_Woo_Civi_Products {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $purchase_activity The array of Purchase Activity Details.
+	 * @var array
 	 */
 	public $purchase_activity = [];
-
 
 	/**
 	 * WooCommerce Products Controller.

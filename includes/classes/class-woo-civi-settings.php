@@ -27,18 +27,9 @@ class WPCV_Woo_Civi_Settings {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $plugin_version The plugin version.
+	 * @var string
 	 */
 	public $plugin_version;
-
-	/**
-	 * Upgrade management object.
-	 *
-	 * @since 3.0
-	 * @access public
-	 * @var object $upgrade The Upgrade management object.
-	 */
-	public $upgrade;
 
 	/**
 	 * Class constructor.

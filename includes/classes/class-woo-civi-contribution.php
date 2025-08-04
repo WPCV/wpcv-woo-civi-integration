@@ -25,7 +25,7 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var array $active The status of the CiviContribute component.
+	 * @var bool
 	 */
 	public $active = false;
 
@@ -34,7 +34,7 @@ class WPCV_Woo_Civi_Contribution {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $meta_key The WooCommerce Order meta key.
+	 * @var string
 	 */
 	public $meta_key = '_woocommerce_civicrm_contribution_id';
 

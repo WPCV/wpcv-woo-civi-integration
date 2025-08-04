@@ -23,7 +23,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $entity_key The CiviCRM Entity Type meta key.
+	 * @var string
 	 */
 	public $entity_key = '_wpcv_wci_variable_civicrm_entity_type';
 
@@ -32,7 +32,7 @@ class WPCV_Woo_Civi_Products_Variable {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var array $product_variation_meta The WooCommerce Product Variation meta keys.
+	 * @var array
 	 */
 	public $product_variation_meta = [
 		'civicrm_contribution' => [

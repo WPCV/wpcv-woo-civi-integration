@@ -24,7 +24,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 2.1
 	 * @access public
-	 * @var object $email The Email sync object.
+	 * @var WPCV_Woo_Civi_Contact_Email
 	 */
 	public $email;
 
@@ -33,7 +33,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 2.1
 	 * @access public
-	 * @var object $phone The Phone sync object.
+	 * @var WPCV_Woo_Civi_Contact_Phone
 	 */
 	public $phone;
 
@@ -42,7 +42,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 2.1
 	 * @access public
-	 * @var object $address The Address sync object.
+	 * @var WPCV_Woo_Civi_Contact_Address
 	 */
 	public $address;
 
@@ -51,7 +51,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 2.0
 	 * @access public
-	 * @var object $orders_tab The Orders Tab management object.
+	 * @var WPCV_Woo_Civi_Contact_Orders_Tab
 	 */
 	public $orders_tab;
 
@@ -60,7 +60,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $meta_key The WooCommerce Order meta key.
+	 * @var string
 	 */
 	public $meta_key = '_woocommerce_civicrm_contact_id';
 
@@ -69,7 +69,7 @@ class WPCV_Woo_Civi_Contact {
 	 *
 	 * @since 3.0
 	 * @access public
-	 * @var string $is_checkout True if in Checkout, false otherwise.
+	 * @var bool
 	 */
 	public $is_checkout = false;
 
