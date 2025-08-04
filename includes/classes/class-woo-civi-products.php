@@ -276,11 +276,20 @@ class WPCV_Woo_Civi_Products {
 
 			$product_financial_type_id = $product->get_meta( $this->financial_type_key );
 
+			// Build price query args.
+			$args = [
+				'qty'   => 1,
+				'price' => $product->get_price(),
+			];
+
+			// Get the price excluding tax for CiviCRM.
+			$unit_price = wc_get_price_excluding_tax( $product, $args );
+
 			// Build default Line Item data.
 			$line_item_data = [
 				'entity_table'   => 'civicrm_contribution',
 				'price_field_id' => $default_price_field_id,
-				'unit_price'     => $product->get_price(),
+				'unit_price'     => $unit_price,
 				'qty'            => $item->get_quantity(),
 				// The "line_total" must equal the unit_price × qty.
 				'line_total'     => $item->get_total(),
