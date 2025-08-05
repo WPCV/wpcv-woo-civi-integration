@@ -303,6 +303,11 @@ class WPCV_Woo_Civi_Participant {
 			$args['product']->get_name()
 		);
 
+		// The Participant "source" field is varchar(128).
+		if ( strlen( $line_item_params['source'] ) > 128 ) {
+			$line_item_params['source'] = substr( $line_item_params['source'], 0, 128 );
+		}
+
 		/*
 		// Build source with CiviCRM Event data if we can.
 		$event = $this->get_event_by_id( $event_id );
