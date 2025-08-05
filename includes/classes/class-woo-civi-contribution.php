@@ -450,7 +450,7 @@ class WPCV_Woo_Civi_Contribution {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = print_r( $e->getExtraParams(), true );
+			$extra   = print_r( $e->getExtraParams(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to create an Order via the CiviCRM Order API', 'wpcv-woo-civi-integration' ) );
@@ -763,7 +763,7 @@ class WPCV_Woo_Civi_Contribution {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = print_r( $e->getExtraParams(), true );
+			$extra   = print_r( $e->getExtraParams(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to create Payment record.', 'wpcv-woo-civi-integration' ) );
@@ -915,7 +915,7 @@ class WPCV_Woo_Civi_Contribution {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = print_r( $e->getExtraParams(), true );
+			$extra   = print_r( $e->getExtraParams(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to create a Note for a Contribution.', 'wpcv-woo-civi-integration' ) );

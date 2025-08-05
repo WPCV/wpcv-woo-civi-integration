@@ -303,6 +303,11 @@ class WPCV_Woo_Civi_Participant {
 			$args['product']->get_name()
 		);
 
+		// The Participant "source" field is varchar(128).
+		if ( strlen( $line_item_params['source'] ) > 128 ) {
+			$line_item_params['source'] = substr( $line_item_params['source'], 0, 128 );
+		}
+
 		/*
 		// Build source with CiviCRM Event data if we can.
 		$event = $this->get_event_by_id( $event_id );
@@ -701,7 +706,7 @@ class WPCV_Woo_Civi_Participant {
 			// Grab the error data.
 			$message = $e->getMessage();
 			$code    = $e->getErrorCode();
-			$extra   = print_r( $e->getExtraParams(), true );
+			$extra   = print_r( $e->getExtraParams(), true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 			// Write to CiviCRM log.
 			CRM_Core_Error::debug_log_message( __( 'Unable to retrieve CiviCRM Participant Role Option Group.', 'wpcv-woo-civi-integration' ) );

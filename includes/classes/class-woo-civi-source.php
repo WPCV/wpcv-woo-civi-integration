@@ -290,7 +290,7 @@ class WPCV_Woo_Civi_Source {
 	}
 
 	/**
-	 * Gets the Source for an Order.
+	 * Gets the Contribution Source for an Order.
 	 *
 	 * @since 3.0
 	 *
@@ -305,6 +305,11 @@ class WPCV_Woo_Civi_Source {
 		if ( empty( $source ) ) {
 			$source = $this->source_generate( $order );
 			$this->set_order_meta( $order->get_id(), $source );
+		}
+
+		// The Contribution "source" field is varchar(255).
+		if ( strlen( $source ) > 255 ) {
+			$source = substr( $source, 0, 255 );
 		}
 
 		$params['source'] = $source;
