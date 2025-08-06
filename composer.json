@@ -1,6 +1,32 @@
 {
-	"name": "wpcv/wpcv-woo-civi-integration",
+  "name": "wpcv/wpcv-woo-civi-integration",
+  "description": "Creates CiviCRM Contributions, Memberships and Participants from WooCommerce Orders and keeps Customer Accounts in sync with CiviCRM Contact data."
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
-  "description": "A WordPress plugin that creates CiviCRM Contributions, Memberships and Participants from WooCommerce Orders and keeps WooCommerce Customer Accounts in sync with CiviCRM Contact data."
+  "require": {
+    "php": ">=7.4"
+  },
+  "authors": [
+    {
+      "name": "Christian Wach",
+      "email": "needle@haystack.co.uk",
+      "homepage": "https://haystack.co.uk",
+      "role": "Developer"
+    },
+    {
+      "name": "Kevin Cristiano",
+      "email": "kcristiano@tadpole.cc",
+      "homepage": "https://tadpole.cc",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/WPCV/wpcv-woo-civi-integration/issues",
+    "forum": "https://github.com/WPCV/wpcv-woo-civi-integration/discussions",
+    "source": "https://github.com/WPCV/wpcv-woo-civi-integration"
+  },
+  "funding": {
+    "type": "other",
+    "url": "https://www.paypal.me/interactivist"
+  }
 }
