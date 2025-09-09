@@ -1,6 +1,6 @@
 {
   "name": "wpcv/wpcv-woo-civi-integration",
-  "description": "Creates CiviCRM Contributions, Memberships and Participants from WooCommerce Orders and keeps Customer Accounts in sync with CiviCRM Contact data."
+  "description": "Creates CiviCRM Contributions, Memberships and Participants from WooCommerce Orders and keeps Customer Accounts in sync with CiviCRM Contact data.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
   "require": {
