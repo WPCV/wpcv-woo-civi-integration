@@ -185,7 +185,7 @@ class WPCV_Woo_Civi_Contact_Address {
 				'name'                   => $company,
 				'street_address'         => $address_1,
 				'supplemental_address_1' => $address_2,
-				'country'                => $country_id,
+				'country_id'             => $country_id,
 				'state_province_id'      => $state_province_id,
 				'contact_id'             => $contact_id,
 			];
