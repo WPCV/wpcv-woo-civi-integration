@@ -111,19 +111,4 @@ Creating Orders in WooCommerce admin is not fully supported. It is best to creat
 
 == Changelog ==
 
-= 3.1.1 =
-
-* Improved codestyle compatibility.
-* Misc fixes to APIv3 error handling.
-
-= 3.1.0 =
-
-* Improved CiviCRM API error handling.
-
-= 3.0 =
-
-* Initial WordPress Plugin Directory release candidate.
-
-= Prior to 3.0 =
-
 * Please refer to [the changelog](https://github.com/WPCV/wpcv-woo-civi-integration/commits/main) at this plugin's [GitHub repo](https://github.com/WPCV/wpcv-woo-civi-integration).
