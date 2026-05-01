@@ -933,6 +933,40 @@ class WPCV_Woo_Civi_Products {
 	}
 
 	/**
+	 * Updates a WooCommerce Product Variation.
+	 *
+	 * @since 3.1.3
+	 *
+	 * @param array $params The set of data to create the WooCommerce Product Variation.
+	 * @return array $variation The array of WooCommerce Product Variation data, or empty on failure.
+	 */
+	public function update_variation( $params ) {
+
+		// Bail if there is no Variation ID.
+		if ( empty( $params['id'] ) ) {
+			return false;
+		}
+
+		// Build request.
+		$request = new WP_REST_Request( 'PUT' );
+		$request->set_body_params( $params );
+
+		// Maybe initialise the Variations Controller.
+		if ( ! isset( $this->variations_controller ) ) {
+			$this->variations_controller = new WC_REST_Product_Variations_Controller();
+		}
+
+		// Create the Product Variation.
+		$result = $this->variations_controller->update_item( $request );
+
+		// The Product Variation data is what we want.
+		$variation = isset( $result->data ) ? $result->data : false;
+
+		return $variation;
+
+	}
+
+	/**
 	 * Gets the Entity Type from WooCommerce Product meta.
 	 *
 	 * @since 3.0

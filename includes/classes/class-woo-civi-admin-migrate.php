@@ -468,7 +468,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 * @param mixed $unused Unused param.
 	 * @param array $metabox Array containing id, title, callback, and args elements.
 	 */
-	public function meta_box_submit_render( $unused = null, $metabox ) {
+	public function meta_box_submit_render( $unused = null, $metabox = [] ) {
 
 		// Include template file.
 		include WPCV_WOO_CIVI_PATH . 'assets/templates/metaboxes/metabox-migrate-submit.php';
@@ -483,7 +483,7 @@ class WPCV_Woo_Civi_Admin_Migrate {
 	 * @param mixed $unused Unused param.
 	 * @param array $metabox Array containing id, title, callback, and args elements.
 	 */
-	public function meta_box_migrate_render( $unused = null, $metabox ) {
+	public function meta_box_migrate_render( $unused = null, $metabox = [] ) {
 
 		// Include template file.
 		include WPCV_WOO_CIVI_PATH . 'assets/templates/metaboxes/metabox-migrate-info.php';
