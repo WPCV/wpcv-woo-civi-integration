@@ -935,7 +935,7 @@ class WPCV_Woo_Civi_Products {
 	/**
 	 * Updates a WooCommerce Product Variation.
 	 *
-	 * @since 3.0
+	 * @since 3.1.3
 	 *
 	 * @param array $params The set of data to create the WooCommerce Product Variation.
 	 * @return array $variation The array of WooCommerce Product Variation data, or empty on failure.
