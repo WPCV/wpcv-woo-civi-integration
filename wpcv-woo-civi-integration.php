@@ -173,11 +173,13 @@ class WPCV_Woo_Civi {
 	/**
 	 * WooCommerce Custom Products object.
 	 *
+	 * Initialised as false for easier "enabled" testing.
+	 *
 	 * @since 2.2
 	 * @access public
 	 * @var WPCV_Woo_Civi_Products_Custom
 	 */
-	public $products_custom;
+	public $products_custom = false;
 
 	/**
 	 * WooCommerce Variable Products object.
