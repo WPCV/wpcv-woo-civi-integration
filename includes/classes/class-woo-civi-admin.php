@@ -453,7 +453,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Assume there is no Custom Contribution Product Type.
 		$metabox['args']['custom_product_type_exists'] = false;
-		if ( WPCV_WCI()->contribution->active ) {
+		if ( false !== WPCV_WCI()->products_custom && WPCV_WCI()->contribution->active ) {
 			$metabox['args']['custom_product_type_exists'] = true;
 		}
 
@@ -484,7 +484,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Assume there is no Custom Membership Product Type.
 		$metabox['args']['custom_product_type_exists'] = false;
-		if ( WPCV_WCI()->membership->active ) {
+		if ( false !== WPCV_WCI()->products_custom && WPCV_WCI()->membership->active ) {
 			$metabox['args']['custom_product_type_exists'] = true;
 		}
 
@@ -518,7 +518,7 @@ class WPCV_Woo_Civi_Admin {
 
 		// Assume there is no Custom Participant Product Type.
 		$metabox['args']['custom_product_type_exists'] = false;
-		if ( WPCV_WCI()->participant->active ) {
+		if ( false !== WPCV_WCI()->products_custom && WPCV_WCI()->participant->active ) {
 			$metabox['args']['custom_product_type_exists'] = true;
 		}
 
