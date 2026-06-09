@@ -3,7 +3,7 @@ Contributors: needle, bastho, mecachisenros, rajeshrhino, kcristiano, tadpolecc
 Donate link: https://www.paypal.me/interactivist
 Tags: civicrm, woocommerce, integration
 Requires at least: 5.7
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 3.1.4a
 Requires PHP: 7.4
 License: GPLv2 or later
